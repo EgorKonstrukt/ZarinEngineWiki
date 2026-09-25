@@ -1,0 +1,37 @@
+# Стек PostFX
+
+Пост-эффекты выполняются в порядке компонентов после главной сцены. Каждый эффект — компонент GraphicsEffect с тоглом и своими полями инспектора. По странице на эффект:
+
+- [Bloom](postfx/bloom.md)
+- [Blur](postfx/blur.md)
+- [Хроматическая аберрация](postfx/chromatic-aberration.md)
+- [Цветокоррекция](postfx/color-grading.md)
+- [Глубина резкости](postfx/depth-of-field.md)
+- [Направленное размытие](postfx/directional-blur.md)
+- [Дизеринг](postfx/dithering.md)
+- [Детект краёв](postfx/edge-detection.md)
+- [Зерно плёнки](postfx/film-grain.md)
+- [Туман](postfx/fog.md)
+- [FSR2](postfx/fsr2.md)
+- [FXAA](postfx/fxaa.md)
+- [Глитч](postfx/glitch.md)
+- [Божественные лучи](postfx/god-rays.md)
+- [Штриховка](postfx/hatching.md)
+- [Кувахара](postfx/kuwahara.md)
+- [Дисторсия линзы](postfx/lens-distortion.md)
+- [Блики линзы](postfx/lens-flares.md)
+- [Моушн-блюр](postfx/motion-blur.md)
+- [Панини](postfx/panini.md)
+- [Пикселизация](postfx/pixelate.md)
+- [Квантование](postfx/quantize.md)
+- [Радиальный блюр](postfx/radial-blur.md)
+- [Сканлайны](postfx/scanlines.md)
+- [Шарпенинг](postfx/sharpen.md)
+- [Собель](postfx/sobel.md)
+- [SSAO](postfx/ssao.md)
+- [SSR](postfx/ssr.md)
+- [SVGF](postfx/svgf.md)
+- [Виньетка](postfx/vignette.md)
+- [Акварель](postfx/watercolor.md)
+
+Рецепты: чистое 3D (FXAA, Color Grading, Vignette), кино (Bloom, Depth of Field, Film Grain, Color Grading), ретро (Pixelate, Scanlines, Dithering), хоррор (Fog, Vignette, Chromatic Aberration, Sharpen).

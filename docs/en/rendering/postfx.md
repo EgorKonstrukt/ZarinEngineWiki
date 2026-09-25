@@ -1,0 +1,37 @@
+# PostFX Stack
+
+Post-effects run in component order after the main scene pass. Each effect is a GraphicsEffect component with an enable toggle and its own Inspector fields. One page per effect:
+
+- [Bloom](postfx/bloom.md)
+- [Blur](postfx/blur.md)
+- [Chromatic Aberration](postfx/chromatic-aberration.md)
+- [Color Grading](postfx/color-grading.md)
+- [Depth of Field](postfx/depth-of-field.md)
+- [Directional Blur](postfx/directional-blur.md)
+- [Dithering](postfx/dithering.md)
+- [Edge Detection](postfx/edge-detection.md)
+- [Film Grain](postfx/film-grain.md)
+- [Fog](postfx/fog.md)
+- [FSR2](postfx/fsr2.md)
+- [FXAA](postfx/fxaa.md)
+- [Glitch](postfx/glitch.md)
+- [God Rays](postfx/god-rays.md)
+- [Hatching](postfx/hatching.md)
+- [Kuwahara](postfx/kuwahara.md)
+- [Lens Distortion](postfx/lens-distortion.md)
+- [Lens Flares](postfx/lens-flares.md)
+- [Motion Blur](postfx/motion-blur.md)
+- [Panini](postfx/panini.md)
+- [Pixelate](postfx/pixelate.md)
+- [Quantize](postfx/quantize.md)
+- [Radial Blur](postfx/radial-blur.md)
+- [Scanlines](postfx/scanlines.md)
+- [Sharpen](postfx/sharpen.md)
+- [Sobel](postfx/sobel.md)
+- [SSAO](postfx/ssao.md)
+- [SSR](postfx/ssr.md)
+- [SVGF](postfx/svgf.md)
+- [Vignette](postfx/vignette.md)
+- [Watercolor](postfx/watercolor.md)
+
+Recipes: clean 3D (FXAA, Color Grading, Vignette), cinematic (Bloom, Depth of Field, Film Grain, Color Grading), retro (Pixelate, Scanlines, Dithering), horror (Fog, Vignette, Chromatic Aberration, Sharpen).

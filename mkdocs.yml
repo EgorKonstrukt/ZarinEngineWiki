@@ -1,0 +1,485 @@
+site_name: ZarinEngine Wiki
+docs_dir: docs
+site_dir: site
+theme:
+  name: readthedocs
+nav:
+- Home: index.md
+- English:
+  - Getting Started:
+    - Getting Started: en/getting-started/index.md
+    - Requirements: en/getting-started/requirements.md
+    - Installation: en/getting-started/installation.md
+    - Quick Start: en/getting-started/quick-start.md
+    - Editor Tour: en/getting-started/editor-tour.md
+    - First Scene: en/getting-started/first-scene.md
+    - FAQ: en/getting-started/faq.md
+  - Section Index (getting-started): en/getting-started/_section.md
+  - Core:
+    - ECS Overview: en/core/ecs-overview.md
+    - Entity: en/core/entity.md
+    - Components and Lifecycle: en/core/components-lifecycle.md
+    - Registry and Serialization: en/core/registry-serialization.md
+    - Transform: en/core/transform.md
+    - Time and Fixed Update: en/core/time.md
+    - Configuration: en/core/config.md
+    - Logging: en/core/logging.md
+    - Profiler: en/core/profiler.md
+    - 'Foundation: Curve, Commands, Time Travel': en/core/foundation.md
+  - Section Index (core): en/core/_section.md
+  - Rendering:
+    - Rendering Overview: en/rendering/overview.md
+    - ModernGL Pipeline and Scene Renderer: en/rendering/pipeline.md
+    - Cameras:
+      - Camera: en/rendering/camera.md
+      - Editor Camera: en/rendering/editor-camera.md
+    - Lights:
+      - Light (Base): en/rendering/light.md
+      - Directional Light: en/rendering/directional-light.md
+      - Point Light: en/rendering/point-light.md
+      - Spot Light: en/rendering/spot-light.md
+      - Area Light: en/rendering/area-light.md
+      - Projector: en/rendering/projector.md
+      - Shadows: en/rendering/shadows.md
+    - Meshes:
+      - MeshFilter: en/rendering/mesh-filter.md
+      - MeshRenderer: en/rendering/mesh-renderer.md
+      - Skinned Mesh Renderer: en/rendering/skinned-mesh-renderer.md
+      - Armature: en/rendering/armature.md
+      - Blend Shapes: en/rendering/blend-shapes.md
+    - Sprites and Video:
+      - SpriteRenderer: en/rendering/sprite-renderer.md
+      - SvgRenderer: en/rendering/svg-renderer.md
+      - TextRenderer: en/rendering/text-renderer.md
+      - VideoRenderer: en/rendering/video-renderer.md
+    - Particles:
+      - Particle System: en/rendering/particle-system.md
+      - Particle Force Field: en/rendering/particle-force-field.md
+    - Environment:
+      - Skybox: en/rendering/skybox.md
+      - Procedural Sky: en/rendering/procedural-sky.md
+      - Clouds: en/rendering/clouds.md
+      - Water: en/rendering/water.md
+      - Atmosphere: en/rendering/atmosphere.md
+    - Materials (.zpem): en/rendering/materials.md
+    - Shaders (.shader): en/rendering/shaders.md
+    - PostFX:
+      - PostFX Stack (Overview): en/rendering/postfx.md
+      - Bloom: en/rendering/postfx/bloom.md
+      - Blur: en/rendering/postfx/blur.md
+      - Chromatic Aberration: en/rendering/postfx/chromatic-aberration.md
+      - Color Grading: en/rendering/postfx/color-grading.md
+      - Depth of Field: en/rendering/postfx/depth-of-field.md
+      - Directional Blur: en/rendering/postfx/directional-blur.md
+      - Dithering: en/rendering/postfx/dithering.md
+      - Edge Detection: en/rendering/postfx/edge-detection.md
+      - Film Grain: en/rendering/postfx/film-grain.md
+      - Fog: en/rendering/postfx/fog.md
+      - FSR2: en/rendering/postfx/fsr2.md
+      - FXAA: en/rendering/postfx/fxaa.md
+      - Glitch: en/rendering/postfx/glitch.md
+      - God Rays: en/rendering/postfx/god-rays.md
+      - Hatching: en/rendering/postfx/hatching.md
+      - Kuwahara: en/rendering/postfx/kuwahara.md
+      - Lens Distortion: en/rendering/postfx/lens-distortion.md
+      - Lens Flares: en/rendering/postfx/lens-flares.md
+      - Motion Blur: en/rendering/postfx/motion-blur.md
+      - Panini: en/rendering/postfx/panini.md
+      - Pixelate: en/rendering/postfx/pixelate.md
+      - Quantize: en/rendering/postfx/quantize.md
+      - Radial Blur: en/rendering/postfx/radial-blur.md
+      - Scanlines: en/rendering/postfx/scanlines.md
+      - Sharpen: en/rendering/postfx/sharpen.md
+      - Sobel: en/rendering/postfx/sobel.md
+      - SSAO: en/rendering/postfx/ssao.md
+      - SSR: en/rendering/postfx/ssr.md
+      - SVGF: en/rendering/postfx/svgf.md
+      - Vignette: en/rendering/postfx/vignette.md
+      - Watercolor: en/rendering/postfx/watercolor.md
+    - Object Effects:
+      - Object Effects (Overview): en/rendering/effects.md
+      - Dissolve: en/rendering/effects/dissolve.md
+      - Emissive Pulse: en/rendering/effects/emissive-pulse.md
+      - Frost: en/rendering/effects/frost.md
+      - Glitch: en/rendering/effects/glitch.md
+      - Hologram: en/rendering/effects/hologram.md
+      - Polygon Disintegration: en/rendering/effects/polygon-disintegration.md
+      - Spike Growth: en/rendering/effects/spike-growth.md
+      - Tree Wind: en/rendering/effects/tree-wind.md
+      - Voxelize: en/rendering/effects/voxelize.md
+      - Voxel Raymarch: en/rendering/effects/voxel-raymarch.md
+      - Wind Sway: en/rendering/effects/wind-sway.md
+    - Splats and Voxel:
+      - Gaussian Splat Renderer: en/rendering/gaussian-splat-renderer.md
+      - Raytracing Renderer: en/rendering/raytracing-renderer.md
+      - Voxel Rendering: en/rendering/voxel.md
+    - Gizmos and Icons: en/rendering/gizmos.md
+  - Section Index (rendering): en/rendering/_section.md
+  - Physics 3D:
+    - Physics 3D Overview: en/physics-3d/overview.md
+    - Rigidbody: en/physics-3d/rigidbody.md
+    - Colliders:
+      - Box Collider: en/physics-3d/box-collider.md
+      - Sphere Collider: en/physics-3d/sphere-collider.md
+      - Capsule Collider: en/physics-3d/capsule-collider.md
+      - Mesh Collider: en/physics-3d/mesh-collider.md
+      - Terrain Collider: en/physics-3d/terrain-collider.md
+      - GS Volume Collider: en/physics-3d/gs-volume-collider.md
+    - CharacterController: en/physics-3d/character-controller.md
+    - Joints: en/physics-3d/joints.md
+    - Surface:
+      - Physics Materials: en/physics-3d/physics-materials.md
+      - Collision Layers: en/physics-3d/collision-layers.md
+    - Solver and Threading: en/physics-3d/solver-threading.md
+    - Advanced Bodies:
+      - Buoyancy: en/physics-3d/buoyancy.md
+      - Soft Body: en/physics-3d/soft-body.md
+      - PhysBone: en/physics-3d/phys-bone.md
+      - PhysBoneCollider: en/physics-3d/phys-bone-collider.md
+      - Motor: en/physics-3d/motor.md
+  - Section Index (physics-3d): en/physics-3d/_section.md
+  - Physics 2D:
+    - Physics 2D Overview: en/physics-2d/overview.md
+    - Rigidbody 2D: en/physics-2d/rigidbody2d.md
+    - Box Collider 2D: en/physics-2d/box-collider2d.md
+    - Circle Collider 2D: en/physics-2d/circle-collider2d.md
+  - Section Index (physics-2d): en/physics-2d/_section.md
+  - Audio:
+    - Audio Overview: en/audio/overview.md
+    - AudioSource and AudioListener: en/audio/source-listener.md
+    - Reverb Zones and EFX: en/audio/reverb-zones.md
+    - Audio System and Codecs: en/audio/system.md
+  - Section Index (audio): en/audio/_section.md
+  - Scripting:
+    - Scripting Overview: en/scripting/overview.md
+    - Lifecycle Callbacks: en/scripting/lifecycle.md
+    - Inspector Fields and Range: en/scripting/inspector-fields.md
+    - Input and Math API: en/scripting/input-math-api.md
+    - Hot Reload: en/scripting/hot-reload.md
+    - Cython in Scripts: en/scripting/cython.md
+    - ScriptComponent: en/scripting/script-component.md
+    - Script Examples: en/scripting/examples.md
+  - Section Index (scripting): en/scripting/_section.md
+  - GUI:
+    - GUI Overview: en/gui/overview.md
+    - GuiCanvas: en/gui/canvas.md
+    - 'Controls: Buttons, Labels, Inputs, Sliders': en/gui/controls.md
+    - 'Containers: Panels, Tabs, Lists, Tables, Trees': en/gui/containers.md
+    - Layout, Anchors, Styles, Events: en/gui/layout-events.md
+  - Section Index (gui): en/gui/_section.md
+  - Animation:
+    - Animation Overview: en/animation/overview.md
+    - Clips, Animator, Controllers: en/animation/clip-animator.md
+    - IK and Blendshapes: en/animation/ik-blendshapes.md
+  - Section Index (animation): en/animation/_section.md
+  - Navigation:
+    - Navigation and NavAgent: en/navigation/overview.md
+  - Section Index (navigation): en/navigation/_section.md
+  - Terrain and Environment:
+    - Terrain: en/terrain-environment/terrain.md
+    - Trees, Water, Wind Zones, Sky: en/terrain-environment/vegetation-water-wind.md
+  - Section Index (terrain-environment): en/terrain-environment/_section.md
+  - Constraints:
+    - Constraints: en/constraints/overview.md
+  - Section Index (constraints): en/constraints/_section.md
+  - Scenes and Prefabs:
+    - Scenes (.zpes): en/scenes-prefabs/scenes.md
+    - Prefabs (.zpep) and Library: en/scenes-prefabs/prefabs.md
+  - Section Index (scenes-prefabs): en/scenes-prefabs/_section.md
+  - Assets and Import:
+    - Assets Overview: en/assets/overview.md
+    - Model Import via Assimp: en/assets/models-assimp.md
+    - Textures and Compression: en/assets/textures.md
+    - Import Settings (.import) and Cache: en/assets/import-settings.md
+  - Section Index (assets): en/assets/_section.md
+  - Input:
+    - Input System: en/input/overview.md
+  - Section Index (input): en/input/_section.md
+  - Math:
+    - 'Math: Vec, Quat, Mat4, Curve': en/math/overview.md
+  - Section Index (math): en/math/_section.md
+  - Networking:
+    - Networking Overview: en/networking/overview.md
+    - Collab Server and Client: en/networking/collaboration.md
+    - NetworkIdentity, Transform, Spawn, RPC: en/networking/gameplay-net.md
+  - Section Index (networking): en/networking/_section.md
+  - Plugins:
+    - Plugins Overview: en/plugins/overview.md
+    - PluginBase Lifecycle: en/plugins/pluginbase.md
+    - System Plugins: en/plugins/system-plugins.md
+    - User Plugins and .zplugin Packaging: en/plugins/user-plugins-packaging.md
+    - VR, MCP, Music Tracker, Plotter, QtQuick: en/plugins/integrations.md
+  - Section Index (plugins): en/plugins/_section.md
+  - Editor Manual:
+    - Main Window: en/editor/main-window.md
+    - Viewport, Camera, Gizmos: en/editor/viewport.md
+    - Hierarchy: en/editor/hierarchy.md
+    - Inspector: en/editor/inspector.md
+    - Project Panel and Assets: en/editor/project-panel.md
+    - Console and Terminal: en/editor/console-terminal.md
+    - Profiler Panel and Undo History: en/editor/profiler-undo.md
+    - Curve, Gradient, Color Editors: en/editor/curve-gradient-editors.md
+    - Material Wizard and Previews: en/editor/material-model-preview.md
+    - Shader Graph: en/editor/shader-graph.md
+    - Terrain Graph and NodeGraphQt: en/editor/terrain-node-graph.md
+    - Build Dialog, Project Manager, Settings: en/editor/build-project-settings.md
+    - Animation, Scripts, Prefab, Mesh, VCS Panels: en/editor/panels-extra.md
+    - Collaboration and MCP Docks: en/editor/collaboration-mcp.md
+  - Section Index (editor): en/editor/_section.md
+  - Build and Tools:
+    - Player and Nuitka Build: en/build/player-nuitka.md
+    - Tools and Profiling Scripts: en/build/tools-profiling.md
+  - Section Index (build): en/build/_section.md
+  - File Formats:
+    - File Formats: en/formats/overview.md
+  - Section Index (formats): en/formats/_section.md
+  - Tutorials:
+    - Tutorials Overview: en/tutorials/index.md
+    - Rotator and Mover Scripts: en/tutorials/rotator-mover.md
+    - Physics Scene: en/tutorials/physics-scene.md
+    - GUI Menu, Prefabs, Audio, Build: en/tutorials/gui-prefab-audio-build.md
+  - Section Index (tutorials): en/tutorials/_section.md
+  - Reference:
+    - API Index: en/reference/api-index.md
+    - Glossary: en/reference/glossary-faq.md
+    - Roadmap, Changelog, License: en/reference/roadmap-changelog-license.md
+  - Section Index (reference): en/reference/_section.md
+- Русский:
+  - Начало работы:
+    - Начало работы: ru/getting-started/index.md
+    - Системные требования: ru/getting-started/requirements.md
+    - Установка: ru/getting-started/installation.md
+    - Быстрый старт: ru/getting-started/quick-start.md
+    - Обзор редактора: ru/getting-started/editor-tour.md
+    - Первая сцена: ru/getting-started/first-scene.md
+    - Частые вопросы: ru/getting-started/faq.md
+  - Указатель (getting-started): ru/getting-started/_section.md
+  - Ядро:
+    - Обзор ECS: ru/core/ecs-overview.md
+    - Сущность Entity: ru/core/entity.md
+    - Компоненты и жизненный цикл: ru/core/components-lifecycle.md
+    - Реестр и сериализация: ru/core/registry-serialization.md
+    - Трансформ: ru/core/transform.md
+    - Время и Fixed Update: ru/core/time.md
+    - Конфигурация: ru/core/config.md
+    - Логирование: ru/core/logging.md
+    - Профайлер: ru/core/profiler.md
+    - 'Foundation: Curve, команды, Time Travel': ru/core/foundation.md
+  - Указатель (core): ru/core/_section.md
+  - Рендеринг:
+    - Обзор рендеринга: ru/rendering/overview.md
+    - Конвейер ModernGL и Scene Renderer: ru/rendering/pipeline.md
+    - Камеры:
+      - Камера Camera: ru/rendering/camera.md
+      - Камера редактора: ru/rendering/editor-camera.md
+    - Свет:
+      - Свет Light (база): ru/rendering/light.md
+      - Направленный свет: ru/rendering/directional-light.md
+      - Точечный свет: ru/rendering/point-light.md
+      - Спот: ru/rendering/spot-light.md
+      - Area-свет: ru/rendering/area-light.md
+      - Проектор Projector: ru/rendering/projector.md
+      - Тени: ru/rendering/shadows.md
+    - Меши:
+      - MeshFilter: ru/rendering/mesh-filter.md
+      - MeshRenderer: ru/rendering/mesh-renderer.md
+      - Skinned Mesh Renderer: ru/rendering/skinned-mesh-renderer.md
+      - Арматура Armature: ru/rendering/armature.md
+      - Блендшейпы Blend Shapes: ru/rendering/blend-shapes.md
+    - Спрайты и видео:
+      - SpriteRenderer: ru/rendering/sprite-renderer.md
+      - SvgRenderer: ru/rendering/svg-renderer.md
+      - TextRenderer: ru/rendering/text-renderer.md
+      - VideoRenderer: ru/rendering/video-renderer.md
+    - Частицы:
+      - Система частиц: ru/rendering/particle-system.md
+      - Силовое поле частиц: ru/rendering/particle-force-field.md
+    - Окружение:
+      - Скайбокс Skybox: ru/rendering/skybox.md
+      - Процедурное небо: ru/rendering/procedural-sky.md
+      - Облака: ru/rendering/clouds.md
+      - Вода Water: ru/rendering/water.md
+      - Атмосфера Atmosphere: ru/rendering/atmosphere.md
+    - Материалы (.zpem): ru/rendering/materials.md
+    - Шейдеры (.shader): ru/rendering/shaders.md
+    - PostFX:
+      - Стек PostFX (обзор): ru/rendering/postfx.md
+      - Bloom: ru/rendering/postfx/bloom.md
+      - Blur: ru/rendering/postfx/blur.md
+      - Хроматическая аберрация: ru/rendering/postfx/chromatic-aberration.md
+      - Цветокоррекция: ru/rendering/postfx/color-grading.md
+      - Глубина резкости: ru/rendering/postfx/depth-of-field.md
+      - Направленное размытие: ru/rendering/postfx/directional-blur.md
+      - Дизеринг: ru/rendering/postfx/dithering.md
+      - Детект краёв: ru/rendering/postfx/edge-detection.md
+      - Зерно плёнки: ru/rendering/postfx/film-grain.md
+      - Туман: ru/rendering/postfx/fog.md
+      - FSR2: ru/rendering/postfx/fsr2.md
+      - FXAA: ru/rendering/postfx/fxaa.md
+      - Глитч: ru/rendering/postfx/glitch.md
+      - Божественные лучи: ru/rendering/postfx/god-rays.md
+      - Штриховка: ru/rendering/postfx/hatching.md
+      - Кувахара: ru/rendering/postfx/kuwahara.md
+      - Дисторсия линзы: ru/rendering/postfx/lens-distortion.md
+      - Блики линзы: ru/rendering/postfx/lens-flares.md
+      - Моушн-блюр: ru/rendering/postfx/motion-blur.md
+      - Панини: ru/rendering/postfx/panini.md
+      - Пикселизация: ru/rendering/postfx/pixelate.md
+      - Квантование: ru/rendering/postfx/quantize.md
+      - Радиальный блюр: ru/rendering/postfx/radial-blur.md
+      - Сканлайны: ru/rendering/postfx/scanlines.md
+      - Шарпенинг: ru/rendering/postfx/sharpen.md
+      - Собель: ru/rendering/postfx/sobel.md
+      - SSAO: ru/rendering/postfx/ssao.md
+      - SSR: ru/rendering/postfx/ssr.md
+      - SVGF: ru/rendering/postfx/svgf.md
+      - Виньетка: ru/rendering/postfx/vignette.md
+      - Акварель: ru/rendering/postfx/watercolor.md
+    - Эффекты объектов:
+      - Эффекты объектов (обзор): ru/rendering/effects.md
+      - Диссолв: ru/rendering/effects/dissolve.md
+      - Пульс эмиссии: ru/rendering/effects/emissive-pulse.md
+      - Иней: ru/rendering/effects/frost.md
+      - Глитч объекта: ru/rendering/effects/glitch.md
+      - Голограмма: ru/rendering/effects/hologram.md
+      - Распад на полигоны: ru/rendering/effects/polygon-disintegration.md
+      - Рост шипов: ru/rendering/effects/spike-growth.md
+      - Ветер деревьев: ru/rendering/effects/tree-wind.md
+      - Вокселизация: ru/rendering/effects/voxelize.md
+      - Воксельный реймарш: ru/rendering/effects/voxel-raymarch.md
+      - Покачивание ветра: ru/rendering/effects/wind-sway.md
+    - Сплаты и воксели:
+      - Gaussian Splat Renderer: ru/rendering/gaussian-splat-renderer.md
+      - Raytracing Renderer: ru/rendering/raytracing-renderer.md
+      - Воксельный рендеринг: ru/rendering/voxel.md
+    - Гизмо и иконки: ru/rendering/gizmos.md
+  - Указатель (rendering): ru/rendering/_section.md
+  - Физика 3D:
+    - Обзор физики 3D: ru/physics-3d/overview.md
+    - Твёрдое тело Rigidbody: ru/physics-3d/rigidbody.md
+    - Коллайдеры:
+      - Box-коллайдер: ru/physics-3d/box-collider.md
+      - Sphere-коллайдер: ru/physics-3d/sphere-collider.md
+      - Capsule-коллайдер: ru/physics-3d/capsule-collider.md
+      - Mesh-коллайдер: ru/physics-3d/mesh-collider.md
+      - Terrain-коллайдер: ru/physics-3d/terrain-collider.md
+      - GS Volume Collider: ru/physics-3d/gs-volume-collider.md
+    - Контроллер персонажа: ru/physics-3d/character-controller.md
+    - Джойнты: ru/physics-3d/joints.md
+    - Поверхность:
+      - Физические материалы: ru/physics-3d/physics-materials.md
+      - Слои коллизий: ru/physics-3d/collision-layers.md
+    - Солвер и многопоточность: ru/physics-3d/solver-threading.md
+    - Продвинутые тела:
+      - Плавучесть Buoyancy: ru/physics-3d/buoyancy.md
+      - Soft Body: ru/physics-3d/soft-body.md
+      - PhysBone: ru/physics-3d/phys-bone.md
+      - PhysBoneCollider: ru/physics-3d/phys-bone-collider.md
+      - Мотор Motor: ru/physics-3d/motor.md
+  - Указатель (physics-3d): ru/physics-3d/_section.md
+  - Физика 2D:
+    - Обзор физики 2D: ru/physics-2d/overview.md
+    - Rigidbody 2D: ru/physics-2d/rigidbody2d.md
+    - Box Collider 2D: ru/physics-2d/box-collider2d.md
+    - Circle Collider 2D: ru/physics-2d/circle-collider2d.md
+  - Указатель (physics-2d): ru/physics-2d/_section.md
+  - Аудио:
+    - Обзор аудио: ru/audio/overview.md
+    - AudioSource и AudioListener: ru/audio/source-listener.md
+    - Зоны реверберации и EFX: ru/audio/reverb-zones.md
+    - Аудиосистема и кодеки: ru/audio/system.md
+  - Указатель (audio): ru/audio/_section.md
+  - Скриптинг:
+    - Обзор скриптинга: ru/scripting/overview.md
+    - Колбэки жизненного цикла: ru/scripting/lifecycle.md
+    - Поля инспектора и Range: ru/scripting/inspector-fields.md
+    - API ввода и математики: ru/scripting/input-math-api.md
+    - Горячая перезагрузка: ru/scripting/hot-reload.md
+    - Cython в скриптах: ru/scripting/cython.md
+    - Компонент ScriptComponent: ru/scripting/script-component.md
+    - Примеры скриптов: ru/scripting/examples.md
+  - Указатель (scripting): ru/scripting/_section.md
+  - Интерфейс GUI:
+    - Обзор GUI: ru/gui/overview.md
+    - Канвас GuiCanvas: ru/gui/canvas.md
+    - 'Контролы: кнопки, метки, ввод, слайдеры': ru/gui/controls.md
+    - 'Контейнеры: панели, вкладки, списки, таблицы, деревья': ru/gui/containers.md
+    - Раскладка, якоря, стили, события: ru/gui/layout-events.md
+  - Указатель (gui): ru/gui/_section.md
+  - Анимация:
+    - Обзор анимации: ru/animation/overview.md
+    - Клипы, Animator, контроллеры: ru/animation/clip-animator.md
+    - IK и блендшейпы: ru/animation/ik-blendshapes.md
+  - Указатель (animation): ru/animation/_section.md
+  - Навигация:
+    - Навигация и NavAgent: ru/navigation/overview.md
+  - Указатель (navigation): ru/navigation/_section.md
+  - Террейн и окружение:
+    - Террейн: ru/terrain-environment/terrain.md
+    - Деревья, вода, ветер, небо: ru/terrain-environment/vegetation-water-wind.md
+  - Указатель (terrain-environment): ru/terrain-environment/_section.md
+  - Ограничения:
+    - Ограничения Constraints: ru/constraints/overview.md
+  - Указатель (constraints): ru/constraints/_section.md
+  - Сцены и префабы:
+    - Сцены (.zpes): ru/scenes-prefabs/scenes.md
+    - Префабы (.zpep) и библиотека: ru/scenes-prefabs/prefabs.md
+  - Указатель (scenes-prefabs): ru/scenes-prefabs/_section.md
+  - Ассеты и импорт:
+    - Обзор ассетов: ru/assets/overview.md
+    - Импорт моделей через Assimp: ru/assets/models-assimp.md
+    - Текстуры и сжатие: ru/assets/textures.md
+    - Настройки импорта (.import) и кэш: ru/assets/import-settings.md
+  - Указатель (assets): ru/assets/_section.md
+  - Ввод:
+    - Система ввода: ru/input/overview.md
+  - Указатель (input): ru/input/_section.md
+  - Математика:
+    - 'Математика: Vec, Quat, Mat4, Curve': ru/math/overview.md
+  - Указатель (math): ru/math/_section.md
+  - Сеть:
+    - Обзор сетевой части: ru/networking/overview.md
+    - Сервер и клиент коллаборации: ru/networking/collaboration.md
+    - NetworkIdentity, Transform, Spawn, RPC: ru/networking/gameplay-net.md
+  - Указатель (networking): ru/networking/_section.md
+  - Плагины:
+    - Обзор плагинов: ru/plugins/overview.md
+    - Жизненный цикл PluginBase: ru/plugins/pluginbase.md
+    - Системные плагины: ru/plugins/system-plugins.md
+    - Пользовательские плагины и упаковка .zplugin: ru/plugins/user-plugins-packaging.md
+    - 'Интеграции: VR, MCP, трекер музыки, плоттер, QtQuick': ru/plugins/integrations.md
+  - Указатель (plugins): ru/plugins/_section.md
+  - Руководство по редактору:
+    - Главное окно: ru/editor/main-window.md
+    - Вьюпорт, камера, гизмо: ru/editor/viewport.md
+    - Иерархия: ru/editor/hierarchy.md
+    - Инспектор: ru/editor/inspector.md
+    - Панель проекта и ассеты: ru/editor/project-panel.md
+    - Консоль и терминал: ru/editor/console-terminal.md
+    - Панель профайлера и история Undo: ru/editor/profiler-undo.md
+    - Редакторы кривых, градиентов, цвета: ru/editor/curve-gradient-editors.md
+    - Мастер материалов и превью: ru/editor/material-model-preview.md
+    - Граф шейдеров: ru/editor/shader-graph.md
+    - Граф террейна и NodeGraphQt: ru/editor/terrain-node-graph.md
+    - Диалог сборки, менеджер проектов, настройки: ru/editor/build-project-settings.md
+    - Панели анимации, скриптов, префабов, меша, VCS: ru/editor/panels-extra.md
+    - Доки коллаборации и MCP: ru/editor/collaboration-mcp.md
+  - Указатель (editor): ru/editor/_section.md
+  - Сборка и инструменты:
+    - Плеер и сборка Nuitka: ru/build/player-nuitka.md
+    - Инструменты и скрипты профилирования: ru/build/tools-profiling.md
+  - Указатель (build): ru/build/_section.md
+  - Форматы файлов:
+    - Форматы файлов: ru/formats/overview.md
+  - Указатель (formats): ru/formats/_section.md
+  - Уроки:
+    - Обзор уроков: ru/tutorials/index.md
+    - Скрипты Rotator и Mover: ru/tutorials/rotator-mover.md
+    - Физическая сцена: ru/tutorials/physics-scene.md
+    - GUI-меню, префабы, аудио, сборка: ru/tutorials/gui-prefab-audio-build.md
+  - Указатель (tutorials): ru/tutorials/_section.md
+  - Справочник:
+    - Указатель API: ru/reference/api-index.md
+    - Глоссарий: ru/reference/glossary-faq.md
+    - Планы, журнал изменений, лицензия: ru/reference/roadmap-changelog-license.md
+  - Указатель (reference): ru/reference/_section.md

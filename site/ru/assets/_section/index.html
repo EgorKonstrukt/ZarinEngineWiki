@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Указатель (assets) - ZarinEngine Wiki</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "\u0423\u043a\u0430\u0437\u0430\u0442\u0435\u043b\u044c (assets)";
+        var mkdocs_page_input_path = "ru\\assets\\_section.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> ZarinEngine Wiki
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">English</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Getting Started</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/getting-started/">Getting Started</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/getting-started/requirements/">Requirements</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/getting-started/installation/">Installation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/getting-started/quick-start/">Quick Start</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/getting-started/editor-tour/">Editor Tour</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/getting-started/first-scene/">First Scene</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/getting-started/faq/">FAQ</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/getting-started/_section/">Section Index (getting-started)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Core</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/core/ecs-overview/">ECS Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/core/entity/">Entity</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/core/components-lifecycle/">Components and Lifecycle</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/core/registry-serialization/">Registry and Serialization</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/core/transform/">Transform</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/core/time/">Time and Fixed Update</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/core/config/">Configuration</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/core/logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/core/profiler/">Profiler</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/core/foundation/">Foundation: Curve, Commands, Time Travel</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/core/_section/">Section Index (core)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Rendering</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/rendering/overview/">Rendering Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/rendering/pipeline/">ModernGL Pipeline and Scene Renderer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Cameras</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/camera/">Camera</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/editor-camera/">Editor Camera</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Lights</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/light/">Light (Base)</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/directional-light/">Directional Light</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/point-light/">Point Light</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/spot-light/">Spot Light</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/area-light/">Area Light</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/projector/">Projector</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/shadows/">Shadows</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Meshes</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/mesh-filter/">MeshFilter</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/mesh-renderer/">MeshRenderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/skinned-mesh-renderer/">Skinned Mesh Renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/armature/">Armature</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/blend-shapes/">Blend Shapes</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Sprites and Video</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/sprite-renderer/">SpriteRenderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/svg-renderer/">SvgRenderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/text-renderer/">TextRenderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/video-renderer/">VideoRenderer</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Particles</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/particle-system/">Particle System</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/particle-force-field/">Particle Force Field</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Environment</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/skybox/">Skybox</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/procedural-sky/">Procedural Sky</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/clouds/">Clouds</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/water/">Water</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/atmosphere/">Atmosphere</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/rendering/materials/">Materials (.zpem)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/rendering/shaders/">Shaders (.shader)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >PostFX</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/">PostFX Stack (Overview)</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/bloom/">Bloom</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/blur/">Blur</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/chromatic-aberration/">Chromatic Aberration</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/color-grading/">Color Grading</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/depth-of-field/">Depth of Field</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/directional-blur/">Directional Blur</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/dithering/">Dithering</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/edge-detection/">Edge Detection</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/film-grain/">Film Grain</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/fog/">Fog</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/fsr2/">FSR2</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/fxaa/">FXAA</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/glitch/">Glitch</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/god-rays/">God Rays</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/hatching/">Hatching</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/kuwahara/">Kuwahara</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/lens-distortion/">Lens Distortion</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/lens-flares/">Lens Flares</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/motion-blur/">Motion Blur</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/panini/">Panini</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/pixelate/">Pixelate</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/quantize/">Quantize</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/radial-blur/">Radial Blur</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/scanlines/">Scanlines</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/sharpen/">Sharpen</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/sobel/">Sobel</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/ssao/">SSAO</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/ssr/">SSR</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/svgf/">SVGF</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/vignette/">Vignette</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/postfx/watercolor/">Watercolor</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Object Effects</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/effects/">Object Effects (Overview)</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/effects/dissolve/">Dissolve</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/effects/emissive-pulse/">Emissive Pulse</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/effects/frost/">Frost</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/effects/glitch/">Glitch</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/effects/hologram/">Hologram</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/effects/polygon-disintegration/">Polygon Disintegration</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/effects/spike-growth/">Spike Growth</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/effects/tree-wind/">Tree Wind</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/effects/voxelize/">Voxelize</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/effects/voxel-raymarch/">Voxel Raymarch</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/effects/wind-sway/">Wind Sway</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Splats and Voxel</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/gaussian-splat-renderer/">Gaussian Splat Renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/raytracing-renderer/">Raytracing Renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/rendering/voxel/">Voxel Rendering</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/rendering/gizmos/">Gizmos and Icons</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/rendering/_section/">Section Index (rendering)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Physics 3D</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/physics-3d/overview/">Physics 3D Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/physics-3d/rigidbody/">Rigidbody</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Colliders</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/physics-3d/box-collider/">Box Collider</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/physics-3d/sphere-collider/">Sphere Collider</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/physics-3d/capsule-collider/">Capsule Collider</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/physics-3d/mesh-collider/">Mesh Collider</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/physics-3d/terrain-collider/">Terrain Collider</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/physics-3d/gs-volume-collider/">GS Volume Collider</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/physics-3d/character-controller/">CharacterController</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/physics-3d/joints/">Joints</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Surface</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/physics-3d/physics-materials/">Physics Materials</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/physics-3d/collision-layers/">Collision Layers</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/physics-3d/solver-threading/">Solver and Threading</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Advanced Bodies</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/physics-3d/buoyancy/">Buoyancy</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/physics-3d/soft-body/">Soft Body</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/physics-3d/phys-bone/">PhysBone</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/physics-3d/phys-bone-collider/">PhysBoneCollider</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../../en/physics-3d/motor/">Motor</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/physics-3d/_section/">Section Index (physics-3d)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Physics 2D</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/physics-2d/overview/">Physics 2D Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/physics-2d/rigidbody2d/">Rigidbody 2D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/physics-2d/box-collider2d/">Box Collider 2D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/physics-2d/circle-collider2d/">Circle Collider 2D</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/physics-2d/_section/">Section Index (physics-2d)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Audio</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/audio/_section/">Section Index (audio)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Scripting</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/scripting/overview/">Scripting Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/scripting/lifecycle/">Lifecycle Callbacks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/scripting/inspector-fields/">Inspector Fields and Range</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/scripting/input-math-api/">Input and Math API</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/scripting/hot-reload/">Hot Reload</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/scripting/cython/">Cython in Scripts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/scripting/script-component/">ScriptComponent</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/scripting/examples/">Script Examples</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/scripting/_section/">Section Index (scripting)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >GUI</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/gui/overview/">GUI Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/gui/canvas/">GuiCanvas</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/gui/controls/">Controls: Buttons, Labels, Inputs, Sliders</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/gui/containers/">Containers: Panels, Tabs, Lists, Tables, Trees</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/gui/layout-events/">Layout, Anchors, Styles, Events</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/gui/_section/">Section Index (gui)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Animation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/animation/overview/">Animation Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/animation/clip-animator/">Clips, Animator, Controllers</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/animation/ik-blendshapes/">IK and Blendshapes</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/animation/_section/">Section Index (animation)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Navigation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/navigation/overview/">Navigation and NavAgent</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/navigation/_section/">Section Index (navigation)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Terrain and Environment</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/terrain-environment/terrain/">Terrain</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/terrain-environment/vegetation-water-wind/">Trees, Water, Wind Zones, Sky</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/terrain-environment/_section/">Section Index (terrain-environment)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Constraints</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/constraints/overview/">Constraints</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/constraints/_section/">Section Index (constraints)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Scenes and Prefabs</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/scenes-prefabs/scenes/">Scenes (.zpes)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/scenes-prefabs/prefabs/">Prefabs (.zpep) and Library</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/scenes-prefabs/_section/">Section Index (scenes-prefabs)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Assets and Import</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/assets/overview/">Assets Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/assets/models-assimp/">Model Import via Assimp</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/assets/textures/">Textures and Compression</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/assets/import-settings/">Import Settings (.import) and Cache</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/assets/_section/">Section Index (assets)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Input</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/input/overview/">Input System</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/input/_section/">Section Index (input)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Math</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/math/overview/">Math: Vec, Quat, Mat4, Curve</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/math/_section/">Section Index (math)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Networking</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/overview/">Networking Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/collaboration/">Collab Server and Client</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/gameplay-net/">NetworkIdentity, Transform, Spawn, RPC</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/networking/_section/">Section Index (networking)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Plugins</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/overview/">Plugins Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/pluginbase/">PluginBase Lifecycle</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/system-plugins/">System Plugins</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/user-plugins-packaging/">User Plugins and .zplugin Packaging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/integrations/">VR, MCP, Music Tracker, Plotter, QtQuick</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/plugins/_section/">Section Index (plugins)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Editor Manual</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/editor/main-window/">Main Window</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/editor/viewport/">Viewport, Camera, Gizmos</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/editor/hierarchy/">Hierarchy</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/editor/inspector/">Inspector</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/editor/project-panel/">Project Panel and Assets</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/editor/console-terminal/">Console and Terminal</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/editor/profiler-undo/">Profiler Panel and Undo History</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/editor/curve-gradient-editors/">Curve, Gradient, Color Editors</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/editor/material-model-preview/">Material Wizard and Previews</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/editor/shader-graph/">Shader Graph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/editor/terrain-node-graph/">Terrain Graph and NodeGraphQt</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/editor/build-project-settings/">Build Dialog, Project Manager, Settings</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/editor/panels-extra/">Animation, Scripts, Prefab, Mesh, VCS Panels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/editor/collaboration-mcp/">Collaboration and MCP Docks</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/editor/_section/">Section Index (editor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Build and Tools</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/build/player-nuitka/">Player and Nuitka Build</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/build/tools-profiling/">Tools and Profiling Scripts</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/build/_section/">Section Index (build)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >File Formats</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/formats/overview/">File Formats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/formats/_section/">Section Index (formats)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/tutorials/">Tutorials Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/tutorials/rotator-mover/">Rotator and Mover Scripts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/tutorials/physics-scene/">Physics Scene</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/tutorials/gui-prefab-audio-build/">GUI Menu, Prefabs, Audio, Build</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/tutorials/_section/">Section Index (tutorials)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Reference</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/reference/api-index/">API Index</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/reference/glossary-faq/">Glossary</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/reference/roadmap-changelog-license/">Roadmap, Changelog, License</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../en/reference/_section/">Section Index (reference)</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Русский</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Начало работы</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/">Начало работы</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/requirements/">Системные требования</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/installation/">Установка</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/quick-start/">Быстрый старт</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/editor-tour/">Обзор редактора</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/first-scene/">Первая сцена</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../getting-started/faq/">Частые вопросы</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../getting-started/_section/">Указатель (getting-started)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Ядро</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../core/ecs-overview/">Обзор ECS</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../core/entity/">Сущность Entity</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../core/components-lifecycle/">Компоненты и жизненный цикл</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../core/registry-serialization/">Реестр и сериализация</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../core/transform/">Трансформ</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../core/time/">Время и Fixed Update</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../core/config/">Конфигурация</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../core/logging/">Логирование</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../core/profiler/">Профайлер</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../core/foundation/">Foundation: Curve, команды, Time Travel</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../core/_section/">Указатель (core)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Рендеринг</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../rendering/overview/">Обзор рендеринга</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../rendering/pipeline/">Конвейер ModernGL и Scene Renderer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Камеры</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/camera/">Камера Camera</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/editor-camera/">Камера редактора</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Свет</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/light/">Свет Light (база)</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/directional-light/">Направленный свет</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/point-light/">Точечный свет</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/spot-light/">Спот</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/area-light/">Area-свет</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/projector/">Проектор Projector</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/shadows/">Тени</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Меши</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/mesh-filter/">MeshFilter</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/mesh-renderer/">MeshRenderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/skinned-mesh-renderer/">Skinned Mesh Renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/armature/">Арматура Armature</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/blend-shapes/">Блендшейпы Blend Shapes</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Спрайты и видео</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/sprite-renderer/">SpriteRenderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/svg-renderer/">SvgRenderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/text-renderer/">TextRenderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/video-renderer/">VideoRenderer</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Частицы</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/particle-system/">Система частиц</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/particle-force-field/">Силовое поле частиц</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Окружение</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/skybox/">Скайбокс Skybox</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/procedural-sky/">Процедурное небо</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/clouds/">Облака</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/water/">Вода Water</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/atmosphere/">Атмосфера Atmosphere</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../rendering/materials/">Материалы (.zpem)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../rendering/shaders/">Шейдеры (.shader)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >PostFX</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/">Стек PostFX (обзор)</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/bloom/">Bloom</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/blur/">Blur</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/chromatic-aberration/">Хроматическая аберрация</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/color-grading/">Цветокоррекция</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/depth-of-field/">Глубина резкости</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/directional-blur/">Направленное размытие</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/dithering/">Дизеринг</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/edge-detection/">Детект краёв</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/film-grain/">Зерно плёнки</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/fog/">Туман</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/fsr2/">FSR2</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/fxaa/">FXAA</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/glitch/">Глитч</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/god-rays/">Божественные лучи</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/hatching/">Штриховка</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/kuwahara/">Кувахара</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/lens-distortion/">Дисторсия линзы</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/lens-flares/">Блики линзы</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/motion-blur/">Моушн-блюр</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/panini/">Панини</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/pixelate/">Пикселизация</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/quantize/">Квантование</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/radial-blur/">Радиальный блюр</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/scanlines/">Сканлайны</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/sharpen/">Шарпенинг</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/sobel/">Собель</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/ssao/">SSAO</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/ssr/">SSR</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/svgf/">SVGF</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/vignette/">Виньетка</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/postfx/watercolor/">Акварель</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Эффекты объектов</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/effects/">Эффекты объектов (обзор)</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/effects/dissolve/">Диссолв</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/effects/emissive-pulse/">Пульс эмиссии</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/effects/frost/">Иней</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/effects/glitch/">Глитч объекта</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/effects/hologram/">Голограмма</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/effects/polygon-disintegration/">Распад на полигоны</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/effects/spike-growth/">Рост шипов</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/effects/tree-wind/">Ветер деревьев</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/effects/voxelize/">Вокселизация</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/effects/voxel-raymarch/">Воксельный реймарш</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/effects/wind-sway/">Покачивание ветра</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Сплаты и воксели</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/gaussian-splat-renderer/">Gaussian Splat Renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/raytracing-renderer/">Raytracing Renderer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../rendering/voxel/">Воксельный рендеринг</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../rendering/gizmos/">Гизмо и иконки</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../rendering/_section/">Указатель (rendering)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Физика 3D</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../physics-3d/overview/">Обзор физики 3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../physics-3d/rigidbody/">Твёрдое тело Rigidbody</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Коллайдеры</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../physics-3d/box-collider/">Box-коллайдер</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../physics-3d/sphere-collider/">Sphere-коллайдер</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../physics-3d/capsule-collider/">Capsule-коллайдер</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../physics-3d/mesh-collider/">Mesh-коллайдер</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../physics-3d/terrain-collider/">Terrain-коллайдер</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../physics-3d/gs-volume-collider/">GS Volume Collider</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../physics-3d/character-controller/">Контроллер персонажа</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../physics-3d/joints/">Джойнты</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Поверхность</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../physics-3d/physics-materials/">Физические материалы</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../physics-3d/collision-layers/">Слои коллизий</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../physics-3d/solver-threading/">Солвер и многопоточность</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Продвинутые тела</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../physics-3d/buoyancy/">Плавучесть Buoyancy</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../physics-3d/soft-body/">Soft Body</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../physics-3d/phys-bone/">PhysBone</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../physics-3d/phys-bone-collider/">PhysBoneCollider</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../physics-3d/motor/">Мотор Motor</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../physics-3d/_section/">Указатель (physics-3d)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Физика 2D</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../physics-2d/overview/">Обзор физики 2D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../physics-2d/rigidbody2d/">Rigidbody 2D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../physics-2d/box-collider2d/">Box Collider 2D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../physics-2d/circle-collider2d/">Circle Collider 2D</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../physics-2d/_section/">Указатель (physics-2d)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Аудио</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../audio/_section/">Указатель (audio)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Скриптинг</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../scripting/overview/">Обзор скриптинга</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../scripting/lifecycle/">Колбэки жизненного цикла</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../scripting/inspector-fields/">Поля инспектора и Range</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../scripting/input-math-api/">API ввода и математики</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../scripting/hot-reload/">Горячая перезагрузка</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../scripting/cython/">Cython в скриптах</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../scripting/script-component/">Компонент ScriptComponent</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../scripting/examples/">Примеры скриптов</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scripting/_section/">Указатель (scripting)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Интерфейс GUI</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../gui/overview/">Обзор GUI</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../gui/canvas/">Канвас GuiCanvas</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../gui/controls/">Контролы: кнопки, метки, ввод, слайдеры</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../gui/containers/">Контейнеры: панели, вкладки, списки, таблицы, деревья</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../gui/layout-events/">Раскладка, якоря, стили, события</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../gui/_section/">Указатель (gui)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Анимация</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../animation/overview/">Обзор анимации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../animation/clip-animator/">Клипы, Animator, контроллеры</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../animation/ik-blendshapes/">IK и блендшейпы</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../animation/_section/">Указатель (animation)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Навигация</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../navigation/overview/">Навигация и NavAgent</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../navigation/_section/">Указатель (navigation)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Террейн и окружение</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../terrain-environment/terrain/">Террейн</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../terrain-environment/vegetation-water-wind/">Деревья, вода, ветер, небо</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../terrain-environment/_section/">Указатель (terrain-environment)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Ограничения</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../constraints/overview/">Ограничения Constraints</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../constraints/_section/">Указатель (constraints)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Сцены и префабы</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../scenes-prefabs/scenes/">Сцены (.zpes)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../scenes-prefabs/prefabs/">Префабы (.zpep) и библиотека</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../scenes-prefabs/_section/">Указатель (scenes-prefabs)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Ассеты и импорт</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../overview/">Обзор ассетов</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../models-assimp/">Импорт моделей через Assimp</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../textures/">Текстуры и сжатие</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../import-settings/">Настройки импорта (.import) и кэш</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Указатель (assets)</a>
+    <ul class="current">
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Ввод</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../input/overview/">Система ввода</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../input/_section/">Указатель (input)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Математика</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../math/overview/">Математика: Vec, Quat, Mat4, Curve</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../math/_section/">Указатель (math)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Сеть</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/overview/">Обзор сетевой части</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/collaboration/">Сервер и клиент коллаборации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/gameplay-net/">NetworkIdentity, Transform, Spawn, RPC</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../networking/_section/">Указатель (networking)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Плагины</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../plugins/overview/">Обзор плагинов</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../plugins/pluginbase/">Жизненный цикл PluginBase</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../plugins/system-plugins/">Системные плагины</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../plugins/user-plugins-packaging/">Пользовательские плагины и упаковка .zplugin</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../plugins/integrations/">Интеграции: VR, MCP, трекер музыки, плоттер, QtQuick</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../plugins/_section/">Указатель (plugins)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Руководство по редактору</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../editor/main-window/">Главное окно</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../editor/viewport/">Вьюпорт, камера, гизмо</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../editor/hierarchy/">Иерархия</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../editor/inspector/">Инспектор</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../editor/project-panel/">Панель проекта и ассеты</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../editor/console-terminal/">Консоль и терминал</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../editor/profiler-undo/">Панель профайлера и история Undo</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../editor/curve-gradient-editors/">Редакторы кривых, градиентов, цвета</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../editor/material-model-preview/">Мастер материалов и превью</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../editor/shader-graph/">Граф шейдеров</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../editor/terrain-node-graph/">Граф террейна и NodeGraphQt</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../editor/build-project-settings/">Диалог сборки, менеджер проектов, настройки</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../editor/panels-extra/">Панели анимации, скриптов, префабов, меша, VCS</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../editor/collaboration-mcp/">Доки коллаборации и MCP</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../editor/_section/">Указатель (editor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Сборка и инструменты</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../build/player-nuitka/">Плеер и сборка Nuitka</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../build/tools-profiling/">Инструменты и скрипты профилирования</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../build/_section/">Указатель (build)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Форматы файлов</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../formats/overview/">Форматы файлов</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../formats/_section/">Указатель (formats)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Уроки</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/">Обзор уроков</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/rotator-mover/">Скрипты Rotator и Mover</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/physics-scene/">Физическая сцена</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/gui-prefab-audio-build/">GUI-меню, префабы, аудио, сборка</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tutorials/_section/">Указатель (tutorials)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Справочник</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/api-index/">Указатель API</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/glossary-faq/">Глоссарий</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../reference/roadmap-changelog-license/">Планы, журнал изменений, лицензия</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/_section/">Указатель (reference)</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">ZarinEngine Wiki</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Русский</li>
+      <li class="breadcrumb-item active">Указатель (assets)</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="_1">Ассеты и импорт</h1>
+<p>TODO: Указатель раздела в подготовке. Здесь будет список всех статей раздела Ассеты и импорт.</p>
+<p>Используйте дерево навигации слева для открытия страниц-заглушек.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../import-settings/" class="btn btn-neutral float-left" title="Настройки импорта (.import) и кэш"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../input/overview/" class="btn btn-neutral float-right" title="Система ввода">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../import-settings/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../input/overview/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
