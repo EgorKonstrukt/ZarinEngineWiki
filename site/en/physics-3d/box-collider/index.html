@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="box-collider">Box Collider</h1>
-<p>Axis-aligned box shape in local space. The workhorse for crates, walls, floors and triggers.</p>
+<p>Axis-aligned box shape in local space. The workhorse for crates, walls, floors, triggers and buttons — cheapest shape in any solver, always prefer it when the form fits.</p>
 <table>
 <thead>
 <tr>
@@ -1183,17 +1187,17 @@
 <tr>
 <td>Collision: Layer / Collision Mask</td>
 <td>0 / 0xFFFF</td>
-<td>Filtering</td>
+<td>Who collides with whom</td>
 </tr>
 <tr>
 <td>Shape: Center</td>
 <td>origin</td>
-<td>Local offset</td>
+<td>Local offset from the entity pivot</td>
 </tr>
 <tr>
 <td>Shape: Size</td>
 <td>one</td>
-<td>Local extents, scaled by the Transform</td>
+<td>Local extents, scaled by the Transform scale</td>
 </tr>
 <tr>
 <td>Is Trigger</td>
@@ -1208,12 +1212,15 @@
 <tr>
 <td>Inline friction / bounciness</td>
 <td>0.6 / 0.0</td>
-<td>Used without an asset</td>
+<td>Used when no asset is assigned</td>
 </tr>
 </tbody>
 </table>
-<p>Several colliders may share one entity; primitives merge into a compound rigid body.</p>
-<p>Related: Rigidbody, Physics Materials, Collision Layers, Box Collider 2D.</p>
+<p>Several colliders may share one entity; box/sphere/capsule primitives merge into a single compound rigid body, so a table (top + 4 legs) simulates as one body with five shapes.</p>
+<p>Workflows: floors — large thin box, static (no Rigidbody), friction 0.8+ so characters do not skate; crates — unit box with Rigidbody mass 2–5, freeze nothing; triggers — box with <code>is_trigger</code> on, scripted <code>on_collision_enter</code> for doors, pickups and checkpoints; buttons — thin trigger plate plus a visual mesh that dips on enter.</p>
+<p>Compound trick: L-shaped stairs from 2–3 boxes beat any mesh collider on cost and stability. Keep boxes axis-aligned in local space; rotated owners are fine, skewed (non-uniformly sheared) parents distort the shape — fix the hierarchy instead.</p>
+<p>Troubleshooting: falls through at speed → tunneling, cap velocity or lower fixed dt; trigger never fires → mask mismatch or both sides triggers with no listener script; wrong size → Transform scale forgotten, check <code>scaled_size</code> thinking (local × scale).</p>
+<p>Related: Rigidbody, Physics Materials, Collision Layers, Mesh Collider (when boxes cannot fit), Box Collider 2D.</p>
               
             </div>
           </div><footer>

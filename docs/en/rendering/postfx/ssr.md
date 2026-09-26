@@ -1,7 +1,21 @@
 # SSR
 
-Screen-space reflections on smooth surfaces from the rendered frame. Built on the shared GraphicsEffect base: enable toggle plus effect-specific Inspector fields, executed in component order after the main scene pass.
+Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.
 
-Cost guide: single-pass color ops stay cheap; multi-tap and screen-space techniques dominate the post budget, so profile before stacking.
+## How it works
+
+Screen-space reflections on smooth surfaces, resolved from the rendered frame itself.
+
+## Parameters
+
+Roughness cutoff, stride/steps feel.
+
+## Tips
+
+Wet floors, marble halls, puddles. Offscreen content cannot reflect — frame composition matters.
+
+## Cost
+
+High. Roughness cutoff trims the cost fastest.
 
 Related: [PostFX Stack](../postfx.md), Cameras (render scale), Profiler.

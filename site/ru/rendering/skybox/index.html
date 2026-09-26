@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="skybox">Скайбокс Skybox</h1>
-<p>Статичный HDRI-фон окружения с вкладом image-based освещения.</p>
+<p>Статичный HDRI-фон окружения с вкладом image-based освещения в PBR-материалы.</p>
 <table>
 <thead>
 <tr>
@@ -1181,11 +1185,11 @@
 <tbody>
 <tr>
 <td>HDRI Skybox: HDRI / EXR</td>
-<td>Изображение окружения</td>
+<td>Ассет изображения окружения</td>
 </tr>
 <tr>
 <td>HDRI Skybox: Show Background</td>
-<td>Рисовать картинку как небо</td>
+<td>Рисовать картинку как видимое небо</td>
 </tr>
 <tr>
 <td>HDRI Skybox: Affect Environment (IBL)</td>
@@ -1197,16 +1201,18 @@
 </tr>
 <tr>
 <td>Background Blur</td>
-<td>Смягчение видимого неба</td>
+<td>Смягчение видимого неба (дешёвое ощущение глубины)</td>
 </tr>
 <tr>
-<td>Flip Y, Orientation, Rotation Yaw/Pitch/Roll</td>
+<td>Flip Y, Orientation, Rotation Yaw/Pitch/Roll (deg)</td>
 <td>Контролы маппинга</td>
 </tr>
 </tbody>
 </table>
-<p>Skybox — для запечённых окружений, Procedural Sky — для динамических суток. Согласуйте ambient с выбранным небом.</p>
-<p>Связанное: процедурное небо, облака, атмосфера, направленный свет (процедурная связка).</p>
+<p>Skybox — для запечённых, арт-директед окружений (интерьеры, стилизация, фотоплаты), Procedural Sky — для динамических суток. Согласуйте ambient с небом, иначе материалы уплывут.</p>
+<p>Yaw-поворот анимирует иллюзию заката-рассвета на статичных HDRI; exposure едет по дневной кривой вместе с интенсивностью направленного.</p>
+<p>Диагностика: чёрное небо — бит путь картинки или выкл Show Background; материалы темны под HDRI — выкл Affect Environment или низкая exposure; шов — mismatch ориентации/флипа с каптом, тогглите Flip Y.</p>
+<p>Связанное: процедурное небо, облака, атмосфера, направленный свет, материалы (IBL-отклик).</p>
               
             </div>
           </div><footer>

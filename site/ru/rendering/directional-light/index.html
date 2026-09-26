@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,14 +1174,15 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Направленный свет</h1>
-<p>Солнце-подобный параллельный свет. Позиция задаёт только начало гизмо; направление берётся из поворота трансформа.</p>
+<p>Солнце-подобный параллельный свет. Позиция задаёт только начало гизмо; направление целиком из поворота трансформа, и каждая поверхность получает то же направление независимо от дистанции.</p>
 <ul>
-<li>Интенсивность в люксах, по умолчанию 100000 (прямое солнце). Ориентиры: полный день 15000, пасмурно 5000, восход 400, офис 500, сумерки 10, полная луна 0.2.</li>
-<li><code>procedural_sky_lighting</code> связывает солнце с процедурным небом: поворот света двигает солнце и перебалансирует ambient.</li>
-<li>Тени — каскадная карта (по умолчанию 4 каскада, разрешения 2048/1024/1024/512, дистанция 50).</li>
+<li>Интенсивность в люксах, по умолчанию 100000 (прямое солнце). Шкала: полный день 15000, пасмурно 5000, восход/закат 400, офис 500, сумерки 10, полная луна 0.2.</li>
+<li><code>procedural_sky_lighting</code> связывает солнце с процедурным небом: поворот света двигает диск и автоматически перебалансирует ambient — сутки становятся одной анимацией поворота.</li>
+<li>Тени — каскадная карта (по умолчанию 4 каскада 2048/1024/1024/512, дистанция 50). Один свет кроет всю сцену, и его проход обычно самый дорогой одиночный свет — держите ровно один затенённый направленный.</li>
 </ul>
-<p>Типовая установка: одно направленное солнце с тенями как ключевой свет плюс ambient или небесная заливка.</p>
-<p>Связанное: Light (база), тени, процедурное небо, атмосфера.</p>
+<p>Процессы: улица днём — солнце 80000–120000, тёплый цвет, тени вкл, процедурное небо в связке; ночь — тусклый синий направленный (ощущение 5–50 люкс) с выкл тенями плюс несколько затенённых спотов лужами света; интерьер — направленный выкл или минимум, сцену несут споты и точки.</p>
+<p>Гизмо показывает стрелки направления и бокс теневой камеры; если бокс не кроет игровую зону — тени обрежутся: сузьте дистанцию или загоните действие внутрь.</p>
+<p>Связанное: Light (база), тени, процедурное небо, атмосфера, облака (перекличка силы теней).</p>
               
             </div>
           </div><footer>

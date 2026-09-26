@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="mesh-collider">Mesh Collider</h1>
-<p>Collision from mesh geometry: static scenery exact, dynamic bodies convex-approximated.</p>
+<p>Collision from mesh geometry for cases primitives cannot fit: statues, terrain chunks, vehicle hulls, concave scenery.</p>
 <table>
 <thead>
 <tr>
@@ -1188,23 +1192,26 @@
 <tr>
 <td>mesh_path</td>
 <td>—</td>
-<td>Source mesh file</td>
+<td>Source mesh file (same import as MeshFilter)</td>
 </tr>
 <tr>
 <td>collision_mode</td>
 <td>AUTO</td>
-<td>AUTO / MESH / CONVEX_HULL / BOX / SPHERE</td>
+<td>AUTO / MESH / CONVEX_HULL / BOX / SPHERE fallback approximations</td>
 </tr>
 <tr>
 <td>max_vertices</td>
 <td>2000</td>
-<td>Simplification budget</td>
+<td>Simplification budget for generated hulls</td>
 </tr>
 </tbody>
 </table>
-<p>Effective mode: AUTO becomes MESH for static bodies and CONVEX_HULL for dynamic ones; an explicit MESH on a dynamic body is lowered to CONVEX_HULL. A body counts as dynamic with an active positive-mass Rigidbody (kinematic included) that is not a trigger.</p>
-<p>Prefer primitives and compounds for anything that moves; reserve mesh collision for static level geometry.</p>
-<p>Related: MeshFilter, Rigidbody, Compound notes in Physics Overview.</p>
+<p>Effective mode logic, verified: AUTO becomes MESH for static bodies (exact triangles) and CONVEX_HULL for dynamic ones (stable approximation); an explicit MESH on a dynamic body is lowered to CONVEX_HULL automatically. A body counts as dynamic with an active positive-mass Rigidbody (kinematic included) that is not a trigger.</p>
+<p>Cost reality: triangle-mesh vs dynamic body is the most expensive pairing in physics — it exists for static level geometry. Anything that moves gets primitives, compounds or convex hulls. <code>max_vertices</code> caps hull complexity; lower it until the gizmo still hugs the silhouette.</p>
+<p>BOX/SPHERE modes are one-click downgrades when a mesh turns out to be roughly box- or ball-shaped — cheaper than re-authoring a collider.</p>
+<p>Workflow: static statue — mesh collider AUTO (→MESH), no Rigidbody; moving wreck — AUTO (→CONVEX_HULL) with Rigidbody, or better a 3-box compound; terrain — prefer TerrainCollider over mesh.</p>
+<p>Troubleshooting: falls through → dynamic body with MESH forced (check effective mode), hull too coarse, or tunneling; slow cooking on load → max_vertices huge, decimate the source; mismatch with visuals → mesh_path differs from the MeshFilter path.</p>
+<p>Related: MeshFilter, Terrain Collider, Rigidbody, Compound notes in Physics Overview.</p>
               
             </div>
           </div><footer>

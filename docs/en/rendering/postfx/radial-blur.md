@@ -1,7 +1,21 @@
 # Radial Blur
 
-Zoom burst smearing outward from a screen center point. Built on the shared GraphicsEffect base: enable toggle plus effect-specific Inspector fields, executed in component order after the main scene pass.
+Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.
 
-Cost guide: single-pass color ops stay cheap; multi-tap and screen-space techniques dominate the post budget, so profile before stacking.
+## How it works
+
+Zoom-burst smear outward from a screen center point.
+
+## Parameters
+
+Center, strength, sample feel.
+
+## Tips
+
+Warp charges, impact frames, focus pulls. Animate strength 0→1→0.
+
+## Cost
+
+Medium by samples.
 
 Related: [PostFX Stack](../postfx.md), Cameras (render scale), Profiler.

@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -764,6 +766,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Блики линзы</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Как работает</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Параметры</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Советы</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Цена</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../motion-blur/">Моушн-блюр</a>
@@ -910,11 +920,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,8 +1182,15 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Блики линзы</h1>
-<p>Гоусты и гало от ярких источников в кадре. Построен на общей базе GraphicsEffect: тогл включения плюс собственные поля инспектора, выполняется в порядке компонентов после главной сцены.</p>
-<p>Гид по цене: однопроходные цветовые операции дешёвые; многотапные и screen-space техники доминируют в пост-бюджете — профилируйте до сборки пачки.</p>
+<p>Часть стека PostFX: выполняется после главной сцены в порядке компонентов. Построен на общей базе GraphicsEffect с тоглом и собственными полями инспектора.</p>
+<h2 id="_2">Как работает</h2>
+<p>Гоусты и гало от ярких источников в кадре.</p>
+<h2 id="_3">Параметры</h2>
+<p>Число гоустов, разброс, интенсивность, оттенок.</p>
+<h2 id="_4">Советы</h2>
+<p>Космические солнца, пустынный полдень, ночные трассы. Без ярких источников мертвы — проверьте порог.</p>
+<h2 id="_5">Цена</h2>
+<p>Средне по числу гоустов.</p>
 <p>Связанное: <a href="../">стек PostFX</a>, камеры (render scale), профайлер.</p>
               
             </div>

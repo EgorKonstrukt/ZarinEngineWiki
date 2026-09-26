@@ -1,5 +1,21 @@
 # Voxel Raymarch
 
-Raymarched voxel volume rendering for dense blocky media. Built on the shared ObjectEffect base and the ObjectFx pass: progress and intensity parameters are exposed so scripts can drive the effect by animating one float.
+Per-object effect through the ObjectFx pass (unlike PostFX, which processes the whole frame). Built on the shared ObjectEffect base; scripts drive it by animating progress/intensity floats.
+
+## How it works
+
+Raymarched voxel volume rendering for dense blocky media with depth-consistent compositing.
+
+## Parameters
+
+Density, step count, tint.
+
+## Tips
+
+Stylized smoke, volumetric magic, blocky clouds.
+
+## Cost
+
+High by step count. Halve steps first.
 
 Related: [Object Effects](../effects.md), Materials, Script Examples.

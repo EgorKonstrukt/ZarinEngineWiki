@@ -1,7 +1,21 @@
 # Depth of Field
 
-Blurs depth ranges outside the focus distance for cinematic separation. Built on the shared GraphicsEffect base: enable toggle plus effect-specific Inspector fields, executed in component order after the main scene pass.
+Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.
 
-Cost guide: single-pass color ops stay cheap; multi-tap and screen-space techniques dominate the post budget, so profile before stacking.
+## How it works
+
+Separates a focus plane from fore/background blur using the depth buffer and a focus distance.
+
+## Parameters
+
+Focus distance, aperture/f-stop feel, max blur radius.
+
+## Tips
+
+Cutscenes, dialogue close-ups, weapon inspection. Drive focus distance from a script to the aimed target.
+
+## Cost
+
+High: gather taps over depth. Narrow the max radius before blaming the GPU.
 
 Related: [PostFX Stack](../postfx.md), Cameras (render scale), Profiler.

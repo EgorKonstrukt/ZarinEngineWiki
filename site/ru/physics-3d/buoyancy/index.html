@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="buoyancy">Плавучесть Buoyancy</h1>
-<p>Плавающие тела для прудов, рек и океанов.</p>
+<p>Плавающие тела для прудов, рек и океанов: корпуса вытесняют воду, волны качают, течения толкают.</p>
 <table>
 <thead>
 <tr>
@@ -1181,27 +1185,31 @@
 <tbody>
 <tr>
 <td>Buoyancy: Object Density</td>
-<td>Плотность корпуса против воды</td>
+<td>Плотность корпуса против воды — ниже плотности воды плавает</td>
 </tr>
 <tr>
 <td>Override Volume</td>
-<td>Ручной объём вытеснения</td>
+<td>Ручной объём вытеснения, пропускает автовычисление</td>
 </tr>
 <tr>
 <td>Water Density</td>
-<td>Плотность жидкости</td>
+<td>Плотность жидкости (пресная/солёная/лавовая)</td>
 </tr>
 <tr>
 <td>Hydro Drag / Hydro Angular Drag</td>
-<td>Водное демпфирование</td>
+<td>Водное демпфирование движения и вращения</td>
 </tr>
 <tr>
 <td>Flow Influence</td>
-<td>Насколько течения толкают</td>
+<td>Насколько течения толкают корпус</td>
 </tr>
 <tr>
-<td>Options: Use Waves / Use Flow</td>
-<td>Сэмплирование поверхности и течений</td>
+<td>Options: Use Waves</td>
+<td>Сэмплирование поверхности волн для качки</td>
+</tr>
+<tr>
+<td>Options: Use Flow</td>
+<td>Сэмплирование течений для дрейфа</td>
 </tr>
 <tr>
 <td>Sample Resolution</td>
@@ -1209,16 +1217,19 @@
 </tr>
 <tr>
 <td>Max Accel (x g)</td>
-<td>Клапм стабильности</td>
+<td>Клапм стабильности водных сил</td>
 </tr>
 <tr>
 <td>Debug Draw</td>
-<td>Визуализация объёма</td>
+<td>Визуализация объёма и проб</td>
 </tr>
 </tbody>
 </table>
-<p>В пару нужен компонент окружения WaterVolume, маркирующий область жидкости, и поверхность Water для картинки.</p>
-<p>Связанное: вода, Soft Body, Rigidbody.</p>
+<p>В пару — компонент окружения WaterVolume, маркирующий область жидкости, и поверхность Water для картинки: один компонент без определённой жидкости ничего не держит.</p>
+<p>Порядок настройки: плотность пока ватерлиния не встанет (палуба в воде = слишком плотно), hydro drag пока остановка не станет весомой, волны для качки, течение для рек. Лёгкие катера хотят низкий drag и высокий max accel; баржи наоборот.</p>
+<p>Sample resolution меняет точность на цену: высоко для длинных корпусов (пробы по длине ловят дифферент), низко для бочек. Debug Draw показывает пробы — мимо корпуса, и силы мимо.</p>
+<p>Диагностика: тонет — плотность выше воды или недооценён объём, проверьте override; вибрирует — высок max accel или низко разрешение; игнорирует волны — выкл Use Waves или вне WaterVolume; вечный боковой дрейф — flow influence при несбалансированном поле течений.</p>
+<p>Связанное: вода, заметки WaterVolume, Soft Body, Rigidbody (перекличка масс).</p>
               
             </div>
           </div><footer>

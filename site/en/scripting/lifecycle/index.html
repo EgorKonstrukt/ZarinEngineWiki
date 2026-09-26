@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,7 +1173,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="lifecycle-callbacks">Lifecycle Callbacks</h1>
-<p>Every callback is optional. Define only what the behavior needs.</p>
+<p>Every callback is optional. Define only what the behavior needs; the engine caches per-method lookups and skips missing ones without cost.</p>
 <table>
 <thead>
 <tr>
@@ -1184,37 +1188,37 @@
 <td><code>on_awake</code></td>
 <td><code>awake</code></td>
 <td><code>()</code></td>
-<td>Once when Play starts, before <code>on_start</code></td>
+<td>Once when Play starts, before <code>on_start</code>; use for caches and peer lookups</td>
 </tr>
 <tr>
 <td><code>on_start</code></td>
 <td><code>start</code></td>
 <td><code>()</code></td>
-<td>Once when Play starts</td>
+<td>Once when Play starts; use for initial state and first actions</td>
 </tr>
 <tr>
 <td><code>on_update</code></td>
 <td><code>update</code></td>
 <td><code>(dt)</code></td>
-<td>Every rendered frame, <code>dt</code> already multiplied by time scale</td>
+<td>Every rendered frame in scene order; <code>dt</code> already scaled by time scale</td>
 </tr>
 <tr>
 <td><code>on_fixed_update</code></td>
 <td><code>fixed_update</code></td>
 <td><code>(dt)</code></td>
-<td>Every physics step (<code>dt = 0.02</code> by default)</td>
+<td>Every physics step with stable <code>dt</code> (<code>0.02</code> default); forces and movement here</td>
 </tr>
 <tr>
 <td><code>on_enable</code></td>
 <td><code>enable</code></td>
 <td><code>()</code></td>
-<td>When the entity becomes active</td>
+<td>When the entity becomes active (<code>entity.active = True</code>)</td>
 </tr>
 <tr>
 <td><code>on_disable</code></td>
 <td><code>disable</code></td>
 <td><code>()</code></td>
-<td>When the entity becomes inactive</td>
+<td>When the entity becomes inactive; stop loops and sounds here</td>
 </tr>
 <tr>
 <td><code>on_collision_enter</code></td>
@@ -1238,38 +1242,46 @@
 <td><code>on_destroy</code></td>
 <td><code>destroy</code></td>
 <td><code>()</code></td>
-<td>When the component is removed or the scene unloads</td>
+<td>Component removed or scene unloaded; release resources here</td>
 </tr>
 <tr>
 <td><code>gizmo_lines</code></td>
 <td>—</td>
 <td><code>() -&gt; list</code></td>
-<td>Editor gizmo lines, works outside Play too</td>
+<td>Editor gizmo lines, runs outside Play too</td>
 </tr>
 <tr>
 <td><code>gizmo_meshes</code></td>
 <td>—</td>
 <td><code>() -&gt; list</code></td>
-<td>Editor gizmo meshes, works outside Play too</td>
+<td>Editor gizmo meshes, runs outside Play too</td>
 </tr>
 </tbody>
 </table>
-<p>Rules:</p>
-<ul>
-<li>Aliases are resolved per method with <code>on_*</code> priority: if a class defines both <code>update</code> and <code>on_update</code>, only <code>on_update</code> runs.</li>
-<li>Collision callbacks accept one or two arguments. The engine inspects the signature once: with two parameters the second one receives the impact force as <code>float</code>, otherwise only the other entity id (<code>str</code>) is passed.</li>
-<li><code>self._entity</code> is assigned by the engine before every call, including <code>on_awake</code> and <code>on_start</code>.</li>
-<li>Any exception in a callback is caught and logged as <code>Script ... error ...</code> with a traceback. The frame continues with the next component.</li>
-</ul>
+<p>Call order at Play start: <code>on_awake</code> for every scripted component, then <code>on_start</code> for every scripted component. Do not assume sibling start order — fetch peers lazily or in <code>on_update</code> guards.</p>
+<p><code>dt</code> semantics: render <code>dt</code> stretches with slow motion and pause (time scale 0 freezes updates); fixed <code>dt</code> stays constant so physics and its scripts stay deterministic.</p>
+<p>Collision dispatch: the solver reports contacts to the physics layer, which maps solver bodies to entity ids and invokes callbacks. Arity is measured once from the signature — two parameters receive <code>(other_id: str, force: float)</code>, one parameter receives just <code>other_id</code>. Resolve the other entity inside the callback only if needed; id comparison is cheaper.</p>
+<p>Enable/disable: toggling <code>entity.active</code> fires <code>on_disable</code>/<code>on_enable</code> on all components of that entity, scripts included. Disabling mid-Play pauses that behavior without destroying its instance state.</p>
+<p>Destroy cases: removing the ScriptComponent in the editor, deleting the entity, unloading the scene, or stopping Play. Hot-reload recreates the instance but preserves Inspector field values and re-runs <code>on_awake</code>/<code>on_start</code>.</p>
+<p>Exceptions: any error in any callback is caught and logged as <code>Script ... error ...</code> with a traceback naming the script and method. The frame, the physics step and the remaining components continue.</p>
 <pre><code class="language-python">class Fighter:
     health: int = 100
 
     def on_awake(self):
         self.hits = 0
+        self.body = self._entity.get_component_by_name(&quot;Rigidbody&quot;)
+
+    def on_start(self):
+        self.alive = True
 
     def on_update(self, dt):
-        if self.health &lt;= 0:
+        if self.health &lt;= 0 and self.alive:
+            self.alive = False
             self._entity.active = False
+
+    def on_fixed_update(self, dt):
+        if self.body and self.health &lt;= 0:
+            self.body.velocity = Vec3(0.0, 0.0, 0.0)
 
     def on_collision_enter(self, other_id, force):
         self.hits = self.hits + 1
@@ -1277,6 +1289,7 @@
 
     def on_destroy(self):
         self.hits = 0
+        self.body = None
 </code></pre>
               
             </div>

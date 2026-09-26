@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="gs-volume-collider">GS Volume Collider</h1>
-<p>Объёмы коллизий из Gaussian-splat захватов.</p>
+<p>Объёмы коллизий из Gaussian-splat захватов — игроки ходят по сценам в стиле фотограмметрии, где вообще нет меш-геометрии.</p>
 <table>
 <thead>
 <tr>
@@ -1181,23 +1185,23 @@
 <tbody>
 <tr>
 <td>Gs Volume Collider: Splat Path</td>
-<td>Исходный захват</td>
+<td>Исходный захват (тот же файл, что у рендерера)</td>
 </tr>
 <tr>
 <td>Voxel Size</td>
-<td>Шаг дискретизации объёма</td>
+<td>Шаг дискретизации объёма — ручка точности</td>
 </tr>
 <tr>
 <td>Opacity Cutoff</td>
-<td>Порог плотности</td>
+<td>Порог плотности: ниже — воздух</td>
 </tr>
 <tr>
 <td>Dilation</td>
-<td>Расширение объёма в вокселях</td>
+<td>Расширение объёма в вокселях (страховочная кожа)</td>
 </tr>
 <tr>
 <td>Max Boxes</td>
-<td>Бюджет бокс-аппроксимации</td>
+<td>Бюджет бокс-аппроксимации для солвера</td>
 </tr>
 <tr>
 <td>Center</td>
@@ -1208,13 +1212,16 @@
 <td>Стандартная фильтрация</td>
 </tr>
 <tr>
-<td>Physic Material</td>
+<td>Material: Physic Material</td>
 <td>Оверрайд ассетом <code>.zphysmat</code></td>
 </tr>
 </tbody>
 </table>
-<p>Позволяет ходить и сталкиваться в splat-сценах в стиле фотограмметрии, где нет меш-геометрии.</p>
-<p>Связанное: Gaussian Splat Renderer, Box-коллайдер, Mesh-коллайдер.</p>
+<p>Как работает: захват вокселизуется шагом Voxel Size, ячейки выше Opacity Cutoff выживают, Dilation растит страховочную кожу, твёрдое множество аппроксимируется не более чем Max Boxes шейпами. Мелкие воксели обнимают статуи; грубые быстрее.</p>
+<p>Порядок настройки: voxel size под мельчайшую геймплейную фичу (ступеням нужны мелкие), cutoff пока висящая пыль не перестанет сталкиваться, dilation 1–2 для прощения, max boxes пока гизмо не накроет ходимые зоны.</p>
+<p>По природе статичен — в пару к визуалу GaussianSplatRenderer, динамический геймплейный реквизит сверху мечами с примитивными коллайдерами.</p>
+<p>Диагностика: проваливается сквозь статуи — грубы воксели или высок cutoff; сталкивается с воздухом — низок cutoff, ловит дымку, поднимите; блочные невидимые стены — перебор dilation, опустите; долгая готовка — крошечный voxel size на огромном захвате, укрупните.</p>
+<p>Связанное: Gaussian Splat Renderer, Box-коллайдер, Mesh-коллайдер, воксельный рендеринг.</p>
               
             </div>
           </div><footer>

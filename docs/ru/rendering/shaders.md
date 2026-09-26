@@ -1,6 +1,6 @@
 # Шейдеры (.shader)
 
-Кастомный текстовый формат в стиле Unity ShaderLab. Минимальный пример:
+Кастомный текстовый формат в стиле Unity ShaderLab: шапка `Properties`, понятная редактору, плюс сырой GLSL для GPU. Минимальный пример:
 
 ```shader
 Shader "Zarin/Unlit" {
@@ -38,11 +38,20 @@ Shader "Zarin/Unlit" {
 }
 ```
 
-Правила формата:
+Правила формата, сверено с загрузчиком:
 
-- Записи `Properties` выглядят как `[_Attr] _Name("Display", Type) = default`. Типы: `Color`/`Vector` как `(1,1,1,1)`, `Float`/`Range(a,b)` как float, `Int` как int, `2D`/`Cube` как `"white"` / `"bump"` плюс `{}`.
-- В файле может быть несколько блоков `SubShader`; загрузчик пробует их по порядку, затем опциональный `Fallback "Name"`.
+- Записи `Properties` как `[_Attr] _Name("Display", Type) = default`. Типы: `Color`/`Vector` как `(1,1,1,1)`, `Float`/`Range(a,b)` как float, `Int` как int, `2D`/`Cube` как `"white"` / `"bump"` плюс `{}`.
+- В файле несколько блоков `SubShader`; загрузчик пробует по порядку, затем опциональный `Fallback "Name"`, если упали все.
 - Каждый блок `GLSLPROGRAM … ENDGLSL` делится на вершины/фрагменты по маркеру `// @FRAGMENT`.
-- Загрузчик инжектит атрибуты GPU-инстансинга (`in_model0-3`, SSBO-биндинги 4/5 на 430+), UV-оверрайды (`u_uv_scale`, `u_uv_offset`, `u_uv_world_scale`) и маркеры инклюдов area-теней и каустики.
+- Загрузчик инжектит атрибуты GPU-инстансинга (`in_model0-3`, SSBO-биндинги 4/5 на 430+), UV-оверрайды (`u_uv_scale`, `u_uv_offset`, `u_uv_world_scale`) и резолвит маркеры инклюдов area-теней и каустики.
+- Поиск шейдеров — дерево `core/shaders` корня движка: `materials`, `internal`, `compute`, `include`, `legacy`.
 
-Встроенная библиотека в `core/shaders`: 9 шейдеров материалов (`PBR`, `Unlit`, `Sky`, `Skybox`, `Water`, `WaterSim`, `Tree`, `Clouds`, `CloudLayer`), 20+ внутренних (`Default`, `Shadow`, `Particle`, `ParticleGpu`, `Sprite`, `Text`, `Video`, `Icon`, `Gizmo`, `Grid`, `Outline`, `ObjectFx`, `Projector`, `GaussianSplat`, `Caustics`, `Underwater`, …) и общие сниппеты `include/`.
+Процесс: дублируйте `Unlit.shader`, переименуйте путь `Shader "..."`, объявите входы в Properties (автопоявятся в каждом материале на нём), пишите проходы, назначьте на материал и итерируйте с горячим превью. Ошибки компиляции печатаются с файлом и строкой — чините сверху вниз, первая обычно каскадит.
+
+Фолбэк компиляции: сначала пробуется `#version 430 core`; при провале повтор как `#version 330 core` с принудительно выкл инстансингом и скиннингом. Эффекты, фундаментально требующие 430 (SSBO-пути), visibly деградируют — смотрите notice в консоли.
+
+Встроенная библиотека в `core/shaders`: 9 шейдеров материалов (`PBR`, `Unlit`, `Sky`, `Skybox`, `Water`, `WaterSim`, `Tree`, `Clouds`, `CloudLayer`), 20+ внутренних (`Default`, `Shadow`, `Particle`, `ParticleGpu`, `Sprite`, `Text`, `Video`, `Icon`, `Gizmo`, `Grid`, `Outline`, `ObjectFx`, `Projector`, `GaussianSplat`, `Caustics`, `Underwater` и другие) и общие сниппеты `include/` (`area_shadows.glsl`, `caustics.glsl`).
+
+Для нодового авторства — Shader Graph в руководстве по редактору; для значений на материал — материалы.
+
+Связанное: материалы, MeshRenderer (UV-оверрайд uniforms), свет (uniform света), Shader Graph.

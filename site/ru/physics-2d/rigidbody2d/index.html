@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,7 +1173,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="rigidbody-2d">Rigidbody 2D</h1>
-<p>Плоская динамика для скролл-шутеров и top-down игр.</p>
+<p>Плоская динамика для скролл-шутеров и top-down — та же форма API, что в 3D, в плоскости держит флаг солвера.</p>
 <table>
 <thead>
 <tr>
@@ -1180,7 +1184,7 @@
 <tbody>
 <tr>
 <td>Mass</td>
-<td>Вес тела</td>
+<td>Вес; те же рекомендации отношений масс, что в 3D</td>
 </tr>
 <tr>
 <td>Drag / Angular Drag</td>
@@ -1188,20 +1192,22 @@
 </tr>
 <tr>
 <td>Gravity Scale</td>
-<td>Локальный множитель гравитации</td>
+<td>Локальный множитель гравитации (0 для top-down, 1 для платформеров)</td>
 </tr>
 <tr>
 <td>Is Kinematic</td>
-<td>Ведётся трансформом, толкает других</td>
+<td>Ведётся трансформом: движущиеся платформы, двери</td>
 </tr>
 <tr>
 <td>Freeze Rotation</td>
-<td>Лочит плоское вращение</td>
+<td>Лочит плоское вращение — персонажам почти всегда вкл</td>
 </tr>
 </tbody>
 </table>
-<p>Тот же API из скриптов, что в 3D (<code>velocity</code>, <code>add_force</code>, <code>add_torque</code>, <code>add_impulse</code>). Солвер флагует тело как 2D и обнуляет внеплоскостные скорости каждый шаг.</p>
-<p>Связанное: Box Collider 2D, Circle Collider 2D, Rigidbody (3D).</p>
+<p>Тот же API, что в 3D (<code>velocity</code>, <code>add_force</code>, <code>add_torque</code>, <code>add_impulse</code>). Каждый шаг солвер обнуляет внеплоскостные компоненты — top-down машинка никогда не клюёт в экран.</p>
+<p>Паттерны: игрок — динамический с freeze rotation; движущаяся платформа — kinematic со скриптованным движением (едущие тела следуют через контакты); снаряд — динамический, gravity scale 0, убивается скриптом времени жизни; top-down машинка — динамическая с высоким angular drag для аркадных поворотов.</p>
+<p>Диагностика: неконтролируемо вертится — выкл freeze rotation; парит в платформе — gravity scale 0 по ошибке; платформа роняет ездоков — платформа динамическая вместо kinematic.</p>
+<p>Связанное: Box Collider 2D, Circle Collider 2D, Rigidbody (3D), слои коллизий.</p>
               
             </div>
           </div><footer>

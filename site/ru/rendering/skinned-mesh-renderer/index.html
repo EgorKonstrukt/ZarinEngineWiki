@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="skinned-mesh-renderer">Skinned Mesh Renderer</h1>
-<p>Рисует скелетно-анимированные меши с GPU-скиннингом.</p>
+<p>Рисует скелетно-анимированные меши с GPU-скиннингом: персонажи, существа, анимированный реквизит.</p>
 <table>
 <thead>
 <tr>
@@ -1181,7 +1185,7 @@
 <tbody>
 <tr>
 <td>Mesh: Mesh</td>
-<td>Источник анимированного меша</td>
+<td>Источник анимированного меша с костными весами</td>
 </tr>
 <tr>
 <td>Mesh: Source</td>
@@ -1197,12 +1201,15 @@
 </tr>
 <tr>
 <td>Update When Offscreen</td>
-<td>Скинить меши вне кадра (для теней и проб)</td>
+<td>Скинить выкуленные меши (корректные тени и пробы)</td>
 </tr>
 </tbody>
 </table>
-<p>Костные веса приезжают с мешем из Assimp; система анимации (клипы, Animator, контроллеры) пишет позы костей каждый кадр, skinned-проход загружает костные матрицы один раз на меш.</p>
-<p>Связанное: арматура, блендшейпы, клипы и Animator, MeshRenderer (статичные меши).</p>
+<p>Костные веса приезжают с мешем из Assimp (позиции, нормали, UV, тангенты, цвета, веса — одним импортом). Система анимации (клипы, Animator, контроллеры) пишет позы в Armature каждый кадр; skinned-проход загружает костные матрицы один раз на меш и скинит вершины на GPU — цена CPU плоская независимо от вершин.</p>
+<p>Процесс: импорт ригованного FBX, Armature (имена костей должны совпасть), SkinnedMeshRenderer с материалами, Animator с контроллером, проверка в Play — затем Update When Offscreen только для теневых толп.</p>
+<p>Блендшейпы кладут морф-таргеты поверх скелета для лиц (см. страницу блендшейпов).</p>
+<p>Диагностика: жёсткая T-поза — mismatch арматуры или нет аниматора; разлетающиеся вершины — проблема весов/нормализации импорта, реимпорт с тангентами; мёртвые тени — выкл Update When Offscreen на выкуленном кастере.</p>
+<p>Связанное: арматура, блендшейпы, клипы и Animator, MeshRenderer (статика), PhysBone (физическая вторичка).</p>
               
             </div>
           </div><footer>

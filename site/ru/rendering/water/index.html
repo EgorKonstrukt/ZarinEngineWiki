@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="water">Вода Water</h1>
-<p>Водные поверхности от тихих прудов до бесконечных океанов.</p>
+<p>Водные поверхности от тихих прудов до бесконечных океанов на шейдерах <code>Water</code> / <code>WaterSim</code>.</p>
 <table>
 <thead>
 <tr>
@@ -1181,32 +1185,35 @@
 <tbody>
 <tr>
 <td>Water: Water Shader</td>
-<td>Шейдер поверхности (<code>Water</code> / <code>WaterSim</code>)</td>
+<td>Выбор шейдера поверхности</td>
 </tr>
 <tr>
 <td>Surface Type</td>
-<td>Путь пресетов: гладь, река, океан</td>
+<td>Пути пресетов: гладь, река, океан</td>
 </tr>
 <tr>
 <td>Infinite Ocean / Ocean Size</td>
-<td>Бесконечная плоскость и её масштаб</td>
+<td>Тогл бесконечной плоскости и её масштаб</td>
 </tr>
 <tr>
 <td>Waves</td>
-<td>Контролы набора волн</td>
+<td>Контролы амплитуд/частот набора волн</td>
 </tr>
 <tr>
 <td>Deep / Shallow / Foam / SSS / Horizon Color</td>
-<td>Цветовой градиент</td>
+<td>Полный цветовой градиент от глубины к горизонту</td>
 </tr>
 <tr>
 <td>Smoothness / Distortion / Detail Normal</td>
-<td>Отклик поверхности</td>
+<td>Отклик поверхности и рефракционный воббл</td>
 </tr>
 </tbody>
 </table>
-<p>Плавающие тела — компонент Buoyancy; сама область жидкости маркируется компонентом окружения WaterVolume. Каустика и подводный рендер — парными внутренними шейдерами.</p>
-<p>Связанное: плавучесть, заметки WaterVolume, скайбокс (отражения), туман.</p>
+<p>Плавающие тела — компонент Buoyancy; сама область жидкости маркируется компонентом окружения WaterVolume; каустика и подводный рендер — парными внутренними шейдерами.</p>
+<p>Процессы: пруд — малая плоскость, пресет глади, высокая smoothness для зеркальных отражений скайбокса; река — вытянутая плоскость, направленные волны, пена у берегов; океан — infinite вкл, размер под far plane, цвет горизонта сплавлен с туманом.</p>
+<p>Пена ложится по глубине (полоса shallow) — согласуйте шельф террейна с shallow-диапазоном, иначе пена плавает неверно. Distortion продаёт рефракцию; перебор — и текст за водой нечитаем.</p>
+<p>Диагностика: чёрная вода — биты шейдер или источник отражений, проверьте скайбокс/ambient; нет плавучести — нет WaterVolume, одна поверхность тел не держит; пена везде — shallow-диапазон шире шельфа.</p>
+<p>Связанное: плавучесть, скайбокс (отражения), туман, PostFX (подводный грейдинг-близнец).</p>
               
             </div>
           </div><footer>

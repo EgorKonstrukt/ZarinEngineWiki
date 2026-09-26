@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="clouds">Clouds</h1>
-<p>Volumetric-style cloud layer: coverage, density, wind drift, lighting response.</p>
+<p>Volumetric-style cloud layer with coverage, density, wind drift and sun response — skies with weather, not wallpapers.</p>
 <table>
 <thead>
 <tr>
@@ -1181,32 +1185,34 @@
 <tbody>
 <tr>
 <td>Cloud: Cloud Material</td>
-<td>Shading material (<code>Clouds</code> / <code>CloudLayer</code> shaders)</td>
+<td>Shading material built on the <code>Clouds</code> / <code>CloudLayer</code> shaders</td>
 </tr>
 <tr>
 <td>Coverage / Density</td>
-<td>Sky fill and thickness</td>
+<td>Sky fill fraction and layer thickness</td>
 </tr>
 <tr>
 <td>Wind Speed / Wind Direction</td>
-<td>Drift</td>
+<td>Drift vector</td>
 </tr>
 <tr>
 <td>Height / Thickness / Noise Scale</td>
-<td>Layer geometry</td>
+<td>Layer placement and puff granularity</td>
 </tr>
 <tr>
 <td>Opacity / Shadow Strength</td>
-<td>Look and sun blocking</td>
+<td>Look weight and how much sun they block</td>
 </tr>
 <tr>
 <td>Fog Density / Height Falloff / Scattering</td>
-<td>Atmospheric blend</td>
+<td>Blend into the atmospheric haze</td>
 </tr>
 </tbody>
 </table>
-<p>Pairs with Procedural Sky or Skybox backgrounds; shadowed clouds darken the scene consistently with the sun position.</p>
-<p>Related: Procedural Sky, Skybox, Atmosphere.</p>
+<p>Shadowed clouds darken the scene consistently with the sun position — overcast lighting comes free once strength is tuned. Animate wind slowly (0.1–0.5 units) for living skies; fast values read as time-lapse.</p>
+<p>Pairs with Procedural Sky or Skybox backgrounds. Coverage near 1 with high density gives storm ceilings; low coverage with high scattering gives fair-weather dots.</p>
+<p>Troubleshooting: invisible → coverage zero or opacity zero; flat white → density maxed with no noise scale variation; no scene darkening → shadow strength zero.</p>
+<p>Related: Procedural Sky, Skybox, Atmosphere, Directional Light.</p>
               
             </div>
           </div><footer>

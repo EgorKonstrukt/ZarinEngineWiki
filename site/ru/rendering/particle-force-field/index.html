@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Силовое поле частиц</h1>
-<p>Искривляет соседние системы частиц: зоны ветра, гравитационные колодцы, вихри, объёмы drag.</p>
+<p>Гнёт соседние системы частиц, не трогая их конфиги: зоны ветра, гравитационные колодцы, воронки вихрей, объёмы drag, восходящие потоки для листьев и угольков.</p>
 <table>
 <thead>
 <tr>
@@ -1181,7 +1185,7 @@
 <tbody>
 <tr>
 <td>Shape: Shape</td>
-<td>Тип объёма поля</td>
+<td>Тип объёма поля (сфера/бокс-стиль)</td>
 </tr>
 <tr>
 <td>Shape: Radius / Box Size</td>
@@ -1197,20 +1201,23 @@
 </tr>
 <tr>
 <td>Force: Intensity</td>
-<td>Общая сила</td>
+<td>Общий множитель силы</td>
 </tr>
 <tr>
 <td>Force: Multiply by Distance</td>
-<td>Масштабирование с дистанцией</td>
+<td>Масштабирование силы с дистанцией от центра</td>
 </tr>
 <tr>
 <td>Drag, Gravity</td>
-<td>Демпфирование и гравитация внутри объёма</td>
+<td>Дополнительные демпфирование и гравитация внутри объёма</td>
 </tr>
 </tbody>
 </table>
-<p>Ставьте сущность поля так, чтобы объём накрывал эмиттер. Несколько полей складываются в curl-подобное движение.</p>
-<p>Связанное: система частиц, зона ветра (окружение), вода (течение).</p>
+<p>Ставьте сущность поля так, чтобы объём накрывал эмиттер; частицы внутри подхватывают силу, вылетевшие хранят скорость. Складывайте несколько полей для curl-движения (swirl + lift + drag читается как торнадо).</p>
+<p>Процессы: снос дыма костра — боковая сила со спадом, дым встаёт then дрейфует; туман водопада — гравитация вниз плюс распор наружу; магический вихрь — тангенциальная сила вокруг центра с подсосом внутрь; восходящий поток листьев — мягкая сила вверх над двором.</p>
+<p>Поля складываются с собственной физикой системы аддитивно — при комбинации делите оба пополам, затем подтягивайте.</p>
+<p>Диагностика: нет эффекта — объём мимо эмиттера, проверьте пересечение гизмо; жесть — intensity велик для масштаба масс, понизьте и поднимите drag; движение только в одну сторону — вектор одноосевой, добавьте компоненты.</p>
+<p>Связанное: система частиц, зона ветра (ветер растительности), вода (ощущение течения), плавучесть (подводный близнец дрейфа).</p>
               
             </div>
           </div><footer>

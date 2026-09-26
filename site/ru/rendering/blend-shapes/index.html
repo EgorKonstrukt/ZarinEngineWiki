@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="blend-shapes">Блендшейпы Blend Shapes</h1>
-<p>Морф-деформация для лиц и мягкого реквизита поверх скелетной анимации.</p>
+<p>Морф-деформация для лиц и мягкого реквизита поверх скелетной анимации: улыбки, моргания, вмятины урона, дыхание.</p>
 <table>
 <thead>
 <tr>
@@ -1181,13 +1185,15 @@
 <tbody>
 <tr>
 <td>Blend Shapes</td>
-<td>Слайдеры весов на таргет</td>
+<td>Слайдеры весов на таргет, диапазон в стиле 0–100</td>
 </tr>
 </tbody>
 </table>
-<p>Веса приезжают с импортом меша и анимируются клипами или скриптами. Путь блендшейпов покрыт smoke-тестом, регрессии ловятся в CI.</p>
-<p>Применение: мимика, состояния повреждений, циклы дыхания; тяжёлые полнотелые морфы — в скелет.</p>
-<p>Связанное: Skinned Mesh Renderer, клипы анимации.</p>
+<p>Веса приезжают с импортом меша и анимируются клипами или скриптами (вес улыбки от событий диалогов). Путь покрыт smoke-тестом — регрессии ловятся в CI до художников.</p>
+<p>Применение: мимика, состояния повреждений, циклы дыхания; тяжёлые полнотелые морфы — в скелет: морфы линейно интерполируют вершины и не умеют вращать суставы.</p>
+<p>Процесс: скульпт таргетов в DCC с идентичным порядком вершин → импорт → проверка слайдеров по регионам → привязка ключевых выражений к кривым анимации или float скриптов.</p>
+<p>Диагностика: рваный меш — mismatch порядка вершин базы и таргета, чистый реэкспорт; нет движения — нулевые веса или непривязанный клип; разъезжающиеся швы — в таргете не хватает сварных вершин, чинить в DCC.</p>
+<p>Связанное: Skinned Mesh Renderer, клипы анимации, арматура.</p>
               
             </div>
           </div><footer>

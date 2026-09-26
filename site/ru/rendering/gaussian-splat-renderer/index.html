@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="gaussian-splat-renderer">Gaussian Splat Renderer</h1>
-<p>Рисует Gaussian-splat захваты — сцены в стиле фотограмметрии как сортированные точечные объёмы.</p>
+<p>Рисует Gaussian-splat захваты — сцены в стиле фотограмметрии как сортированные точечные объёмы со сферико-гармоническим цветом.</p>
 <table>
 <thead>
 <tr>
@@ -1185,17 +1189,19 @@
 </tr>
 <tr>
 <td>SH Degree</td>
-<td>Уровень качества сферических гармоник</td>
+<td>Уровень сферических гармоник (выше = богаче view-dependent цвет, больше памяти)</td>
 </tr>
 <tr>
 <td>Opacity Cutoff</td>
-<td>Порог прозрачности</td>
+<td>Порог прозрачности, выкуливающий слабые сплаты</td>
 </tr>
 </tbody>
 </table>
-<p>Сплаты сортируются каждый кадр выделенным быстрым путём, разделяют видимость и статистику с мешами, но обходят часть цепочки PostFX — проверяйте градуированный вид в игровом окне.</p>
-<p>Коллизии для splat-объёмов — через GS Volume Collider.</p>
-<p>Связанное: GS Volume Collider, материалы, камеры.</p>
+<p>Сплаты сортируются каждый кадр выделенным быстрым путём (ускоренный модуль <code>_splat_sort</code>), разделяют видимость и статистику с мешами, но обходят часть PostFX — проверяйте градуированный вид в игровом окне, а не только в редакторе.</p>
+<p>Коллизии splat-объёмов — через GS Volume Collider (воксельная бокс-аппроксимация из того же захвата).</p>
+<p>Процессы: захваченный двор — splat-сущность для картинки плюс GS Volume Collider для ходьбы; гибридные сцены — сплаты для фоновых деталей, меши для интерактивного переднего плана; производительность — сначала ниже SH Degree, затем cutoff, затем плотность захвата.</p>
+<p>Диагностика: выбеленные цвета — низок SH Degree для вариации света; дыры — агрессивен cutoff; нет коллизий — нет коллайдера или груб voxel size.</p>
+<p>Связанное: GS Volume Collider, воксельный рендеринг, камеры, материалы.</p>
               
             </div>
           </div><footer>

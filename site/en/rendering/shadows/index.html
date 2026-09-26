@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,16 +1174,19 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="shadows">Shadows</h1>
-<p>Shadow-map subsystem behind every <code>cast_shadows</code> toggle.</p>
+<p>Shadow-map subsystem behind every <code>cast_shadows</code> toggle — depth rendering from the light point of view, sampled back in the main pass.</p>
 <ul>
-<li>Directional: cascaded map, default 4 cascades with resolutions 2048/1024/1024/512, distance 50.</li>
-<li>Point: cube maps, 512 default, up to 4 simultaneous.</li>
-<li>Spot: 1024 default, up to 4 simultaneous.</li>
-<li>Each cascade/face owns a depth texture plus framebuffer; the pass supports GPU instancing with a flat culling path.</li>
-<li>Bias controls: global settings plus per-light <code>area_shadow_bias</code> (0.005 default on area lights).</li>
+<li>Directional: cascaded map, default 4 cascades with resolutions 2048/1024/1024/512, distance 50. Cascades concentrate texels near the camera; distant ground gets coarser depth.</li>
+<li>Point: cube maps, 512 default, up to 4 simultaneous shadowed point lights.</li>
+<li>Spot: perspective maps, 1024 default, up to 4 simultaneous.</li>
+<li>Projector shadows render in their own pass (<code>render_projector_shadows</code>).</li>
+<li>Each cascade/face owns a depth texture plus framebuffer; the pass supports GPU instancing with a flat culling path, and a debug overlay exists (<code>ShadowDebug</code> shader).</li>
+<li>Bias controls: global settings plus per-light bias such as <code>area_shadow_bias</code> (0.005 default on area lights).</li>
 </ul>
-<p>Tuning order: set distance to cover the gameplay area, pick the smallest acceptable resolution, then nudge bias until acne leaves without peter-panning. Profile the shadow pass separately — it redraws the scene per cascade/face.</p>
-<p>Related: Light (Base), Directional/Point/Spot/Area pages, Projector.</p>
+<p>Tuning order, step by step: set shadow distance to cover the gameplay area and nothing more; pick the smallest acceptable resolution per type; nudge bias until acne leaves without peter-panning (detached shadows); finally cap simultaneous shadowed lights — extra ones should be non-shadowed fill.</p>
+<p>Cost model: the shadow pass redraws the scene per cascade and per shadowed face, so 4 cascades plus 2 shadowed spots means 6 extra scene draws. Profile it as its own stage before blaming the main pass.</p>
+<p>Troubleshooting: acne (striped self-shadow) → raise bias slightly; peter-panning (floating contact) → bias too high, lower it; flickering cascades → distance too large for the resolution, shrink distance or raise resolution; no shadows at all → light outside the 8-light pack, beyond distance, or toggle off.</p>
+<p>Related: Light (Base), Directional/Point/Spot/Area pages, Projector, Cameras (near/far affect depth precision too).</p>
               
             </div>
           </div><footer>

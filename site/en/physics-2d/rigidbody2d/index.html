@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,7 +1173,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="rigidbody-2d">Rigidbody 2D</h1>
-<p>Planar dynamics for side-scrollers and top-down games.</p>
+<p>Planar dynamics for side-scrollers and top-down games — same API shape as 3D, constrained to the plane by the solver flag.</p>
 <table>
 <thead>
 <tr>
@@ -1180,7 +1184,7 @@
 <tbody>
 <tr>
 <td>Mass</td>
-<td>Body weight</td>
+<td>Body weight; same mass-ratio guidance as 3D</td>
 </tr>
 <tr>
 <td>Drag / Angular Drag</td>
@@ -1188,20 +1192,22 @@
 </tr>
 <tr>
 <td>Gravity Scale</td>
-<td>Local gravity multiplier</td>
+<td>Local gravity multiplier (0 for top-down, 1 for platformers)</td>
 </tr>
 <tr>
 <td>Is Kinematic</td>
-<td>Transform-driven, pushes others</td>
+<td>Transform-driven: moving platforms, doors</td>
 </tr>
 <tr>
 <td>Freeze Rotation</td>
-<td>Lock in-plane spin</td>
+<td>Lock in-plane spin — almost always on for characters</td>
 </tr>
 </tbody>
 </table>
-<p>Same script API as 3D (<code>velocity</code>, <code>add_force</code>, <code>add_torque</code>, <code>add_impulse</code>). The solver flags the body as 2D and zeroes out-of-plane velocity every step.</p>
-<p>Related: Box Collider 2D, Circle Collider 2D, Rigidbody (3D).</p>
+<p>Same script API as 3D (<code>velocity</code>, <code>add_force</code>, <code>add_torque</code>, <code>add_impulse</code>). Every step the solver zeroes the out-of-plane components, so a top-down car never tips into the screen.</p>
+<p>Patterns: player — dynamic with freeze rotation; moving platform — kinematic with scripted Transform motion (bodies riding it follow through contacts); projectile — dynamic, gravity scale 0, killed by lifetime script; top-down car — dynamic with high angular drag for arcade turn feel.</p>
+<p>Troubleshooting: spins uncontrollably → freeze rotation off; floats in platformer → gravity scale 0 by mistake; platform drops riders → platform dynamic instead of kinematic.</p>
+<p>Related: Box Collider 2D, Circle Collider 2D, Rigidbody (3D), Collision Layers.</p>
               
             </div>
           </div><footer>

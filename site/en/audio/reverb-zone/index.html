@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../../img/favicon.ico" />
-    <title>AudioSource and AudioListener - ZarinEngine Wiki</title>
+    <title>Reverb Zone - ZarinEngine Wiki</title>
     <link rel="stylesheet" href="../../../css/theme.css" />
     <link rel="stylesheet" href="../../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "AudioSource and AudioListener";
-        var mkdocs_page_input_path = "en\\audio\\source-listener.md";
+        var mkdocs_page_name = "Reverb Zone";
+        var mkdocs_page_input_path = "en\\audio\\reverb-zone.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -359,13 +359,15 @@
     <ul class="current">
                 <li class="toctree-l2"><a class="reference internal" href="../overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2 current"><a class="reference internal current" href="#">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../audio-source/">AudioSource</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../audio-listener/">AudioListener</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Reverb Zone</a>
     <ul class="current">
     </ul>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../reverb-zones/">Reverb Zones and EFX</a>
-                </li>
-                <li class="toctree-l2"><a class="reference internal" href="../system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1159,7 +1163,7 @@
     <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">English</li>
           <li class="breadcrumb-item">Audio</li>
-      <li class="breadcrumb-item active">AudioSource and AudioListener</li>
+      <li class="breadcrumb-item active">Reverb Zone</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -1168,22 +1172,65 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="audiosource-and-audiolistener">AudioSource and AudioListener</h1>
-<p>TODO: Content pending. This page will document AudioSource and AudioListener in ZarinEngine.</p>
-<p>Planned sections:</p>
-<ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
-</ul>
-<p>Related pages: see English section index and home page.</p>
+                <h1 id="reverb-zone">Reverb Zone</h1>
+<p>Spatial reverberation over OpenAL EFX: rooms, halls, caves and tunnels that color every source passing through.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector group</th>
+<th>Covers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zone</td>
+<td>Min Distance, Max Distance — full-effect and falloff radii</td>
+</tr>
+<tr>
+<td>Reverb Preset</td>
+<td>Named starting points for common spaces</td>
+</tr>
+<tr>
+<td>Room</td>
+<td>Room level, Room HF, Room LF — low/mid/high decay balance</td>
+</tr>
+<tr>
+<td>Decay</td>
+<td>Decay Time, Decay HFRatio — length and brightness of the tail</td>
+</tr>
+<tr>
+<td>Reflections</td>
+<td>Reflections level, Reflections Delay — early echoes</td>
+</tr>
+<tr>
+<td>Reverb</td>
+<td>Reverb level, Reverb Delay — late diffuse field</td>
+</tr>
+<tr>
+<td>Reference</td>
+<td>HFReference, LFReference — crossover frequencies</td>
+</tr>
+<tr>
+<td>Rolloff</td>
+<td>Room Rolloff Factor — distance response of the effect</td>
+</tr>
+</tbody>
+</table>
+<p>Workflow:</p>
+<ol>
+<li>Add the component to an empty entity marking the space center.</li>
+<li>Pick the closest preset, set Min Distance to cover the room, Max Distance to feather the edge.</li>
+<li>Tune Decay Time first (small room ~0.3 s, hall ~1.5 s, cave ~3 s), then early reflections for slap, then late level for wash.</li>
+<li>Walk the listener through with a looping source to verify the transition in and out.</li>
+</ol>
+<p>The EFX path is guarded: without the extension the engine raises <code>EFXError</code> internally and continues dry — check the console if a zone sounds flat on some machines.</p>
+<p>Related: AudioSource (spatial blend feeds the send), Audio System (EFX module), Fog (visual twin for caves).</p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../overview/" class="btn btn-neutral float-left" title="Audio Overview"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../reverb-zones/" class="btn btn-neutral float-right" title="Reverb Zones and EFX">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../audio-listener/" class="btn btn-neutral float-left" title="AudioListener"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../system/" class="btn btn-neutral float-right" title="Audio System">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -1206,10 +1253,10 @@
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../overview/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../audio-listener/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../reverb-zones/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../system/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

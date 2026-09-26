@@ -1,7 +1,21 @@
 # Hatching
 
-Ink cross-hatch shading for comic and engraving styles. Built on the shared GraphicsEffect base: enable toggle plus effect-specific Inspector fields, executed in component order after the main scene pass.
+Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.
 
-Cost guide: single-pass color ops stay cheap; multi-tap and screen-space techniques dominate the post budget, so profile before stacking.
+## How it works
+
+Ink cross-hatch shading keyed to luminance bands.
+
+## Parameters
+
+Line density, band count, ink color.
+
+## Tips
+
+Comic/engraving styles with Edge Detection and Quantize.
+
+## Cost
+
+Medium.
 
 Related: [PostFX Stack](../postfx.md), Cameras (render scale), Profiler.

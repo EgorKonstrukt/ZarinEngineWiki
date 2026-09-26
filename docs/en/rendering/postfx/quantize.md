@@ -1,7 +1,21 @@
 # Quantize
 
-Reduces the palette to flat posterized bands. Built on the shared GraphicsEffect base: enable toggle plus effect-specific Inspector fields, executed in component order after the main scene pass.
+Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.
 
-Cost guide: single-pass color ops stay cheap; multi-tap and screen-space techniques dominate the post budget, so profile before stacking.
+## How it works
+
+Reduces the palette to flat posterized bands.
+
+## Parameters
+
+Band count per channel feel.
+
+## Tips
+
+Poster/sticker looks with Edge Detection; night-vision green with Scanlines.
+
+## Cost
+
+Cheap.
 
 Related: [PostFX Stack](../postfx.md), Cameras (render scale), Profiler.

@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="raytracing-renderer">Raytracing Renderer</h1>
-<p>Experimental raytraced view component for pipeline research — not a production path (the engine targets OpenGL 4.6, no Vulkan/DX12).</p>
+<p>Experimental raytraced view component for pipeline research and reference renders — not a production path (the engine targets OpenGL 4.6, no Vulkan/DX12).</p>
 <table>
 <thead>
 <tr>
@@ -1185,31 +1189,33 @@
 </tr>
 <tr>
 <td>Compute Shader</td>
-<td>Raytrace kernel</td>
+<td>Raytrace kernel entry</td>
 </tr>
 <tr>
 <td>Resolution Scale</td>
-<td>Render resolution multiplier</td>
+<td>Render resolution multiplier (0.25 for drafts, 1.0 for finals)</td>
 </tr>
 <tr>
 <td>Max Bounces</td>
-<td>Path depth</td>
+<td>Path depth per ray</td>
 </tr>
 <tr>
 <td>Samples Per Pixel</td>
-<td>Quality vs noise</td>
+<td>Quality vs noise per frame</td>
 </tr>
 <tr>
 <td>Accumulate Frames</td>
-<td>Temporal convergence</td>
+<td>Temporal convergence across frames (still camera required)</td>
 </tr>
 <tr>
 <td>Show Overlay / Heatmap (+ Mode / Scale)</td>
-<td>Cost visualization</td>
+<td>Cost visualization for research</td>
 </tr>
 </tbody>
 </table>
-<p>Useful for reference renders and lighting studies; ship games on the standard mesh pipeline.</p>
+<p>Use for lighting studies (compare against the rasterized frame), material validation and marketing stills. Ship games on the standard mesh pipeline.</p>
+<p>Accumulation converges only while the camera and scene are static — any motion restarts convergence, which is expected behavior, not a bug.</p>
+<p>Troubleshooting: noise never clears → motion or accumulation off; black → compute shader failed, check console; editor slowdown → resolution scale 1.0 with high SPP, drop to draft settings.</p>
 <p>Related: Gaussian Splat Renderer, Cameras, Profiler.</p>
               
             </div>

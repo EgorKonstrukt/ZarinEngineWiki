@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="physbone">PhysBone</h1>
-<p>Bone-chain dynamics for hair, tails, capes, antennae and dangling props.</p>
+<p>Bone-chain dynamics for hair, tails, capes, antennae, dangling jewelry and monster appendages — spring simulation along an existing bone chain.</p>
 <table>
 <thead>
 <tr>
@@ -1181,7 +1185,7 @@
 <tbody>
 <tr>
 <td>Transforms</td>
-<td>Root Transform, Ignore Transforms, Ignore Other Phys Bones, Endpoint Position, Multi Child Type</td>
+<td>Root Transform, Ignore Transforms, Ignore Other Phys Bones, Endpoint Position, Multi Child Type (branching behavior)</td>
 </tr>
 <tr>
 <td>Forces</td>
@@ -1193,8 +1197,12 @@
 </tr>
 </tbody>
 </table>
-<p>Curves over chain length allow stiff roots with floppy tips. Colliders deflect the chain; see PhysBoneCollider for shapes.</p>
-<p>Related: PhysBoneCollider, Armature, Skinned Mesh Renderer, IK notes in Animation.</p>
+<p>Curves over chain length are the secret weapon: stiff roots with floppy tips read natural — flat values read robotic. Pull fights gravity (high pull = floaty), spring restores shape, damping kills oscillation.</p>
+<p>Branching: Multi Child Type controls how forks (fingers, ponytail strands) distribute — test on the actual asset, fork behavior varies by hierarchy.</p>
+<p>Colliders deflect the chain every step; see PhysBoneCollider for sphere/capsule/plane shapes. Chains ignore each other unless configured — sleeves clipping capes need explicit ignore rules or colliders.</p>
+<p>Workflow: rigged chain bones → PhysBone on the root with endpoint set → colliders on head/torso → tune pull/spring/damping with curves → stress-test with fast head turns in Play.</p>
+<p>Troubleshooting: stretches like rubber → pull too low or damping zero; vibrates → spring too high for the mass scale, lower and raise damping; clips through body → missing collider or ignore rule swallowing it; frozen → immobile type misassigned.</p>
+<p>Related: PhysBoneCollider, Armature, Skinned Mesh Renderer, IK notes in Animation, Cloth Object Effects (static alternative).</p>
               
             </div>
           </div><footer>

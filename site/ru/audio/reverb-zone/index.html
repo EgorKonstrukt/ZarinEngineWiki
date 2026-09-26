@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../../img/favicon.ico" />
-    <title>Зоны реверберации и EFX - ZarinEngine Wiki</title>
+    <title>Зона реверберации - ZarinEngine Wiki</title>
     <link rel="stylesheet" href="../../../css/theme.css" />
     <link rel="stylesheet" href="../../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "\u0417\u043e\u043d\u044b \u0440\u0435\u0432\u0435\u0440\u0431\u0435\u0440\u0430\u0446\u0438\u0438 \u0438 EFX";
-        var mkdocs_page_input_path = "ru\\audio\\reverb-zones.md";
+        var mkdocs_page_name = "\u0417\u043e\u043d\u0430 \u0440\u0435\u0432\u0435\u0440\u0431\u0435\u0440\u0430\u0446\u0438\u0438";
+        var mkdocs_page_input_path = "ru\\audio\\reverb-zone.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -908,13 +910,15 @@
     <ul class="current">
                 <li class="toctree-l2"><a class="reference internal" href="../overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2 current"><a class="reference internal current" href="#">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../audio-listener/">AudioListener</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Зона реверберации</a>
     <ul class="current">
     </ul>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1159,7 +1163,7 @@
     <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Русский</li>
           <li class="breadcrumb-item">Аудио</li>
-      <li class="breadcrumb-item active">Зоны реверберации и EFX</li>
+      <li class="breadcrumb-item active">Зона реверберации</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -1168,22 +1172,65 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="efx">Зоны реверберации и EFX</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Зоны реверберации и EFX в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
-<ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
-</ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+                <h1 id="_1">Зона реверберации</h1>
+<p>Пространственная реверберация поверх OpenAL EFX: комнаты, залы, пещеры и тоннели, красящие каждый проходящий источник.</p>
+<table>
+<thead>
+<tr>
+<th>Группа инспектора</th>
+<th>Что покрывает</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zone</td>
+<td>Min Distance, Max Distance — радиусы полного эффекта и спада</td>
+</tr>
+<tr>
+<td>Reverb Preset</td>
+<td>Именованные стартовые точки для типовых пространств</td>
+</tr>
+<tr>
+<td>Room</td>
+<td>Room level, Room HF, Room LF — баланс затухания низ/середина/верх</td>
+</tr>
+<tr>
+<td>Decay</td>
+<td>Decay Time, Decay HFRatio — длина и яркость хвоста</td>
+</tr>
+<tr>
+<td>Reflections</td>
+<td>Уровень и задержка Reflections — ранние отражения</td>
+</tr>
+<tr>
+<td>Reverb</td>
+<td>Уровень и задержка Reverb — позднее диффузное поле</td>
+</tr>
+<tr>
+<td>Reference</td>
+<td>HFReference, LFReference — частоты кроссовера</td>
+</tr>
+<tr>
+<td>Rolloff</td>
+<td>Room Rolloff Factor — дистанционный отклик эффекта</td>
+</tr>
+</tbody>
+</table>
+<p>Рабочий процесс:</p>
+<ol>
+<li>Добавьте компонент на пустую сущность в центре пространства.</li>
+<li>Выберите ближайший пресет, Min Distance — на покрытие комнаты, Max Distance — на мягкий край.</li>
+<li>Сначала Decay Time (комната ~0.3 с, зал ~1.5 с, пещера ~3 с), затем ранние отражения для хлопка, затем поздний уровень для wash.</li>
+<li>Пройдите слушателем с зацикленным источником, проверьте вход и выход.</li>
+</ol>
+<p>EFX-путь под guard: без расширения движок внутренне поднимает <code>EFXError</code> и продолжает сухо — смотрите консоль, если зона звучит плоско на отдельных машинах.</p>
+<p>Связанное: AudioSource (spatial blend кормит посыл), аудиосистема (модуль EFX), туман (визуальный близнец для пещер).</p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../source-listener/" class="btn btn-neutral float-left" title="AudioSource и AudioListener"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../system/" class="btn btn-neutral float-right" title="Аудиосистема и кодеки">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../audio-listener/" class="btn btn-neutral float-left" title="AudioListener"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../system/" class="btn btn-neutral float-right" title="Аудиосистема">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -1206,7 +1253,7 @@
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../source-listener/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../audio-listener/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
       <span><a href="../system/" style="color: #fcfcfc">Next &raquo;</a></span>

@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,10 +1174,13 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="textrenderer">TextRenderer</h1>
-<p>Текст в мировом пространстве: подписи, вывески, отладочные оверлеи.</p>
-<p>Рисуется со шрифтом, размером, цветом и выравниванием через внутренний шейдер <code>Text</code>. Следует за трансформом сущности как любой рендерер, так что текстовые панели поворачиваются и масштабируются с креплениями.</p>
-<p>Для экранного UI-текста используйте виджеты GUI Label и соседние; этот компонент — для диегетического текста внутри 3D-мира.</p>
-<p>Связанное: SpriteRenderer, SvgRenderer, контролы GUI.</p>
+<p>Текст в мировом пространстве: плавающие подписи, вывески, табло, отладочные оверлеи, читаемые внутри 3D-вида.</p>
+<p>Рисуется со шрифтом, размером, цветом и выравниванием через внутренний шейдер <code>Text</code>. Следует за трансформом как любой рендерер — текстовые панели поворачиваются и масштабируются с креплениями: табло кренится со столбом, неймплейт трекает NPC.</p>
+<p>Процессы: неймплейты NPC — мелкий квад над головой с контрастным цветом, билбордится доворотом к камере из скрипта каждый кадр; вывески уровней — крупный статичный текст с unlit-подобным материалом для читаемости в любом свете; отладочные оверлеи — ридауты рядом с гизмо (позиции, состояния) под дебаг-флагом.</p>
+<p>Держите строки короткими, размеры щедрыми: текст в мире конкурирует с деталями текстур, мелкие глифы алиасят. Для абзацев и rich text — виджеты GUI Label/TextEdit в скринспейсе.</p>
+<p>Для экранного UI-текста используйте виджеты GUI; этот компонент — для диегетического текста в 3D-мире.</p>
+<p>Диагностика: нечитаемо под углом — доворачивайте к камере или растите размер; выбелено — цвет борется с ключевым светом, переходите на светлое-по-тёмному; нет глифов — покрытие шрифта, меняйте ассет.</p>
+<p>Связанное: SpriteRenderer, SvgRenderer, контролы GUI (Label, TextEdit), камеры.</p>
               
             </div>
           </div><footer>

@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,7 +1173,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="inspector-fields-and-range">Inspector Fields and Range</h1>
-<p>Annotated class attributes automatically appear in the Inspector, and their values are stored in the scene (<code>.zpes</code>). Private names starting with <code>_</code> are skipped, except the special <code>_inspector_buttons</code>.</p>
+<p>Annotated class attributes automatically appear in the Inspector, and their values are stored in the scene (<code>.zpes</code>). Class-level defaults become the initial values; per-instance edits override them without touching the <code>.py</code> file. Private names starting with <code>_</code> are skipped, except the special <code>_inspector_buttons</code>.</p>
 <pre><code class="language-python">from enum import Enum
 from typing import Annotated
 from core.maths.math3d import Vec3
@@ -1200,58 +1204,72 @@ class Enemy:
 <tr>
 <th>Annotation</th>
 <th>Inspector widget</th>
+<th>Stored as</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>float</code></td>
 <td>Number field</td>
+<td>float</td>
 </tr>
 <tr>
 <td><code>int</code></td>
 <td>Integer field</td>
+<td>int</td>
 </tr>
 <tr>
 <td><code>bool</code></td>
 <td>Checkbox</td>
+<td>bool</td>
 </tr>
 <tr>
 <td><code>str</code></td>
 <td>Text field</td>
+<td>string</td>
 </tr>
 <tr>
 <td><code>Annotated[float, Range(min, max[, step])]</code></td>
 <td>Float slider, default step <code>0.01</code></td>
+<td>float clamped to range</td>
 </tr>
 <tr>
 <td><code>Annotated[int, Range(min, max)]</code></td>
 <td>Integer slider, default step <code>1</code></td>
+<td>int clamped to range</td>
 </tr>
 <tr>
 <td><code>Vec2</code> / <code>Vec3</code> / <code>Vec4</code></td>
 <td>Vector fields</td>
+<td>float components</td>
 </tr>
 <tr>
 <td><code>Enum</code> subclass</td>
-<td>Dropdown list</td>
+<td>Dropdown of member names</td>
+<td>enum value</td>
 </tr>
 <tr>
 <td><code>'Entity'</code></td>
-<td>Entity picker (UUID is stored, the live object is passed to the script)</td>
+<td>Entity picker</td>
+<td>UUID; the live object is passed to the script</td>
 </tr>
 <tr>
 <td><code>Curve</code></td>
 <td>Curve editor</td>
+<td>keyframe set</td>
 </tr>
 </tbody>
 </table>
-<p>Notes:</p>
+<p>Details:</p>
 <ul>
-<li><code>Range</code> is <code>Range(min_value=0.0, max_value=1.0, step=None)</code>. A plain <code>[min, max]</code> or <code>(min, max[, step])</code> sequence in <code>Annotated</code> metadata works the same way.</li>
-<li>Resource pickers (mesh, material, texture, audio, prefab, scene, physics material) use the same dialog filters as built-in components.</li>
-<li><code>_inspector_buttons = [(method_name, label), ...]</code> renders buttons that call the method on the live instance.</li>
-<li>The top of the component shows an immutable <code>Script</code> field with the file name: click reveals the file in the Project panel, the <code>...</code> button opens the built-in script editor.</li>
+<li><code>Range</code> is <code>Range(min_value=0.0, max_value=1.0, step=None)</code>. A plain <code>[min, max]</code> or <code>(min, max[, step])</code> sequence in <code>Annotated</code> metadata works identically.</li>
+<li>Entity picker stores the target UUID in the scene and resolves the live object before each call — safe across renames, unlike name-based lookup.</li>
+<li>Resource-typed fields (mesh, material, texture, audio, prefab, scene, physics material) reuse the built-in picker dialogs and their file filters: models <code>*.obj *.fbx *.stl *.gltf *.glb *.usdz *.dae *.3ds *.blend</code>, materials <code>*.zpem *.mat</code>, images <code>*.png *.jpg *.jpeg *.bmp *.tga *.tif *.tiff *.webp *.hdr *.exr *.dds *.svg</code>, audio <code>*.wav *.mp3 *.ogg *.flac *.aiff *.m4a</code>, scripts <code>*.py</code>, prefabs <code>*.zpep</code>, scenes <code>*.zpes</code>, animation clips and controllers, physics materials <code>*.zphysmat</code>.</li>
+<li><code>_inspector_buttons = [(method_name, label), ...]</code> renders buttons that invoke the method on the live Play instance (or the editor instance outside Play) — handy for test triggers like explode, reset or spawn.</li>
+<li>The component header shows an immutable <code>Script</code> field with the file display name: click reveals the file in the Project panel, the <code>...</code> button opens the built-in script editor. Changing the file rebuilds the field list; values for surviving names are kept.</li>
+<li>Hot-reload re-applies Inspector values onto the recreated instance, so tuning survives code edits.</li>
 </ul>
+<p>Guidance: expose designers' knobs (speeds, counts, toggles) as fields, keep internal caches (<code>self._cache</code>, cooldowns) as plain un-annotated attributes set in <code>on_awake</code>.</p>
               
             </div>
           </div><footer>

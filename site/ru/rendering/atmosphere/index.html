@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="atmosphere">Атмосфера Atmosphere</h1>
-<p>Физическое рассеяние атмосферы вокруг солнца и горизонта.</p>
+<p>Физическое рассеяние атмосферы вокруг солнца и горизонта — синий полдень, оранжевый закат, дымная даль.</p>
 <table>
 <thead>
 <tr>
@@ -1185,32 +1189,35 @@
 </tr>
 <tr>
 <td>Sun / Sun Intensity</td>
-<td>Связанный источник-солнце</td>
+<td>Ссылка на связанное солнце</td>
 </tr>
 <tr>
 <td>LUT Resolution</td>
-<td>Плотность таблицы рассеяния</td>
+<td>Плотность таблицы рассеяния (качество против цены)</td>
 </tr>
 <tr>
 <td>Ozone Factor / Aerosol Scale</td>
-<td>Оттенок состава воздуха</td>
+<td>Оттенок состава воздуха (синь против смога)</td>
 </tr>
 <tr>
 <td>Rayleigh Scale / Mie Anisotropy / Mie Albedo</td>
-<td>Баланс синевы и дымки</td>
+<td>Баланс небесной сини и дымки вперёд</td>
 </tr>
 <tr>
 <td>Ground Albedo / Multiscatter</td>
-<td>Аппроксимация отражённого света</td>
+<td>Аппроксимация отражённого снизу света</td>
 </tr>
 <tr>
 <td>Horizon Haze</td>
-<td>Побележка под малыми углами</td>
+<td>Сила побележки под малыми углами</td>
 </tr>
 </tbody>
 </table>
-<p>Работает поверх процедурного неба; сцены с HDRI-скайбоксом обычно её выключают, чтобы не двоить тонировку.</p>
-<p>Связанное: процедурное небо, направленный свет, облака.</p>
+<p>Работает поверх процедурного неба; сцены с HDRI-скайбоксом обычно её выключают, чтобы не двоить тонировку (в фото воздух уже есть).</p>
+<p>Процессы: альпийский полдень — высокий Rayleigh, низкий аэрозоль, хрустящая синь; пустынный закат — высокий Mie-лоб вперёд, тёплый ground albedo; смог-сити — аэрозоль вверх, озон сдвинут, сильная дымка горизонта.</p>
+<p>LUT resolution — ручка цены: поднимайте пока не уйдёт полосатость, затем стоп — дальше заметит только профайлер.</p>
+<p>Диагностика: фиолетовое небо — озон/аэрозоль за гранью правдоподобия, сбросьте к дефолтам; эффекта не видно — нулевая intensity или доминирует HDRI; белая стена горизонта — haze в максимуме, опускайте постепенно.</p>
+<p>Связанное: процедурное небо, направленный свет, облака, туман.</p>
               
             </div>
           </div><footer>

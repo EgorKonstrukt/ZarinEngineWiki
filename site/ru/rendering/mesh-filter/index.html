@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="meshfilter">MeshFilter</h1>
-<p>Отвечает <em>что</em> рисовать: ассет меша плюс имя субмеша внутри многосоставных файлов.</p>
+<p>Отвечает <em>что</em> рисовать: ассет меша плюс имя субмеша внутри многосоставных файлов. Настроек внешности нет — они на рендерере.</p>
 <table>
 <thead>
 <tr>
@@ -1181,7 +1185,7 @@
 <tbody>
 <tr>
 <td>mesh_path</td>
-<td>Файл модели: <code>.obj</code>, <code>.fbx</code>, <code>.stl</code>, <code>.gltf</code>, <code>.glb</code>, <code>.usdz</code>, <code>.dae</code>, <code>.blend</code>, <code>.3ds</code> и другие через Assimp C-FFI</td>
+<td>Файл модели: <code>.obj</code>, <code>.fbx</code>, <code>.stl</code>, <code>.gltf</code>, <code>.glb</code>, <code>.usdz</code>, <code>.dae</code>, <code>.blend</code>, <code>.3ds</code> и другие через мост Assimp C-FFI</td>
 </tr>
 <tr>
 <td>mesh_name</td>
@@ -1189,8 +1193,11 @@
 </tr>
 </tbody>
 </table>
-<p>Импорт привозит вершины, нормали, UV, тангенты, цвета и веса скиннинга как numpy-массивы, кэширует в <code>Library</code>. Файловые настройки <code>.import</code> управляют масштабом, генерацией нормалей/тангентов и углом сглаживания, с OBJ-фолбэком для групп материалов.</p>
-<p>Связанное: MeshRenderer, SkinnedMeshRenderer, MeshCollider, страница импорта моделей.</p>
+<p>Конвейер импорта: Assimp читает вершины, нормали, UV, тангенты, цвета и веса скиннинга в numpy-массивы (OBJ-парсер фолбэком для групп материалов, GIF-импортёр для анимаций кадрами), результат кэшируется в <code>Library</code>, кэш геометрии загружает в GPU один раз. Файловый <code>.import</code> JSON управляет масштабом, генерацией нормалей/тангентов и углом сглаживания.</p>
+<p>Один ассет кормит сразу трёх потребителей: MeshRenderer (картинка), MeshCollider (физика) и миниатюру превью — один реимпорт обновляет всех.</p>
+<p>Процесс: импорт модели, проверка в превью, <code>.import</code>-масштаб чтобы единица равнялась метру, назначение в MeshFilter, материалы по субмешам на рендерере. Многосоставной FBX: по сущности на <code>mesh_name</code> с общим путём.</p>
+<p>Диагностика: нет субмеша — опечатка <code>mesh_name</code> или несвежий импорт, реимпорт и перепейк; неверный масштаб — <code>.import</code> против юнитов сцены; чёрные нормали — включить генерацию в <code>.import</code>; розовое — бит путь материала рендерера, не фильтра.</p>
+<p>Связанное: MeshRenderer, SkinnedMeshRenderer, MeshCollider, импорт моделей, превью материалов.</p>
               
             </div>
           </div><footer>

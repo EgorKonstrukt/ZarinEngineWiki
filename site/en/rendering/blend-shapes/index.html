@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="blend-shapes">Blend Shapes</h1>
-<p>Morph-target deformation for faces and soft props, layered over skeletal animation.</p>
+<p>Morph-target deformation for faces and soft props, layered over skeletal animation: smiles, blinks, damage dents, breathing.</p>
 <table>
 <thead>
 <tr>
@@ -1181,13 +1185,15 @@
 <tbody>
 <tr>
 <td>Blend Shapes</td>
-<td>Per-target weight sliders</td>
+<td>Per-target weight sliders, 0–100 style range</td>
 </tr>
 </tbody>
 </table>
-<p>Weights arrive with the mesh import and are animated from clips or scripts. A smoke test covers the blendshape path, so regressions surface in CI.</p>
-<p>Use for facial expressions, damage states and breathing loops; heavy full-body morphs belong in the skeleton instead.</p>
-<p>Related: Skinned Mesh Renderer, Animation Clips.</p>
+<p>Weights arrive with the mesh import and animate from clips or scripts (drive a smile weight from dialogue events). A smoke test covers the blendshape path, so regressions surface in CI before they reach artists.</p>
+<p>Use for facial expressions, damage states and breathing loops; heavy full-body morphs belong in the skeleton instead — morphs interpolate vertices linearly and cannot rotate joints.</p>
+<p>Workflow: sculpt targets in the DCC with identical vertex order → import → verify sliders move the right regions → wire key expressions to animation curves or script floats.</p>
+<p>Troubleshooting: distorted mesh → vertex order mismatch between base and target, re-export cleanly; no motion → weights zero or clip not bound; seams splitting → target missing welded vertices, fix in DCC.</p>
+<p>Related: Skinned Mesh Renderer, Animation Clips, Armature.</p>
               
             </div>
           </div><footer>

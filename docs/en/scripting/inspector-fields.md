@@ -1,6 +1,6 @@
 # Inspector Fields and Range
 
-Annotated class attributes automatically appear in the Inspector, and their values are stored in the scene (`.zpes`). Private names starting with `_` are skipped, except the special `_inspector_buttons`.
+Annotated class attributes automatically appear in the Inspector, and their values are stored in the scene (`.zpes`). Class-level defaults become the initial values; per-instance edits override them without touching the `.py` file. Private names starting with `_` are skipped, except the special `_inspector_buttons`.
 
 ```python
 from enum import Enum
@@ -29,22 +29,26 @@ class Enemy:
         self.health = 0
 ```
 
-| Annotation | Inspector widget |
-|---|---|
-| `float` | Number field |
-| `int` | Integer field |
-| `bool` | Checkbox |
-| `str` | Text field |
-| `Annotated[float, Range(min, max[, step])]` | Float slider, default step `0.01` |
-| `Annotated[int, Range(min, max)]` | Integer slider, default step `1` |
-| `Vec2` / `Vec3` / `Vec4` | Vector fields |
-| `Enum` subclass | Dropdown list |
-| `'Entity'` | Entity picker (UUID is stored, the live object is passed to the script) |
-| `Curve` | Curve editor |
+| Annotation | Inspector widget | Stored as |
+|---|---|---|
+| `float` | Number field | float |
+| `int` | Integer field | int |
+| `bool` | Checkbox | bool |
+| `str` | Text field | string |
+| `Annotated[float, Range(min, max[, step])]` | Float slider, default step `0.01` | float clamped to range |
+| `Annotated[int, Range(min, max)]` | Integer slider, default step `1` | int clamped to range |
+| `Vec2` / `Vec3` / `Vec4` | Vector fields | float components |
+| `Enum` subclass | Dropdown of member names | enum value |
+| `'Entity'` | Entity picker | UUID; the live object is passed to the script |
+| `Curve` | Curve editor | keyframe set |
 
-Notes:
+Details:
 
-- `Range` is `Range(min_value=0.0, max_value=1.0, step=None)`. A plain `[min, max]` or `(min, max[, step])` sequence in `Annotated` metadata works the same way.
-- Resource pickers (mesh, material, texture, audio, prefab, scene, physics material) use the same dialog filters as built-in components.
-- `_inspector_buttons = [(method_name, label), ...]` renders buttons that call the method on the live instance.
-- The top of the component shows an immutable `Script` field with the file name: click reveals the file in the Project panel, the `...` button opens the built-in script editor.
+- `Range` is `Range(min_value=0.0, max_value=1.0, step=None)`. A plain `[min, max]` or `(min, max[, step])` sequence in `Annotated` metadata works identically.
+- Entity picker stores the target UUID in the scene and resolves the live object before each call — safe across renames, unlike name-based lookup.
+- Resource-typed fields (mesh, material, texture, audio, prefab, scene, physics material) reuse the built-in picker dialogs and their file filters: models `*.obj *.fbx *.stl *.gltf *.glb *.usdz *.dae *.3ds *.blend`, materials `*.zpem *.mat`, images `*.png *.jpg *.jpeg *.bmp *.tga *.tif *.tiff *.webp *.hdr *.exr *.dds *.svg`, audio `*.wav *.mp3 *.ogg *.flac *.aiff *.m4a`, scripts `*.py`, prefabs `*.zpep`, scenes `*.zpes`, animation clips and controllers, physics materials `*.zphysmat`.
+- `_inspector_buttons = [(method_name, label), ...]` renders buttons that invoke the method on the live Play instance (or the editor instance outside Play) — handy for test triggers like explode, reset or spawn.
+- The component header shows an immutable `Script` field with the file display name: click reveals the file in the Project panel, the `...` button opens the built-in script editor. Changing the file rebuilds the field list; values for surviving names are kept.
+- Hot-reload re-applies Inspector values onto the recreated instance, so tuning survives code edits.
+
+Guidance: expose designers' knobs (speeds, counts, toggles) as fields, keep internal caches (`self._cache`, cooldowns) as plain un-annotated attributes set in `on_awake`.

@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="soft-body">Soft Body</h1>
-<p>Deformable mesh simulation for cloth, jelly and squashy props.</p>
+<p>Deformable mesh simulation for cloth, jelly, squashy props and soft characters — vertices simulated, mesh follows.</p>
 <table>
 <thead>
 <tr>
@@ -1181,19 +1185,19 @@
 <tbody>
 <tr>
 <td>Soft Body: Mass / Stiffness</td>
-<td>Weight vs rigidity</td>
+<td>Weight vs shape retention</td>
 </tr>
 <tr>
 <td>Bend Mode</td>
-<td>Bending response model</td>
+<td>Bending response model selector</td>
 </tr>
 <tr>
 <td>Pressure</td>
-<td>Inflation for closed meshes</td>
+<td>Inflation for closed meshes (balloons, tires)</td>
 </tr>
 <tr>
 <td>Damping / Iterations</td>
-<td>Settle behavior and solver quality</td>
+<td>Settle behavior and solver quality per step</td>
 </tr>
 <tr>
 <td>Gravity Scale</td>
@@ -1209,20 +1213,24 @@
 </tr>
 <tr>
 <td>Pin Mode / Pin Fraction</td>
-<td>Attached vertex share</td>
+<td>Share of vertices attached to the anchor</td>
 </tr>
 <tr>
 <td>Max Vertices</td>
-<td>Simulation budget</td>
+<td>Simulation budget cap</td>
 </tr>
 <tr>
 <td>Double Sided</td>
-<td>Two-face collision</td>
+<td>Two-face collision for thin cloth</td>
 </tr>
 </tbody>
 </table>
-<p>Vertices, center of mass and velocities exchange with the solver through the soft shared buffer every step — heavier than rigid bodies, so budget vertex counts.</p>
-<p>Related: Buoyancy, PhysBone, Cloth-adjacent Object Effects.</p>
+<p>Vertices, center of mass and velocities exchange with the solver through the soft shared buffer every step — heavier than rigid bodies, so budget vertex counts (hundreds, not thousands) and reserve soft bodies for hero props.</p>
+<p>Pin patterns: full pin row for curtains and capes, corner pins for tablecloths, zero pins for free jelly. Pressure turns closed meshes into bouncy balls; combine with high damping for waterbeds.</p>
+<p>Iterations are the quality knob: raise until squash recovers cleanly, then stop — cost grows linearly. Damping too low jiggles forever; too high feels frozen.</p>
+<p>Workflow: closed low-poly mesh → SoftBody with pressure for balls, open mesh with pins for cloth → tune stiffness/damping → verify gizmo volume → Play and poke it with a kinematic pusher.</p>
+<p>Troubleshooting: explodes → iterations too low for the stiffness, raise both carefully; falls through → vertex radius tiny plus fast motion, grow radius or slow down; pins tear → pin fraction too small for the load, add pins; heavy → max vertices overshot, decimate the source mesh.</p>
+<p>Related: Buoyancy (floating jelly), PhysBone (chain alternative for straps), Cloth-adjacent Object Effects, Rigidbody (pusher bodies).</p>
               
             </div>
           </div><footer>

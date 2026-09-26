@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="buoyancy">Buoyancy</h1>
-<p>Floating bodies for ponds, rivers and oceans.</p>
+<p>Floating bodies for ponds, rivers and oceans: hulls displace water, waves rock them, currents push them.</p>
 <table>
 <thead>
 <tr>
@@ -1181,27 +1185,31 @@
 <tbody>
 <tr>
 <td>Buoyancy: Object Density</td>
-<td>Hull density vs water</td>
+<td>Hull density vs water — below water density floats</td>
 </tr>
 <tr>
 <td>Override Volume</td>
-<td>Manual displaced volume</td>
+<td>Manual displaced volume, skips auto computation</td>
 </tr>
 <tr>
 <td>Water Density</td>
-<td>Liquid density</td>
+<td>Liquid density (fresh vs salt vs lava-thick)</td>
 </tr>
 <tr>
 <td>Hydro Drag / Hydro Angular Drag</td>
-<td>Water damping</td>
+<td>Water damping on motion and spin</td>
 </tr>
 <tr>
 <td>Flow Influence</td>
-<td>How much currents push</td>
+<td>How much currents push the hull</td>
 </tr>
 <tr>
-<td>Options: Use Waves / Use Flow</td>
-<td>Surface and current sampling</td>
+<td>Options: Use Waves</td>
+<td>Sample the wave surface for rocking</td>
+</tr>
+<tr>
+<td>Options: Use Flow</td>
+<td>Sample currents for drift</td>
 </tr>
 <tr>
 <td>Sample Resolution</td>
@@ -1209,16 +1217,19 @@
 </tr>
 <tr>
 <td>Max Accel (x g)</td>
-<td>Stability clamp</td>
+<td>Stability clamp on water forces</td>
 </tr>
 <tr>
 <td>Debug Draw</td>
-<td>Volume visualization</td>
+<td>Volume and probe visualization</td>
 </tr>
 </tbody>
 </table>
-<p>Pair with a WaterVolume environment component marking the liquid region and a Water surface for visuals.</p>
-<p>Related: Water, Soft Body, Rigidbody.</p>
+<p>Pair with a WaterVolume environment component marking the liquid region and a Water surface for visuals — the component alone floats nothing without a defined liquid.</p>
+<p>Tuning order: density until the waterline sits right (deck awash = too dense), hydro drag until stopping feels weighty, waves on for rocking, flow for rivers. Light fast boats want low drag and high max accel; barges want the opposite.</p>
+<p>Sample resolution trades fidelity for cost: high for long hulls (probes along the length catch pitch), low for barrels. Debug Draw shows probes — if they miss the hull, the forces will too.</p>
+<p>Troubleshooting: sinks → density above water or volume underestimated, check override; vibrates → max accel too high or resolution too low; ignores waves → Use Waves off or outside the WaterVolume; drifts sideways forever → flow influence with an unbalanced current field.</p>
+<p>Related: Water, WaterVolume notes, Soft Body, Rigidbody (mass interplay).</p>
               
             </div>
           </div><footer>

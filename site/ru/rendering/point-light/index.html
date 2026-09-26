@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,14 +1174,15 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Точечный свет</h1>
-<p>Всенаправленная лампочка. Позиция из трансформа; затухание по <code>range</code>.</p>
+<p>Всенаправленная лампочка во все стороны. Позиция из трансформа; яркость спадает по <code>range</code> и кривой дистанции.</p>
 <ul>
 <li>Интенсивность в люменах, по умолчанию 1000. Ориентиры: свеча ~12.6, декоративный LED 100, настольная лампа 300, потолочный свет 800, лампа 100 Вт 1600, фонарь 15000.</li>
-<li>До 4 одновременных точечных карт теней (512 по умолчанию); включайте <code>cast_shadows</code> только где тени видны.</li>
-<li>Гизмо показывает сферу range.</li>
+<li>До 4 одновременных точечных кубических карт (512 по умолчанию) — самый дорогой тип теней на свет из-за шести граней. Включайте <code>cast_shadows</code> только где тени читаются (hero-лампы, геймплейно важные света).</li>
+<li>Гизмо показывает сферу range; подгоняйте <code>range</code>, пока сфера не обнимет зону лампы — раздутые радиусы жгут бюджет и моют соседей.</li>
 </ul>
-<p>Применение: лампы, взрывы, подборы, локальное свечение. Для больших интерьеров лучше несколько ярких точек, чем много тусклых.</p>
-<p>Связанное: Light (база), тени, спот.</p>
+<p>Процессы: освещение комнат — одна затенённая точка на комнату на высоте потолка плюс незатенённые акценты; взрывы — короткий высокоинтенсивный пункт, гаснущий скриптом в ноль; подборы — малорадиусная пульсирующая точка (анимируйте intensity, не range, для дешёвого мерцания).</p>
+<p>В физических единицах точка 1000 люмен рядом с солнцем 100000 люкс ведёт себя верно: солнце доминирует на улице, лампочка владеет интерьерами. Две затенённые точки в маленькой комнате удваивают цену кубов — лучше одна затенённая, остальные простые.</p>
+<p>Связанное: Light (база), тени, спот, Emissive Pulse (визуальный близнец светильника).</p>
               
             </div>
           </div><footer>

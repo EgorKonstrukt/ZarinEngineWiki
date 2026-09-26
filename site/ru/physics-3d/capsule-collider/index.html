@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="capsule-">Capsule-коллайдер</h1>
-<p>Тела персонажей и пилюли: цилиндр со сферическими крышками, стабилен при вращении.</p>
+<p>Тела персонажей и пилюли: цилиндр со сферическими крышками, не цепляющийся за швы пола как боксы и стабильный при вращении в отличие от сырых цилиндров.</p>
 <table>
 <thead>
 <tr>
@@ -1198,7 +1202,7 @@
 <tr>
 <td>Shape: Height</td>
 <td>2.0</td>
-<td>Масштабируется по оси направления</td>
+<td>Полная высота, масштабируется по оси направления</td>
 </tr>
 <tr>
 <td>Shape: Direction</td>
@@ -1217,7 +1221,10 @@
 </tr>
 </tbody>
 </table>
-<p>При дефолтах совпадает с капсулой CharacterController (радиус 0.5, высота 2.0).</p>
+<p>При дефолтах совпадает с капсулой CharacterController (0.5/2.0) — те же числа для AI-тел, и игроки с ботами сталкиваются идентично.</p>
+<p>Гид ориентации: Y для стоячих, X/Z для лежачих и катящихся (брёвна, бочки на боку). Высота включает крышки; высота ниже <code>radius * 2</code> вырождается к сфере — солвер клампит, но гизмо показывает правду.</p>
+<p>Враги с выпадами и дэшами стоят прямо заморозкой осей Rigidbody при той же капсуле — наклоняются без опрокидывания.</p>
+<p>Диагностика: цепляется за ступени — велик радиус под глубину проступи или мала высота шага (контроллера); парит над землёй — offset центра поднял крышки; вертится бревном — заморозьте оси поворота.</p>
 <p>Связанное: CharacterController, Sphere-коллайдер, Rigidbody.</p>
               
             </div>

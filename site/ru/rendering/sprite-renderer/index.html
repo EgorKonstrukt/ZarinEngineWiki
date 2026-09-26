@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="spriterenderer">SpriteRenderer</h1>
-<p>Текстурированный квад в мировом пространстве: билборды, подборы, декали, 2D-персонажи в 3D-сценах.</p>
+<p>Текстурированный квад в мировом пространстве: билборды, подборы, декали, 2D-персонажи внутри 3D-сцен, спрайтовые VFX-листы.</p>
 <table>
 <thead>
 <tr>
@@ -1187,18 +1191,22 @@
 </tr>
 <tr>
 <td>color</td>
-<td>белый</td>
-<td>Множитель оттенка <code>[1,1,1,1]</code></td>
+<td>белый <code>[1,1,1,1]</code></td>
+<td>Множитель оттенка — белый хранит цвета исходника</td>
 </tr>
 <tr>
 <td>flip_x / flip_y</td>
 <td>выкл / выкл</td>
-<td>Зеркаляние</td>
+<td>Горизонтальное / вертикальное зеркаляние</td>
 </tr>
 </tbody>
 </table>
-<p>Рисуется выделенным спрайтовым путём с поддержкой инстансинга; следует за трансформом сущности. Для полных UI-раскладок используйте GUI-систему.</p>
-<p>Связанное: SvgRenderer, TextRenderer, VideoRenderer, обзор GUI.</p>
+<p>Рисуется выделенным спрайтовым путём с поддержкой инстансинга — сотни подборов батчатся дёшево. Следует за трансформом (позиция, поворот, масштаб); билборд-поведение — из внутреннего пути шейдера <code>Sprite</code>.</p>
+<p>Процессы: подборы — квад с текстурой, слегка emissive материал, медленный скрипт <code>Rotator</code> для внимания; карточки листвы — скрещенные квады с alpha-tested материалами и <code>_double_sided</code>; flip-book анимация — смена <code>texture_path</code> по таймеру из скрипта (или GIF-импорт выше по потоку); декали — квады в 1 см от поверхностей с прозрачными материалами.</p>
+<p>Трюки оттенка: белый хранит арт; красный для вспышки урона (возврат за 0.2 с); вариации цвета толпы из скриптов спавнера.</p>
+<p>Для полных экранных UI-раскладок — GUI-система (виджет Image на GuiCanvas); SpriteRenderer — для диегетического контента в мире.</p>
+<p>Диагностика: розовый квад — бит путь текстуры, перепейк; зеркальный арт — флаги flip; артефакты сортировки спрайтов — прозрачный бакет сортируется по глубине, разносите слои по Z; мыльные пиксели — настройка фильтра импорта, nearest для пиксель-арта.</p>
+<p>Связанное: SvgRenderer, TextRenderer, VideoRenderer, обзор GUI, текстуры и сжатие.</p>
               
             </div>
           </div><footer>

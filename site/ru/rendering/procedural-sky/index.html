@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Процедурное небо</h1>
-<p>Динамическое небо суток: положение солнца, ночные звёзды, оттенок атмосферы — всё считается, без текстур.</p>
+<p>Динамическое небо суток, считаемое покадрово: диск солнца, ночные звёзды, сумеречные градиенты — без текстур для авторства и стриминга.</p>
 <table>
 <thead>
 <tr>
@@ -1189,11 +1193,14 @@
 </tr>
 <tr>
 <td>Milky Way</td>
-<td>Контролы полосы Млечного Пути</td>
+<td>Контролы плотности и оттенка полосы</td>
 </tr>
 </tbody>
 </table>
-<p>Направленный свет с <code>procedural_sky_lighting</code> ведёт солнце: поворот света двигает диск и автоматически перебалансирует ambient.</p>
+<p>Направленный свет с <code>procedural_sky_lighting</code> ведёт солнце: поворот двигает диск и автоматически перебалансирует ambient — полные сутки это одна анимация поворота плюс кейфреймы exposure.</p>
+<p>Процессы: сутки открытого мира — поворот солнца 360° за длину дня, низкая ночная exposure, звёзды по высоте солнца (density из скрипта); стилизованный закат-лок — заморозить солнце низко, tint в оранж, звёзды чуть вкл; космос — ночное небо вкл, солнце тускло, сильный Млечный Путь.</p>
+<p>Seed даёт разные созвездия на уровень; скорость мерцания масштабируется с exposure для стабильных ночных рендеров.</p>
+<p>Диагностика: солнце и диск спорят — выкл связка на направленном; звёзды в полдень — высока night exposure; плоские сумерки — не тронут tint, давите оранжево-синий сплит.</p>
 <p>Связанное: скайбокс, атмосфера, облака, направленный свет.</p>
               
             </div>

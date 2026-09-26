@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="atmosphere">Atmosphere</h1>
-<p>Physical atmosphere scattering around the sun and horizon.</p>
+<p>Physical atmosphere scattering layered around the sun and horizon — blue noon, orange dusk, hazy distance.</p>
 <table>
 <thead>
 <tr>
@@ -1185,32 +1189,35 @@
 </tr>
 <tr>
 <td>Sun / Sun Intensity</td>
-<td>Coupled sun source</td>
+<td>Coupled sun source reference</td>
 </tr>
 <tr>
 <td>LUT Resolution</td>
-<td>Scattering lookup density</td>
+<td>Scattering lookup density (quality vs cost)</td>
 </tr>
 <tr>
 <td>Ozone Factor / Aerosol Scale</td>
-<td>Air composition tint</td>
+<td>Air composition tint (blue vs smog)</td>
 </tr>
 <tr>
 <td>Rayleigh Scale / Mie Anisotropy / Mie Albedo</td>
-<td>Sky blue vs haze balance</td>
+<td>Sky-blue vs haze-forward balance</td>
 </tr>
 <tr>
 <td>Ground Albedo / Multiscatter</td>
-<td>Bounce light approximation</td>
+<td>Bounce-light approximation from below</td>
 </tr>
 <tr>
 <td>Horizon Haze</td>
-<td>Low-angle whitening</td>
+<td>Low-angle whitening amount</td>
 </tr>
 </tbody>
 </table>
-<p>Works on top of Procedural Sky; Skybox HDRI scenes usually leave it off to avoid double tinting.</p>
-<p>Related: Procedural Sky, Directional Light, Clouds.</p>
+<p>Works on top of Procedural Sky; Skybox HDRI scenes usually leave it off to avoid double tinting (the photo already contains air).</p>
+<p>Workflows: alpine noon — high Rayleigh, low aerosol, crisp blue; desert dusk — high Mie anisotropy forward lobe, warm ground albedo; smog city — aerosol up, ozone shifted, horizon haze strong.</p>
+<p>LUT resolution is the cost knob: raise until banding leaves, then stop — beyond that only the profiler notices.</p>
+<p>Troubleshooting: purple sky → ozone/aerosol pushed past plausible, reset toward defaults; no visible effect → intensity zero or HDRI skybox dominating; white horizon wall → haze maxed, lower gradually.</p>
+<p>Related: Procedural Sky, Directional Light, Clouds, Fog.</p>
               
             </div>
           </div><footer>

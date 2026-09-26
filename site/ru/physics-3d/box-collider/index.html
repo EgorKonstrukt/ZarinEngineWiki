@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="box-">Box-коллайдер</h1>
-<p>Осевой бокс в локальном пространстве. Рабочая лошадка для ящиков, стен, полов и триггеров.</p>
+<p>Осевой бокс в локальном пространстве. Рабочая лошадка для ящиков, стен, полов, триггеров и кнопок — cheapest форма любого солвера, предпочитайте везде, где форма ложится.</p>
 <table>
 <thead>
 <tr>
@@ -1183,12 +1187,12 @@
 <tr>
 <td>Collision: Layer / Collision Mask</td>
 <td>0 / 0xFFFF</td>
-<td>Фильтрация</td>
+<td>Кто с кем сталкивается</td>
 </tr>
 <tr>
 <td>Shape: Center</td>
 <td>начало</td>
-<td>Локальный сдвиг</td>
+<td>Локальный сдвиг от пивота</td>
 </tr>
 <tr>
 <td>Shape: Size</td>
@@ -1208,12 +1212,15 @@
 <tr>
 <td>Инлайн трение / упругость</td>
 <td>0.6 / 0.0</td>
-<td>Без ассета</td>
+<td>Без назначенного ассета</td>
 </tr>
 </tbody>
 </table>
-<p>На одной сущности может быть несколько коллайдеров; примитивы сливаются в составное тело.</p>
-<p>Связанное: Rigidbody, физические материалы, слои коллизий, Box Collider 2D.</p>
+<p>На одной сущности несколько коллайдеров; примитивы box/sphere/capsule сливаются в одно составное тело — стол (крышка + 4 ноги) симулируется одним телом с пятью шейпами.</p>
+<p>Процессы: полы — большой тонкий бокс, статика (без Rigidbody), трение 0.8+, чтобы персонажи не скользили; ящики — единичный бокс с Rigidbody 2–5, ничего не заморожено; триггеры — бокс с вкл <code>is_trigger</code>, скриптованный <code>on_collision_enter</code> для дверей, подборов и чекпоинтов; кнопки — тонкая триггер-пластина плюс визуальный меш, проседающий на enter.</p>
+<p>Трюк компаунда: Г-лестница из 2–3 боксов бьёт любой меш-коллайдер по цене и стабильности. Держите боксы осевыми в локале; повёрнутые владельцы нормальны, скошенные (неоднородно shear) родители искажают форму — чините иерархию.</p>
+<p>Диагностика: проваливается на скорости — туннелирование, кап скорости или ниже fixed dt; триггер молчит — mismatch масок или оба триггеры без скрипта-слушателя; неверный размер — забыт скейл трансформа, думайте <code>scaled_size</code> (локал × скейл).</p>
+<p>Связанное: Rigidbody, физические материалы, слои коллизий, Mesh-коллайдер (когда боксы не ложатся), Box Collider 2D.</p>
               
             </div>
           </div><footer>

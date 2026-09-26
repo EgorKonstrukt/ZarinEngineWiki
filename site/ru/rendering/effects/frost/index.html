@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -802,6 +804,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Иней</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Как работает</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Параметры</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Советы</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Цена</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../glitch/">Глитч объекта</a>
@@ -910,11 +920,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1182,15 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Иней</h1>
-<p>Ледяная кромка и рост кристаллов по поверхности. Построен на общей базе ObjectEffect и проходе ObjectFx: параметры прогресса и интенсивности выставлены наружу, скрипты ведут эффект, анимируя один float.</p>
+<p>Эффект объекта через проход ObjectFx (в отличие от PostFX на весь кадр). Построен на общей базе ObjectEffect; скрипты ведут его, анимируя float прогресса/интенсивности.</p>
+<h2 id="_2">Как работает</h2>
+<p>Ледяная кромка и рост кристаллов от краёв с контролем прогресса.</p>
+<h2 id="_3">Параметры</h2>
+<p>Прогресс, плотность кристаллов, оттенок.</p>
+<h2 id="_4">Советы</h2>
+<p>Заморозки, криокамеры, расползающееся зимнее проклятие. Чисто реверсится 1→0.</p>
+<h2 id="_5">Цена</h2>
+<p>Дёшево.</p>
 <p>Связанное: <a href="../">эффекты объектов</a>, материалы, примеры скриптов.</p>
               
             </div>

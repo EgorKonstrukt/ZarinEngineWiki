@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="meshfilter">MeshFilter</h1>
-<p>Answers <em>what</em> to draw: a mesh asset plus the submesh name inside multi-mesh files.</p>
+<p>Answers <em>what</em> to draw: a mesh asset plus the submesh name inside multi-mesh files. No appearance settings — those live on the renderer.</p>
 <table>
 <thead>
 <tr>
@@ -1181,7 +1185,7 @@
 <tbody>
 <tr>
 <td>mesh_path</td>
-<td>Model file: <code>.obj</code>, <code>.fbx</code>, <code>.stl</code>, <code>.gltf</code>, <code>.glb</code>, <code>.usdz</code>, <code>.dae</code>, <code>.blend</code>, <code>.3ds</code> and more via Assimp C-FFI</td>
+<td>Model file: <code>.obj</code>, <code>.fbx</code>, <code>.stl</code>, <code>.gltf</code>, <code>.glb</code>, <code>.usdz</code>, <code>.dae</code>, <code>.blend</code>, <code>.3ds</code> and more via the Assimp C-FFI bridge</td>
 </tr>
 <tr>
 <td>mesh_name</td>
@@ -1189,8 +1193,11 @@
 </tr>
 </tbody>
 </table>
-<p>Import brings vertices, normals, UVs, tangents, colors and skin weights as numpy arrays, cached in <code>Library</code>. Per-file <code>.import</code> settings control scale, normal/tangent generation and smoothing angle, with an OBJ fallback for material groups.</p>
-<p>Related: MeshRenderer, SkinnedMeshRenderer, MeshCollider, Model Import page.</p>
+<p>Import pipeline: Assimp reads vertices, normals, UVs, tangents, colors and skin weights into numpy arrays (OBJ parser as fallback for material groups, GIF flipbook importer for animated sprites-as-frames), the result caches in <code>Library</code>, and the geometry cache uploads once to the GPU. Per-file <code>.import</code> JSON controls scale, normal/tangent generation and smoothing angle.</p>
+<p>One mesh asset feeds three consumers at once: MeshRenderer (visuals), MeshCollider (physics) and the model preview thumbnail — a single reimport updates all of them.</p>
+<p>Workflow: import the model, check it in the model preview, set <code>.import</code> scale so one unit equals one meter, assign into MeshFilter, add materials per submesh on the renderer. Multi-part FBX: one entity per <code>mesh_name</code> sharing the same path.</p>
+<p>Troubleshooting: missing submesh → <code>mesh_name</code> typo or stale import, reimport and re-pick; wrong scale → <code>.import</code> scale vs scene units; black normals → enable normal generation in <code>.import</code>; pink → renderer material path broken, not the filter.</p>
+<p>Related: MeshRenderer, SkinnedMeshRenderer, MeshCollider, Model Import, Material Preview.</p>
               
             </div>
           </div><footer>

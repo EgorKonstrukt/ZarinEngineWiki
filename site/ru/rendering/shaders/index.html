@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,7 +1173,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="shader">Шейдеры (.shader)</h1>
-<p>Кастомный текстовый формат в стиле Unity ShaderLab. Минимальный пример:</p>
+<p>Кастомный текстовый формат в стиле Unity ShaderLab: шапка <code>Properties</code>, понятная редактору, плюс сырой GLSL для GPU. Минимальный пример:</p>
 <pre><code class="language-shader">Shader &quot;Zarin/Unlit&quot; {
   Properties {
     _BaseColor(&quot;Base Color&quot;, Color) = (1, 1, 1, 1)
@@ -1204,14 +1208,19 @@
   }
 }
 </code></pre>
-<p>Правила формата:</p>
+<p>Правила формата, сверено с загрузчиком:</p>
 <ul>
-<li>Записи <code>Properties</code> выглядят как <code>[_Attr] _Name("Display", Type) = default</code>. Типы: <code>Color</code>/<code>Vector</code> как <code>(1,1,1,1)</code>, <code>Float</code>/<code>Range(a,b)</code> как float, <code>Int</code> как int, <code>2D</code>/<code>Cube</code> как <code>"white"</code> / <code>"bump"</code> плюс <code>{}</code>.</li>
-<li>В файле может быть несколько блоков <code>SubShader</code>; загрузчик пробует их по порядку, затем опциональный <code>Fallback "Name"</code>.</li>
+<li>Записи <code>Properties</code> как <code>[_Attr] _Name("Display", Type) = default</code>. Типы: <code>Color</code>/<code>Vector</code> как <code>(1,1,1,1)</code>, <code>Float</code>/<code>Range(a,b)</code> как float, <code>Int</code> как int, <code>2D</code>/<code>Cube</code> как <code>"white"</code> / <code>"bump"</code> плюс <code>{}</code>.</li>
+<li>В файле несколько блоков <code>SubShader</code>; загрузчик пробует по порядку, затем опциональный <code>Fallback "Name"</code>, если упали все.</li>
 <li>Каждый блок <code>GLSLPROGRAM … ENDGLSL</code> делится на вершины/фрагменты по маркеру <code>// @FRAGMENT</code>.</li>
-<li>Загрузчик инжектит атрибуты GPU-инстансинга (<code>in_model0-3</code>, SSBO-биндинги 4/5 на 430+), UV-оверрайды (<code>u_uv_scale</code>, <code>u_uv_offset</code>, <code>u_uv_world_scale</code>) и маркеры инклюдов area-теней и каустики.</li>
+<li>Загрузчик инжектит атрибуты GPU-инстансинга (<code>in_model0-3</code>, SSBO-биндинги 4/5 на 430+), UV-оверрайды (<code>u_uv_scale</code>, <code>u_uv_offset</code>, <code>u_uv_world_scale</code>) и резолвит маркеры инклюдов area-теней и каустики.</li>
+<li>Поиск шейдеров — дерево <code>core/shaders</code> корня движка: <code>materials</code>, <code>internal</code>, <code>compute</code>, <code>include</code>, <code>legacy</code>.</li>
 </ul>
-<p>Встроенная библиотека в <code>core/shaders</code>: 9 шейдеров материалов (<code>PBR</code>, <code>Unlit</code>, <code>Sky</code>, <code>Skybox</code>, <code>Water</code>, <code>WaterSim</code>, <code>Tree</code>, <code>Clouds</code>, <code>CloudLayer</code>), 20+ внутренних (<code>Default</code>, <code>Shadow</code>, <code>Particle</code>, <code>ParticleGpu</code>, <code>Sprite</code>, <code>Text</code>, <code>Video</code>, <code>Icon</code>, <code>Gizmo</code>, <code>Grid</code>, <code>Outline</code>, <code>ObjectFx</code>, <code>Projector</code>, <code>GaussianSplat</code>, <code>Caustics</code>, <code>Underwater</code>, …) и общие сниппеты <code>include/</code>.</p>
+<p>Процесс: дублируйте <code>Unlit.shader</code>, переименуйте путь <code>Shader "..."</code>, объявите входы в Properties (автопоявятся в каждом материале на нём), пишите проходы, назначьте на материал и итерируйте с горячим превью. Ошибки компиляции печатаются с файлом и строкой — чините сверху вниз, первая обычно каскадит.</p>
+<p>Фолбэк компиляции: сначала пробуется <code>#version 430 core</code>; при провале повтор как <code>#version 330 core</code> с принудительно выкл инстансингом и скиннингом. Эффекты, фундаментально требующие 430 (SSBO-пути), visibly деградируют — смотрите notice в консоли.</p>
+<p>Встроенная библиотека в <code>core/shaders</code>: 9 шейдеров материалов (<code>PBR</code>, <code>Unlit</code>, <code>Sky</code>, <code>Skybox</code>, <code>Water</code>, <code>WaterSim</code>, <code>Tree</code>, <code>Clouds</code>, <code>CloudLayer</code>), 20+ внутренних (<code>Default</code>, <code>Shadow</code>, <code>Particle</code>, <code>ParticleGpu</code>, <code>Sprite</code>, <code>Text</code>, <code>Video</code>, <code>Icon</code>, <code>Gizmo</code>, <code>Grid</code>, <code>Outline</code>, <code>ObjectFx</code>, <code>Projector</code>, <code>GaussianSplat</code>, <code>Caustics</code>, <code>Underwater</code> и другие) и общие сниппеты <code>include/</code> (<code>area_shadows.glsl</code>, <code>caustics.glsl</code>).</p>
+<p>Для нодового авторства — Shader Graph в руководстве по редактору; для значений на материал — материалы.</p>
+<p>Связанное: материалы, MeshRenderer (UV-оверрайд uniforms), свет (uniform света), Shader Graph.</p>
               
             </div>
           </div><footer>

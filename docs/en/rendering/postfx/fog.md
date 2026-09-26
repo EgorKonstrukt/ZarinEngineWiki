@@ -1,7 +1,21 @@
 # Fog
 
-Distance and height fog applied in post, with density and color controls. Built on the shared GraphicsEffect base: enable toggle plus effect-specific Inspector fields, executed in component order after the main scene pass.
+Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.
 
-Cost guide: single-pass color ops stay cheap; multi-tap and screen-space techniques dominate the post budget, so profile before stacking.
+## How it works
+
+Distance and height fog applied in post with density, color and height controls.
+
+## Parameters
+
+Density, color, height start/end.
+
+## Tips
+
+Depth cueing in open scenes, cave atmosphere with Reverb Zone twin, horror corridors.
+
+## Cost
+
+Cheap-medium.
 
 Related: [PostFX Stack](../postfx.md), Cameras (render scale), Profiler.

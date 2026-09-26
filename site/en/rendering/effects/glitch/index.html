@@ -255,6 +255,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Glitch</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../hologram/">Hologram</a>
@@ -361,11 +369,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +920,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1182,15 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="glitch">Glitch</h1>
-<p>Per-object vertex and UV jitter bursts, independent of the fullscreen Glitch post effect. Built on the shared ObjectEffect base and the ObjectFx pass: progress and intensity parameters are exposed so scripts can drive the effect by animating one float.</p>
+<p>Per-object effect through the ObjectFx pass (unlike PostFX, which processes the whole frame). Built on the shared ObjectEffect base; scripts drive it by animating progress/intensity floats.</p>
+<h2 id="how-it-works">How it works</h2>
+<p>Per-object vertex and UV jitter bursts, independent of the fullscreen Glitch post effect.</p>
+<h2 id="parameters">Parameters</h2>
+<p>Burst amount, timing, axis bias.</p>
+<h2 id="tips">Tips</h2>
+<p>Malfunctioning robots, unstable holograms, cursed artifacts.</p>
+<h2 id="cost">Cost</h2>
+<p>Cheap.</p>
 <p>Related: <a href="../">Object Effects</a>, Materials, Script Examples.</p>
               
             </div>

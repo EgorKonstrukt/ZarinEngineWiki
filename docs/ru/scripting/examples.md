@@ -61,7 +61,69 @@ class Driver:
             t.translate(v.normalized() * rate * dt)
 ```
 
-HitCounter — колбэки столкновений с силой удара:
+Patrol — пинг-понг маршрута с enum-режимом и кэшированным трансформом:
+
+```python
+from enum import Enum
+from core.maths.math3d import Vec3
+
+
+class PatrolMode(Enum):
+    PINGPONG = 0
+    LOOP = 1
+
+
+class Patrol:
+    mode: PatrolMode = PatrolMode.PINGPONG
+    speed: float = 3.0
+    distance: float = 8.0
+
+    def on_awake(self):
+        self.t = self._entity.transform
+        self.home = Vec3(0.0, 0.0, 0.0)
+        self.dir = 1.0
+        if self.t:
+            self.home = self.t.position
+
+    def on_update(self, dt):
+        if not self.t:
+            return
+        step = self.speed * self.dir * dt
+        self.t.translate(Vec3(step, 0.0, 0.0))
+        walked = self.t.position.x - self.home.x
+        if self.mode == PatrolMode.LOOP:
+            if walked > self.distance or walked < 0.0:
+                self.t.position = Vec3(self.home.x, self.t.position.y, self.t.position.z)
+        else:
+            if walked > self.distance or walked < 0.0:
+                self.dir = -self.dir
+```
+
+Follower — преследование Entity из пикера инспектора:
+
+```python
+from core.maths.math3d import Vec3
+
+
+class Follower:
+    target: 'Entity' = None
+    speed: float = 4.0
+    stop_at: float = 1.5
+
+    def on_update(self, dt):
+        if not self.target:
+            return
+        t = self._entity.transform
+        goal = self.target.transform
+        if not t or not goal:
+            return
+        delta = goal.position - t.position
+        dist = delta.length()
+        if dist > self.stop_at:
+            t.translate(delta.normalized() * self.speed * dt)
+```
+
+HitCounter — колбэки столкновений с силой удара и кнопкой инспектора:
 
 ```python
 class HitCounter:
@@ -92,4 +154,28 @@ class Kicker:
             rb = self._entity.get_component_by_name("Rigidbody")
             if rb:
                 rb.add_impulse(Vec3(0.0, self.impulse, 0.0))
+```
+
+Spawner — таймерная логика с безопасным enable/disable:
+
+```python
+class Spawner:
+    interval: float = 2.0
+    active: bool = True
+
+    def on_awake(self):
+        self.clock = 0.0
+        self.count = 0
+
+    def on_update(self, dt):
+        if not self.active:
+            return
+        self.clock = self.clock + dt
+        if self.clock >= self.interval:
+            self.clock = 0.0
+            self.count = self.count + 1
+            Logger.info("spawn tick")
+
+    def on_disable(self):
+        self.clock = 0.0
 ```

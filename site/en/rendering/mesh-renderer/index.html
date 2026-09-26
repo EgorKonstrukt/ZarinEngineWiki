@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="meshrenderer">MeshRenderer</h1>
-<p>Answers <em>how</em> to draw the <code>MeshFilter</code> mesh.</p>
+<p>Answers <em>how</em> to draw the <code>MeshFilter</code> mesh: material slots, shadow participation, UV transforms.</p>
 <table>
 <thead>
 <tr>
@@ -1183,7 +1187,7 @@
 <tr>
 <td>materials</td>
 <td>—</td>
-<td>Material slots (<code>{path}</code> each, e.g. <code>.zpem</code>), one per submesh</td>
+<td>Material slots (<code>{path}</code> each, e.g. <code>.zpem</code>), one per submesh in order</td>
 </tr>
 <tr>
 <td>cast_shadows</td>
@@ -1193,17 +1197,17 @@
 <tr>
 <td>receive_shadows</td>
 <td>on</td>
-<td>Sample shadow maps</td>
+<td>Sample shadow maps in the main pass</td>
 </tr>
 <tr>
 <td>uv_scale / uv_offset</td>
 <td>(1,1) / (0,0)</td>
-<td>Tiling and offset</td>
+<td>Tiling and offset applied by the shader UV override</td>
 </tr>
 <tr>
 <td>uv_scale_by_transform</td>
 <td>off</td>
-<td>Derive tiling from the Transform</td>
+<td>Derive tiling from the Transform scale (floors, walls)</td>
 </tr>
 <tr>
 <td>sprite_texture</td>
@@ -1213,12 +1217,15 @@
 <tr>
 <td>dynamic_reflections</td>
 <td>off</td>
-<td>Refresh environment reflections per frame</td>
+<td>Refresh environment reflections per frame instead of on demand</td>
 </tr>
 </tbody>
 </table>
-<p>Geometry uploads once through the geometry cache; per-frame cost is one draw per visible submesh. For animated meshes use SkinnedMeshRenderer; for in-editor modeling use the ProBuilder-style mesh component.</p>
-<p>Related: MeshFilter, Materials, Shaders, Shadows.</p>
+<p>Draw order and cost: one draw call per visible submesh after frustum culling; transparent materials sort into the transparent bucket by depth. Casters render into every covering shadow map, so a high-poly hero with cast_shadows on multiplies shadow cost — disable casting for small props that never readably shadow.</p>
+<p>UV workflow: tiling brick/concrete via uv_scale (4,4) instead of duplicating geometry; scrolling effects by animating uv_offset from a script (conveyors, water slides); world-aligned trim via uv_scale_by_transform on architecture.</p>
+<p>For animated meshes use SkinnedMeshRenderer; for in-editor blockout use the ProBuilder-style <code>probuilder_mesh</code> component; for collision use MeshCollider on the same filter path.</p>
+<p>Troubleshooting: invisible mesh → filter path broken or all materials missing; wrong submesh material → slot order mismatch, reorder the list; shadows absent → cast on but light beyond distance, or receive off on the ground; shimmering UVs → non-uniform negative scale, fix the Transform.</p>
+<p>Related: MeshFilter, Materials, Shaders (UV override uniforms), Shadows, SkinnedMeshRenderer.</p>
               
             </div>
           </div><footer>

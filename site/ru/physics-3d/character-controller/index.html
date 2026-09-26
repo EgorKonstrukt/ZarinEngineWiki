@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,12 +1173,15 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Контроллер персонажа</h1>
-<p>Кинематическое тело для first/third-person, ведётся move-функцией солвера, а не силами.</p>
+<p>Кинематическое тело first/third-person на move-функции солвера — скольжение по склонам, подъём по ступеням и толкаемый реквизит без хаоса rigidbody.</p>
 <p>Скорости по умолчанию: ходьба 260, бег 440 (Shift), крадучись 130, ускорение 10, ускорение в воздухе 10, трение 4, скорость остановки 80.</p>
-<p>Прыжок и гравитация: сила прыжка 300, буфер прыжка 0.1 с, coyote time 0.1 с (прыжок работает, пока живы оба таймера: <code>velocity.y = jump_power</code>), гравитация 800.</p>
-<p>Форма: радиус капсулы 0.5, высота 2.0 (итог минимум <code>radius * 2 + 0.1</code>), высота крадучись 1.2, высота шага 0.3, макс. склон 45°, сила толкания 30.</p>
-<p>Каждый фиксированный шаг контроллер: проверяет землю, ускоряется с трением на земле, применяет гравитацию в воздухе, вызывает <code>move_character</code> солвера с желаемой скоростью, затем пишет результирующую позицию обратно в трансформ и применяет yaw-поворот.</p>
-<p>Требование: нужен солвер в процессе (читает состояние мира напрямую). В фоновых режимах движок откатывается на однопоточную физику с предупреждением в консоли.</p>
+<p>Прыжок и гравитация: сила 300, буфер 0.1 с, coyote 0.1 с. Прыжок работает, пока живы оба таймера (<code>can_jump = buffer &gt; 0 and coyote &gt; 0</code>, затем <code>velocity.y = jump_power</code>) — прощающий платформинг без лишнего кода.</p>
+<p>Форма: радиус капсулы 0.5, высота 2.0 (итог минимум <code>radius * 2 + 0.1</code>), высота крадучись 1.2, высота шага 0.3, макс. склон 45°, сила толкания 30 по динамическому реквизиту.</p>
+<p>Каждый fixed-шаг: проверка земли, ускорение с трением на земле, гравитация в воздухе, вызов <code>move_character</code> солвера с желаемой скоростью, запись позиции назад в трансформ, yaw-поворот. Повороты beyond yaw (pitch/roll) — на камере скриптом, никогда на теле.</p>
+<p>Требование: солвер в процессе — контроллер читает состояние мира напрямую. В фоновых режимах движок откатывается на однопоточную физику с предупреждением («Use single-threaded physics mode»). Планируйте режим до шиппинга персонажного геймплея.</p>
+<p>Обвязка ввода: читайте <code>Input.GetAxis</code>/клавиши в <code>on_update</code> в wish-направление, потребляйте в <code>on_fixed_update</code> для движения, прыжок по <code>GetKeyDown</code> с буфером самого контроллера. Синхронизируйте yaw камеры и тела одной чувствительностью.</p>
+<p>Диагностика: падает вечно — нет коллайдера земли или маска исключила слой игрока; липнет на лестнице — высота шага ниже подступенка, поднимите до 0.35+; скользит на склонах — max slope выше угла или низко трение; дрожь на платформах — платформа kinematic с matching скоростью, парентуйте вместо толкания.</p>
+<p>Связанное: Capsule-коллайдер (matching форма), Rigidbody (динамическая альтернатива), солвер и потоки (требование режима), API ввода.</p>
               
             </div>
           </div><footer>

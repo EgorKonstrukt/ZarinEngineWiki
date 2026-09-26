@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="gaussian-splat-renderer">Gaussian Splat Renderer</h1>
-<p>Renders Gaussian splat captures — photogrammetry-style scenes as sorted point volumes.</p>
+<p>Renders Gaussian splat captures — photogrammetry-style scenes as sorted point volumes with spherical-harmonics color.</p>
 <table>
 <thead>
 <tr>
@@ -1185,17 +1189,19 @@
 </tr>
 <tr>
 <td>SH Degree</td>
-<td>Spherical-harmonics quality level</td>
+<td>Spherical-harmonics quality level (higher = richer view-dependent color, more memory)</td>
 </tr>
 <tr>
 <td>Opacity Cutoff</td>
-<td>Transparency threshold</td>
+<td>Transparency threshold culling faint splats</td>
 </tr>
 </tbody>
 </table>
-<p>Splats sort every frame through a dedicated fast path and share scene visibility and stats with meshes, but bypass parts of the PostFX chain — verify the graded look in the game view.</p>
-<p>Collision for splat volumes uses the GS Volume Collider.</p>
-<p>Related: GS Volume Collider, Materials, Cameras.</p>
+<p>Splats sort every frame through a dedicated fast path (<code>_splat_sort</code> accelerated module) and share scene visibility and stats with meshes, but bypass parts of the PostFX chain — verify the graded look in the game view, not just the editor.</p>
+<p>Collision for splat volumes uses the GS Volume Collider (voxelized box approximation from the same capture).</p>
+<p>Workflows: captured courtyard — splat entity for visuals plus GS Volume Collider for walking; hybrid scenes — splats for background detail, meshes for interactive foreground; performance — lower SH Degree first, then opacity cutoff, then capture density.</p>
+<p>Troubleshooting: washed colors → SH Degree too low for the lighting variance; holes → opacity cutoff too aggressive; no collision → collider missing or voxel size too coarse.</p>
+<p>Related: GS Volume Collider, Voxel Rendering, Cameras, Materials.</p>
               
             </div>
           </div><footer>

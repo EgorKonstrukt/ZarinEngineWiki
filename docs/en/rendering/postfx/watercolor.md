@@ -1,7 +1,21 @@
 # Watercolor
 
-Painterly wash stylization with pigment pooling. Built on the shared GraphicsEffect base: enable toggle plus effect-specific Inspector fields, executed in component order after the main scene pass.
+Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.
 
-Cost guide: single-pass color ops stay cheap; multi-tap and screen-space techniques dominate the post budget, so profile before stacking.
+## How it works
+
+Painterly wash with pigment pooling and paper feel.
+
+## Parameters
+
+Wash strength, pooling, paper feel.
+
+## Tips
+
+Storybook zones and map screens.
+
+## Cost
+
+Medium-high.
 
 Related: [PostFX Stack](../postfx.md), Cameras (render scale), Profiler.

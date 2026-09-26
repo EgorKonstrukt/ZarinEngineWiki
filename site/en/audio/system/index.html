@@ -5,14 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../../img/favicon.ico" />
-    <title>Audio System and Codecs - ZarinEngine Wiki</title>
+    <title>Audio System - ZarinEngine Wiki</title>
     <link rel="stylesheet" href="../../../css/theme.css" />
     <link rel="stylesheet" href="../../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Audio System and Codecs";
+        var mkdocs_page_name = "Audio System";
         var mkdocs_page_input_path = "en\\audio\\system.md";
         var mkdocs_page_url = null;
       </script>
@@ -359,11 +359,13 @@
     <ul class="current">
                 <li class="toctree-l2"><a class="reference internal" href="../overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2 current"><a class="reference internal current" href="#">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Audio System</a>
     <ul class="current">
     </ul>
                 </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1159,7 +1163,7 @@
     <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">English</li>
           <li class="breadcrumb-item">Audio</li>
-      <li class="breadcrumb-item active">Audio System and Codecs</li>
+      <li class="breadcrumb-item active">Audio System</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -1168,21 +1172,25 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="audio-system-and-codecs">Audio System and Codecs</h1>
-<p>TODO: Content pending. This page will document Audio System and Codecs in ZarinEngine.</p>
-<p>Planned sections:</p>
+                <h1 id="audio-system">Audio System</h1>
+<p>Engine services behind the components: resources, decoding, per-source state and the EFX chain.</p>
+<p>Modules (<code>core/audio</code>):</p>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li><code>audio_system.AudioSystem</code> — singleton: clip loading and caching, async loads, listener position/orientation/velocity setters, doppler factor and speed of sound. Components never touch OpenAL directly; they call here.</li>
+<li><code>audio_system.AudioSourceManager</code> — singleton: owns native source ids and per-source state — play, stop, pause, loop, volume, pitch, spatial blend, distances, rolloff curves, zone shapes and box sizes.</li>
+<li><code>miniaudio_decoder.DecodedAudio</code> — decode backend turning <code>.wav</code> / <code>.mp3</code> / <code>.ogg</code> / <code>.flac</code> files into PCM buffers ready for OpenAL upload.</li>
+<li><code>audio_analyzer</code> — analysis helpers (spectrum and level followers) for visualizers and beat-reactive effects.</li>
+<li><code>audio_efx</code> — EFX extension wrapper for reverb zones; <code>EFXError</code> signals a missing extension so the engine can fall back to dry output.</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<p>Data flow for a new clip: <code>AudioSource.play</code> → manager <code>play(...)</code> with all spatial parameters → system resolves the clip from cache or decodes async → native source configured (gain, pitch, looping, position, rolloff) → component polls state each frame.</p>
+<p>Resource discipline: clips are cached by path, so ten sources sharing one file decode once; long music tracks stream rather than fully preload; releasing the last source frees the native id while the decoded buffer stays cached for instant replay.</p>
+<p>Gizmo support: audio components declare the <code>audio</code> gizmo pass with zone shapes and distance rings, so levels can be mixed visually in the viewport.</p>
+<p>Related: AudioSource, AudioListener, Reverb Zone, Curve, Profiler (audio_ms readout).</p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../reverb-zones/" class="btn btn-neutral float-left" title="Reverb Zones and EFX"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../reverb-zone/" class="btn btn-neutral float-left" title="Reverb Zone"><span class="icon icon-circle-arrow-left"></span> Previous</a>
         <a href="../_section/" class="btn btn-neutral float-right" title="Section Index (audio)">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
@@ -1206,7 +1214,7 @@
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../reverb-zones/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../reverb-zone/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
       <span><a href="../_section/" style="color: #fcfcfc">Next &raquo;</a></span>

@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="soft-body">Soft Body</h1>
-<p>Симуляция деформируемого меша для ткани, желе и мнущегося реквизита.</p>
+<p>Симуляция деформируемого меша для ткани, желе, мнущегося реквизита и мягких персонажей — симулируются вершины, меш следует.</p>
 <table>
 <thead>
 <tr>
@@ -1181,19 +1185,19 @@
 <tbody>
 <tr>
 <td>Soft Body: Mass / Stiffness</td>
-<td>Вес против жёсткости</td>
+<td>Вес против держания формы</td>
 </tr>
 <tr>
 <td>Bend Mode</td>
-<td>Модель отклика на изгиб</td>
+<td>Селектор модели отклика на изгиб</td>
 </tr>
 <tr>
 <td>Pressure</td>
-<td>Надувание замкнутых мешей</td>
+<td>Надувание замкнутых мешей (шары, шины)</td>
 </tr>
 <tr>
 <td>Damping / Iterations</td>
-<td>Успокоение и качество солвера</td>
+<td>Успокоение и качество солвера на шаг</td>
 </tr>
 <tr>
 <td>Gravity Scale</td>
@@ -1209,20 +1213,24 @@
 </tr>
 <tr>
 <td>Pin Mode / Pin Fraction</td>
-<td>Доля пришитых вершин</td>
+<td>Доля вершин, пришитых к якорю</td>
 </tr>
 <tr>
 <td>Max Vertices</td>
-<td>Бюджет симуляции</td>
+<td>Кап бюджета симуляции</td>
 </tr>
 <tr>
 <td>Double Sided</td>
-<td>Двусторонние коллизии</td>
+<td>Двусторонние коллизии тонкой ткани</td>
 </tr>
 </tbody>
 </table>
-<p>Вершины, центр масс и скорости обмениваются с солвером через soft-буфер каждый шаг — тяжелее rigid-тел, бюджетируйте вершины.</p>
-<p>Связанное: плавучесть, PhysBone, тканевые эффекты объектов.</p>
+<p>Вершины, центр масс и скорости обмениваются с солвером через soft-буфер каждый шаг — тяжелее rigid-тел: бюджетируйте вершины (сотни, не тысячи), soft-тела только для hero-реквизита.</p>
+<p>Паттерны пинов: полный ряд для штор и плащей, угловые для скатертей, ноль для свободного желе. Pressure превращает замкнутые меши в прыгучие мячи; с высоким damping — водяные матрасы.</p>
+<p>Iterations — ручка качества: поднимайте пока восстановление чистое, затем стоп — цена линейна. Низкий damping дребезжит вечно; высокий ощущается мороженым.</p>
+<p>Процесс: замкнутый низкополигональный меш → SoftBody с pressure для мячей, открытый с пинами для ткани → stiffness/damping → проверка гизмо-объёма → Play и тыкание kinematic-толкателем.</p>
+<p>Диагностика: взрывается — мало итераций под жёсткость, растите оба аккуратно; проваливается — крошечный радиус плюс скорость, растите радиус или тормозите; пины рвутся — мала доля под нагрузку, добавьте; тяжело — перебор max vertices, децимируйте исходник.</p>
+<p>Связанное: плавучесть (плавающее желе), PhysBone (альтернатива цепочек для ремней), тканевые эффекты объектов, Rigidbody (тела-толкатели).</p>
               
             </div>
           </div><footer>

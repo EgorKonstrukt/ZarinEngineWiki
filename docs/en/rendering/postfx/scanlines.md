@@ -1,7 +1,21 @@
 # Scanlines
 
-CRT line overlay for retro terminals and monitors. Built on the shared GraphicsEffect base: enable toggle plus effect-specific Inspector fields, executed in component order after the main scene pass.
+Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.
 
-Cost guide: single-pass color ops stay cheap; multi-tap and screen-space techniques dominate the post budget, so profile before stacking.
+## How it works
+
+CRT line overlay with gap and intensity controls.
+
+## Parameters
+
+Line pitch, intensity.
+
+## Tips
+
+Retro terminals with Pixelate; diegetic monitors with VideoRenderer.
+
+## Cost
+
+Negligible.
 
 Related: [PostFX Stack](../postfx.md), Cameras (render scale), Profiler.

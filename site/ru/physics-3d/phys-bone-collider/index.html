@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="physbonecollider">PhysBoneCollider</h1>
-<p>Отражатели для цепочек PhysBone: волосы — из головы, плащ — из ног.</p>
+<p>Отражатели, держащие цепочки PhysBone вне тел: волосы — из головы, плащ — из ног, хвосты — из стен.</p>
 <table>
 <thead>
 <tr>
@@ -1181,28 +1185,31 @@
 <tbody>
 <tr>
 <td>Shape: Shape Type</td>
-<td>Сфера, капсула, плоскость</td>
+<td>Объём sphere, capsule или plane</td>
 </tr>
 <tr>
 <td>Radius / Height / Center</td>
-<td>Размеры формы</td>
+<td>Размеры формы в локале</td>
 </tr>
 <tr>
 <td>Direction / Plane Normal</td>
-<td>Ориентация</td>
+<td>Ориентация капсул и плоскостей</td>
 </tr>
 <tr>
 <td>Behavior: Inside Bounds</td>
-<td>Как резолвится глубокое проникновение</td>
+<td>Как резолвится глубокое проникновение (вытолкнуть vs скользить)</td>
 </tr>
 <tr>
 <td>Gizmos: Show Gizmo</td>
-<td>Визуализация объёма</td>
+<td>Визуализация объёма во вьюпорте</td>
 </tr>
 </tbody>
 </table>
-<p>Вешается на часть тела, которой цепочка должна избегать; в рантайме цепочка скользит вокруг объёма.</p>
-<p>Связанное: PhysBone, арматура, Sphere/Capsule-коллайдеры.</p>
+<p>Вешается на часть тела, которой цепочка избегает, размером чуть больше визуального меша — цепочки симулируются на костях внутри меша, и skin-tight коллайдеры всё равно клиппят. В рантайме цепочка скользит вокруг объёма вместо прохода.</p>
+<p>Паттерны: сфера головы + капсула торса для длинных волос; капсулы бёдер для пальто; плоскость пола для ползающих; inside-bounds для серёг у уха.</p>
+<p>Держите число коллайдеров на цепочку малым (1–3): каждый тестирует каждую частицу цепочки каждый шаг.</p>
+<p>Диагностика: всё равно клиппит — коллайдер меньше offset костей, растите; цепочку выталкивает целиком — коллайдер поглотил корень, двигайте вниз по цепи; дрожь на контакте — inside-bounds дерётся с лимитом, смените поведение.</p>
+<p>Связанное: PhysBone, арматура, Sphere/Capsule-коллайдеры (статичные аналоги мира).</p>
               
             </div>
           </div><footer>

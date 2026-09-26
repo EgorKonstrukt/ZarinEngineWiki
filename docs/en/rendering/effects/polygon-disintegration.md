@@ -1,5 +1,21 @@
 # Polygon Disintegration
 
-Breaks the mesh into flying polygons for dramatic destroys. Built on the shared ObjectEffect base and the ObjectFx pass: progress and intensity parameters are exposed so scripts can drive the effect by animating one float.
+Per-object effect through the ObjectFx pass (unlike PostFX, which processes the whole frame). Built on the shared ObjectEffect base; scripts drive it by animating progress/intensity floats.
+
+## How it works
+
+Breaks the mesh into flying polygons with per-piece velocity and fade.
+
+## Parameters
+
+Progress, scatter velocity, piece fade.
+
+## Tips
+
+Dramatic destroys, disintegrating enemies, warp-outs.
+
+## Cost
+
+Medium by piece count.
 
 Related: [Object Effects](../effects.md), Materials, Script Examples.

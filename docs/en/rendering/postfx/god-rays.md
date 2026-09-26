@@ -1,7 +1,21 @@
 # God Rays
 
-Light shafts fanning from bright sources through occluders. Built on the shared GraphicsEffect base: enable toggle plus effect-specific Inspector fields, executed in component order after the main scene pass.
+Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.
 
-Cost guide: single-pass color ops stay cheap; multi-tap and screen-space techniques dominate the post budget, so profile before stacking.
+## How it works
+
+Radial light shafts fanning from bright sources, occluded by depth.
+
+## Parameters
+
+Density, decay, exposure feel, source threshold.
+
+## Tips
+
+Forest sun shafts, cathedral windows, dusty halls. Needs a bright source in frame.
+
+## Cost
+
+Medium-high: radial samples. Shorten shafts before cutting the effect.
 
 Related: [PostFX Stack](../postfx.md), Cameras (render scale), Profiler.

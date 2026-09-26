@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="projector">Проектор Projector</h1>
-<p>Проецирует текстуру из фрустума: слайд-проектор, фальшивый оконный свет, луч граффити.</p>
+<p>Проецирует текстуру из фрустума: слайд-проектор, фальшивый оконный свет, луч граффити, метатель логотипов.</p>
 <table>
 <thead>
 <tr>
@@ -1213,7 +1217,7 @@
 <tr>
 <td>Projection: near_plane / far_plane</td>
 <td>0.1 / 100</td>
-<td>Срез глубины</td>
+<td>Срез глубины броска</td>
 </tr>
 <tr>
 <td>Options: flip_x / flip_y</td>
@@ -1223,12 +1227,15 @@
 <tr>
 <td>Options: cast_shadows</td>
 <td>вкл</td>
-<td>Проекция с тенями</td>
+<td>Окклюдеры блокируют проекцию</td>
 </tr>
 </tbody>
 </table>
-<p>Гизмо во вьюпорте рисует конус проекции с корректным основанием. Наводится трансформом как Spot Light.</p>
-<p>Связанное: Spot Light, тени (проход projector shadows).</p>
+<p>Гизмо рисует конус с корректным прямоугольником основания — кадрируйте целевую поверхность визуально, затем точно подгоняйте угол и range. Наводится трансформом ровно как Spot Light; срез (near/far) обрезает бросок, и он не протекает сквозь задние стены.</p>
+<p>Процессы: кино — сущность проектора за зрителями в белый экран в духе VideoRenderer; фальшивые окна — яркий проектор с текстурой рамы плюс мягкий спот для spill; движущиеся декали — анимированного offset нет, меняйте <code>texture_path</code> из скрипта для слайд-шоу.</p>
+<p>Цена: один лишний набор фрустум-сэмплов на проектор; затенённые идут в проход projector shadows. Держите число малым (1–3) и range tight.</p>
+<p>Диагностика: зеркальная картинка — тоглы flip_x/flip_y; проекция сквозь стены — подтяните far_plane; выбелено — intensity спорит с ключевым, поднимите или приглушите сцену.</p>
+<p>Связанное: Spot Light, тени (проход projector shadows), VideoRenderer (поверхности экранов), TextRenderer (альтернатива статичных слайдов).</p>
               
             </div>
           </div><footer>

@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -908,11 +910,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,7 +1173,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="range">Поля инспектора и Range</h1>
-<p>Аннотированные атрибуты класса автоматически появляются в инспекторе, а их значения хранятся в сцене (<code>.zpes</code>). Приватные имена на <code>_</code> пропускаются, кроме специального <code>_inspector_buttons</code>.</p>
+<p>Аннотированные атрибуты класса автоматически появляются в инспекторе, значения хранятся в сцене (<code>.zpes</code>). Дефолты уровня класса — начальные значения; правки инстанса их перекрывают, не трогая <code>.py</code>-файл. Приватные имена на <code>_</code> пропускаются, кроме специального <code>_inspector_buttons</code>.</p>
 <pre><code class="language-python">from enum import Enum
 from typing import Annotated
 from core.maths.math3d import Vec3
@@ -1200,58 +1204,72 @@ class Enemy:
 <tr>
 <th>Аннотация</th>
 <th>Виджет инспектора</th>
+<th>Хранится как</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>float</code></td>
 <td>Числовое поле</td>
+<td>float</td>
 </tr>
 <tr>
 <td><code>int</code></td>
 <td>Целое поле</td>
+<td>int</td>
 </tr>
 <tr>
 <td><code>bool</code></td>
 <td>Чекбокс</td>
+<td>bool</td>
 </tr>
 <tr>
 <td><code>str</code></td>
 <td>Строка</td>
+<td>строка</td>
 </tr>
 <tr>
 <td><code>Annotated[float, Range(min, max[, step])]</code></td>
 <td>Слайдер, шаг по умолчанию <code>0.01</code></td>
+<td>float, кламп к диапазону</td>
 </tr>
 <tr>
 <td><code>Annotated[int, Range(min, max)]</code></td>
 <td>Целый слайдер, шаг по умолчанию <code>1</code></td>
+<td>int, кламп к диапазону</td>
 </tr>
 <tr>
 <td><code>Vec2</code> / <code>Vec3</code> / <code>Vec4</code></td>
 <td>Векторные поля</td>
+<td>float-компоненты</td>
 </tr>
 <tr>
 <td>Подкласс <code>Enum</code></td>
-<td>Выпадающий список</td>
+<td>Выпадающий список имён</td>
+<td>значение enum</td>
 </tr>
 <tr>
 <td><code>'Entity'</code></td>
-<td>Пикер сущности (хранится UUID, в скрипт приходит живой объект)</td>
+<td>Пикер сущности</td>
+<td>UUID; в скрипт приходит живой объект</td>
 </tr>
 <tr>
 <td><code>Curve</code></td>
 <td>Редактор кривой</td>
+<td>набор кейфреймов</td>
 </tr>
 </tbody>
 </table>
-<p>Заметки:</p>
+<p>Детали:</p>
 <ul>
 <li><code>Range</code> — это <code>Range(min_value=0.0, max_value=1.0, step=None)</code>. Обычная последовательность <code>[min, max]</code> или <code>(min, max[, step])</code> в метаданных <code>Annotated</code> работает так же.</li>
-<li>Пикеры ресурсов (меш, материал, текстура, аудио, префаб, сцена, физический материал) используют те же фильтры диалогов, что и встроенные компоненты.</li>
-<li><code>_inspector_buttons = [(имя_метода, подпись), ...]</code> рисует кнопки, вызывающие метод на живом инстансе.</li>
-<li>Вверху компонента — неизменяемое поле <code>Script</code> с именем файла: клик показывает файл в панели Project, кнопка <code>...</code> открывает встроенный редактор скриптов.</li>
+<li>Entity-пикер хранит UUID цели в сцене и резолвит живой объект перед каждым вызовом — безопасно при переименованиях, в отличие от поиска по имени.</li>
+<li>Ресурсные поля (меш, материал, текстура, аудио, префаб, сцена, физический материал) переиспользуют встроенные диалоги и фильтры: модели <code>*.obj *.fbx *.stl *.gltf *.glb *.usdz *.dae *.3ds *.blend</code>, материалы <code>*.zpem *.mat</code>, картинки <code>*.png *.jpg *.jpeg *.bmp *.tga *.tif *.tiff *.webp *.hdr *.exr *.dds *.svg</code>, аудио <code>*.wav *.mp3 *.ogg *.flac *.aiff *.m4a</code>, скрипты <code>*.py</code>, префабы <code>*.zpep</code>, сцены <code>*.zpes</code>, клипы и контроллеры анимации, физические материалы <code>*.zphysmat</code>.</li>
+<li><code>_inspector_buttons = [(имя_метода, подпись), ...]</code> рисует кнопки, дёргающие метод на живом Play-инстансе (или редакторном вне Play) — удобно для тестовых триггеров вроде explode, reset, spawn.</li>
+<li>Шапка компонента показывает неизменяемое поле <code>Script</code> с отображаемым именем файла: клик показывает файл в Project, кнопка <code>...</code> открывает встроенный редактор. Смена файла перестраивает список полей; значения выживших имён сохраняются.</li>
+<li>Hot-reload накатывает значения инспектора на пересозданный инстанс — настройка переживает правки кода.</li>
 </ul>
+<p>Рекомендация: крутилки дизайнеров (скорости, количества, тоглы) — в поля; внутренние кэши (<code>self._cache</code>, кулдауны) — обычными неаннотированными атрибутами из <code>on_awake</code>.</p>
               
             </div>
           </div><footer>

@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,14 +1174,23 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="physics-materials">Physics Materials</h1>
-<p>Surface response: friction and bounce, per collider, via asset or inline values.</p>
+<p>Surface response per collider: friction grips, bounciness rebounds. Two ways to set them — asset or inline — with one rule: the asset wins when assigned.</p>
 <ul>
-<li>Asset filter <code>Physics Materials (*.zphysmat)</code>, referenced through <code>physic_material</code> on any collider.</li>
+<li>Asset filter <code>Physics Materials (*.zphysmat)</code>, referenced through <code>physic_material</code> on any collider. Share one ice asset across the whole rink instead of tuning ten colliders.</li>
 <li>Without an asset, inline <code>material_friction</code> (0.6) and <code>material_bounciness</code> (0.0) apply.</li>
-<li>Body creation passes friction and restitution to the solver on spawn; later changes re-register the shape.</li>
+<li>Body creation passes friction and restitution to the solver on spawn; later changes re-register the shape, so mid-game swaps cost a hitch — preassign variants instead.</li>
 </ul>
-<p>Presets to try: ice (friction ~0.05, bounce 0), rubber (friction ~0.9, bounce ~0.8), metal (friction ~0.3, bounce ~0.1).</p>
-<p>Related: Collision Layers, Box/Sphere/Capsule/Mesh Collider pages.</p>
+<p>Preset cookbook:</p>
+<ul>
+<li>Ice rink: friction 0.03–0.08, bounce 0 — glide with steering from scripts.</li>
+<li>Rubber ball court: friction 0.7–0.9, bounce 0.7–0.85 — lively but controllable.</li>
+<li>Metal hangar: friction 0.25–0.35, bounce 0.05–0.15 — crates slide when pushed, stop on their own.</li>
+<li>Mud: friction 1.0+, bounce 0 — use high drag on the Rigidbody too.</li>
+<li>Trampoline: bounce 0.9–0.95 on a trigger-adjacent pad plus an upward impulse script (pure bounce never exceeds incoming energy).</li>
+</ul>
+<p>Combine pairs thoughtfully: the contact solver blends both materials, so an icy ball (0.05) on ice (0.05) glides while the same ball on rubber (0.9) grips.</p>
+<p>Troubleshooting: slides everywhere → global friction too low, check the floor material first; dead bounce → restitution lost in the pair, raise both sides; changes ignored at runtime → shape re-registration pending, re-enter Play or reassign.</p>
+<p>Related: Collision Layers, Box/Sphere/Capsule/Mesh Collider pages, Rigidbody (drag interplay).</p>
               
             </div>
           </div><footer>

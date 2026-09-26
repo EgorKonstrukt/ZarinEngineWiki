@@ -1,8 +1,26 @@
 # API ввода и математики
 
-Эти имена подставляются в модуль каждого пользовательского скрипта автоматически, импортировать их не обязательно. Явный импорт с тем же именем в скрипте имеет приоритет.
+Эти имена подставляются в модуль каждого пользовательского скрипта автоматически, импортировать их не обязательно. Явный импорт с тем же именем в скрипте приоритетнее подстановки.
 
 Подставляемые имена: `Input`, `KeyCode`, `Vec2`, `Vec3`, `Vec4`, `Curve`, `Range`, `Logger`.
+
+Клавиатура и мышь:
+
+- `Input.GetKey(code)` — зажата в этом кадре; `Input.GetKeyDown(code)` — нажата в этом кадре; `Input.GetKeyUp(code)` — отпущена. Коды из `KeyCode` (`KeyCode.W`, `KeyCode.Space`, `KeyCode.Shift`, стрелки, цифры и другие).
+- `Input.GetMouseButton(i)`, `GetMouseButtonDown(i)`, `GetMouseButtonUp(i)` — состояние кнопок по индексу.
+- `Input.GetButton(name)`, `GetButtonDown(name)`, `GetButtonUp(name)` — именованные кнопки действий.
+- `Input.GetAxis(name)`, `Input.GetAxisRaw(name)` — сглаженные против сырых осей вроде `"Horizontal"`.
+- `Input.mousePosition` — курсор в экранных координатах; `Input.deltaTime` — масштабированное время кадра; `Input.cursorLocked` / `Input.cursorVisible` — состояние захвата указателя.
+
+Математика:
+
+- `Vec2`, `Vec3`, `Vec4` — полная векторная математика (сложение, масштаб, dot, cross, length, normalized, lerp) на `numpy.float64`; понижение до float32 для GPU только при загрузке.
+- `Quat`, `Mat4` — импортируются из `core.maths.math3d` для поворотов и матриц (slerp, look_at, perspective-хелперы там же с numba-ускорением).
+- `Curve` — кейфреймовые кривые отклика из инспектора с вычислением в рантайме для спадов, изингов и форм газа.
+- `Range` — метаданные слайдеров полей инспектора (см. поля инспектора).
+- `Logger` — `Logger.info/warning/error` с таймстампами; ошибки с трейсбеками доходят до панели консоли.
+
+Независимость от FPS: всегда умножайте движение на `dt` (или берите `Input.deltaTime`); логика фиксированного шага — в `on_fixed_update` со стабильным шагом.
 
 ```python
 class Player:
@@ -19,20 +37,6 @@ class Player:
             Logger.info("jump pressed")
 ```
 
-Доступный API ввода:
-
-- `Input.GetKey`, `Input.GetKeyDown`, `Input.GetKeyUp` — состояние клавиатуры по `KeyCode`.
-- `Input.GetMouseButton`, `GetMouseButtonDown`, `GetMouseButtonUp` — кнопки мыши.
-- `Input.GetButton`, `GetButtonDown`, `GetButtonUp` — именованные кнопки.
-- `Input.GetAxis`, `Input.GetAxisRaw` — именованные оси, например `"Horizontal"`.
-- `Input.mousePosition`, `Input.deltaTime`, `Input.cursorLocked`, `Input.cursorVisible`.
-
-Доступная математика:
-
-- `Vec2`, `Vec3`, `Vec4` — векторы на `numpy.float64`.
-- `Quat`, `Mat4` — при необходимости импортируются из `core.maths.math3d`.
-- `Curve` — кейфреймовая кривая с виджетом редактора и вычислением в рантайме.
-
 ```python
 class Looker:
     sensitivity: float = 2.0
@@ -43,3 +47,5 @@ class Looker:
         if t and x != 0.0:
             t.rotate(Vec3(0.0, x * self.sensitivity * dt, 0.0))
 ```
+
+Паттерн курсора для fly-камер: лок при зажатой правой кнопке, релиз по отпусканию — ведите `Input.cursorLocked` из колбэков кнопок мыши в `on_update`.

@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,14 +1173,18 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="gizmos-and-icons">Gizmos and Icons</h1>
-<p>Editor-only overlay passes: gizmo lines/solids, billboard icons, selection outlines and the grid. They render after everything else in editor viewports and never appear in builds.</p>
+<p>Editor-only overlay passes: gizmo lines/solids, billboard icons, selection outlines and the grid. They render after everything else in editor viewports and never appear in builds — zero runtime cost, full staging value.</p>
 <p>How components plug in:</p>
 <ul>
-<li>Each component declares <code>_gizmo_pass</code> (e.g. <code>"light"</code>, <code>"camera"</code>, <code>"audio"</code>, <code>"script"</code>) and optional <code>_icon</code>, <code>_gizmo_icon_color</code>, <code>_gizmo_icon_label</code>.</li>
-<li>Scripts can draw custom gizmos by defining <code>gizmo_lines()</code> / <code>gizmo_meshes()</code> — these run even outside Play.</li>
-<li>Lights show frustum/volume helpers, cameras show frustums, audio sources show zone shapes (sphere/box), colliders show wireframe shapes.</li>
+<li>Each component declares <code>_gizmo_pass</code> (e.g. <code>"light"</code>, <code>"camera"</code>, <code>"audio"</code>, <code>"script"</code>, physics and navigation passes) routing its drawing into the right batch.</li>
+<li>Optional <code>_icon</code> file, <code>_gizmo_icon_color</code> and <code>_gizmo_icon_label</code> produce the billboarded letter badges (Light <code>L</code>, Audio <code>A</code>, Projector <code>P</code> and friends) through the icon pass.</li>
+<li>Scripts draw custom gizmos by defining <code>gizmo_lines()</code> / <code>gizmo_meshes()</code> — these execute even outside Play, ideal for patrol paths, spawn radii and sensor cones.</li>
+<li>Built-ins draw their domain shapes: lights show frustums/volumes, cameras show frustums, audio sources show zone shapes (sphere/box) with distance rings, colliders show wireframe shapes, joints show anchors and axes, navigation shows agent radii.</li>
 </ul>
-<p>The icon pass batches billboarded labels (letter + color per component type), the outline pass highlights selection, and the grid pass draws the reference grid with overlay controls.</p>
+<p>Passes behind the scenes: the icon pass batches billboards (one draw for many badges), the outline pass highlights the selection, the grid pass draws the reference grid with overlay controls, and the line width defaults to 0.6667 for crisp debug drawing.</p>
+<p>Workflow: stage with gizmos on (light cones, audio zones, trigger boxes all visible), then toggle overlays off for beauty screenshots. Custom script gizmos should be cheap — they run every editor frame.</p>
+<p>Troubleshooting: gizmo missing → component <code>_show_gizmo_icon</code> disabled or pass filtered in viewport options; script gizmo stale → hot-reload recreated the instance, re-open the method; clutter → hide passes per category in the viewport menu.</p>
+<p>Related: Scripting gizmo callbacks, Light/Projector/AudioSource/Collider pages (their shapes), Viewport (Editor Manual).</p>
               
             </div>
           </div><footer>

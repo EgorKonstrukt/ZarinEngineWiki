@@ -1,10 +1,12 @@
 # Cython in Scripts
 
-Heavy computations can move to a Cython module next to the plain script, with no manual build steps.
+Heavy computations move to a Cython module next to the plain script — no manual build steps, no polluted script folders.
 
-1. `Project → Create → Cython Script` creates `fast_sum.pyx` with a template.
+Setup:
+
+1. `Project → Create → Cython Script` creates `fast_sum.pyx` with a working template.
 2. A plain script in the same folder writes `import fast_sum`.
-3. On first import the engine compiles the extension into `cache/cython` automatically (on Windows the bundled MinGW toolchain is found by the engine) and imports it.
+3. Before import, the engine prepares the script folder on the module search path, then on first import compiles the extension into `cache/cython` automatically. On Windows the bundled MinGW toolchain is discovered by the engine itself.
 
 ```python
 import move_fast
@@ -29,9 +31,14 @@ cpdef double clamp_step(double value, double lo, double hi):
     return value
 ```
 
-Rules:
+Rules and mechanics:
 
-- The module name is top-level: `import foo` where `foo.pyx` sits next to the script. Names must be unique within the project. A neighboring `foo.pxd` is also tracked for rebuilds.
-- Rebuilds are automatic when the `.pyx` file is newer than the build. Artifacts live in `cache/cython`, the script folder stays clean. Editing `.pyx` during Play triggers a script hot-reload as usual.
-- The `Check` button validates `.pyx` without a C compiler (Cython parsing and typing only). The full build happens on first import.
-- If no compiler is found, the console shows an actionable error and the script keeps working on the previous working build.
+- The module name is top-level: `import foo` where `foo.pyx` sits next to the script. Names must be unique within the project. A neighboring `foo.pxd` declaration file is tracked for rebuilds too.
+- Rebuilds are automatic when the `.pyx` (or `.pxd`) is newer than the cached build. Artifacts live in `cache/cython`; the script folder stays clean. Editing `.pyx` during Play triggers a script hot-reload as usual.
+- The `Check` button validates `.pyx` without a C compiler (Cython parsing and typing only). The full native build happens lazily on first import.
+- If no compiler is found, the console shows an actionable error and the script keeps working on the previous working build — iteration never hard-blocks on toolchain setup.
+- Keep the Python/Cython boundary typed (`cpdef`, typed locals) and batch calls: one call processing an array beats per-element calls across the boundary.
+
+When to reach for it: per-frame math over many elements (crowds, particles logic, procedural deformation), tight loops the profiler attributes to a script, and numeric kernels. Game flow, input and orchestration stay in plain Python.
+
+Troubleshooting: stale results → touch the `.pyx` (mtime drives rebuilds); import errors → module name collision within the project, rename uniquely; slow first Play → that is the one-time compile, later runs reuse `cache/cython`.

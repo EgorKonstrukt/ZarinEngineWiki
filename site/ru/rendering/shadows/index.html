@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,16 +1174,19 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Тени</h1>
-<p>Подсистема карт теней за каждым тоглом <code>cast_shadows</code>.</p>
+<p>Подсистема карт теней за каждым тоглом <code>cast_shadows</code> — глубинный рендер с точки света, сэмплируемый назад в главном проходе.</p>
 <ul>
-<li>Направленный: каскадная карта, по умолчанию 4 каскада с разрешениями 2048/1024/1024/512, дистанция 50.</li>
-<li>Точечный: кубические карты, 512 по умолчанию, до 4 одновременно.</li>
-<li>Спот: 1024 по умолчанию, до 4 одновременно.</li>
-<li>У каждого каскада/грани свои глубинные текстура и фреймбуфер; проход поддерживает GPU-инстансинг с плоским путём куллинга.</li>
-<li>Контролы bias: глобальные настройки плюс <code>area_shadow_bias</code> на свете (0.005 по умолчанию у area).</li>
+<li>Направленный: каскадная карта, по умолчанию 4 каскада 2048/1024/1024/512, дистанция 50. Каскады концентрируют тексели у камеры; дальняя земля получает грубую глубину.</li>
+<li>Точечный: кубические карты, 512 по умолчанию, до 4 одновременных затенённых точек.</li>
+<li>Спот: перспективные карты, 1024 по умолчанию, до 4 одновременно.</li>
+<li>Тени проекторов — своим проходом (<code>render_projector_shadows</code>).</li>
+<li>У каждого каскада/грани свои глубинные текстура и фреймбуфер; проход поддерживает GPU-инстансинг с плоским куллингом, есть отладочный оверлей (шейдер <code>ShadowDebug</code>).</li>
+<li>Контролы bias: глобальные плюс bias на свете вроде <code>area_shadow_bias</code> (0.005 по умолчанию у area).</li>
 </ul>
-<p>Порядок настройки: дистанция на игровую зону, минимальное приемлемое разрешение, затем bias до ухода акне без peter-panning. Профилируйте проход теней отдельно — он перерисовывает сцену на каскад/грань.</p>
-<p>Связанное: Light (база), страницы направленного/точечного/спота/area, Projector.</p>
+<p>Порядок настройки по шагам: дистанция теней на игровую зону и ни метром больше; минимальное приемлемое разрешение на тип; bias до ухода акне без peter-panning (оторванных теней); в конце кап одновременных затенённых светов — лишние в незaтенённую заливку.</p>
+<p>Модель цены: проход теней перерисовывает сцену на каскад и затенённую грань — 4 каскада плюс 2 затенённых спота это 6 лишних отрисовок сцены. Профилируйте стадию отдельно, прежде чем винить главный проход.</p>
+<p>Диагностика: акне (полосатые самотени) — чуть поднять bias; peter-panning (парящий контакт) — bias велик, опустить; мерцание каскадов — дистанция велика для разрешения, сузить дистанцию или поднять разрешение; теней нет вообще — свет вне пачки 8, вне дистанции или тогл выкл.</p>
+<p>Связанное: Light (база), страницы направленного/точечного/спота/area, Projector, камеры (near/far тоже влияют на точность глубины).</p>
               
             </div>
           </div><footer>

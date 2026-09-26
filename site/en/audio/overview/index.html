@@ -361,11 +361,13 @@
     <ul class="current">
     </ul>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,21 +1173,24 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="audio-overview">Audio Overview</h1>
-<p>TODO: Content pending. This page will document Audio Overview in ZarinEngine.</p>
-<p>Planned sections:</p>
-<ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
-</ul>
-<p>Related pages: see English section index and home page.</p>
+<p>3D positional audio over OpenAL: sources live on entities, one listener acts as the ears, reverb zones color the space, and the engine services handle decoding, caching and per-frame updates.</p>
+<p>Signal path per frame:</p>
+<ol>
+<li><code>AudioListener.on_update</code> pushes position, orientation and velocity (finite difference of the Transform) plus doppler settings into <code>AudioSystem</code>.</li>
+<li>Each playing <code>AudioSource</code> advances fades in <code>on_update</code>, polls the OpenAL source state, and restarts looped clips or fires <code>on_finished</code> / <code>on_stopped</code>.</li>
+<li><code>AudioSourceManager</code> owns the native source ids: play, stop, pause, loop, spatial blend, distances and rolloff curves.</li>
+<li><code>AudioSystem</code> owns resources: clip loading and caching, async loads, listener state, doppler and speed of sound.</li>
+<li><code>ReverbZone</code> components feed the OpenAL EFX chain (<code>audio_efx</code>, guarded by <code>EFXError</code> when the extension is missing).</li>
+</ol>
+<p>Supported clip formats: <code>.wav</code>, <code>.mp3</code>, <code>.ogg</code>, <code>.flac</code> (also <code>.aiff</code> / <code>.m4a</code> through the script resource filter). Decoding is handled by the miniaudio backend into <code>DecodedAudio</code> buffers.</p>
+<p>Pages: AudioSource, AudioListener, Reverb Zone, Audio System (manager, decoders, analyzer, EFX).</p>
+<p>Setup minimum for audible sound: one entity with AudioListener (usually the camera), one entity with AudioSource pointing at a clip, press Play. If <code>play_on_awake</code> is off, start playback from a script or enable the component at runtime — enabling replays the clip from the start.</p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href="../../physics-2d/_section/" class="btn btn-neutral float-left" title="Section Index (physics-2d)"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../source-listener/" class="btn btn-neutral float-right" title="AudioSource and AudioListener">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../audio-source/" class="btn btn-neutral float-right" title="AudioSource">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -1209,7 +1216,7 @@
       <span><a href="../../physics-2d/_section/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../source-listener/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../audio-source/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

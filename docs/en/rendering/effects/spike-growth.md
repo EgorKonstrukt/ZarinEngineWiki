@@ -1,5 +1,21 @@
 # Spike Growth
 
-Extrudes procedural spikes from the surface for corruption and armor. Built on the shared ObjectEffect base and the ObjectFx pass: progress and intensity parameters are exposed so scripts can drive the effect by animating one float.
+Per-object effect through the ObjectFx pass (unlike PostFX, which processes the whole frame). Built on the shared ObjectEffect base; scripts drive it by animating progress/intensity floats.
+
+## How it works
+
+Extrudes procedural spikes from the surface along normals with length control.
+
+## Parameters
+
+Progress/length, density, sharpness.
+
+## Tips
+
+Corruption spread, armor-up power-ups, sea mines arming.
+
+## Cost
+
+Medium by spike density.
 
 Related: [Object Effects](../effects.md), Materials, Script Examples.

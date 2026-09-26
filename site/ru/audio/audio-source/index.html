@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../../img/favicon.ico" />
-    <title>AudioSource и AudioListener - ZarinEngine Wiki</title>
+    <title>AudioSource - ZarinEngine Wiki</title>
     <link rel="stylesheet" href="../../../css/theme.css" />
     <link rel="stylesheet" href="../../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "AudioSource \u0438 AudioListener";
-        var mkdocs_page_input_path = "ru\\audio\\source-listener.md";
+        var mkdocs_page_name = "AudioSource";
+        var mkdocs_page_input_path = "ru\\audio\\audio-source.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -908,13 +910,15 @@
     <ul class="current">
                 <li class="toctree-l2"><a class="reference internal" href="../overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2 current"><a class="reference internal current" href="#">AudioSource и AudioListener</a>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">AudioSource</a>
     <ul class="current">
     </ul>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1159,7 +1163,7 @@
     <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Русский</li>
           <li class="breadcrumb-item">Аудио</li>
-      <li class="breadcrumb-item active">AudioSource и AudioListener</li>
+      <li class="breadcrumb-item active">AudioSource</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -1168,22 +1172,124 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="audiosource-audiolistener">AudioSource и AudioListener</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел AudioSource и AudioListener в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+                <h1 id="audiosource">AudioSource</h1>
+<p>Играющий голос на сущности: клип, громкость, питч, зацикливание, 3D-позиция, спад по дистанции, фейды и колбэки финала.</p>
+<table>
+<thead>
+<tr>
+<th>Группа / поле инспектора</th>
+<th>Default</th>
+<th>Смысл</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Playback: Clip</td>
+<td>—</td>
+<td>Аудиофайл (wav/mp3/ogg/flac)</td>
+</tr>
+<tr>
+<td>Playback: Volume</td>
+<td>1.0</td>
+<td>Множитель громкости</td>
+</tr>
+<tr>
+<td>Playback: Pitch</td>
+<td>1.0</td>
+<td>Скорость проигрывания, −3…3</td>
+</tr>
+<tr>
+<td>Playback: Loop</td>
+<td>выкл</td>
+<td>Перезапуск в конце</td>
+</tr>
+<tr>
+<td>Playback: Play On Awake</td>
+<td>выкл</td>
+<td>Автостарт в <code>on_start</code></td>
+</tr>
+<tr>
+<td>Spatial: Spatial Blend</td>
+<td>1.0</td>
+<td>0 = плоское 2D, 1 = полное 3D</td>
+</tr>
+<tr>
+<td>Spatial: Zone Shape</td>
+<td>sphere</td>
+<td>Объём затухания SPHERE или BOX</td>
+</tr>
+<tr>
+<td>Spatial: Volume Rolloff</td>
+<td>linear</td>
+<td>Редактор кривой, ключи по умолчанию <code>[[0,1],[1,0]]</code></td>
+</tr>
+<tr>
+<td>Spatial: Min / Max Distance</td>
+<td>1.0 / 50.0</td>
+<td>Радиус полной громкости и радиус тишины</td>
+</tr>
+<tr>
+<td>Spatial: Box Inner / Outer Size</td>
+<td>2³ / 10³</td>
+<td>BOX-зона: габариты полной громкости и спада</td>
+</tr>
+<tr>
+<td>Fades: Offset (sec)</td>
+<td>0.0</td>
+<td>Стартовая позиция внутри клипа</td>
+</tr>
+<tr>
+<td>Fades: Fade In / Fade Out Time</td>
+<td>0.0</td>
+<td>Авто-рампы на play / stop</td>
+</tr>
+</tbody>
+</table>
+<p>Жизненный цикл, сверено с кодом:</p>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li><code>on_start</code> играет при выставленном <code>play_on_awake</code>, назначенном клипе и тишине.</li>
+<li><code>on_enable</code> перезапускает клип при каждом включении компонента с назначенным клипом.</li>
+<li><code>on_disable</code> / <code>on_destroy</code> немедленно останавливают нативный источник.</li>
+<li><code>on_update</code> крутит активные фейды, опрашивает <code>AL_SOURCE_STATE</code>, перезапускает зацикленные клипы, стреляет <code>on_finished</code> (естественный конец) или <code>on_stopped</code> (остановлен, фейд-аут завершён). Исключения колбэков логируются, не пробрасываются.</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<p>API из скриптов:</p>
+<pre><code class="language-python">src = self._entity.get_component_by_name(&quot;AudioSource&quot;)
+
+def on_start(self):
+    src = self._entity.get_component_by_name(&quot;AudioSource&quot;)
+    if src:
+        src.on_finished = self.next_track
+        src.play()
+
+def next_track(self):
+    src = self._entity.get_component_by_name(&quot;AudioSource&quot;)
+    if src:
+        src.stop()
+
+def on_update(self, dt):
+    src = self._entity.get_component_by_name(&quot;AudioSource&quot;)
+    if src and Input.GetKeyDown(KeyCode.M):
+        if src.is_playing:
+            src.stop()
+        else:
+            src.play()
+</code></pre>
+<p>Детали:</p>
+<ul>
+<li><code>play()</code> — no-op без клипа или во время проигрывания; пробрасывает в менеджер громкость, питч, loop, spatial blend, дистанции, спад, offset и форму зоны, взводит <code>fade_in_time</code> через старт с нулевым гейном.</li>
+<li><code>stop()</code> при выставленном <code>fade_out_time</code> сначала делает фейд-аут и только потом отпускает источник; без него остановка мгновенная. <code>fade_in(duration)</code> / <code>fade_out(duration)</code> вызываются и напрямую.</li>
+<li><code>is_playing</code> отражает флаг состояния компонента.</li>
+<li>Пресеты спада: <code>linear_preset()</code> возвращает <code>[[0,1],[1,0]]</code>; <code>logarithmic_preset()</code> строит ключи <code>1/(1+2t)</code> с шагом 0.1 для естественного спада по дистанции.</li>
+<li>Оценка зоны по умолчанию сферическая (<code>min_distance</code> — полная громкость, <code>max_distance</code> — тишина); режим BOX использует inner как полную громкость и outer как границу спада. Гизмо рисует активную форму во вьюпорте.</li>
+</ul>
+<p>Диагностика: нет звука — проверьте резолв пути клипа, наличие AudioSystem (установлен openal), наличие слушателя, ненулевые volume и spatial blend, слушатель внутри max distance; щелчки на стопе — задайте малый fade_out_time; щель в лупе — держите loop вкл и не дёргайте play каждый кадр.</p>
+<p>Связанное: AudioListener, зона реверберации, аудиосистема, Curve (редактор спада).</p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href="../overview/" class="btn btn-neutral float-left" title="Обзор аудио"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../reverb-zones/" class="btn btn-neutral float-right" title="Зоны реверберации и EFX">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../audio-listener/" class="btn btn-neutral float-right" title="AudioListener">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -1209,7 +1315,7 @@
       <span><a href="../overview/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../reverb-zones/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../audio-listener/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

@@ -1,7 +1,21 @@
 # Dithering
 
-Ordered noise that hides color banding in smooth gradients. Built on the shared GraphicsEffect base: enable toggle plus effect-specific Inspector fields, executed in component order after the main scene pass.
+Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.
 
-Cost guide: single-pass color ops stay cheap; multi-tap and screen-space techniques dominate the post budget, so profile before stacking.
+## How it works
+
+Adds ordered noise that breaks up color banding in smooth gradients (skies, fog, dark interiors).
+
+## Parameters
+
+Strength, pattern scale.
+
+## Tips
+
+Always pair with fog and dark gradients; invisible at right strength, banding without it.
+
+## Cost
+
+Negligible.
 
 Related: [PostFX Stack](../postfx.md), Cameras (render scale), Profiler.

@@ -1,7 +1,21 @@
 # Bloom
 
-Adds glow around bright areas: lamps, sun, emissive surfaces. Built on the shared GraphicsEffect base: enable toggle plus effect-specific Inspector fields, executed in component order after the main scene pass.
+Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.
 
-Cost guide: single-pass color ops stay cheap; multi-tap and screen-space techniques dominate the post budget, so profile before stacking.
+## How it works
+
+Bright pixels above a threshold bleed into neighbours through a downsampled blur pyramid, then add back over the frame.
+
+## Parameters
+
+Threshold, intensity, radius/softness, tint.
+
+## Tips
+
+Pair with Emissive Pulse fixtures and sun-lit metal; keep threshold above the sky or the whole sky blooms.
+
+## Cost
+
+Medium: pyramid taps scale with radius. One bloom is fine; two is a smell.
 
 Related: [PostFX Stack](../postfx.md), Cameras (render scale), Profiler.

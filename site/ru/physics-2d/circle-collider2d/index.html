@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,7 +1173,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="circle-collider-2d">Circle Collider 2D</h1>
-<p>Диск в плоскости: мячи, колёса, радиальные триггеры.</p>
+<p>Диск в плоскости: мячи, колёса, монеты, радиальные триггеры и сенсоры близости.</p>
 <table>
 <thead>
 <tr>
@@ -1200,7 +1204,10 @@
 </tr>
 </tbody>
 </table>
-<p>Маппится на солвер как примитив сферы. Стабильно катится по земле из Box Collider 2D на низком трении.</p>
+<p>Маппится на солвер как примитив сферы. Стабильно катится по земле Box Collider 2D на умеренном трении; триггер-диски — лучшие подборы (прощающее пересечение против точных прямоугольников).</p>
+<p>Паттерны: монеты — мелкие триггер-диски с анимацией вращения и скриптом подбора; колёса — динамические диски с Rigidbody2D, ничего не заморожено, умеренный angular drag; бамперы — высокопрыгучие диски плюс скрипт импульса на enter; зрение врагов — большой триггер-диск, ведущий состояние AI.</p>
+<p>Собирайте диски в стопки для капсулоподобных врагов (два диска + бокс) вместо мечты о 2D-капсуле — компаунд ведёт себя идентично.</p>
+<p>Диагностика: катится вечно — нулевые drag/трение; не катится — вкл freeze rotation; подборы мимо на скорости — туннелирование, увеличьте диск или кап скорости бегуна.</p>
 <p>Связанное: Rigidbody 2D, Box Collider 2D, Sphere-коллайдер (3D).</p>
               
             </div>

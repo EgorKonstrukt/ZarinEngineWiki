@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="meshrenderer">MeshRenderer</h1>
-<p>Отвечает <em>как</em> рисовать меш из <code>MeshFilter</code>.</p>
+<p>Отвечает <em>как</em> рисовать меш из <code>MeshFilter</code>: слоты материалов, участие в тенях, UV-трансформы.</p>
 <table>
 <thead>
 <tr>
@@ -1183,7 +1187,7 @@
 <tr>
 <td>materials</td>
 <td>—</td>
-<td>Слоты материалов (<code>{path}</code> каждый, например <code>.zpem</code>), по одному на субмеш</td>
+<td>Слоты материалов (<code>{path}</code> каждый, например <code>.zpem</code>), по одному на субмеш по порядку</td>
 </tr>
 <tr>
 <td>cast_shadows</td>
@@ -1193,17 +1197,17 @@
 <tr>
 <td>receive_shadows</td>
 <td>вкл</td>
-<td>Читать карты теней</td>
+<td>Читать карты теней в главном проходе</td>
 </tr>
 <tr>
 <td>uv_scale / uv_offset</td>
 <td>(1,1) / (0,0)</td>
-<td>Тайлинг и сдвиг</td>
+<td>Тайлинг и сдвиг через UV-оверрайд шейдера</td>
 </tr>
 <tr>
 <td>uv_scale_by_transform</td>
 <td>выкл</td>
-<td>Выводить тайлинг из трансформа</td>
+<td>Выводить тайлинг из скейла трансформа (полы, стены)</td>
 </tr>
 <tr>
 <td>sprite_texture</td>
@@ -1213,12 +1217,15 @@
 <tr>
 <td>dynamic_reflections</td>
 <td>выкл</td>
-<td>Обновлять отражения окружения каждый кадр</td>
+<td>Обновлять отражения окружения каждый кадр вместо по требованию</td>
 </tr>
 </tbody>
 </table>
-<p>Геометрия загружается один раз через кэш геометрии; покадровая цена — один draw на видимый субмеш. Для анимированных мешей — SkinnedMeshRenderer; для моделирования в редакторе — ProBuilder-компонент.</p>
-<p>Связанное: MeshFilter, материалы, шейдеры, тени.</p>
+<p>Порядок и цена: один draw call на видимый субмеш после фрустум-куллинга; прозрачные материалы сортируются в прозрачный бакет по глубине. Кастеры рисуются в каждую накрывающую карту теней — высокополигональный hero с вкл cast кратно удорожает тени: выключайте cast мелкому реквизиту без читаемых теней.</p>
+<p>UV-процесс: тайлинг кирпича/бетона через uv_scale (4,4) вместо дублирования геометрии; скролл анимацией uv_offset из скрипта (конвейеры, водные горки); world-aligned отделка через uv_scale_by_transform на архитектуре.</p>
+<p>Для анимированных — SkinnedMeshRenderer; для блокаута в редакторе — ProBuilder-компонент <code>probuilder_mesh</code>; для коллизий — MeshCollider на том же пути фильтра.</p>
+<p>Диагностика: меш невидим — бит путь фильтра или все материалы потеряны; не тот материал субмеша — рассинхрон порядка слотов, переупорядочьте; нет теней — cast вкл, но свет вне дистанции, или receive выкл на земле; мерцание UV — неоднородный отрицательный скейл, чините трансформ.</p>
+<p>Связанное: MeshFilter, материалы, шейдеры (UV-оверрайд uniforms), тени, SkinnedMeshRenderer.</p>
               
             </div>
           </div><footer>

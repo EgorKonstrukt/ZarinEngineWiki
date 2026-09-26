@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,11 +1173,14 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="zpem">Материалы (.zpem)</h1>
-<p>Ассеты материалов — <code>.zpem</code> (и легаси <code>.mat</code>), оба JSON-документы <code>{name, shader_path, properties}</code>. Пустой <code>shader_path</code> откатывается на шейдер по умолчанию. Недостающие свойства добиваются из блока <code>Properties</code> шейдера при загрузке.</p>
+<p>Ассеты материалов — <code>.zpem</code> (и легаси <code>.mat</code>), оба JSON-документы <code>{name, shader_path, properties}</code>. Пустой <code>shader_path</code> откатывается на шейдер по умолчанию. Недостающие свойства добиваются из блока <code>Properties</code> шейдера при загрузке — рукописные файлы несут только оверрайды.</p>
 <p>Маппинг текстурных uniform (выдержка): <code>albedo_texture → u_albedo_tex</code>, <code>normal → u_normal_tex</code>, <code>roughness → u_roughness_tex</code>, плюс прямые <code>_BaseMap</code>, <code>_NormalMap</code>, <code>_OcclusionMap</code>. Алиасы значений: <code>_BaseColor → u_albedo_color</code>, <code>_Metallic → u_metallic</code>, <code>_Smoothness → u_smoothness</code>, <code>_EmissionColor → u_emission</code>.</p>
-<p>Дефолты при отрисовке: albedo белый <code>[1,1,1,1]</code>, metallic 0, smoothness 0.5, emission 0, белая текстура 1×1 на юните 0, реальные текстуры с юнита 1 с флагами <code>*_Active</code> / <code>u_use_*</code>.</p>
-<p>Правило прозрачности: поверхность считается прозрачной, когда альфа падает ниже <code>0.999</code> или забинденная albedo-текстура содержит альфа-канал (определяется инспекцией изображения).</p>
-<p>В редакторе материалы правятся через инспектор, мастер материалов и живое превью. Рантайм-правки свойств применяются сразу без реимпорта.</p>
+<p>Дефолты при отрисовке: albedo белый <code>[1,1,1,1]</code>, metallic 0, smoothness 0.5, emission 0, белая 1×1 на юните 0, реальные текстуры с юнита 1 с флагами <code>*_Active</code> / <code>u_use_*</code> на каждую карту.</p>
+<p>Правило прозрачности: поверхность прозрачна, когда альфа ниже <code>0.999</code> или забинденная albedo-текстура содержит альфа-канал (определяется инспекцией) — ручной blend-флаг забывать негде.</p>
+<p>Процесс: создание мастером материалов (выбор шейдера, скелет дефолтов), превью в миниатюре, назначение в слоты MeshRenderer, живая настройка в инспекторе — рантайм-правки применяются без реимпорта. Материалы сериализуются путём — переименование файла рвёт слоты до перепейка; переименовывайте действием панели Project.</p>
+<p>Быстрый гид PBR (свойства <code>PBR.shader</code>): <code>_BaseColor</code>/<code>_BaseMap</code> для albedo, <code>_Metallic</code> 0 диэлектрик / 1 металл, <code>_Smoothness</code> для глянца, <code>_NormalMap</code> для деталей, <code>_OcclusionMap</code> для щелей, <code>_EmissionColor</code> × <code>_EmissionIntensity</code> для свечения, <code>_Cutoff</code> для alpha-tested выреза, <code>_Transmission</code>/<code>_IOR</code> для стеклоподобной трансмиссии, <code>_double_sided</code> для листвы и карточек.</p>
+<p>Диагностика: чёрная поверхность — упал шейдер и у дефолта нет света, смотрите консоль; неверные цвета — mismatch sRGB/linear или пропущенный флаг <code>u_use_*</code>; невидимая прозрачность — альфа ровно 1 при альфа-текстуре или сортировка глубины против другой прозрачности; потери правок — правили копию превью, примените назад в ассет.</p>
+<p>Связанное: шейдеры, MeshRenderer, мастер материалов и превью (руководство по редактору), текстуры и сжатие.</p>
               
             </div>
           </div><footer>

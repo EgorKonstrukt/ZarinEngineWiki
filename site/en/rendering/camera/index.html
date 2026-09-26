@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="camera">Camera</h1>
-<p>Renders the scene from an entity viewpoint. Add one per view: main gameplay camera, UI-plane camera, cutscene cameras.</p>
+<p>Renders the scene from an entity viewpoint. Add one per view: main gameplay camera, UI-plane camera, cutscene cameras, security-monitor walls.</p>
 <table>
 <thead>
 <tr>
@@ -1193,11 +1197,11 @@
 </tr>
 <tr>
 <td>Rendering: Depth</td>
-<td>Draw-order priority, −100…100</td>
+<td>Draw-order priority, −100…100; higher draws later (on top)</td>
 </tr>
 <tr>
 <td>Render Resolution: Resolution Mode</td>
-<td>Native or Custom</td>
+<td>Native (follow viewport) or Custom</td>
 </tr>
 <tr>
 <td>Render Resolution: Viewport Width / Height</td>
@@ -1209,8 +1213,17 @@
 </tr>
 </tbody>
 </table>
-<p>Math: view is <code>look_at(position, position + forward, up)</code>; projection is <code>perspective(fov, aspect, near, far)</code> or <code>orthographic(-half_w, half_w, -ortho_size, ortho_size, near, far)</code> with <code>half_w = ortho_size * aspect</code>.</p>
-<p>Related: Editor Camera (scene editing only), Lights and Shadows, Render Resolution modes in build profiles.</p>
+<p>Math: view is <code>look_at(position, position + forward, up)</code>; projection is <code>perspective(fov, aspect, near, far)</code> or <code>orthographic(-half_w, half_w, -ortho_size, ortho_size, near, far)</code> with <code>half_w = ortho_size * aspect</code>. Gizmo draws the frustum in the viewport.</p>
+<p>Workflows:</p>
+<ul>
+<li>Main camera: perspective, FOV 55–70, near 0.1, far matched to the level (500 for interiors, 2000+ for open fields), depth 0.</li>
+<li>UI-plane camera: orthographic, ortho size matched to design units, depth above the main camera so HUD draws last.</li>
+<li>Cutscenes: several cameras with staggered depth, cross-fade by animating depth or enabling in sequence from a script.</li>
+<li>Pixel look: render_scale 0.25–0.5 with FXAA off and Pixelate post effect.</li>
+</ul>
+<p>Depth precision: the near plane dominates. A near of 0.001 with far 10000 guarantees shimmer; keep near as large as the scene allows (0.1 outdoors, 0.01 interiors) and far as small as possible.</p>
+<p>Troubleshooting: nothing renders → camera disabled, depth buried under a clear-everything camera, or culling mask excluding all layers; stretched image → aspect comes from the viewport, check custom resolution; jitter at distance → float64 scene vs too-tight near/far, widen the ratio.</p>
+<p>Related: Editor Camera, Lights and Shadows, Render Resolution modes, PostFX (Pixelate, Panini for wide FOV).</p>
               
             </div>
           </div><footer>

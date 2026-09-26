@@ -1,5 +1,21 @@
 # Dissolve
 
-Burns the surface away along a noise threshold for spawns, deaths and portals. Built on the shared ObjectEffect base and the ObjectFx pass: progress and intensity parameters are exposed so scripts can drive the effect by animating one float.
+Per-object effect through the ObjectFx pass (unlike PostFX, which processes the whole frame). Built on the shared ObjectEffect base; scripts drive it by animating progress/intensity floats.
+
+## How it works
+
+Burns the surface away along animated noise: pixels past the threshold discard with an emissive rim at the edge.
+
+## Parameters
+
+Progress 0→1, edge width/color, noise scale.
+
+## Tips
+
+Spawns, deaths, portals, burns. Drive progress from a damage or timer script.
+
+## Cost
+
+Cheap: one noise sample plus discard.
 
 Related: [Object Effects](../effects.md), Materials, Script Examples.

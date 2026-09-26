@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,46 +1173,52 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="rigidbody">Твёрдое тело Rigidbody</h1>
-<p>Делает сущность симулируемой: масса, реакция на гравитацию, накопление сил, читаемые скорости.</p>
+<p>Делает сущность симулируемой: масса, реакция на гравитацию, накопление сил, читаемые скорости. Без него коллайдер — статичные декорации; с ним сущность вступает в мир динамики.</p>
 <p>Поля инспектора:</p>
 <table>
 <thead>
 <tr>
 <th>Поле</th>
 <th>Default</th>
+<th>Диапазон</th>
 <th>Смысл</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>mass</code></td>
+<td>mass</td>
 <td>1.0</td>
-<td>Масса тела; при kinematic форсируется в 0</td>
+<td>0.001–100000</td>
+<td>Масса; при kinematic форсируется в 0</td>
 </tr>
 <tr>
-<td><code>drag</code></td>
+<td>drag</td>
 <td>0.0</td>
-<td>Линейное затухание</td>
+<td>0–1000</td>
+<td>Линейное затухание (воздух, вода)</td>
 </tr>
 <tr>
-<td><code>angular_drag</code></td>
+<td>angular_drag</td>
 <td>0.05</td>
-<td>Угловое затухание</td>
+<td>0–1000</td>
+<td>Затухание вращения</td>
 </tr>
 <tr>
-<td><code>use_gravity</code></td>
-<td>True</td>
+<td>use_gravity</td>
+<td>вкл</td>
+<td>—</td>
 <td>Гравитация действует</td>
 </tr>
 <tr>
-<td><code>is_kinematic</code></td>
-<td>False</td>
-<td>Ведётся трансформом, толкает других, но не толкается</td>
+<td>is_kinematic</td>
+<td>выкл</td>
+<td>—</td>
+<td>Ведётся трансформом: толкает динамику, не толкается</td>
 </tr>
 </tbody>
 </table>
-<p>Плюс поосевые тоглы заморозки позиции и поворота, сериализуются как тройки <code>freeze_pos</code> / <code>freeze_rot</code>.</p>
-<p>API из скриптов:</p>
+<p>Плюс поосевые тоглы заморозки позиции и поворота, сериализуются тройками <code>freeze_pos</code> / <code>freeze_rot</code> в <code>.zpes</code>.</p>
+<p>API из скриптов, сверено:</p>
 <pre><code class="language-python">rb = self._entity.get_component_by_name(&quot;Rigidbody&quot;)
 if rb:
     rb.add_force(Vec3(0.0, 10.0, 0.0))
@@ -1217,11 +1227,15 @@ if rb:
     v = rb.velocity
 </code></pre>
 <ul>
-<li><code>velocity</code> / <code>angular_velocity</code> — читаются каждый кадр, запись помечает тело грязным, и значение уходит в солвер.</li>
-<li><code>add_force</code> / <code>add_torque</code> — копятся до следующего шага, затем сбрасываются.</li>
-<li><code>add_impulse</code> — мгновенное изменение скорости <code>impulse / mass</code>; игнорируется для кинематики и неположительной массы.</li>
+<li><code>velocity</code> / <code>angular_velocity</code> — читаются каждый кадр, запись помечает тело грязным, и значение уходит в солвер на следующем синке.</li>
+<li><code>add_force(force, world_space=True)</code> / <code>add_torque(torque)</code> — копятся до следующего шага, затем автосбрасываются.</li>
+<li><code>add_impulse(impulse)</code> — мгновенное изменение скорости <code>impulse / mass</code>; игнорируется для кинематики и неположительной массы.</li>
+<li><code>consume_velocity_dirty()</code> / <code>_clear_forces()</code> — внутренний протокол синка; геймплей их почти не дёргает.</li>
 </ul>
-<p>Правило сборки: динамическое тело = <code>Rigidbody</code> (положительная масса, не kinematic) плюс коллайдер. Один коллайдер — статичная декорация. Создание тела читает <code>mass</code> и <code>is_kinematic</code>; скорости и силы синхронизируются каждый шаг.</p>
+<p>Механика: создание тела читает <code>mass</code> и <code>is_kinematic</code> (кинематика форсирует массу 0); скорости и силы синкаются каждый шаг. Флаги заморозки лочат оси на стороне солвера — замороженная Y-позиция плюс гравитация даёт скользящую шайбу; замороженные повороты — неопрокидываемые ящики.</p>
+<p>Гид масс: игрок 70–90, ящики 1–10, мебель 20–50, техника 500–2000. Отношения beyond ~100:1 между контактирующими телами напрягают любой солвер — держите геймплейные контакты в двух порядках.</p>
+<p>Диагностика: проваливается сквозь пол — нет коллайдера, оба триггеры или туннелирование на скорости (уменьшите fixed dt или кап скорости); игнорирует силы — вкл kinematic или масса 0; дрейфует вечно — нулевые drag и трение, поднимите оба; дрожь в стопках — мало итераций солвера или экстремальное отношение масс.</p>
+<p>Связанное: все страницы коллайдеров, CharacterController (kinematic-альтернатива), джойнты, солвер и потоки, примеры скриптов (Kicker).</p>
               
             </div>
           </div><footer>

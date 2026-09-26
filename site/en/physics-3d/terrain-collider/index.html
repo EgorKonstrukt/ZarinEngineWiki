@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="terrain-collider">Terrain Collider</h1>
-<p>Heightfield collision following terrain data — cheaper and more stable than a mesh collider for landscapes.</p>
+<p>Heightfield collision following terrain data: the only sane way to collide with landscapes — smooth height sampling instead of millions of triangles.</p>
 <table>
 <thead>
 <tr>
@@ -1185,15 +1189,15 @@
 </tr>
 <tr>
 <td>Terrain: World Size</td>
-<td>XZ extent of the heightfield</td>
+<td>XZ extent of the heightfield in world units</td>
 </tr>
 <tr>
 <td>Terrain: Height Scale</td>
-<td>Vertical exaggeration</td>
+<td>Vertical exaggeration multiplier</td>
 </tr>
 <tr>
 <td>Terrain: Resolution</td>
-<td>Height sample density</td>
+<td>Height sample density (fidelity vs memory)</td>
 </tr>
 <tr>
 <td>Terrain: Center</td>
@@ -1209,8 +1213,11 @@
 </tr>
 </tbody>
 </table>
-<p>Regenerate the collider after sculpting the terrain, or the physics surface will disagree with the visible one.</p>
-<p>Related: Terrain (rendering section), Rigidbody, Mesh Collider.</p>
+<p>The collider must match the visual terrain: same world size, same height scale, same resolution family. Regenerate after every sculpt — the classic invisible-wall / floating-player bug is a stale heightfield disagreeing with the edited mesh.</p>
+<p>Resolution guide: gameplay fidelity needs samples denser than the smallest feature players touch (curbs, ruts); distant mountains can stay coarse. Over-resolution wastes memory and cook time for zero gameplay gain.</p>
+<p>Characters walk heightfields smoothly where mesh colliders would chatter on triangle edges — another reason terrain always pairs with this collider, never a mesh one.</p>
+<p>Troubleshooting: sinking to the knees → height scale mismatch; floating → stale field, regenerate; edge cliffs at borders → world size smaller than the visual, extend; slow load → resolution overshot, halve it.</p>
+<p>Related: Terrain (rendering section), Rigidbody, Mesh Collider, CharacterController (max slope interplay).</p>
               
             </div>
           </div><footer>

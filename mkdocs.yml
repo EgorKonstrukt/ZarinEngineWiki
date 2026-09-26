@@ -146,9 +146,10 @@ nav:
   - Section Index (physics-2d): en/physics-2d/_section.md
   - Audio:
     - Audio Overview: en/audio/overview.md
-    - AudioSource and AudioListener: en/audio/source-listener.md
-    - Reverb Zones and EFX: en/audio/reverb-zones.md
-    - Audio System and Codecs: en/audio/system.md
+    - AudioSource: en/audio/audio-source.md
+    - AudioListener: en/audio/audio-listener.md
+    - Reverb Zone: en/audio/reverb-zone.md
+    - Audio System: en/audio/system.md
   - Section Index (audio): en/audio/_section.md
   - Scripting:
     - Scripting Overview: en/scripting/overview.md
@@ -385,9 +386,10 @@ nav:
   - Указатель (physics-2d): ru/physics-2d/_section.md
   - Аудио:
     - Обзор аудио: ru/audio/overview.md
-    - AudioSource и AudioListener: ru/audio/source-listener.md
-    - Зоны реверберации и EFX: ru/audio/reverb-zones.md
-    - Аудиосистема и кодеки: ru/audio/system.md
+    - AudioSource: ru/audio/audio-source.md
+    - AudioListener: ru/audio/audio-listener.md
+    - Зона реверберации: ru/audio/reverb-zone.md
+    - Аудиосистема: ru/audio/system.md
   - Указатель (audio): ru/audio/_section.md
   - Скриптинг:
     - Обзор скриптинга: ru/scripting/overview.md

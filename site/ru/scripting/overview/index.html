@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -908,11 +910,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,36 +1173,38 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Обзор скриптинга</h1>
-<p>Поведения сущностей в ZarinEngine — обычные <code>.py</code>-файлы с классом поведения. Базовый класс и регистрация не нужны.</p>
-<p>Создание: <code>Project → Create → Python Script</code>, назначение на сущность: <code>Inspector → Add Component → Scripts</code>, запуск кнопкой <code>Play</code>.</p>
-<pre><code class="language-python">from core.maths.math3d import Vec3
-
-
-class Mover:
-    speed: float = 5.0
-
-    def on_update(self, dt: float):
-        t = self._entity.transform
-        if t:
-            t.translate(Vec3(0.0, 0.0, self.speed * dt))
-</code></pre>
-<p>Как это работает:</p>
+<p>Поведения сущностей в ZarinEngine — обычные <code>.py</code>-файлы с классом поведения. Без базового класса, без регистрации, без шага сборки — сам файл и есть ассет.</p>
+<p>Сквозной процесс:</p>
+<ol>
+<li><code>Project → Create → Python Script</code> создаёт файл внутри папки проекта. Держите скрипты рядом с использующим их контентом; соседние импорты (включая Cython-модули) резолвятся из папки скрипта автоматически.</li>
+<li>Выберите сущность, <code>Inspector → Add Component → Scripts</code>, укажите файл в поле <code>Script</code>. Аннотированные атрибуты класса мгновенно становятся виджетами инспектора.</li>
+<li>Настройте значения в инспекторе — они хранятся в сцене (<code>.zpes</code>), а не в <code>.py</code>-файле, так что один скрипт ведёт много настроенных инстансов.</li>
+<li>Нажмите <code>Play</code>. Движок загружает класс, инстанцирует без аргументов, выставляет <code>self._entity</code>, вызывает <code>on_awake</code>, затем <code>on_start</code>.</li>
+</ol>
+<p>Как устроено внутри:</p>
 <ul>
-<li>Движок находит первый класс в файле, у которого есть хотя бы один колбэк жизненного цикла (или <code>_inspector_buttons</code>). Наследоваться ни от чего не нужно.</li>
-<li>Конструктор — обычный <code>__init__</code> без аргументов. Движок сам выставляет <code>self._entity</code> перед каждым вызовом.</li>
-<li>Короткие имена — полноценные алиасы: <code>update</code> = <code>on_update</code>, <code>start</code> = <code>on_start</code> и так далее. Если заданы оба варианта, вызывается <code>on_*</code>-версия.</li>
-<li>На одной сущности разрешено несколько <code>ScriptComponent</code> (<code>_allow_multiple = True</code>).</li>
-<li>Исключение внутри любого колбэка не роняет игру: ошибка пишется в консоль с именем скрипта и метода, кадр продолжается.</li>
+<li>Движок находит первый класс в файле, объявляющий хотя бы один колбэк жизненного цикла, колбэк столкновений, метод гизмо или <code>_inspector_buttons</code>. Наследование не требуется; конструктор — без аргументов.</li>
+<li>Короткие имена — полноценные алиасы: <code>update</code> = <code>on_update</code>, <code>start</code> = <code>on_start</code> и так далее для awake, fixed_update, destroy, enable, disable. При обоих вариантах побеждает <code>on_*</code>.</li>
+<li>На одной сущности живут несколько <code>ScriptComponent</code> (<code>_allow_multiple = True</code>): движение, здоровье и визуал отдельными скриптами на одном объекте.</li>
+<li>Исключение в любом колбэке не роняет игру: пишется в консоль с именем скрипта и метода плюс трейсбек, кадр продолжается со следующего компонента.</li>
+<li><code>script_path</code> хранится относительно корня проекта — сцены и скрипты чисто переезжают между машинами.</li>
 </ul>
+<p>Контекст выполнения:</p>
+<ul>
+<li><code>on_update(dt)</code> идёт в порядке сцены каждый кадр с <code>dt</code>, уже умноженным на time scale; <code>on_fixed_update(dt)</code> — на часах физики со стабильным шагом (<code>0.02</code> по умолчанию).</li>
+<li>Колбэки столкновений приходят из диспатча физики, а не ECS-цикла, с id другой сущности и опционально силой удара.</li>
+<li>Методы гизмо (<code>gizmo_lines</code>, <code>gizmo_meshes</code>) выполняются в редакторе даже вне Play для кастомных ручек и отладочной отрисовки.</li>
+</ul>
+<p>Производительность: скрипты — Python и работают покадрово: держите <code>on_update</code> худым, кэшируйте лукапы компонентов в <code>on_start</code> вместо поиска по имени каждый кадр, числодробилку выносите в Cython-модули (см. Cython в скриптах).</p>
 <p>Подстраницы:</p>
 <ul>
-<li>Колбэки жизненного цикла — полная таблица методов и сигнатур.</li>
-<li>Поля инспектора и Range — как аннотации класса превращаются в виджеты.</li>
-<li>API ввода и математики — что подставляется в каждый скрипт автоматически.</li>
-<li>Горячая перезагрузка — правка скриптов без остановки Play.</li>
-<li>Cython в скриптах — вынос тяжёлой математики в компилируемые модули.</li>
-<li>ScriptComponent — компонент со стороны движка: пути, флаги, резолвинг класса, Check.</li>
-<li>Примеры скриптов — готовые поведения для копирования.</li>
+<li>Колбэки жизненного цикла — каждый метод, сигнатуры и порядок вызовов.</li>
+<li>Поля инспектора и Range — аннотации в виджеты, Entity-пикеры, кнопки.</li>
+<li>API ввода и математики — подставляемые имена, клавиши, оси, векторы, кривые.</li>
+<li>Горячая перезагрузка — правка скриптов во время Play.</li>
+<li>Cython в скриптах — компилируемые хелперы без ручных сборок.</li>
+<li>ScriptComponent — пути, флаги, резолвинг класса, Check.</li>
+<li>Примеры скриптов — готовые поведения.</li>
 </ul>
               
             </div>

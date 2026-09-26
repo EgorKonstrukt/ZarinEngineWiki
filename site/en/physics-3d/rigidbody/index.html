@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,46 +1173,52 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="rigidbody">Rigidbody</h1>
-<p>Makes an entity simulated: mass, gravity response, accumulated forces, readable velocities.</p>
+<p>Makes an entity simulated: mass, gravity response, accumulated forces, readable velocities. Without it a collider is static scenery; with it the entity joins the dynamics world.</p>
 <p>Inspector fields:</p>
 <table>
 <thead>
 <tr>
 <th>Field</th>
 <th>Default</th>
+<th>Inspector range</th>
 <th>Meaning</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>mass</code></td>
+<td>mass</td>
 <td>1.0</td>
+<td>0.001–100000</td>
 <td>Body mass; forced to 0 when kinematic</td>
 </tr>
 <tr>
-<td><code>drag</code></td>
+<td>drag</td>
 <td>0.0</td>
-<td>Linear damping</td>
+<td>0–1000</td>
+<td>Linear damping (air, water feel)</td>
 </tr>
 <tr>
-<td><code>angular_drag</code></td>
+<td>angular_drag</td>
 <td>0.05</td>
-<td>Angular damping</td>
+<td>0–1000</td>
+<td>Spin damping</td>
 </tr>
 <tr>
-<td><code>use_gravity</code></td>
-<td>True</td>
+<td>use_gravity</td>
+<td>on</td>
+<td>—</td>
 <td>Gravity applies</td>
 </tr>
 <tr>
-<td><code>is_kinematic</code></td>
-<td>False</td>
-<td>Driven by Transform, pushes others but is not pushed</td>
+<td>is_kinematic</td>
+<td>off</td>
+<td>—</td>
+<td>Transform-driven: pushes dynamics, never pushed</td>
 </tr>
 </tbody>
 </table>
-<p>Plus per-axis freeze toggles for position and rotation, serialized as <code>freeze_pos</code> / <code>freeze_rot</code> triples.</p>
-<p>Script API:</p>
+<p>Plus per-axis freeze toggles for position and rotation, serialized as <code>freeze_pos</code> / <code>freeze_rot</code> triples in <code>.zpes</code>.</p>
+<p>Script API, verified:</p>
 <pre><code class="language-python">rb = self._entity.get_component_by_name(&quot;Rigidbody&quot;)
 if rb:
     rb.add_force(Vec3(0.0, 10.0, 0.0))
@@ -1217,11 +1227,15 @@ if rb:
     v = rb.velocity
 </code></pre>
 <ul>
-<li><code>velocity</code> / <code>angular_velocity</code> — readable every frame, writable (marks the body dirty so the new value is pushed to the solver).</li>
-<li><code>add_force</code> / <code>add_torque</code> — accumulate until the next step, then cleared.</li>
-<li><code>add_impulse</code> — instant velocity change <code>impulse / mass</code>; ignored for kinematic bodies and non-positive mass.</li>
+<li><code>velocity</code> / <code>angular_velocity</code> — readable every frame, writable (marks the body dirty so the value pushes into the solver on the next sync).</li>
+<li><code>add_force(force, world_space=True)</code> / <code>add_torque(torque)</code> — accumulate until the next step, then cleared automatically.</li>
+<li><code>add_impulse(impulse)</code> — instant velocity change <code>impulse / mass</code>; ignored for kinematic bodies and non-positive mass.</li>
+<li><code>consume_velocity_dirty()</code> / <code>_clear_forces()</code> — internal sync protocol; gameplay code rarely calls these directly.</li>
 </ul>
-<p>Setup rule: a dynamic body needs <code>Rigidbody</code> (positive mass, non-kinematic) plus a collider. A collider alone is static scenery. Body creation reads <code>mass</code> and <code>is_kinematic</code>; velocities and forces sync every step.</p>
+<p>Mechanics: body creation reads <code>mass</code> and <code>is_kinematic</code> (kinematic forces mass 0); velocities and forces sync every step. Freeze flags constrain axes solver-side — frozen Y position plus gravity gives a sliding puck; frozen rotations give non-tipping crates.</p>
+<p>Mass guide: player 70–90, crates 1–10, furniture 20–50, vehicles 500–2000. Ratios beyond ~100:1 between interacting bodies strain any solver — keep gameplay contacts within two orders of magnitude.</p>
+<p>Troubleshooting: falls through floor → missing collider, both triggers, or tunneling at high speed (lower fixed dt or cap velocity); ignores forces → kinematic on or mass 0; drifts forever → drag 0 plus no friction, raise both; jitters on stacks → solver iterations low or mass ratio extreme.</p>
+<p>Related: all Collider pages, CharacterController (kinematic alternative), Joints, Solver and Threading, Script Examples (Kicker).</p>
               
             </div>
           </div><footer>

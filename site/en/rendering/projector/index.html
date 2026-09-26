@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="projector">Projector</h1>
-<p>Projects a texture from a frustum: slide projector, fake window light, graffiti beam.</p>
+<p>Projects a texture from a frustum: slide projector, fake window light, graffiti beam, logo thrower.</p>
 <table>
 <thead>
 <tr>
@@ -1213,7 +1217,7 @@
 <tr>
 <td>Projection: near_plane / far_plane</td>
 <td>0.1 / 100</td>
-<td>Depth slice</td>
+<td>Depth slice of the throw</td>
 </tr>
 <tr>
 <td>Options: flip_x / flip_y</td>
@@ -1223,12 +1227,15 @@
 <tr>
 <td>Options: cast_shadows</td>
 <td>on</td>
-<td>Shadowed projection</td>
+<td>Occluders block the projection</td>
 </tr>
 </tbody>
 </table>
-<p>The viewport gizmo draws the projection cone with aspect-correct base. Aim with the Transform like a Spot Light.</p>
-<p>Related: Spot Light, Shadows (projector shadows pass).</p>
+<p>The viewport gizmo draws the projection cone with an aspect-correct base rectangle — frame the target surface visually, then fine-tune angle and range. Aim with the Transform exactly like a Spot Light; the throw slice (near/far) clips the projection so it never leaks through back walls.</p>
+<p>Workflows: cinema — projector entity behind the audience aimed at a white VideoRenderer-style screen; fake windows — bright projector with a frame texture plus a soft spot for spill; decals-in-motion — animated texture offset is not built in, swap <code>texture_path</code> from a script for slideshow projection.</p>
+<p>Cost: one extra frustum sample set per projector; shadowed projectors join the projector shadow pass. Keep counts low (1–3) and ranges tight.</p>
+<p>Troubleshooting: mirrored image → toggle flip_x/flip_y; projection through walls → pull far_plane in; washed out → intensity competes with the key light, raise it or dim the scene.</p>
+<p>Related: Spot Light, Shadows (projector shadows pass), VideoRenderer (screen surfaces), TextRenderer (static slides alternative).</p>
               
             </div>
           </div><footer>

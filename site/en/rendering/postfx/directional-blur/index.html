@@ -191,6 +191,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Directional Blur</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../dithering/">Dithering</a>
@@ -361,11 +369,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +920,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,8 +1182,15 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="directional-blur">Directional Blur</h1>
-<p>Smears the image along one direction; speed lines and motion streaks. Built on the shared GraphicsEffect base: enable toggle plus effect-specific Inspector fields, executed in component order after the main scene pass.</p>
-<p>Cost guide: single-pass color ops stay cheap; multi-tap and screen-space techniques dominate the post budget, so profile before stacking.</p>
+<p>Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.</p>
+<h2 id="how-it-works">How it works</h2>
+<p>Smears pixels along one screen vector — speed lines without particles.</p>
+<h2 id="parameters">Parameters</h2>
+<p>Angle, length, center bias.</p>
+<h2 id="tips">Tips</h2>
+<p>Dash trails, warp jumps, slash arcs. Fades to zero length when idle.</p>
+<h2 id="cost">Cost</h2>
+<p>Medium by length. Short bursts only.</p>
 <p>Related: <a href="../">PostFX Stack</a>, Cameras (render scale), Profiler.</p>
               
             </div>

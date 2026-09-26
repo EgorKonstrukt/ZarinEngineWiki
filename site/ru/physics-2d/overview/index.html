@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,9 +1173,12 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="2d">Обзор физики 2D</h1>
-<p>Отдельный лёгкий 2D-конвейер со своими компонентами, симулируется тем же солвером, но с флагом 2D: внеплоскостные скорости (<code>vz</code>, наклоны) обнуляются каждый шаг, и тела остаются в плоскости.</p>
-<p>Для скролл-шутеров, top-down игр и 2D-физики UI-плоскости, где полные 3D-тела избыточны. 2D-формы маппятся на солвер как плоские примитивы: <code>Box2D → box</code> с размером <code>[sx, sy, 1.0]</code>, <code>Circle2D → sphere</code>, сдвиги как <code>[ox, oy, 0]</code>.</p>
-<p>Скрипты используют те же колбэки столкновений (<code>on_collision_enter/stay/exit</code>) и тот же фиксированный шаг (<code>dt = 0.02</code>).</p>
+<p>Отдельный лёгкий 2D-конвейер со своими компонентами, симулируется тем же солвером, но с флагом 2D: внеплоскостные скорости (<code>vz</code>, наклоны) обнуляются каждый шаг — тела никогда не дрейфуют из плоскости.</p>
+<p>Для скролл-шутеров, top-down игр и 2D-физики UI-плоскости, где полные 3D-тела избыточны и сложнее лочить. 2D-формы маппятся на солвер как плоские примитивы: <code>Box2D → box</code> с размером <code>[sx, sy, 1.0]</code> и центром <code>[ox, oy, 0]</code>, <code>Circle2D → sphere</code>.</p>
+<p>Скрипты используют те же колбэки (<code>on_collision_enter/stay/exit</code>), тот же шаг (<code>dt = 0.02</code>) и ту же фильтрацию layer/mask, что в 3D. Правило сущности: один конвейер на тело — не смешивайте 2D- и 3D-компоненты.</p>
+<p>Стартер платформера: статичная земля (BoxCollider2D без Rigidbody2D), игрок (Rigidbody2D + BoxCollider2D, freeze rotation вкл), монеты триггер-кругами с <code>is_trigger</code>, сообщающими подборы в скрипты.</p>
+<p>Страницы: Rigidbody 2D, Box Collider 2D, Circle Collider 2D.</p>
+<p>Связанное: обзор физики 3D (общие солвер и потоки), слои коллизий, примеры скриптов (Driver адаптируется в 2D отбрасыванием оси Z).</p>
               
             </div>
           </div><footer>

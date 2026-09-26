@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,11 +1173,12 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="cython-in-scripts">Cython in Scripts</h1>
-<p>Heavy computations can move to a Cython module next to the plain script, with no manual build steps.</p>
+<p>Heavy computations move to a Cython module next to the plain script — no manual build steps, no polluted script folders.</p>
+<p>Setup:</p>
 <ol>
-<li><code>Project → Create → Cython Script</code> creates <code>fast_sum.pyx</code> with a template.</li>
+<li><code>Project → Create → Cython Script</code> creates <code>fast_sum.pyx</code> with a working template.</li>
 <li>A plain script in the same folder writes <code>import fast_sum</code>.</li>
-<li>On first import the engine compiles the extension into <code>cache/cython</code> automatically (on Windows the bundled MinGW toolchain is found by the engine) and imports it.</li>
+<li>Before import, the engine prepares the script folder on the module search path, then on first import compiles the extension into <code>cache/cython</code> automatically. On Windows the bundled MinGW toolchain is discovered by the engine itself.</li>
 </ol>
 <pre><code class="language-python">import move_fast
 
@@ -1194,13 +1199,16 @@ class Mover:
         return hi
     return value
 </code></pre>
-<p>Rules:</p>
+<p>Rules and mechanics:</p>
 <ul>
-<li>The module name is top-level: <code>import foo</code> where <code>foo.pyx</code> sits next to the script. Names must be unique within the project. A neighboring <code>foo.pxd</code> is also tracked for rebuilds.</li>
-<li>Rebuilds are automatic when the <code>.pyx</code> file is newer than the build. Artifacts live in <code>cache/cython</code>, the script folder stays clean. Editing <code>.pyx</code> during Play triggers a script hot-reload as usual.</li>
-<li>The <code>Check</code> button validates <code>.pyx</code> without a C compiler (Cython parsing and typing only). The full build happens on first import.</li>
-<li>If no compiler is found, the console shows an actionable error and the script keeps working on the previous working build.</li>
+<li>The module name is top-level: <code>import foo</code> where <code>foo.pyx</code> sits next to the script. Names must be unique within the project. A neighboring <code>foo.pxd</code> declaration file is tracked for rebuilds too.</li>
+<li>Rebuilds are automatic when the <code>.pyx</code> (or <code>.pxd</code>) is newer than the cached build. Artifacts live in <code>cache/cython</code>; the script folder stays clean. Editing <code>.pyx</code> during Play triggers a script hot-reload as usual.</li>
+<li>The <code>Check</code> button validates <code>.pyx</code> without a C compiler (Cython parsing and typing only). The full native build happens lazily on first import.</li>
+<li>If no compiler is found, the console shows an actionable error and the script keeps working on the previous working build — iteration never hard-blocks on toolchain setup.</li>
+<li>Keep the Python/Cython boundary typed (<code>cpdef</code>, typed locals) and batch calls: one call processing an array beats per-element calls across the boundary.</li>
 </ul>
+<p>When to reach for it: per-frame math over many elements (crowds, particles logic, procedural deformation), tight loops the profiler attributes to a script, and numeric kernels. Game flow, input and orchestration stay in plain Python.</p>
+<p>Troubleshooting: stale results → touch the <code>.pyx</code> (mtime drives rebuilds); import errors → module name collision within the project, rename uniquely; slow first Play → that is the one-time compile, later runs reuse <code>cache/cython</code>.</p>
               
             </div>
           </div><footer>

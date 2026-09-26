@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,14 +1174,15 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Спот</h1>
-<p>Конусный свет: фонарик, софит, фара. Направление из трансформа, конус из <code>spot_angle</code> / <code>spot_inner_angle</code>.</p>
+<p>Конусный свет для фонариков, софитов, фар и оконных столбов. Направление из поворота трансформа, конус из <code>spot_angle</code> (внешний) и <code>spot_inner_angle</code> (яркое ядро).</p>
 <ul>
-<li>Интенсивность в люменах, по умолчанию 1000 (та же шкала, что у Point Light).</li>
-<li>До 4 одновременных спотовых карт теней (1024 по умолчанию).</li>
-<li>Гизмо показывает конус с кольцом внутреннего угла.</li>
+<li>Интенсивность в люменах, по умолчанию 1000 — та же шкала, что у Point Light, светильники матчатся при смене типа.</li>
+<li>До 4 одновременных спотовых карт (1024 по умолчанию) — по одной грани, куда дешевле точечных кубов. Споты — экономный затенённый свет: предпочитайте везде, где приемлема направленность.</li>
+<li>Гизмо показывает конус с кольцом внутреннего угла; наводите поворотом сущности, сужайте <code>spot_angle</code> для театральных лучей, расширяйте для заливки.</li>
 </ul>
-<p>Наводите поворотом трансформа; анимируйте <code>spot_angle</code> для зума и <code>intensity</code> для мерцания.</p>
-<p>Связанное: Light (база), тени, Projector (текстурный конус).</p>
+<p>Процессы: фонарик — спот родителем к камере с тенями и углом ~25°; сцена — несколько узких спотов с фермы с анимированными цветами; фары — два спота с range под тормозной путь; оконные столбы — широкоугольный спот сквозь раму плюс Projector для узора рамы.</p>
+<p>Анимируйте <code>spot_angle</code> для зума и <code>intensity</code> для мерцания; оба — дешёвые uniform-обновления без перерегистрации.</p>
+<p>Связанное: Light (база), тени, Projector (текстурный конус), точечный свет.</p>
               
             </div>
           </div><footer>
