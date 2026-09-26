@@ -201,15 +201,31 @@ nav:
   - Section Index (math): en/math/_section.md
   - Networking:
     - Networking Overview: en/networking/overview.md
-    - Collab Server and Client: en/networking/collaboration.md
-    - NetworkIdentity, Transform, Spawn, RPC: en/networking/gameplay-net.md
+    - Transport and Protocol: en/networking/transport-protocol.md
+    - Network Plugin: en/networking/network-plugin.md
+    - NetworkManager: en/networking/network-manager.md
+    - NetworkIdentity: en/networking/network-identity.md
+    - NetworkTransform: en/networking/network-transform.md
+    - NetworkRigidbody: en/networking/network-rigidbody.md
+    - NetworkAnimator: en/networking/network-animator.md
+    - NetworkVariables: en/networking/network-variables.md
+    - NetworkSpawn: en/networking/network-spawn.md
+    - NetworkPlayer: en/networking/network-player.md
+    - Collaboration: en/networking/collaboration.md
+    - RemoteCollaborator: en/networking/remote-collaborator.md
   - Section Index (networking): en/networking/_section.md
   - Plugins:
     - Plugins Overview: en/plugins/overview.md
     - PluginBase Lifecycle: en/plugins/pluginbase.md
-    - System Plugins: en/plugins/system-plugins.md
-    - User Plugins and .zplugin Packaging: en/plugins/user-plugins-packaging.md
-    - VR, MCP, Music Tracker, Plotter, QtQuick: en/plugins/integrations.md
+    - Plugin Manager: en/plugins/plugin-manager.md
+    - Example Plugin Walkthrough: en/plugins/example-plugin.md
+    - User Plugins Guide: en/plugins/user-plugins.md
+    - .zplugin Packaging: en/plugins/zplugin-packaging.md
+    - System Plugins Catalog: en/plugins/system-plugins.md
+    - Network Plugin (Plugin Page): en/plugins/network-plugin.md
+    - VR Plugin: en/plugins/vr-plugin.md
+    - MCP Bridge: en/plugins/mcp-plugin.md
+    - Music, Plotter and QtQuick: en/plugins/creative-plugins.md
   - Section Index (plugins): en/plugins/_section.md
   - Editor Manual:
     - Main Window: en/editor/main-window.md
@@ -441,15 +457,31 @@ nav:
   - Указатель (math): ru/math/_section.md
   - Сеть:
     - Обзор сетевой части: ru/networking/overview.md
-    - Сервер и клиент коллаборации: ru/networking/collaboration.md
-    - NetworkIdentity, Transform, Spawn, RPC: ru/networking/gameplay-net.md
+    - Транспорт и протокол: ru/networking/transport-protocol.md
+    - Сетевой плагин: ru/networking/network-plugin.md
+    - NetworkManager: ru/networking/network-manager.md
+    - NetworkIdentity: ru/networking/network-identity.md
+    - NetworkTransform: ru/networking/network-transform.md
+    - NetworkRigidbody: ru/networking/network-rigidbody.md
+    - NetworkAnimator: ru/networking/network-animator.md
+    - NetworkVariables: ru/networking/network-variables.md
+    - NetworkSpawn: ru/networking/network-spawn.md
+    - NetworkPlayer: ru/networking/network-player.md
+    - Коллаборация: ru/networking/collaboration.md
+    - RemoteCollaborator: ru/networking/remote-collaborator.md
   - Указатель (networking): ru/networking/_section.md
   - Плагины:
     - Обзор плагинов: ru/plugins/overview.md
     - Жизненный цикл PluginBase: ru/plugins/pluginbase.md
-    - Системные плагины: ru/plugins/system-plugins.md
-    - Пользовательские плагины и упаковка .zplugin: ru/plugins/user-plugins-packaging.md
-    - 'Интеграции: VR, MCP, трекер музыки, плоттер, QtQuick': ru/plugins/integrations.md
+    - Менеджер плагинов: ru/plugins/plugin-manager.md
+    - Разбор example-плагина: ru/plugins/example-plugin.md
+    - Гид пользовательских плагинов: ru/plugins/user-plugins.md
+    - Упаковка .zplugin: ru/plugins/zplugin-packaging.md
+    - Каталог системных плагинов: ru/plugins/system-plugins.md
+    - Сетевой плагин (страница плагина): ru/plugins/network-plugin.md
+    - VR-плагин: ru/plugins/vr-plugin.md
+    - MCP-мост: ru/plugins/mcp-plugin.md
+    - Музыка, плоттер и QtQuick: ru/plugins/creative-plugins.md
   - Указатель (plugins): ru/plugins/_section.md
   - Руководство по редактору:
     - Главное окно: ru/editor/main-window.md
