@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,35 +1173,37 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="scripting-overview">Scripting Overview</h1>
-<p>Entity behaviors in ZarinEngine are plain <code>.py</code> files with a behavior class. No base class, no registration boilerplate.</p>
-<p>Create a script via <code>Project → Create → Python Script</code>, attach it to an entity via <code>Inspector → Add Component → Scripts</code>, press <code>Play</code>.</p>
-<pre><code class="language-python">from core.maths.math3d import Vec3
-
-
-class Mover:
-    speed: float = 5.0
-
-    def on_update(self, dt: float):
-        t = self._entity.transform
-        if t:
-            t.translate(Vec3(0.0, 0.0, self.speed * dt))
-</code></pre>
-<p>How it works:</p>
+<p>Entity behaviors in ZarinEngine are plain <code>.py</code> files with a behavior class. No base class, no registration boilerplate, no build step — the file itself is the asset.</p>
+<p>End-to-end flow:</p>
+<ol>
+<li><code>Project → Create → Python Script</code> creates the file inside the project folder. Keep scripts next to the content that uses them; sibling imports (including Cython modules) resolve from the script folder automatically.</li>
+<li>Select an entity, <code>Inspector → Add Component → Scripts</code>, pick the file in the <code>Script</code> field. Annotated class attributes instantly become Inspector widgets.</li>
+<li>Tune values in the Inspector — they are stored in the scene (<code>.zpes</code>), not in the <code>.py</code> file, so one script drives many tuned instances.</li>
+<li>Press <code>Play</code>. The engine loads the class, instantiates it with no arguments, assigns <code>self._entity</code>, and calls <code>on_awake</code> then <code>on_start</code>.</li>
+</ol>
+<p>How it works inside:</p>
 <ul>
-<li>The engine finds the first class defined in the file that has at least one lifecycle callback (or <code>_inspector_buttons</code>). Inheritance is not required.</li>
-<li>The constructor is a plain no-argument <code>__init__</code>. The engine sets <code>self._entity</code> before every call.</li>
-<li>Short names are full aliases: <code>update</code> = <code>on_update</code>, <code>start</code> = <code>on_start</code>, and so on. If both variants are defined, the <code>on_*</code> version wins.</li>
-<li>One entity can hold several <code>ScriptComponent</code> instances (<code>_allow_multiple = True</code>).</li>
-<li>An exception inside any callback never crashes the game: it is written to the console with the script and method name, and the frame continues.</li>
+<li>The engine finds the first class defined in the file that declares at least one lifecycle callback, collision callback, gizmo method, or <code>_inspector_buttons</code>. Inheritance is not required; the constructor must take no arguments.</li>
+<li>Short names are full aliases: <code>update</code> = <code>on_update</code>, <code>start</code> = <code>on_start</code>, and so on for awake, fixed_update, destroy, enable, disable. If both variants are defined, the <code>on_*</code> version wins.</li>
+<li>One entity can hold several <code>ScriptComponent</code> instances (<code>_allow_multiple = True</code>): movement, health and visuals as separate scripts on one object.</li>
+<li>An exception inside any callback never crashes the game: it is written to the console with the script and method name plus a traceback, and the frame continues with the next component.</li>
+<li><code>script_path</code> is stored relative to the project root, so scenes and scripts move between machines cleanly.</li>
 </ul>
+<p>Execution context:</p>
+<ul>
+<li><code>on_update(dt)</code> runs in scene order every rendered frame with <code>dt</code> already multiplied by the time scale; <code>on_fixed_update(dt)</code> runs on the physics clock with a stable step (<code>0.02</code> default).</li>
+<li>Collision callbacks arrive from the physics dispatch, not the ECS loop, with the other entity id and optionally the impact force.</li>
+<li>Gizmo methods (<code>gizmo_lines</code>, <code>gizmo_meshes</code>) execute in the editor even outside Play for custom handles and debug drawing.</li>
+</ul>
+<p>Performance guidance: scripts are Python and run per frame — keep <code>on_update</code> lean, cache component lookups in <code>on_start</code> instead of fetching by name every frame, and move number-crunching into Cython modules (see Cython in Scripts).</p>
 <p>Subpages:</p>
 <ul>
-<li>Lifecycle Callbacks — full table of methods and signatures.</li>
-<li>Inspector Fields and Range — how class annotations become editor widgets.</li>
-<li>Input and Math API — what is auto-injected into every script.</li>
-<li>Hot Reload — editing scripts while Play is running.</li>
-<li>Cython in Scripts — moving heavy math to compiled modules.</li>
-<li>ScriptComponent — the engine-side component: paths, flags, class resolution, Check.</li>
+<li>Lifecycle Callbacks — every method, signature and call order.</li>
+<li>Inspector Fields and Range — annotations to widgets, Entity pickers, buttons.</li>
+<li>Input and Math API — injected names, keys, axes, vectors, curves.</li>
+<li>Hot Reload — editing scripts during Play.</li>
+<li>Cython in Scripts — compiled helpers with zero manual builds.</li>
+<li>ScriptComponent — paths, flags, class resolution, Check.</li>
 <li>Script Examples — copy-paste behaviors.</li>
 </ul>
               

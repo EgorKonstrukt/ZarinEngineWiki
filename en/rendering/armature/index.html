@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="armature">Armature</h1>
-<p>Bone hierarchy container driving skinned meshes and PhysBone chains.</p>
+<p>Bone hierarchy container driving skinned meshes and PhysBone chains — the skeleton asset in the scene.</p>
 <table>
 <thead>
 <tr>
@@ -1181,7 +1185,7 @@
 <tbody>
 <tr>
 <td>Bone: Bone Name</td>
-<td>Human-readable joint name</td>
+<td>Human-readable joint name (retargeting matches by name)</td>
 </tr>
 <tr>
 <td>Bone: Bone Index</td>
@@ -1193,12 +1197,14 @@
 </tr>
 <tr>
 <td>Armature: Root Bone</td>
-<td>Hierarchy root</td>
+<td>Hierarchy root; the Transform that moves the whole rig</td>
 </tr>
 </tbody>
 </table>
-<p>The Animator writes poses into the armature; SkinnedMeshRenderer and PhysBone read them back. Keep bone names stable — retargeting and prefab overrides match by name.</p>
-<p>Related: Skinned Mesh Renderer, PhysBone, Animation Clips and Animator.</p>
+<p>The Animator writes poses into the armature; SkinnedMeshRenderer and PhysBone read them back. Keep bone names stable across reimports — retargeting, prefab overrides and animation events all key on names.</p>
+<p>Workflow: import rig → verify Bone Count matches the DCC rig → set Root Bone to the hips/pelvis joint → bind SkinnedMeshRenderer → attach PhysBone chains (hair, coat) to the same armature → animate.</p>
+<p>Troubleshooting: partial animation → stray bones outside the count, check DCC export; sliding feet → root motion on the wrong joint, reassign Root Bone; prefab override spam → bone renamed upstream, restore the name.</p>
+<p>Related: Skinned Mesh Renderer, PhysBone, Animation Clips and Animator, Blend Shapes.</p>
               
             </div>
           </div><footer>

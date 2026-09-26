@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,12 +1173,15 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="charactercontroller">CharacterController</h1>
-<p>Kinematic-style first/third-person body driven by the solver move function, not by forces.</p>
+<p>Kinematic-style first/third-person body driven by the solver move function — slope sliding, step climbing and pushable props without full rigidbody chaos.</p>
 <p>Movement defaults: walk speed 260, run speed 440 (Shift), crouch speed 130, acceleration 10, air acceleration 10, friction 4, stop speed 80.</p>
-<p>Jump and gravity: jump power 300, jump buffer 0.1 s, coyote time 0.1 s (jumping works if both timers are alive: <code>velocity.y = jump_power</code>), gravity 800.</p>
-<p>Shape: capsule radius 0.5, height 2.0 (total at least <code>radius * 2 + 0.1</code>), crouch height 1.2, step height 0.3, max slope 45°, push strength 30.</p>
-<p>Per fixed step the controller: checks grounded state, accelerates with friction on ground, applies gravity in air, calls the solver <code>move_character</code> with the desired velocity, then writes the resulting position back to the Transform and applies yaw rotation.</p>
-<p>Requirement: the controller needs an in-process solver (it reads solver world state directly). In background-process modes the engine falls back to single-threaded physics with a console warning.</p>
+<p>Jump and gravity: jump power 300, jump buffer 0.1 s, coyote time 0.1 s. Jumping works while both timers are alive (<code>can_jump = buffer &gt; 0 and coyote &gt; 0</code>, then <code>velocity.y = jump_power</code>) — forgiving platforming without extra code.</p>
+<p>Shape: capsule radius 0.5, height 2.0 (total at least <code>radius * 2 + 0.1</code>), crouch height 1.2, step height 0.3, max slope 45°, push strength 30 against dynamic props.</p>
+<p>Per fixed step: check grounded state, accelerate with friction on ground, apply gravity in air, call solver <code>move_character</code> with the desired velocity, write the resulting position back to the Transform, apply yaw rotation. Rotation beyond yaw (pitch/roll) stays script-side on the camera, never on the body.</p>
+<p>Requirement: an in-process solver — the controller reads solver world state directly. In background-process modes the engine falls back to single-threaded physics with a console warning ("Use single-threaded physics mode"). Plan the mode before shipping character gameplay.</p>
+<p>Wiring input: read <code>Input.GetAxis</code>/keys in <code>on_update</code> into a wish direction, consume it in <code>on_fixed_update</code> for movement, jump on <code>GetKeyDown</code> buffered by the controller itself. Keep camera and body yaw synchronized through one sensitivity value.</p>
+<p>Troubleshooting: falls forever → no ground collider or mask excludes the player layer; sticks on stairs → step height below riser height, raise to 0.35+; slides on slopes → max slope above the slope angle or friction low; jitter on moving platforms → platform kinematic with matching velocity, parent instead of pushing.</p>
+<p>Related: Capsule Collider (matching shape), Rigidbody (dynamic alternative), Solver and Threading (mode requirement), Input API.</p>
               
             </div>
           </div><footer>

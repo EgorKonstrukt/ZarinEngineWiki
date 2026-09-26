@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,14 +1174,23 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Физические материалы</h1>
-<p>Реакция поверхности: трение и упругость, на коллайдер, ассетом или инлайн-значениями.</p>
+<p>Реакция поверхности на коллайдер: трение держит, упругость отбивает. Два способа задать — ассет или инлайн, с одним правилом: назначенный ассет побеждает.</p>
 <ul>
-<li>Фильтр ассетов <code>Physics Materials (*.zphysmat)</code>, ссылка через <code>physic_material</code> любого коллайдера.</li>
+<li>Фильтр ассетов <code>Physics Materials (*.zphysmat)</code>, ссылка через <code>physic_material</code> любого коллайдера. Один ассет льда на весь каток вместо настройки десяти коллайдеров.</li>
 <li>Без ассета действуют инлайн <code>material_friction</code> (0.6) и <code>material_bounciness</code> (0.0).</li>
-<li>Создание тела передаёт трение и restitution в солвер на спавне; поздние изменения перерегистрируют шейп.</li>
+<li>Создание тела передаёт трение и restitution в солвер на спавне; поздние изменения перерегистрируют шейп — свопы в игре стоят hitch, преассайньте варианты заранее.</li>
 </ul>
-<p>Пресеты для пробы: лёд (трение ~0.05, упругость 0), резина (трение ~0.9, упругость ~0.8), металл (трение ~0.3, упругость ~0.1).</p>
-<p>Связанное: слои коллизий, страницы Box/Sphere/Capsule/Mesh-коллайдеров.</p>
+<p>Книга пресетов:</p>
+<ul>
+<li>Каток: трение 0.03–0.08, упругость 0 — скольжение с рулением из скриптов.</li>
+<li>Резиновый корт: трение 0.7–0.9, упругость 0.7–0.85 — живо, но контролируемо.</li>
+<li>Металлический ангар: трение 0.25–0.35, упругость 0.05–0.15 — ящики едут от толчка, встают сами.</li>
+<li>Грязь: трение 1.0+, упругость 0 — плюс высокий drag на Rigidbody.</li>
+<li>Батут: упругость 0.9–0.95 на паде рядом с триггером плюс скрипт импульса вверх (чистый bounce никогда не превышает входящую энергию).</li>
+</ul>
+<p>Комбинируйте пары вдумчиво: контактный солвер смешивает оба материала — ледяной мяч (0.05) на льду (0.05) скользит, тот же мяч на резине (0.9) цепляется.</p>
+<p>Диагностика: скользит везде — глобально низко трение, первым проверяйте материал пола; мёртвый отскок — restitution потерян в паре, поднимайте обе стороны; правки игнорируются в рантайме — pending перерегистрация шейпа, перезайдите в Play или переназначьте.</p>
+<p>Связанное: слои коллизий, страницы Box/Sphere/Capsule/Mesh-коллайдеров, Rigidbody (перекличка drag).</p>
               
             </div>
           </div><footer>

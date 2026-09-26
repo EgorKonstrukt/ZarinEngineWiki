@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="gs-volume-collider">GS Volume Collider</h1>
-<p>Collision volumes derived from Gaussian splat captures.</p>
+<p>Collision volumes derived from Gaussian splat captures, so players walk on photogrammetry-style scenes that have no mesh geometry at all.</p>
 <table>
 <thead>
 <tr>
@@ -1181,23 +1185,23 @@
 <tbody>
 <tr>
 <td>Gs Volume Collider: Splat Path</td>
-<td>Source capture</td>
+<td>Source capture (same file as the renderer)</td>
 </tr>
 <tr>
 <td>Voxel Size</td>
-<td>Volume discretization step</td>
+<td>Volume discretization step — fidelity knob</td>
 </tr>
 <tr>
 <td>Opacity Cutoff</td>
-<td>Density threshold</td>
+<td>Density threshold: below it is air</td>
 </tr>
 <tr>
 <td>Dilation</td>
-<td>Volume expansion in voxels</td>
+<td>Volume expansion in voxels (safety skin)</td>
 </tr>
 <tr>
 <td>Max Boxes</td>
-<td>Box-approximation budget</td>
+<td>Box-approximation budget for the solver</td>
 </tr>
 <tr>
 <td>Center</td>
@@ -1213,8 +1217,11 @@
 </tr>
 </tbody>
 </table>
-<p>Lets players walk on and bump into photogrammetry-style splat scenes that have no mesh geometry.</p>
-<p>Related: Gaussian Splat Renderer, Box Collider, Mesh Collider.</p>
+<p>How it works: the capture voxelizes at Voxel Size, cells above Opacity Cutoff survive, Dilation grows a safety skin, and the solid set approximates into at most Max Boxes solver shapes. Finer voxels hug statues; coarser voxels run faster.</p>
+<p>Tuning order: voxel size to the smallest gameplay feature (steps need fine voxels), cutoff until floating dust stops colliding, dilation 1–2 for forgiveness, max boxes until the gizmo covers walkable areas.</p>
+<p>Static by nature — pair with the GaussianSplatRenderer visuals, keep dynamic gameplay props as meshes with primitive colliders on top.</p>
+<p>Troubleshooting: falls through statues → voxels too coarse or cutoff too high; collides with air → cutoff too low catching haze, raise it; blocky invisible walls → dilation overshot, lower; slow cook → voxel size tiny over a huge capture, coarsen.</p>
+<p>Related: Gaussian Splat Renderer, Box Collider, Mesh Collider, Voxel Rendering.</p>
               
             </div>
           </div><footer>

@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="svgrenderer">SvgRenderer</h1>
-<p>Чёткая векторная графика в мировом пространстве: иконки, вывески, оверлеи карт.</p>
+<p>Чёткая resolution-independent векторная графика в мире: иконки, вывески, оверлеи карт, UI-панели, запечённые в мир.</p>
 <table>
 <thead>
 <tr>
@@ -1193,17 +1197,20 @@
 <tr>
 <td>flip_x / flip_y</td>
 <td>выкл / вкл</td>
-<td>Зеркаляние</td>
+<td>Зеркаляние (Y по умолчанию компенсирует origin SVG)</td>
 </tr>
 <tr>
 <td>pixels_per_unit</td>
 <td>100</td>
-<td>Плотность растеризации</td>
+<td>Плотность растеризации: пикселей текстуры на юнит мира</td>
 </tr>
 </tbody>
 </table>
-<p>SVG растеризуется в текстуру при загрузке, края остаются резкими при любом масштабе импорта. Увеличивайте <code>pixels_per_unit</code> для близких вывесок, уменьшайте для дальних иконок.</p>
-<p>Связанное: SpriteRenderer, TextRenderer, материалы (маппинг текстур).</p>
+<p>SVG растеризуется в текстуру при загрузке внутренним путём <code>svgs</code> — края резки при любом масштабе импорта, в отличие от растянутых PNG. Поднимайте <code>pixels_per_unit</code> для близких вывесок (200–400), опускайте для дальних иконок (25–50) ради памяти.</p>
+<p>Процессы: навигационные вывески — один SVG на знак, общие настройки, попутный путь; столы карт — большие SVG-плоскости сверху с фронтальным светом; стены иконок — сетки мелких квадов на нескольких векторных файлах.</p>
+<p>Вектор лёгок на диске и бесконечен при авторстве; единственная рантайм-цена — растеризованная текстура размером <code>pixels_per_unit</code> на мировой размер. Держите мировые размеры скромными, иначе текстура раздуется.</p>
+<p>Диагностика: вверх ногами — flip_y по умолчанию вкл из-за origin SVG, тогглите под экспортёр; мыло вблизи — поднять pixels_per_unit и реимпорт; пропало — бит путь или неподдержанные фичи SVG, упростите градиенты/фильтры.</p>
+<p>Связанное: SpriteRenderer, TextRenderer, материалы (маппинг текстур), камеры (кадрирование вывесок).</p>
               
             </div>
           </div><footer>

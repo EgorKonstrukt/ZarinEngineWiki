@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,10 +1174,21 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="collision-layers">Collision Layers</h1>
-<p>Who collides with whom. Every collider carries <code>layer</code> (default 0) and <code>mask</code> (default <code>0xFFFF</code>, collide with all layers); the pair must match on both sides for contact.</p>
-<p>Filtering logic lives in <code>core/physics/collision_layers.py</code>. The <code>per_layer_process</code> execution mode can additionally isolate layers into on-demand solver processes.</p>
-<p>Patterns: separate world, player, enemy and projectile layers; mute enemy-vs-enemy to save solver time; put one-way platforms on a layer masked out of the player mask from below via triggers.</p>
-<p>Related: Physics Materials, Solver and Threading, all collider pages.</p>
+<p>Who collides with whom, independent of surface response. Every collider carries <code>layer</code> (default 0) and <code>mask</code> (default <code>0xFFFF</code>, collide with all layers); contact requires both sides to accept each other.</p>
+<p>Filtering logic lives in <code>core/physics/collision_layers.py</code>. The <code>per_layer_process</code> execution mode can additionally isolate layers into on-demand solver processes for fully independent sub-simulations.</p>
+<p>Layer plan for a typical action game:</p>
+<ul>
+<li>0 World — static geometry, collides with everything gameplay.</li>
+<li>1 Player — character and its hitboxes.</li>
+<li>2 Enemy — bots; mute enemy-vs-enemy to save solver time on crowds.</li>
+<li>3 Projectile — player and enemy shots; masked against world + characters, never against pickups.</li>
+<li>4 Pickup — triggers only, masked to player.</li>
+<li>5 Sensor — AI sight/hearing triggers, masked to player + enemy, no physical response.</li>
+</ul>
+<p>Triggers (<code>is_trigger</code>) report overlaps through the same mask test without contact response — a sensor on the wrong layer is silent, not broken.</p>
+<p>One-way platforms: platform collider on a layer masked out of the player mask, plus a thin top trigger that enables collision while the player overlaps from above — scripted in a few lines on <code>on_collision_enter/exit</code>.</p>
+<p>Debugging: enable physics visualization (plugin) to color bodies by layer; silent pairs almost always mean mask mismatch, not missing components.</p>
+<p>Related: Physics Materials, Solver and Threading (per-layer mode), all collider pages, Joints (connected bodies must share a colliding pair).</p>
               
             </div>
           </div><footer>

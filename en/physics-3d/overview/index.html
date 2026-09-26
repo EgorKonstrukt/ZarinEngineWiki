@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,18 +1173,21 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="physics-3d-overview">Physics 3D Overview</h1>
-<p>The built-in 3D solver runs off the main thread: simulation steps in a background worker while the ECS thread renders, scripts and syncs transforms each frame.</p>
+<p>The built-in 3D solver runs off the main thread: simulation steps in a background worker while the ECS thread renders, runs scripts and syncs transforms each frame. Gameplay code never waits on the solver; it reads last-step results and writes wishes (forces, velocities, teleports) that apply on the next step.</p>
 <p>Pipeline per fixed step:</p>
 <ol>
-<li>Register new entities and re-check shapes periodically.</li>
-<li>Sync ECS → physics (teleport dirty transforms, otherwise push accumulated forces/torques and dirty velocities).</li>
-<li>Step the solver with <code>dt</code> (default <code>0.02</code>).</li>
-<li>Constrain 2D-flagged bodies (zero out-of-plane velocity).</li>
-<li>Sync physics → ECS (positions, rotations, velocities; kinematic and dirty bodies are skipped).</li>
-<li>Dispatch collision events to <code>on_collision_enter/stay/exit</code> script callbacks.</li>
+<li>Register new entities (create solver bodies for fresh Rigidbody + collider pairs) and re-check shapes periodically for changed meshes and scales.</li>
+<li>Sync ECS → physics: teleport dirty transforms straight into bodies, otherwise push accumulated forces/torques and dirty velocities.</li>
+<li>Step the solver with <code>dt</code> (default <code>0.02</code> from <code>Engine._fixed_dt</code>).</li>
+<li>Constrain 2D-flagged bodies (zero out-of-plane velocity so planar games never drift off-plane).</li>
+<li>Sync physics → ECS: positions, rotations, velocities back onto Transforms and Rigidbody state; kinematic and dirty bodies are skipped (they are Transform-driven).</li>
+<li>Dispatch collision events into <code>on_collision_enter/stay/exit</code> script callbacks with entity ids and impact forces.</li>
 </ol>
-<p>Solvers: <code>culverin</code> (Jolt-based) by default, <code>pybullet</code> and <code>physx</code> as alternatives. Execution modes: <code>single</code> (in-process), <code>multi_threaded</code> (default, separate process), <code>per_layer_process</code> (processes on demand per layer).</p>
-<p>Subpages: Rigidbody, colliders, CharacterController, joints, materials and layers, solver and threading, advanced bodies (buoyancy, soft body, PhysBone, motor).</p>
+<p>Solvers plug through <code>IPhysicsSolver</code>: <code>culverin</code> (Jolt-based) by default, <code>pybullet</code> and <code>physx</code> as alternatives registered in <code>physics_solvers/registry.py</code>. Execution modes: <code>single</code> (in-process, lowest latency, required by CharacterController), <code>multi_threaded</code> (default, daemon solver process with command/result queues and shared buffers), <code>per_layer_process</code> (solver processes spawned on demand per collision layer).</p>
+<p>Fixed-step plumbing: <code>Engine.tick_fixed_step</code> accumulates real time against <code>_fixed_dt</code>, runs plugin <code>pre_step</code>, <code>scene.fixed_update</code>, then the physics step — scripts always see a stable <code>dt</code> in <code>on_fixed_update</code> regardless of render framerate.</p>
+<p>Body taxonomy: dynamic (positive-mass non-kinematic Rigidbody + collider — fully simulated), kinematic (driven by Transform, pushes dynamics, never pushed), static (collider alone — immovable scenery), trigger (reports overlaps, no contact response), character (solver move function), soft (deforming mesh), compound (merged primitives).</p>
+<p>Subpages: Rigidbody, all six colliders, CharacterController, Joints, materials and layers, solver and threading internals, advanced bodies (buoyancy, soft body, PhysBone, motor).</p>
+<p>First-room recipe: static floor (box collider, no Rigidbody), a few dynamic crates (Rigidbody mass 1–5 + box colliders), one directional light — press Play and the crates settle. Then add a CharacterController player and collision layers before content grows.</p>
               
             </div>
           </div><footer>

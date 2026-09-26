@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,7 +1173,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="box-collider-2d">Box Collider 2D</h1>
-<p>Rectangle shape in plane: platforms, walls, hitboxes.</p>
+<p>Rectangle shape in plane: platforms, walls, crates, hitboxes and trigger zones.</p>
 <table>
 <thead>
 <tr>
@@ -1184,7 +1188,7 @@
 </tr>
 <tr>
 <td>Shape: Offset</td>
-<td>In-plane offset <code>[ox, oy]</code></td>
+<td>In-plane offset <code>[ox, oy]</code> from the pivot</td>
 </tr>
 <tr>
 <td>Shape: Size</td>
@@ -1200,8 +1204,11 @@
 </tr>
 </tbody>
 </table>
-<p>Maps onto the solver as a flat box <code>[sx, sy, 1.0]</code>. Combine with Rigidbody2D; never mix 2D and 3D components on one entity.</p>
-<p>Related: Rigidbody 2D, Circle Collider 2D, Box Collider (3D).</p>
+<p>Maps onto the solver as a flat box <code>[sx, sy, 1.0]</code> with center <code>[ox, oy, 0]</code>. Combine with Rigidbody2D; never mix 2D and 3D components on one entity.</p>
+<p>Patterns: ground — wide thin box, static, friction high; one-way platform — box on a player-excluded layer plus a top trigger enabling collision from above via script; crates — small boxes with dynamic Rigidbody2D mass 1–3; checkpoints — tall thin triggers spanning the track.</p>
+<p>Pixel-perfect tip: size colliders in whole design units and keep pixel-to-unit scale consistent, or visual/collision edges drift apart at large coordinates.</p>
+<p>Troubleshooting: falls through fast movers → tunneling, cap speed or lower fixed dt; trigger silent → mask mismatch; edges catch the player → adjacent boxes overlap slightly, butt-join them exactly or merge into one.</p>
+<p>Related: Rigidbody 2D, Circle Collider 2D, Box Collider (3D), Collision Layers.</p>
               
             </div>
           </div><footer>

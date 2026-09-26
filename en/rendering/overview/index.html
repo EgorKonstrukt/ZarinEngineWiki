@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,18 +1173,21 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="rendering-overview">Rendering Overview</h1>
-<p>ZarinEngine renders with ModernGL on an OpenGL 4.6 core profile context. All engine math runs in <code>numpy.float64</code>; the downgrade to <code>float32</code> happens only when vertex data is uploaded to the GPU, which removes floating-point jitter in large worlds.</p>
-<p>Building blocks:</p>
+<p>ZarinEngine renders with ModernGL on an OpenGL 4.6 core profile context. All engine math runs in <code>numpy.float64</code>; the downgrade to <code>float32</code> happens only when vertex data is uploaded to the GPU, which removes floating-point jitter in large worlds — coordinates stay exact across kilometers of scenery while the rasterizer still gets the floats it wants.</p>
+<p>Building blocks, bottom to top:</p>
 <ul>
-<li>Custom <code>.shader</code> files with a <code>Properties { }</code> block (Unity ShaderLab style) plus GLSL vertex/fragment code.</li>
-<li>Material assets (<code>.zpem</code> / <code>.mat</code>, JSON) binding a shader with concrete property values.</li>
-<li><code>MeshFilter</code> (which mesh) + <code>MeshRenderer</code> (how to draw it) on entities.</li>
-<li>Cameras (perspective / orthographic), lights (directional / point / spot / area) with shadows.</li>
-<li>Sprite, SVG, text and video renderers for 2D and UI-plane content.</li>
-<li>Particle systems, skybox, fog, a PostFX stack of 30+ effects, object effects, GPU skinning.</li>
-<li>Editor-only gizmo, icon and outline passes that never leak into the game view.</li>
+<li>Custom <code>.shader</code> files with a <code>Properties { }</code> block (Unity ShaderLab style) plus GLSL vertex/fragment code. The loader compiles, falls back across SubShaders, injects instancing and UV overrides, and retries failed 430 shaders as 330.</li>
+<li>Material assets (<code>.zpem</code> / <code>.mat</code>, JSON) binding a shader with concrete property values, editable live in the Inspector and the material wizard.</li>
+<li><code>MeshFilter</code> (which mesh) + <code>MeshRenderer</code> (how to draw it) on entities; <code>SkinnedMeshRenderer</code> + <code>Armature</code> for animation; <code>MeshCollider</code> reuses the same import for physics.</li>
+<li>Cameras (perspective / orthographic, depth ordering, render scale), lights (directional / point / spot / area, physical units) with cascaded, cube and spot shadow maps.</li>
+<li>Sprite, SVG, text and video renderers for world-space 2D content; the GUI system (<code>GuiCanvas</code> + 30+ widgets) for screen-space UI.</li>
+<li>Particle systems with editor-visible gizmo shapes, force fields, GPU-driven playback for heavy effects.</li>
+<li>Environment set: procedural sky coupled to the sun, HDRI skybox, clouds, water, atmosphere scattering.</li>
+<li>A PostFX stack of 31 effects plus 11 per-object effects, GPU skinning, Gaussian splats, an experimental raytracing view, voxel paths.</li>
+<li>Editor-only gizmo, icon, outline and grid passes that never leak into builds.</li>
 </ul>
-<p>Subpages: pipeline and contexts, cameras, lights and shadows, materials, shaders, mesh rendering, sprite/SVG/text/video, particles, skybox and fog, PostFX, object effects, skinning, splats/raytracing/voxel, gizmos.</p>
+<p>Frame budget thinking: draw calls scale with visible submeshes, shadow passes redraw the scene per cascade/face, transparent overdraw and multi-tap post effects dominate fill rate. The built-in profiler breaks every stage down (<code>render_scene</code>, shadow timings, <code>postfx</code>, <code>gizmo_lines</code>) — profile before optimizing blindly.</p>
+<p>Subpages: pipeline and contexts, cameras, lights and shadows, mesh rendering and skinning, sprites and video, particles, environment, materials, shaders, PostFX, object effects, splats and voxel, gizmos.</p>
               
             </div>
           </div><footer>

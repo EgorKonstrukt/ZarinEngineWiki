@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,9 +1174,12 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="videorenderer">VideoRenderer</h1>
-<p>Plays video clips onto a mesh surface: in-world screens, cutscene planes, animated billboards.</p>
-<p>Playback runs through the internal <code>Video</code> shader backed by the engine video decoder. Position and orient with the entity Transform; combine with an emissive-leaning material setup for readable screens in dark scenes.</p>
-<p>Related: SpriteRenderer, Materials, Object Effects.</p>
+<p>Plays video clips onto a mesh surface: in-world screens, briefing walls, cutscene planes, animated billboards and fake windows.</p>
+<p>Playback runs through the internal <code>Video</code> shader backed by the engine video decoder — the surface is a normal mesh, so lighting, shadows and post apply consistently with the scene. Position and orient with the entity Transform; pair with a Projector throwing matching light for cinema feel.</p>
+<p>Workflows: briefing room — quad wall with the clip, dim the room lights, one spot on the audience; CCTV wall — grid of small quads each with its own clip; animated signage — looping clip instead of a shader scroll; cutscene plane — fullscreen-quad camera-facing video with letterbox bars from GUI panels.</p>
+<p>For readable screens in dark scenes, bias the surface material toward emissive so the image survives low ambient. Mind VRAM: several HD clips decode concurrently — keep counts low or resolutions modest.</p>
+<p>Troubleshooting: black screen → clip path broken or decoder missing the codec, re-encode to a supported container; stutter → decode-bound, lower resolution; tearing against audio → the component is video-only, sync narration via AudioSource timelines.</p>
+<p>Related: SpriteRenderer, Materials, Projector (cinema pairing), AudioSource (companion sound).</p>
               
             </div>
           </div><footer>

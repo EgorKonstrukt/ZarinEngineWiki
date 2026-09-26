@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="water">Water</h1>
-<p>Water surfaces from calm ponds to infinite oceans.</p>
+<p>Water surfaces from calm ponds to infinite oceans, shaded by the <code>Water</code> / <code>WaterSim</code> shaders.</p>
 <table>
 <thead>
 <tr>
@@ -1181,32 +1185,35 @@
 <tbody>
 <tr>
 <td>Water: Water Shader</td>
-<td>Surface shader (<code>Water</code> / <code>WaterSim</code>)</td>
+<td>Surface shader selection</td>
 </tr>
 <tr>
 <td>Surface Type</td>
-<td>Still, river, ocean presets path</td>
+<td>Still, river, ocean preset paths</td>
 </tr>
 <tr>
 <td>Infinite Ocean / Ocean Size</td>
-<td>Endless plane and its scale</td>
+<td>Endless plane toggle and its scale</td>
 </tr>
 <tr>
 <td>Waves</td>
-<td>Wave set controls</td>
+<td>Wave set amplitude/frequency controls</td>
 </tr>
 <tr>
 <td>Deep / Shallow / Foam / SSS / Horizon Color</td>
-<td>Color ramp</td>
+<td>Full color ramp from depth to horizon</td>
 </tr>
 <tr>
 <td>Smoothness / Distortion / Detail Normal</td>
-<td>Surface response</td>
+<td>Surface response and refraction wobble</td>
 </tr>
 </tbody>
 </table>
-<p>Swimming bodies use the Buoyancy component; the liquid region itself is marked by the WaterVolume environment component. Caustics and underwater rendering come from the matching internal shaders.</p>
-<p>Related: Buoyancy, WaterVolume notes, Skybox (reflections), Fog.</p>
+<p>Swimming bodies use the Buoyancy component; the liquid region itself is marked by the WaterVolume environment component; caustics and underwater rendering come from the matching internal shaders.</p>
+<p>Workflows: pond — small plane, still preset, high smoothness for mirror reflections of the skybox; river — stretched plane, flow direction waves, foam color at banks; ocean — infinite on, size matched to far plane, horizon color fused with fog.</p>
+<p>Foam placement follows depth (shallow color band) — align the terrain shelf with the shallow range or foam floats wrongly. Distortion sells refraction; overdo it and text behind water becomes unreadable.</p>
+<p>Troubleshooting: black water → shader or reflection source broken, check skybox/ambient; no buoyancy → WaterVolume missing, the surface alone does not float bodies; foam everywhere → shallow range too wide for the shelf.</p>
+<p>Related: Buoyancy, Skybox (reflections), Fog, PostFX (underwater grading twin).</p>
               
             </div>
           </div><footer>

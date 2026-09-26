@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="light-base">Light (Base)</h1>
-<p>Base component for all lights. The concrete type is chosen by the subclass component on the same entity.</p>
+<p>Base component for all lights. The concrete type is chosen by the subclass component on the same entity: Directional, Point, Spot or Area. Shared fields live here once.</p>
 <table>
 <thead>
 <tr>
@@ -1183,32 +1187,32 @@
 <tr>
 <td>color</td>
 <td>white</td>
-<td>Light tint</td>
+<td>Light tint, multiplies every contribution</td>
 </tr>
 <tr>
 <td>intensity</td>
 <td>100000.0</td>
-<td>Physical units, see subtype pages</td>
+<td>Physical units — lux, lumens or nits depending on subtype</td>
 </tr>
 <tr>
 <td>cast_shadows</td>
 <td>on</td>
-<td>Write into shadow maps</td>
+<td>Write into shadow maps; the main per-light cost switch</td>
 </tr>
 <tr>
 <td>range</td>
 <td>10.0</td>
-<td>Falloff distance for point/spot/area</td>
+<td>Falloff distance for point/spot/area (directional ignores it)</td>
 </tr>
 <tr>
 <td>spot_angle / spot_inner_angle</td>
 <td>30 / 20</td>
-<td>Spot cone, degrees</td>
+<td>Spot cone outer/inner, degrees</td>
 </tr>
 <tr>
 <td>area_type</td>
 <td>RECT</td>
-<td>RECT or DISK for area lights</td>
+<td>RECT or DISK emitting shape for area lights</td>
 </tr>
 <tr>
 <td>area_width / area_height</td>
@@ -1223,7 +1227,7 @@
 <tr>
 <td>area_samples</td>
 <td>6</td>
-<td>Soft shadow samples</td>
+<td>Soft shadow sample count</td>
 </tr>
 <tr>
 <td>area_shadow_bias</td>
@@ -1232,8 +1236,11 @@
 </tr>
 </tbody>
 </table>
-<p>Subtypes: Directional Light (lux), Point Light (lumens), Spot Light (lumens), Area Light (nits), plus the Projector component for textured projection. All lights render gizmo helpers in the viewport.</p>
-<p>Related: Shadows, Skybox and Procedural Sky, PostFX Fog and God Rays.</p>
+<p>How it reaches the shader: the scene collector packs up to 8 lights into uniform arrays (type, position, direction, color, intensity, range, spot angles, area size) plus ambient. Over-limit lights are culled by priority — keep hero lights few and let the rest be non-shadowed fill.</p>
+<p>All lights render gizmo helpers (direction arrows, range spheres, cones, area quads) so lighting can be staged visually.</p>
+<p>Workflow: block the key light first (usually one shadowed directional), add fill points/spots without shadows, finish with a rim or area accent. Match intensities to the unit scale — a 100000-lux sun next to a 1.0-intensity point reads correctly; two suns at 100000 fight.</p>
+<p>Troubleshooting: scene too dark → ambient low and no fill; blown out → two hero lights overlapping, halve one; shadows missing → cast_shadows off, beyond shadow distance, or past the 4+4 shadow budget.</p>
+<p>Related: Directional/Point/Spot/Area pages, Projector, Shadows, Skybox and Atmosphere.</p>
               
             </div>
           </div><footer>

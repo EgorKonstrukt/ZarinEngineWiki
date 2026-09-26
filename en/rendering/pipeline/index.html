@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1171,21 +1175,23 @@
                 <h1 id="moderngl-pipeline-and-scene-renderer">ModernGL Pipeline and Scene Renderer</h1>
 <p>Contexts:</p>
 <ul>
-<li>Game and editor viewports create the context with <code>moderngl.create_context(standalone=False)</code> — a shared 4.6 core context inside the Qt surface.</li>
-<li>Offscreen work (previews, terrain workers, compute runners) uses <code>moderngl.create_standalone_context(require=430)</code>.</li>
+<li>Game and editor viewports create the context with <code>moderngl.create_context(standalone=False)</code> — a shared 4.6 core context inside the Qt surface, so editor and game views share textures and programs.</li>
+<li>Offscreen work (material/model previews, terrain workers, compute runners) uses <code>moderngl.create_standalone_context(require=430)</code> with no visible surface.</li>
 <li>Shaders are authored as <code>#version 430 core</code>. If compilation fails, the loader retries as <code>#version 330 core</code>, stripping <code>layout(std430)</code> buffers and forcing instancing/skinning off — a compatibility fallback, not a second code path to maintain.</li>
 </ul>
-<p>The <code>Renderer</code> class is composed from mixins: programs, uniforms, framebuffers, scene collection, geometry cache, main scene pass, shadow pass, cubemap pass, skinned pass, water/voxel/object-FX passes, post pass, gizmo/icon/outline passes, culling and stats.</p>
+<p>The <code>Renderer</code> class is composed from mixins, one responsibility each: programs, uniforms, framebuffers, scene collection, geometry cache, main scene pass, shadow pass, cubemap pass, skinned pass, water/voxel/object-FX passes, post pass, gizmo/icon/outline passes, culling and stats. Read a stage by opening its mixin file under <code>core/renderer</code> (<code>shadows.py</code>, <code>scene_renderer.py</code>, <code>materials.py</code>, <code>framebuffers.py</code> and siblings).</p>
 <p>A frame walks these stages:</p>
 <ol>
-<li>Collect visible render items from the scene (frustum culling, layer masks).</li>
-<li>Render shadow maps (cascaded directional, point cube, spot) into depth targets.</li>
-<li>Render the main scene with bound materials, lights (up to 8 by default) and ambient.</li>
+<li>Collect visible render items from the scene: frustum culling against camera planes, layer-mask filtering, sorting into opaque / transparent / overlay buckets.</li>
+<li>Render shadow maps (cascaded directional, point cubes, spot perspectives) into depth targets; projector shadows join this pass.</li>
+<li>Render the main scene with bound materials, up to 8 lights by default plus ambient, and per-material transparency handling.</li>
 <li>Run water, voxel and object-FX passes into their targets.</li>
-<li>Run the PostFX chain.</li>
+<li>Run the PostFX chain in component order.</li>
 <li>Draw editor overlays (grid, gizmos, icons, outlines, selection) — editor viewports only.</li>
 </ol>
-<p>Render modes: <code>SHADED</code>, <code>SHADED_WIREFRAME</code>, <code>FLAT</code>. Default clear color is dark grey <code>[0.18, 0.18, 0.18]</code>, default ambient is cool <code>[0.26, 0.28, 0.34]</code>.</p>
+<p>Key defaults: <code>_max_lights = 8</code> with per-light type/position/direction/color/intensity/range/spot/area uniforms; <code>_ambient = [0.26, 0.28, 0.34]</code>; shadow resolution 2048, distance 50, 4 cascades; clear color dark grey <code>[0.18, 0.18, 0.18]</code>; line width 0.6667 for debug drawing. Render modes: <code>SHADED</code>, <code>SHADED_WIREFRAME</code>, <code>FLAT</code>.</p>
+<p>Troubleshooting: black viewport → context creation failed (check OpenGL 4.6 support) or all lights culled; pink/missing materials → shader compile failed and fallback missed (see console, check Shaders page); z-fighting → push <code>near</code> out or pull <code>far</code> in on the camera; shadows absent → <code>cast_shadows</code> off or outside shadow distance.</p>
+<p>Related: Cameras, Lights and Shadows, Materials, Shaders, Profiler (per-stage timings), Gizmos and Icons.</p>
               
             </div>
           </div><footer>

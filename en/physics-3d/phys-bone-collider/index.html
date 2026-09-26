@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="physbonecollider">PhysBoneCollider</h1>
-<p>Deflectors for PhysBone chains: keep hair out of heads, capes out of legs.</p>
+<p>Deflectors that keep PhysBone chains out of bodies: hair out of heads, capes out of legs, tails out of walls.</p>
 <table>
 <thead>
 <tr>
@@ -1181,28 +1185,31 @@
 <tbody>
 <tr>
 <td>Shape: Shape Type</td>
-<td>Sphere, capsule, plane</td>
+<td>Sphere, capsule or plane volume</td>
 </tr>
 <tr>
 <td>Radius / Height / Center</td>
-<td>Shape dimensions</td>
+<td>Shape dimensions in local space</td>
 </tr>
 <tr>
 <td>Direction / Plane Normal</td>
-<td>Orientation</td>
+<td>Orientation of capsules and planes</td>
 </tr>
 <tr>
 <td>Behavior: Inside Bounds</td>
-<td>How deep penetration resolves</td>
+<td>How deep penetration resolves (push out vs slide)</td>
 </tr>
 <tr>
 <td>Gizmos: Show Gizmo</td>
-<td>Volume visualization</td>
+<td>Volume visualization in the viewport</td>
 </tr>
 </tbody>
 </table>
-<p>Attach to the body part the chain must avoid; the chain slides around the volume at runtime.</p>
-<p>Related: PhysBone, Armature, Sphere/Capsule Collider.</p>
+<p>Attach to the body part the chain must avoid and size slightly larger than the visual mesh — chains simulate on bones, which sit inside the mesh, so skin-tight colliders still clip. The chain slides around the volume at runtime instead of passing through.</p>
+<p>Patterns: head sphere + torso capsule for long hair; thigh capsules for coats; plane for floors under crawling creatures; inside-bounds mode for earrings that must stay near the ear.</p>
+<p>Keep collider counts per chain low (1–3): every collider tests every chain particle every step.</p>
+<p>Troubleshooting: still clips → collider smaller than the bone offset, grow it; chain pushed away entirely → collider engulfs the root, move it down the chain; jitter on contact → inside-bounds mode fighting the limit, switch behavior.</p>
+<p>Related: PhysBone, Armature, Sphere/Capsule Collider (static-world equivalents).</p>
               
             </div>
           </div><footer>

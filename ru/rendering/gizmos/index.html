@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,14 +1173,18 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Гизмо и иконки</h1>
-<p>Редакторные оверлейные проходы: линии/солиды гизмо, билборд-иконки, контуры выделения и сетка. Рисуются поверх всего в вьюпортах редактора и никогда не попадают в сборки.</p>
+<p>Редакторные оверлейные проходы: линии/солиды гизмо, билборд-иконки, контуры выделения и сетка. Рисуются поверх всего во вьюпортах редактора и никогда не попадают в сборки — ноль рантайм-цены, полная постановочная польза.</p>
 <p>Как подключаются компоненты:</p>
 <ul>
-<li>Каждый компонент объявляет <code>_gizmo_pass</code> (например <code>"light"</code>, <code>"camera"</code>, <code>"audio"</code>, <code>"script"</code>) и опционально <code>_icon</code>, <code>_gizmo_icon_color</code>, <code>_gizmo_icon_label</code>.</li>
-<li>Скрипты могут рисовать свои гизмо через <code>gizmo_lines()</code> / <code>gizmo_meshes()</code> — работают даже вне Play.</li>
-<li>Свет показывает хелперы фрустума/объёма, камеры — фрустумы, аудио-источники — формы зон (сфера/бокс), коллайдеры — каркасы форм.</li>
+<li>Каждый компонент объявляет <code>_gizmo_pass</code> (например <code>"light"</code>, <code>"camera"</code>, <code>"audio"</code>, <code>"script"</code>, проходы физики и навигации), маршрутизируя отрисовку в нужный батч.</li>
+<li>Опциональные файл <code>_icon</code>, <code>_gizmo_icon_color</code> и <code>_gizmo_icon_label</code> дают билборд-бейджи с буквой (Light <code>L</code>, Audio <code>A</code>, Projector <code>P</code> и другие) через проход иконок.</li>
+<li>Скрипты рисуют свои гизмо через <code>gizmo_lines()</code> / <code>gizmo_meshes()</code> — выполняются даже вне Play, идеальны для патрульных путей, радиусов спавна и конусов сенсоров.</li>
+<li>Встроенные рисуют свои формы: свет — фрустумы/объёмы, камеры — фрустумы, аудио-источники — формы зон (сфера/бокс) с кольцами дистанций, коллайдеры — каркасы, джойнты — якоря и оси, навигация — радиусы агентов.</li>
 </ul>
-<p>Проход иконок батчит билборд-подписи (буква + цвет на тип компонента), проход контуров подсвечивает выделение, проход сетки рисует референсную сетку с оверлей-контролами.</p>
+<p>Проходы за кулисами: проход иконок батчит билборды (один draw на много бейджей), проход контуров подсвечивает выделение, проход сетки рисует референсную сетку с оверлей-контролами, ширина линий по умолчанию 0.6667 для чёткой отладки.</p>
+<p>Процесс: ставьте с вкл гизмо (конусы света, аудиозоны, триггер-боксы видны), для бьюти-скриншотов оверлеи выключайте. Кастомные гизмо скриптов держите дешёвыми — они работают каждый кадр редактора.</p>
+<p>Диагностика: нет гизмо — выкл <code>_show_gizmo_icon</code> компонента или проход отфильтрован в опциях вьюпорта; гизмо скрипта несвежее — hot-reload пересоздал инстанс, переоткройте метод; каша — прячьте проходы по категориям в меню вьюпорта.</p>
+<p>Связанное: гизмо-колбэки скриптинга, страницы Light/Projector/AudioSource/коллайдеров (их формы), вьюпорт (руководство по редактору).</p>
               
             </div>
           </div><footer>

@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1171,9 +1175,11 @@
               
                 <h1 id="_1">Воксельный рендеринг</h1>
 <p>Блочные реконструкции и объёмные эксперименты: CPU-вокселизация плюс raymarch-эффекты объектов и воксельный проход в рендерере.</p>
-<p>Точки входа: эффекты объектов <code>voxelize</code> и <code>voxel_raymarch</code> (постранично в эффектах объектов), с CPU-хелпером <code>voxel_cpu</code>.</p>
-<p>Как и сплаты, воксели разделяют сбор сцены и оверлеи, но обходят часть PostFX — проверяйте итог в игровом окне.</p>
-<p>Связанное: Voxelize, Voxel Raymarch, Gaussian Splat Renderer.</p>
+<p>Точки входа: эффекты объектов <code>voxelize</code> и <code>voxel_raymarch</code> (отдельные страницы в эффектах объектов), CPU-хелпер <code>voxel_cpu</code> готовит объёмы. Воксельный проход рендерера композитит блочные среды консистентно с глубиной сцены.</p>
+<p>Процессы: чанки разрушения — эффект voxelize, ведомый 0→1 скриптом урона; ретро-акценты террейна — воксельные камни рядом с гладкими мешами для стилевого контраста; объёмные блоки тумана — raymarch-объёмы для стилизованного дыма.</p>
+<p>Как и сплаты, воксели разделяют сбор сцены и оверлеи, но обходят часть PostFX — проверяйте итог в игровом окне. Плотность вокселей — ручка цены: половинная плотность даёт в 8 раз меньше ячеек.</p>
+<p>Диагностика: блочность во зло — мала плотность под размер объекта; швы — границы объёма меньше меша; эффекта нет в игровом окне — порядок цепочки PostFX, проверьте порядок проходов.</p>
+<p>Связанное: Voxelize, Voxel Raymarch, Gaussian Splat Renderer, эффекты объектов (обзор).</p>
               
             </div>
           </div><footer>

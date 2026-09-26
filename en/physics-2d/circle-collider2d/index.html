@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,7 +1173,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="circle-collider-2d">Circle Collider 2D</h1>
-<p>Disc shape in plane: balls, wheels, radial triggers.</p>
+<p>Disc shape in plane: balls, wheels, coins, radial triggers and proximity sensors.</p>
 <table>
 <thead>
 <tr>
@@ -1200,7 +1204,10 @@
 </tr>
 </tbody>
 </table>
-<p>Maps onto the solver as a sphere primitive. Rolls stably on Box Collider 2D ground with low friction.</p>
+<p>Maps onto the solver as a sphere primitive. Rolls stably on Box Collider 2D ground with moderate friction; trigger discs make the best pickups (forgiving overlap vs exact rectangles).</p>
+<p>Patterns: coins — small trigger discs with a spin animation and a pickup script; wheels — dynamic discs with Rigidbody2D, freeze nothing, moderate angular drag; bumpers — high-bounciness discs plus an impulse script on enter; enemy sight — large trigger disc driving AI state.</p>
+<p>Stack discs for capsule-like enemies (two discs + a box) instead of wishing for a 2D capsule — the compound behaves identically.</p>
+<p>Troubleshooting: rolls forever → zero drag/friction; will not roll → freeze rotation on; pickups missed at speed → tunneling, enlarge the disc or cap runner speed.</p>
 <p>Related: Rigidbody 2D, Box Collider 2D, Sphere Collider (3D).</p>
               
             </div>

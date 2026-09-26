@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="raytracing-renderer">Raytracing Renderer</h1>
-<p>Экспериментальный рейтрейс-компонент для исследований конвейера — не продакшн-путь (движок целится в OpenGL 4.6, без Vulkan/DX12).</p>
+<p>Экспериментальный рейтрейс-компонент для исследований конвейера и референсных рендеров — не продакшн-путь (движок целится в OpenGL 4.6, без Vulkan/DX12).</p>
 <table>
 <thead>
 <tr>
@@ -1185,31 +1189,33 @@
 </tr>
 <tr>
 <td>Compute Shader</td>
-<td>Ядро рейтрейса</td>
+<td>Точка входа ядра рейтрейса</td>
 </tr>
 <tr>
 <td>Resolution Scale</td>
-<td>Множитель разрешения</td>
+<td>Множитель разрешения (0.25 черновики, 1.0 финалы)</td>
 </tr>
 <tr>
 <td>Max Bounces</td>
-<td>Глубина пути</td>
+<td>Глубина пути на луч</td>
 </tr>
 <tr>
 <td>Samples Per Pixel</td>
-<td>Качество против шума</td>
+<td>Качество против шума на кадр</td>
 </tr>
 <tr>
 <td>Accumulate Frames</td>
-<td>Временная сходимость</td>
+<td>Временная сходимость по кадрам (нужна статичная камера)</td>
 </tr>
 <tr>
 <td>Show Overlay / Heatmap (+ Mode / Scale)</td>
-<td>Визуализация цены</td>
+<td>Визуализация цены для исследований</td>
 </tr>
 </tbody>
 </table>
-<p>Полезен для референсных рендеров и изучения света; игры шипайте на стандартном меш-конвейере.</p>
+<p>Применение: изучение света (сравнение с растровым кадром), валидация материалов, маркетинговые stills. Игры шипайте на стандартном меш-конвейере.</p>
+<p>Аккумуляция сходится только при статичных камере и сцене — любое движение перезапускает сходимость, это поведение, а не баг.</p>
+<p>Диагностика: шум не уходит — движение или выкл аккумуляция; чёрное — упал compute-шейдер, смотрите консоль; тормоза редактора — scale 1.0 с высоким SPP, опустите до черновых.</p>
 <p>Связанное: Gaussian Splat Renderer, камеры, профайлер.</p>
               
             </div>

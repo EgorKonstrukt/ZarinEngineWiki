@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="physbone">PhysBone</h1>
-<p>Динамика цепочек костей для волос, хвостов, плащей, антенн и висящего реквизита.</p>
+<p>Динамика цепочек костей для волос, хвостов, плащей, антенн, висящих украшений и отростков монстров — пружинная симуляция вдоль существующей цепочки костей.</p>
 <table>
 <thead>
 <tr>
@@ -1181,7 +1185,7 @@
 <tbody>
 <tr>
 <td>Transforms</td>
-<td>Root Transform, Ignore Transforms, Ignore Other Phys Bones, Endpoint Position, Multi Child Type</td>
+<td>Root Transform, Ignore Transforms, Ignore Other Phys Bones, Endpoint Position, Multi Child Type (поведение ветвлений)</td>
 </tr>
 <tr>
 <td>Forces</td>
@@ -1193,8 +1197,12 @@
 </tr>
 </tbody>
 </table>
-<p>Кривые по длине цепочки дают жёсткие корни с болтающимися концами. Коллайдеры отклоняют цепочку; формы см. в PhysBoneCollider.</p>
-<p>Связанное: PhysBoneCollider, арматура, Skinned Mesh Renderer, заметки IK в анимации.</p>
+<p>Кривые по длине цепочки — секретное оружие: жёсткие корни с болтающимися концами читаются естественно, плоские значения — роботизированно. Pull борется с гравитацией (высокий = паряще), spring возвращает форму, damping гасит колебания.</p>
+<p>Ветвления: Multi Child Type управляет развилками (пальцы, пряди хвоста) — тестируйте на реальном ассете, поведение зависит от иерархии.</p>
+<p>Коллайдеры отклоняют цепочку каждый шаг; формы сфера/капсула/плоскость см. в PhysBoneCollider. Цепочки игнорируют друг друга без настройки — рукавам против плаща нужны explicit ignore-правила или коллайдеры.</p>
+<p>Процесс: ригованная цепочка → PhysBone на корне с endpoint → коллайдеры на голову/торс → pull/spring/damping с кривыми → стресс-тест быстрыми поворотами головы в Play.</p>
+<p>Диагностика: тянется резиной — низок pull или нулевой damping; вибрирует — высок spring под масштаб масс, опустите и поднимите damping; клиппит тело — нет коллайдера или ignore съел; заморожена — неверно назначен immobile-тип.</p>
+<p>Связанное: PhysBoneCollider, арматура, Skinned Mesh Renderer, заметки IK в анимации, тканевые эффекты объектов (статичная альтернатива).</p>
               
             </div>
           </div><footer>

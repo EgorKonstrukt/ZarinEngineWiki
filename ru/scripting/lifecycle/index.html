@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -908,11 +910,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,7 +1173,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Колбэки жизненного цикла</h1>
-<p>Все колбэки опциональны. Определяйте только то, что нужно поведению.</p>
+<p>Все колбэки опциональны. Определяйте только нужное поведению; движок кэширует лукапы методов и пропускает отсутствующие без цены.</p>
 <table>
 <thead>
 <tr>
@@ -1184,37 +1188,37 @@
 <td><code>on_awake</code></td>
 <td><code>awake</code></td>
 <td><code>()</code></td>
-<td>Один раз при старте Play, до <code>on_start</code></td>
+<td>Один раз при старте Play, до <code>on_start</code>; кэши и поиск соседей сюда</td>
 </tr>
 <tr>
 <td><code>on_start</code></td>
 <td><code>start</code></td>
 <td><code>()</code></td>
-<td>Один раз при старте Play</td>
+<td>Один раз при старте Play; начальное состояние и первые действия</td>
 </tr>
 <tr>
 <td><code>on_update</code></td>
 <td><code>update</code></td>
 <td><code>(dt)</code></td>
-<td>Каждый кадр, <code>dt</code> уже умножен на time scale</td>
+<td>Каждый кадр в порядке сцены; <code>dt</code> уже умножен на time scale</td>
 </tr>
 <tr>
 <td><code>on_fixed_update</code></td>
 <td><code>fixed_update</code></td>
 <td><code>(dt)</code></td>
-<td>Каждый шаг физики (<code>dt = 0.02</code> по умолчанию)</td>
+<td>Каждый шаг физики со стабильным <code>dt</code> (<code>0.02</code>); силы и движение сюда</td>
 </tr>
 <tr>
 <td><code>on_enable</code></td>
 <td><code>enable</code></td>
 <td><code>()</code></td>
-<td>При активации сущности</td>
+<td>При активации сущности (<code>entity.active = True</code>)</td>
 </tr>
 <tr>
 <td><code>on_disable</code></td>
 <td><code>disable</code></td>
 <td><code>()</code></td>
-<td>При деактивации сущности</td>
+<td>При деактивации; останавливайте циклы и звуки здесь</td>
 </tr>
 <tr>
 <td><code>on_collision_enter</code></td>
@@ -1238,38 +1242,46 @@
 <td><code>on_destroy</code></td>
 <td><code>destroy</code></td>
 <td><code>()</code></td>
-<td>При удалении компонента или выгрузке сцены</td>
+<td>Компонент удалён или сцена выгружена; освобождайте ресурсы здесь</td>
 </tr>
 <tr>
 <td><code>gizmo_lines</code></td>
 <td>—</td>
 <td><code>() -&gt; list</code></td>
-<td>Линии гизмо в редакторе, работают и вне Play</td>
+<td>Линии гизмо редактора, работают вне Play</td>
 </tr>
 <tr>
 <td><code>gizmo_meshes</code></td>
 <td>—</td>
 <td><code>() -&gt; list</code></td>
-<td>Меши гизмо в редакторе, работают и вне Play</td>
+<td>Меши гизмо редактора, работают вне Play</td>
 </tr>
 </tbody>
 </table>
-<p>Правила:</p>
-<ul>
-<li>Алиасы резолвятся для каждого метода с приоритетом <code>on_*</code>: если класс определяет и <code>update</code>, и <code>on_update</code>, работает только <code>on_update</code>.</li>
-<li>Колбэки столкновений принимают один или два аргумента. Движок один раз смотрит сигнатуру: с двумя параметрами вторым приходит сила удара (<code>float</code>), иначе передаётся только id другой сущности (<code>str</code>).</li>
-<li><code>self._entity</code> выставляется движком перед каждым вызовом, включая <code>on_awake</code> и <code>on_start</code>.</li>
-<li>Любое исключение в колбэке перехватывается и пишется в лог как <code>Script ... error ...</code> с трейсбеком. Кадр продолжается со следующего компонента.</li>
-</ul>
+<p>Порядок при старте Play: сначала <code>on_awake</code> всех скриптованных компонентов, затем <code>on_start</code> всех. Не полагайтесь на порядок стартов соседей — ищите соседей лениво или под guards в <code>on_update</code>.</p>
+<p>Семантика <code>dt</code>: рендерный <code>dt</code> тянется за slow motion и паузой (time scale 0 морозит обновления); фиксированный <code>dt</code> стабилен, и физика со скриптами остаётся детерминированной.</p>
+<p>Диспатч столкновений: солвер отдаёт контакты физическому слою, тот маппит тела на id сущностей и дёргает колбэки. Арность меряется один раз по сигнатуре — два параметра получают <code>(other_id: str, force: float)</code>, один — только <code>other_id</code>. Резолвите другую сущность внутри колбэка только при нужде; сравнение id дешевле.</p>
+<p>Enable/disable: тогл <code>entity.active</code> стреляет <code>on_disable</code>/<code>on_enable</code> всех компонентов сущности, включая скрипты. Деактивация в Play ставит поведение на паузу без разрушения состояния инстанса.</p>
+<p>Случаи destroy: удаление ScriptComponent в редакторе, удаление сущности, выгрузка сцены, остановка Play. Hot-reload пересоздаёт инстанс, но сохраняет поля инспектора и перезапускает <code>on_awake</code>/<code>on_start</code>.</p>
+<p>Исключения: любая ошибка в любом колбэке перехватывается и пишется как <code>Script ... error ...</code> с трейсбеком, именующим скрипт и метод. Кадр, шаг физики и остальные компоненты продолжаются.</p>
 <pre><code class="language-python">class Fighter:
     health: int = 100
 
     def on_awake(self):
         self.hits = 0
+        self.body = self._entity.get_component_by_name(&quot;Rigidbody&quot;)
+
+    def on_start(self):
+        self.alive = True
 
     def on_update(self, dt):
-        if self.health &lt;= 0:
+        if self.health &lt;= 0 and self.alive:
+            self.alive = False
             self._entity.active = False
+
+    def on_fixed_update(self, dt):
+        if self.body and self.health &lt;= 0:
+            self.body.velocity = Vec3(0.0, 0.0, 0.0)
 
     def on_collision_enter(self, other_id, force):
         self.hits = self.hits + 1
@@ -1277,6 +1289,7 @@
 
     def on_destroy(self):
         self.hits = 0
+        self.body = None
 </code></pre>
               
             </div>

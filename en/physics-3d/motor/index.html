@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="motor">Motor</h1>
-<p>Constant drive for conveyors, wheels, fans and spinning traps.</p>
+<p>Constant drive for conveyors, wheels, fans, spinning traps, elevators and servo doors — steady motion without scripting velocity every frame.</p>
 <table>
 <thead>
 <tr>
@@ -1189,7 +1193,7 @@
 </tr>
 <tr>
 <td>Mode</td>
-<td>Velocity or position servo</td>
+<td>Velocity cruise or position servo</td>
 </tr>
 <tr>
 <td>Axis / Anchor</td>
@@ -1201,20 +1205,23 @@
 </tr>
 <tr>
 <td>Drive: Motor Force / Motor Torque</td>
-<td>Strength caps</td>
+<td>Strength caps (stall behavior)</td>
 </tr>
 <tr>
 <td>Limits: Limit Low / Limit High</td>
-<td>Travel bounds</td>
+<td>Travel bounds for servo mode</td>
 </tr>
 <tr>
 <td>Free Spin</td>
-<td>Ignore limits</td>
+<td>Ignore limits entirely</td>
 </tr>
 </tbody>
 </table>
-<p>A velocity-mode motor with high force acts like a conveyor; position mode with limits acts like a servo door.</p>
-<p>Related: Joint, Rigidbody, CharacterController (player-driven platforms).</p>
+<p>Mode guide: velocity mode with high force reads as a conveyor or fan (never stalls); position mode with limits reads as a servo door or elevator (drives to the bound and holds); free spin wheels ignore limits and run on target velocity.</p>
+<p>Force caps define stall: a cap below the load stalls under weight — correct for garage doors blocked by crates; an infinite-feeling cap plows through everything — correct for crushers.</p>
+<p>Patterns: conveyor — velocity motor along the belt axis on a kinematic body; drawbridge — position servo with limits 0…π/2; windmill — free-spin rotation with modest torque; crusher — translation servo with high force and slow velocity.</p>
+<p>Troubleshooting: never moves → connected entity missing or kinematic chain broken; overshoots bounds → force too high for the servo, lower cap or raise damping via joint; vibrates at bound → limit fight, widen the dead zone between limits.</p>
+<p>Related: Joint (passive links), Rigidbody (driven bodies), CharacterController (riding platforms).</p>
               
             </div>
           </div><footer>

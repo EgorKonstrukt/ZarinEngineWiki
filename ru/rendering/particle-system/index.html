@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Система частиц</h1>
-<p>CPU-симуляция с GPU-отрисовкой: искры, дым, магия, обломки. Для тяжёлых систем есть GPU-путь проигрывания (шейдер <code>ParticleGpu</code>).</p>
+<p>CPU-симуляция с GPU-отрисовкой для искр, дыма, магии, обломков, погоды и ambient-пыли. Для тяжёлых систем, топящих CPU, есть GPU-путь проигрывания (шейдер <code>ParticleGpu</code>).</p>
 <table>
 <thead>
 <tr>
@@ -1181,17 +1185,28 @@
 <tbody>
 <tr>
 <td>Emission</td>
-<td>Duration, Looping, Prewarm, Start Delay</td>
+<td>Duration, Looping, Prewarm, Start Delay — когда и сколько работает эмиттер</td>
 </tr>
 <tr>
 <td>Start</td>
-<td>Start Lifetime (Min/Max), Start Speed (Min/Max), Start Size (Min/Max) и другое начальное состояние</td>
+<td>Start Lifetime (Min/Max), Start Speed (Min/Max), Start Size (Min/Max) и другое начальное состояние частицы</td>
+</tr>
+<tr>
+<td>Appearance</td>
+<td>Размер и цвет по жизни, текстура</td>
+</tr>
+<tr>
+<td>Physics</td>
+<td>Гравитация, drag, реакция на коллизии</td>
 </tr>
 </tbody>
 </table>
-<p>Эмиссия, внешний вид (размер и цвет по жизни, текстура) и физика (гравитация, drag) настраиваются в инспекторе. Система рисует гизмо-представление прямо во вьюпорте — форма и направление видны без Play. Вспышки и циклы запускаются из скриптов в рантайме.</p>
-<p>Производительность: лучше несколько крупных GPU-систем, чем много мелких CPU; переиспользуйте одну текстуру; следите за overdraw от больших мягких прозрачных квадов.</p>
-<p>Связанное: силовое поле частиц, эффекты объектов, материалы (текстуры частиц).</p>
+<p>Система рисует гизмо-представление прямо во вьюпорте — форма эмиттера, конус направления и range читаются без Play. Крутите rate эмиссии и смотрите, как меняется плотность гизмо.</p>
+<p>Процессы: костёр — короткая жизнь, скорость вверх, градиент оранжевый-в-прозрачность, зацикливание с prewarm, чтобы стартовал полным; взрыв — одиночный burst (looping выкл) с широким разбросом скоростей плюс вспышка Point Light; дождь — огромный count, тонкая вытянутая текстура, GPU-путь, без коллизий; магический след — эмиттер родителем к снаряду, малый count, аддитивный-подобный материал.</p>
+<p>Вспышки и циклы запускаются из скриптов в рантайме через API компонента; ведите интенсивность от геймплея (обороты двигателя → rate выхлопа).</p>
+<p>Правила производительности: лучше несколько крупных GPU-систем, чем много мелких CPU; одна текстура на системы; следите за overdraw — большие мягкие прозрачные квады обычный убийца fill-rate; гасите эмиттеры вне кадра дистанционным куллингом или ручным enable.</p>
+<p>Диагностика: невидимо — потеряна текстура, нулевой размер или нулевая жизнь; комкование в начале — нулевая скорость или ненастроенное направление; сработал раз и встал — выкл looping на ambient-эффекте; в редакторе видно, в игре нет — маска слоёв исключила игровую камеру.</p>
+<p>Связанное: силовое поле частиц, эффекты объектов (спавн-вспышки), материалы (текстуры частиц), Point Light (вспышка взрыва).</p>
               
             </div>
           </div><footer>

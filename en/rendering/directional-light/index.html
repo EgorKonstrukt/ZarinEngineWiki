@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,14 +1174,15 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="directional-light">Directional Light</h1>
-<p>Sun-style parallel light. Position only sets the gizmo origin; direction comes from the Transform rotation.</p>
+<p>Sun-style parallel light. Position only sets the gizmo origin; direction comes entirely from the Transform rotation, and every surface receives the same direction regardless of distance.</p>
 <ul>
-<li>Intensity in lux, default 100000 (direct sun). Reference: full daylight 15000, overcast 5000, sunrise 400, office 500, twilight 10, full moon 0.2.</li>
-<li><code>procedural_sky_lighting</code> couples the sun to the procedural sky: rotating the light moves the sun and rebalances ambient.</li>
-<li>Shadows use the cascaded map (default 4 cascades, resolutions 2048/1024/1024/512, distance 50).</li>
+<li>Intensity in lux, default 100000 (direct sun). Reference scale: full daylight 15000, overcast 5000, sunrise/sunset 400, office interior 500, twilight 10, full moon 0.2.</li>
+<li><code>procedural_sky_lighting</code> couples the sun to the procedural sky: rotating the light moves the sun disc and rebalances ambient automatically — day cycles become one rotation animation.</li>
+<li>Shadows use the cascaded map (default 4 cascades at 2048/1024/1024/512, distance 50). Because one light covers the whole scene, its shadow pass is usually the most expensive single light — keep exactly one shadowed directional.</li>
 </ul>
-<p>Typical setup: one directional sun with shadows on as the key light, plus ambient or sky fill.</p>
-<p>Related: Light (Base), Shadows, Procedural Sky, Atmosphere.</p>
+<p>Workflows: outdoor day — sun intensity 80000–120000, warm color, shadows on, procedural sky coupled; night — dim blue directional (5–50 lux range feel) with shadows off plus a few shadowed spots for pools of light; interior — directional off or very low, spots and points carry the scene.</p>
+<p>The viewport gizmo shows direction arrows and the shadow camera box; if the box does not cover the gameplay area, shadows clip — shrink shadow distance or move the action inside.</p>
+<p>Related: Light (Base), Shadows, Procedural Sky, Atmosphere, Clouds (shadow strength interplay).</p>
               
             </div>
           </div><footer>

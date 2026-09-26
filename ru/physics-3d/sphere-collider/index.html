@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="sphere-">Sphere-коллайдер</h1>
-<p>Катящиеся мячи, хитбоксы голов, радиальные триггеры.</p>
+<p>Идеальный шар: катание, прыжки, хитбоксы голов, радиальные триггеры и сенсоры близости.</p>
 <table>
 <thead>
 <tr>
@@ -1212,8 +1216,11 @@
 </tr>
 </tbody>
 </table>
-<p>Рецепт мяча: упругость ~0.8, трение ~0.2, свой слой с маской на мир и игрока.</p>
-<p>Связанное: Rigidbody, Capsule-коллайдер, физические материалы.</p>
+<p>Катание требует трения: шарик с трением 0.05 скользит как лёд, с 0.6 цепляется и катится. Высота отскока из bounciness — 0 мёртвое падение, 0.8 живой мяч, никогда ровно 1 (прирост энергии дрожит в стопках).</p>
+<p>Рецепты: прыгучий мяч — радиус 0.3, упругость 0.8, трение 0.2, свой слой с маской на мир + игрока; сенсор близости — большая триггер-сфера (радиус 5–10) со скриптом подсчёта входов/выходов; хитбокс головы — малая сфера на кости головы со скриптом урона.</p>
+<p>Неоднородный скейл родителя берёт наибольшую ось под радиус — растянутый родитель даёт шар больше меша. Держите визуальных и коллизионных родителей однородно масштабированными.</p>
+<p>Диагностика: катится вечно — нулевые angular drag и трение; не катится — заморожены оси поворота Rigidbody; триггер двоит — пары enter/exit на быстрых телах, дебаунс в скрипте.</p>
+<p>Связанное: Rigidbody, Capsule-коллайдер, физические материалы, Circle Collider 2D.</p>
               
             </div>
           </div><footer>

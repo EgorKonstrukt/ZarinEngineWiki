@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,8 +1173,25 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="input-and-math-api">Input and Math API</h1>
-<p>These names are injected into every user script module automatically, so importing them is optional. An explicit import with the same name in the script takes priority.</p>
+<p>These names are injected into every user script module automatically, so importing them is optional. An explicit import with the same name in the script takes priority over the injection.</p>
 <p>Injected names: <code>Input</code>, <code>KeyCode</code>, <code>Vec2</code>, <code>Vec3</code>, <code>Vec4</code>, <code>Curve</code>, <code>Range</code>, <code>Logger</code>.</p>
+<p>Keyboard and mouse:</p>
+<ul>
+<li><code>Input.GetKey(code)</code> — held this frame; <code>Input.GetKeyDown(code)</code> — pressed this frame; <code>Input.GetKeyUp(code)</code> — released this frame. Codes come from <code>KeyCode</code> (<code>KeyCode.W</code>, <code>KeyCode.Space</code>, <code>KeyCode.Shift</code>, arrows, digits and more).</li>
+<li><code>Input.GetMouseButton(i)</code>, <code>GetMouseButtonDown(i)</code>, <code>GetMouseButtonUp(i)</code> — button index state.</li>
+<li><code>Input.GetButton(name)</code>, <code>GetButtonDown(name)</code>, <code>GetButtonUp(name)</code> — named action buttons.</li>
+<li><code>Input.GetAxis(name)</code>, <code>Input.GetAxisRaw(name)</code> — smoothed vs raw axes such as <code>"Horizontal"</code>.</li>
+<li><code>Input.mousePosition</code> — cursor in screen space; <code>Input.deltaTime</code> — scaled frame time; <code>Input.cursorLocked</code> / <code>Input.cursorVisible</code> — pointer capture state.</li>
+</ul>
+<p>Math:</p>
+<ul>
+<li><code>Vec2</code>, <code>Vec3</code>, <code>Vec4</code> — full vector math (add, scale, dot, cross, length, normalized, lerp) backed by <code>numpy.float64</code>; the GPU downgrade to float32 happens only on upload.</li>
+<li><code>Quat</code>, <code>Mat4</code> — import from <code>core.maths.math3d</code> for rotations and matrices (slerp, look_at, perspective helpers live there with numba acceleration).</li>
+<li><code>Curve</code> — keyframed response curves edited in the Inspector and evaluated at runtime for falloff, easing and throttle shapes.</li>
+<li><code>Range</code> — slider metadata for Inspector fields (see Inspector Fields).</li>
+<li><code>Logger</code> — <code>Logger.info/warning/error</code> with timestamps; errors include tracebacks and reach the console panel.</li>
+</ul>
+<p>Frame-rate independence: always multiply motion by <code>dt</code> (or use <code>Input.deltaTime</code>); fixed-step logic belongs in <code>on_fixed_update</code> with its stable step.</p>
 <pre><code class="language-python">class Player:
     speed: float = 6.0
 
@@ -1184,20 +1205,6 @@
         if Input.GetKeyDown(KeyCode.Space):
             Logger.info(&quot;jump pressed&quot;)
 </code></pre>
-<p>Available input API:</p>
-<ul>
-<li><code>Input.GetKey</code>, <code>Input.GetKeyDown</code>, <code>Input.GetKeyUp</code> — keyboard state by <code>KeyCode</code>.</li>
-<li><code>Input.GetMouseButton</code>, <code>GetMouseButtonDown</code>, <code>GetMouseButtonUp</code> — mouse buttons.</li>
-<li><code>Input.GetButton</code>, <code>GetButtonDown</code>, <code>GetButtonUp</code> — named buttons.</li>
-<li><code>Input.GetAxis</code>, <code>Input.GetAxisRaw</code> — named axes such as <code>"Horizontal"</code>.</li>
-<li><code>Input.mousePosition</code>, <code>Input.deltaTime</code>, <code>Input.cursorLocked</code>, <code>Input.cursorVisible</code>.</li>
-</ul>
-<p>Available math:</p>
-<ul>
-<li><code>Vec2</code>, <code>Vec3</code>, <code>Vec4</code> — vectors backed by <code>numpy.float64</code>.</li>
-<li><code>Quat</code>, <code>Mat4</code> — import from <code>core.maths.math3d</code> when needed.</li>
-<li><code>Curve</code> — keyframed curve with editor widget and runtime evaluation.</li>
-</ul>
 <pre><code class="language-python">class Looker:
     sensitivity: float = 2.0
 
@@ -1207,6 +1214,7 @@
         if t and x != 0.0:
             t.rotate(Vec3(0.0, x * self.sensitivity * dt, 0.0))
 </code></pre>
+<p>Cursor pattern for fly cameras: lock on right-mouse hold, release on up — drive <code>Input.cursorLocked</code> from the mouse-button callbacks in <code>on_update</code>.</p>
               
             </div>
           </div><footer>

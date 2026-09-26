@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="skinned-mesh-renderer">Skinned Mesh Renderer</h1>
-<p>Draws skeletal-animated meshes with GPU skinning.</p>
+<p>Draws skeletal-animated meshes with GPU skinning: characters, creatures, animated props.</p>
 <table>
 <thead>
 <tr>
@@ -1181,7 +1185,7 @@
 <tbody>
 <tr>
 <td>Mesh: Mesh</td>
-<td>Animated mesh source</td>
+<td>Animated mesh source with bone weights</td>
 </tr>
 <tr>
 <td>Mesh: Source</td>
@@ -1197,12 +1201,15 @@
 </tr>
 <tr>
 <td>Update When Offscreen</td>
-<td>Keep skinning visible-culled meshes (for shadows and probes)</td>
+<td>Keep skinning culled meshes (correct shadows and probes)</td>
 </tr>
 </tbody>
 </table>
-<p>Bone weights arrive with the mesh from Assimp; the animation system (clips, Animator, controllers) writes bone poses every frame, and the skinned pass uploads bone matrices once per mesh.</p>
-<p>Related: Armature, Blend Shapes, Animation Clips and Animator, MeshRenderer (static meshes).</p>
+<p>Bone weights arrive with the mesh from Assimp (positions, normals, UVs, tangents, colors, weights in one import). The animation system (clips, Animator, controllers) writes bone poses into the Armature every frame; the skinned pass uploads bone matrices once per mesh and skins all vertices on the GPU, so CPU cost stays flat regardless of vertex count.</p>
+<p>Workflow: import the rigged FBX, add Armature (bone names must match), add SkinnedMeshRenderer with materials, attach the Animator with its controller, verify in Play — then enable Update When Offscreen only for shadow-casting crowds.</p>
+<p>Blend Shapes layer morph targets over the skeleton for faces (see Blend Shapes page).</p>
+<p>Troubleshooting: rigid T-pose → armature mismatch or animator missing; exploding vertices → weight/normalization import issue, reimport with tangents; shadows frozen → Update When Offscreen off on a culled caster.</p>
+<p>Related: Armature, Blend Shapes, Animation Clips and Animator, MeshRenderer (static), PhysBone (physical secondary motion).</p>
               
             </div>
           </div><footer>

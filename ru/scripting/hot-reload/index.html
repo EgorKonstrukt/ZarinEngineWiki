@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -908,11 +910,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,15 +1174,18 @@
               
                 <h1 id="_1">Горячая перезагрузка</h1>
 <p>Файл скрипта можно править прямо во время Play. Изменение подхватывается на следующем кадре: инстанс пересоздаётся, значения полей из инспектора сохраняются, <code>on_awake</code> / <code>on_start</code> вызываются заново. Состояние <code>__init__</code> сбрасывается — как рекомпиляция в Unity.</p>
-<p>Детали поведения:</p>
-<ul>
-<li>Движок следит за временем изменения файла. Новый <code>mtime</code> вызывает перезагрузку перед следующим <code>on_update</code> / <code>on_fixed_update</code>.</li>
-<li>Значения полей, отредактированные в инспекторе, накатываются на новый инстанс, так что настройка переживает перезагрузку.</li>
-<li>Файл с синтаксической ошибкой отмечается в консоли как <code>Script '...' has N error(s):</code> со строками <code>файл:строка</code>. Предыдущая рабочая версия продолжает работать, пока файл не исправлен.</li>
-<li>Кнопка <code>Check</code> в редакторе скриптов проверяет без запуска Play: синтаксис плюс <code>core.*</code>-импорты, включая подсказку использовать <code>core.maths.math3d</code> вместо <code>core.math3d</code>.</li>
-<li>Перезагрузка управляется флагом <code>hot_reload</code> на <code>ScriptComponent</code> (по умолчанию <code>True</code>). Значение <code>False</code> замораживает инстанс на сессию.</li>
-</ul>
-<p>Типичный цикл: нажать Play, подправить скорость или реакцию на кривую во внешнем редакторе, увидеть результат в запущенной игре на следующем кадре, сохранить настроенные значения в инспекторе, сохранить сцену.</p>
+<p>Конвейер перезагрузки:</p>
+<ol>
+<li>Движок сравнивает время изменения файла перед каждым <code>on_update</code> / <code>on_fixed_update</code>. Новый <code>mtime</code> запускает перезагрузку.</li>
+<li>Файл ревалидируется (те же проверки, что у кнопки Check). При ошибках в консоль пишется одно сводное сообщение <code>Script '...' has N error(s):</code> на версию файла, а предыдущий рабочий инстанс продолжает работать.</li>
+<li>При успехе модуль перевыполняется с подставленным API, класс поведения резолвится заново, свежий инстанс конструируется.</li>
+<li>Значения полей инспектора накатываются на новый инстанс, затем заново идут <code>on_awake</code> и <code>on_start</code>.</li>
+</ol>
+<p>Что выживает: настроенные значения инспектора, обвязка компонента, иерархия сущностей. Что сбрасывается: всё назначенное в <code>__init__</code> или накопленное в колбэках (таймеры, кэши, спавн-хендлы) — перестраивайте в <code>on_awake</code>/<code>on_start</code>, если поведение должно продолжаться бесшовно.</p>
+<p>Кнопка Check проверяет без Play в три стадии: парсинг синтаксиса с позициями <code>файл:строка</code>, резолвинг <code>core.*</code>-импортов (включая подсказку <code>core.maths.math3d</code> вместо <code>core.math3d</code>) и полное пробное выполнение, ловящее рантайм-ошибки импорта вроде циклических.</p>
+<p>Управление: флаг <code>hot_reload</code> на <code>ScriptComponent</code> (по умолчанию <code>True</code>). Значение <code>False</code> замораживает инстанс на сессию — полезно при отладке нативного состояния или сравнении с фиксированным baseline.</p>
+<p>Советы: держите Play запущенным и итерируйте ощущения (скорости, кривые, тайминги) во внешнем редакторе; настроенные значения инспектора переживают перезагрузки — сохраняйте сцену, когда ощущения верные. Для структурных рефакторингов (переименованные поля, новые кнопки) ждите один чистый цикл и перепроверьте инспектор.</p>
+<p>Диагностика: изменения игнорируются — файл не сохранился (<code>mtime</code> тот же) или <code>hot_reload</code> выкл; старое поведение с ошибками — чините указанные <code>файл:строка</code>, живой остаётся последняя рабочая сборка; поля сбросились — аннотация переименована, у старого значения нет цели.</p>
               
             </div>
           </div><footer>

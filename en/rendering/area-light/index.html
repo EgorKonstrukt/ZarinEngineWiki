@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,14 +1174,15 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="area-light">Area Light</h1>
-<p>Soft rectangular or disk emitter for studios, windows and panels.</p>
+<p>Soft rectangular or disk emitter for studios, windows, softboxes and panels — the closest to real-world fixtures.</p>
 <ul>
 <li>Intensity in nits, default 100. Reference: SDR monitor 200, office panel 500, overcast sky 2000, clear sky 5000, LED softbox 10000.</li>
-<li><code>area_type</code> RECT or DISK, size from <code>area_width</code> / <code>area_height</code>, <code>area_double_sided</code> for two-face emission.</li>
-<li>Softness from <code>area_samples</code> (default 6); <code>area_shadow_bias</code> 0.005 against acne.</li>
+<li><code>area_type</code> RECT or DISK; size from <code>area_width</code> / <code>area_height</code>; <code>area_double_sided</code> emits from both faces (thin panels, windows).</li>
+<li>Softness from <code>area_samples</code> (default 6) — more samples, softer and costlier shadows; <code>area_shadow_bias</code> 0.005 against acne.</li>
 </ul>
-<p>Area lights are the most expensive light type — use them as hero sources and fill the rest with points and spots.</p>
-<p>Related: Light (Base), Shadows, Dynamic Cubemap notes in Skybox.</p>
+<p>Area lights are the most expensive light type per unit: use them as hero sources (one soft key through a window, one panel over a desk) and fill the rest with points and spots. Gizmo draws the emitting quad so placement against windows reads directly.</p>
+<p>Workflow for a soft interior: area light outside the window aimed in (double-sided off), cool ambient or sky fill, one warm unshadowed point inside for bounce feel. Tune width/height to the actual window — mismatched sizes break the soft-shadow direction cue.</p>
+<p>Related: Light (Base), Shadows, Skybox (IBL fill alternative), Dynamic Cubemap notes.</p>
               
             </div>
           </div><footer>

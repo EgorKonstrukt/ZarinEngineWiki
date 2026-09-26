@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="particle-force-field">Particle Force Field</h1>
-<p>Bends nearby particle systems: wind zones, gravity wells, vortexes, drag volumes.</p>
+<p>Bends nearby particle systems without touching their configs: wind zones, gravity wells, vortex funnels, drag volumes, updrafts for leaves and embers.</p>
 <table>
 <thead>
 <tr>
@@ -1181,7 +1185,7 @@
 <tbody>
 <tr>
 <td>Shape: Shape</td>
-<td>Field volume type</td>
+<td>Field volume type (sphere/box style)</td>
 </tr>
 <tr>
 <td>Shape: Radius / Box Size</td>
@@ -1189,7 +1193,7 @@
 </tr>
 <tr>
 <td>Shape: Start Range</td>
-<td>Falloff start distance</td>
+<td>Distance where falloff begins</td>
 </tr>
 <tr>
 <td>Force: Force X / Y / Z</td>
@@ -1197,20 +1201,23 @@
 </tr>
 <tr>
 <td>Force: Intensity</td>
-<td>Overall strength</td>
+<td>Overall strength multiplier</td>
 </tr>
 <tr>
 <td>Force: Multiply by Distance</td>
-<td>Scale force with distance</td>
+<td>Scale the force with distance from center</td>
 </tr>
 <tr>
 <td>Drag, Gravity</td>
-<td>Damping and gravity inside the volume</td>
+<td>Extra damping and gravity inside the volume</td>
 </tr>
 </tbody>
 </table>
-<p>Place the field entity so its volume overlaps the emitter. Stack several fields for curl-like motion.</p>
-<p>Related: Particle System, Wind Zone (environment), Water (flow).</p>
+<p>Place the field entity so its volume overlaps the emitter; particles entering the volume pick up the force, leaving ones keep their velocity. Stack several fields for curl-like motion (swirl + lift + drag reads as a tornado).</p>
+<p>Workflows: campfire smoke bend — sideways force with distance falloff so smoke rises then drifts; waterfall mist — downward gravity plus outward push; magic vortex — tangential force around a center with inward pull; leaf updraft — gentle upward force over a courtyard.</p>
+<p>Fields compose with the system's own physics additively — halve both when combining, then tune back up.</p>
+<p>Troubleshooting: no effect → volume misses the emitter, check the gizmo overlap; violence → intensity too high for the particle mass scale, lower and raise drag; one-directional-only motion → force vector single-axis, add components.</p>
+<p>Related: Particle System, Wind Zone (environment vegetation wind), Water (flow feel), Buoyancy (underwater drift twin).</p>
               
             </div>
           </div><footer>

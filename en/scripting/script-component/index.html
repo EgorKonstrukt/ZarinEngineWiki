@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,24 +1173,26 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="scriptcomponent">ScriptComponent</h1>
-<p><code>ScriptComponent</code> is the engine side of user scripts: it loads the <code>.py</code> file, builds Inspector fields from the class, forwards lifecycle calls, and stores field values in the scene.</p>
+<p><code>ScriptComponent</code> is the engine side of user scripts: it loads the <code>.py</code> file, builds Inspector fields from the class, forwards lifecycle calls, stores field values in the scene, and validates on demand.</p>
 <p>Component facts:</p>
 <ul>
-<li><code>script_path</code> is stored relative to the project root, so scenes are portable. A relative path that does not resolve directly is retried against the project root.</li>
+<li><code>script_path</code> is stored relative to the project root, so scenes are portable. A relative path that does not resolve directly is retried against the project root; absolute paths resolve as-is.</li>
 <li><code>hot_reload</code> defaults to <code>True</code>.</li>
-<li>Several <code>ScriptComponent</code> instances may live on one entity.</li>
-<li>The Inspector header shows the file display name (base name without extension) with a reveal action and an editor button.</li>
+<li>Several <code>ScriptComponent</code> instances may live on one entity (<code>_allow_multiple = True</code>).</li>
+<li>The Inspector header shows the file display name (base name without extension) with a reveal action and an editor button; a second header lists the discovered script variables.</li>
 </ul>
 <p>Class resolution, in order:</p>
 <ol>
-<li>If the file modification time is unchanged, the cached class is reused.</li>
-<li>The script folder is added to the import search so sibling modules (including Cython builds) resolve.</li>
-<li>The file is checked for errors. On errors a single consolidated console message is written per file version and the old instance is dropped; the component renders no fields until the file is fixed.</li>
-<li>The module is executed with the injected API (<code>Input</code>, <code>KeyCode</code>, <code>Vec2/3/4</code>, <code>Curve</code>, <code>Range</code>, <code>Logger</code>).</li>
-<li>The engine picks the first class defined in that file (alphabetical attribute order) that declares at least one lifecycle callback, collision callback, gizmo method, or <code>_inspector_buttons</code>. The class is instantiated with no arguments.</li>
-<li>Per-method lookup caches bound methods and the <code>on_update</code> / <code>on_fixed_update</code> fast flags; collision arities are measured once via signature inspection.</li>
+<li>Modification-time short-circuit: unchanged <code>mtime</code> reuses the cached class with zero work.</li>
+<li>Import preparation: the script folder joins the module search so sibling <code>.py</code> and compiled Cython modules resolve.</li>
+<li>Error collection: syntax parse, <code>core.*</code> import checks, trial execution. On errors one consolidated <code>Script '...' has N error(s):</code> message is logged per file version, the old instance is dropped, and no fields render until the file is fixed.</li>
+<li>Module execution with the injected API (<code>Input</code>, <code>KeyCode</code>, <code>Vec2/3/4</code>, <code>Curve</code>, <code>Range</code>, <code>Logger</code>).</li>
+<li>Class pick: the first class defined in that file (alphabetical attribute order) declaring at least one lifecycle callback, collision callback, gizmo method, or <code>_inspector_buttons</code>. Instantiated with no arguments; <code>self._entity</code> is assigned before every call.</li>
+<li>Method caching: bound methods per canonical name with fast flags for <code>on_update</code> / <code>on_fixed_update</code>; collision arities measured once via signature inspection; field hints cached until the file changes.</li>
 </ol>
-<p>The <code>Check</code> action runs the same validation as step 3 on demand and reports <code>file:line: message</code> rows, so broken scripts can be diagnosed without pressing Play.</p>
+<p>Serialization: <code>script_path</code>, <code>hot_reload</code> and the <code>_field_values</code> dict persist in <code>.zpes</code>, so tuned instances survive reloads, prefabs and version control.</p>
+<p>The <code>Check</code> action runs step 3 on demand and reports <code>file:line: message</code> rows — including the <code>core.maths.math3d</code> vs <code>core.math3d</code> hint and circular-import failures — so broken scripts are diagnosed without pressing Play.</p>
+<p>Multiple instances on one entity each keep an independent module state, instance and field set; they reload independently. Cross-script communication goes through the entity (<code>get_component</code> by sibling script is resolved via its component, or shared state on the entity).</p>
               
             </div>
           </div><footer>

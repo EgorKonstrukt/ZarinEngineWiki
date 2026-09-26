@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,14 +1174,15 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="area-">Area-свет</h1>
-<p>Мягкий прямоугольный или дисковый излучатель для студий, окон и панелей.</p>
+<p>Мягкий прямоугольный или дисковый излучатель для студий, окон, софтбоксов и панелей — ближе всего к реальным приборам.</p>
 <ul>
 <li>Интенсивность в нитах, по умолчанию 100. Ориентиры: SDR-монитор 200, офисная панель 500, пасмурное небо 2000, ясное небо 5000, LED-софтбокс 10000.</li>
-<li><code>area_type</code> RECT или DISK, размер из <code>area_width</code> / <code>area_height</code>, <code>area_double_sided</code> для двустороннего излучения.</li>
-<li>Мягкость из <code>area_samples</code> (по умолчанию 6); <code>area_shadow_bias</code> 0.005 против акне.</li>
+<li><code>area_type</code> RECT или DISK; размер из <code>area_width</code> / <code>area_height</code>; <code>area_double_sided</code> излучает с двух сторон (тонкие панели, окна).</li>
+<li>Мягкость из <code>area_samples</code> (по умолчанию 6) — больше сэмплов, мягче и дороже тени; <code>area_shadow_bias</code> 0.005 против акне.</li>
 </ul>
-<p>Area-свет — самый дорогой тип: используйте как hero-источники, остальное добирайте точками и спотами.</p>
-<p>Связанное: Light (база), тени, заметки Dynamic Cubemap в Skybox.</p>
+<p>Area — самый дорогой тип на единицу: используйте как hero-источники (один мягкий ключ сквозь окно, одна панель над столом), остальное добирайте точками и спотами. Гизмо рисует излучающий квад — постановка к окнам читается напрямую.</p>
+<p>Процесс мягкого интерьера: area снаружи окна внутрь (double-sided выкл), холодная ambient- или небесная заливка, одна тёплая незатенённая точка внутри для ощущения bounce. Подгоняйте width/height под реальное окно — несовпадение ломает направление мягких теней.</p>
+<p>Связанное: Light (база), тени, скайбокс (альтернатива IBL-заливки), заметки Dynamic Cubemap.</p>
               
             </div>
           </div><footer>

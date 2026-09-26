@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,15 +1174,18 @@
               
                 <h1 id="hot-reload">Hot Reload</h1>
 <p>A script file can be edited while Play is running. The change is picked up on the next frame: the instance is recreated, Inspector values are preserved, and <code>on_awake</code> / <code>on_start</code> run again. Instance state from <code>__init__</code> is reset, like a recompilation in Unity.</p>
-<p>Behavior details:</p>
-<ul>
-<li>The engine watches the file modification time. A newer <code>mtime</code> triggers reload before the next <code>on_update</code> / <code>on_fixed_update</code>.</li>
-<li>Field values edited in the Inspector are re-applied to the new instance, so tuning survives reload.</li>
-<li>A file with a syntax error is reported in the console as <code>Script '...' has N error(s):</code> with <code>file:line</code> entries. The previous working version keeps running until the file is fixed.</li>
-<li>The <code>Check</code> button in the Script Editor validates without starting Play: syntax plus <code>core.*</code> imports, including the hint to use <code>core.maths.math3d</code> instead of <code>core.math3d</code>.</li>
-<li>Hot reload is controlled per component by the <code>hot_reload</code> flag on <code>ScriptComponent</code> (default <code>True</code>). Set it to <code>False</code> to freeze the instance for the session.</li>
-</ul>
-<p>Typical loop: press Play, tweak a speed or a curve response in the external editor, see the result in the running game on the next frame, keep tuned values in the Inspector, save the scene when satisfied.</p>
+<p>Reload pipeline:</p>
+<ol>
+<li>The engine compares the file modification time before each <code>on_update</code> / <code>on_fixed_update</code>. A newer <code>mtime</code> starts a reload.</li>
+<li>The file is re-validated (same checks as the Check button). On errors a single consolidated console message <code>Script '...' has N error(s):</code> is written per file version, and the previous working instance keeps running.</li>
+<li>On success the module re-executes with the injected API, the behavior class is re-resolved, and a fresh instance is constructed.</li>
+<li>Inspector field values are re-applied onto the new instance, then <code>on_awake</code> and <code>on_start</code> run again.</li>
+</ol>
+<p>What survives: Inspector-tuned values, the component wiring, the entity hierarchy. What resets: anything assigned in <code>__init__</code> or built up in callbacks (timers, caches, spawned handles) — rebuild it in <code>on_awake</code>/<code>on_start</code> if the behavior must continue seamlessly.</p>
+<p>The Check button validates without Play in three stages: syntax parse with <code>file:line</code> positions, <code>core.*</code> import resolution (including the hint to use <code>core.maths.math3d</code> instead of <code>core.math3d</code>), and a full trial execution catching runtime import errors such as circular imports.</p>
+<p>Control: the <code>hot_reload</code> flag on <code>ScriptComponent</code> (default <code>True</code>). Set <code>False</code> to freeze the instance for the session — useful when debugging native-side state or comparing against a fixed baseline.</p>
+<p>Workflow tips: keep Play running and iterate on feel (speeds, curves, timings) with an external editor; the tuned Inspector values persist across reloads, so save the scene when the feel is right. For structural refactors (renamed fields, new buttons) expect one clean reload cycle and re-check the Inspector.</p>
+<p>Troubleshooting: changes ignored → the file did not save (mtime unchanged) or <code>hot_reload</code> is off; old behavior persists with errors → fix the reported <code>file:line</code> entries, the last working build stays live meanwhile; fields reset → the annotation was renamed, the old stored value has no target.</p>
               
             </div>
           </div><footer>

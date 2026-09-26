@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="mesh-">Mesh-коллайдер</h1>
-<p>Коллизии из геометрии меша: статика точно, динамика — выпуклой аппроксимацией.</p>
+<p>Коллизии из геометрии меша там, где примитивы не ложатся: статуи, куски террейна, корпуса техники, вогнутые декорации.</p>
 <table>
 <thead>
 <tr>
@@ -1188,23 +1192,26 @@
 <tr>
 <td>mesh_path</td>
 <td>—</td>
-<td>Исходный файл меша</td>
+<td>Исходный файл (тот же импорт, что MeshFilter)</td>
 </tr>
 <tr>
 <td>collision_mode</td>
 <td>AUTO</td>
-<td>AUTO / MESH / CONVEX_HULL / BOX / SPHERE</td>
+<td>AUTO / MESH / CONVEX_HULL / BOX / SPHERE-аппроксимации</td>
 </tr>
 <tr>
 <td>max_vertices</td>
 <td>2000</td>
-<td>Бюджет упрощения</td>
+<td>Бюджет упрощения генерируемых оболочек</td>
 </tr>
 </tbody>
 </table>
-<p>Эффективный режим: AUTO превращается в MESH для статики и в CONVEX_HULL для динамики; явный MESH на динамике понижается до CONVEX_HULL. Тело динамическое при активном Rigidbody с положительной массой (кинематика тоже) и не-триггере.</p>
-<p>Для всего движущегося предпочитайте примитивы и компаунды; меш-коллизии — для статичной геометрии уровня.</p>
-<p>Связанное: MeshFilter, Rigidbody, заметки о компаунде в обзоре физики.</p>
+<p>Логика эффективного режима, сверено: AUTO становится MESH для статики (точные треугольники) и CONVEX_HULL для динамики (стабильная аппроксимация); явный MESH на динамике автоматически понижается до CONVEX_HULL. Тело динамическое при активном Rigidbody положительной массы (кинематика тоже) и не-триггере.</p>
+<p>Реальность цены: треугольный меш против динамического тела — самая дорогая пара в физике; она для статичной геометрии уровня. Всё движущееся получает примитивы, компаунды или выпуклые оболочки. <code>max_vertices</code> капает сложность оболочки; опускайте, пока гизмо ещё обнимает силуэт.</p>
+<p>Режимы BOX/SPHERE — даунгрейд в один клик, когда меш оказался примерно боксом или шаром — дешевле, чем перевыпускать коллайдер.</p>
+<p>Процесс: статичная статуя — AUTO (→MESH), без Rigidbody; движущиеся обломки — AUTO (→CONVEX_HULL) с Rigidbody, а лучше компаунд из 3 боксов; террейн — предпочитайте TerrainCollider мешу.</p>
+<p>Диагностика: проваливается — динамическое тело с форсированным MESH (проверьте эффективный режим), грубая оболочка или туннелирование; долгая готовка при загрузке — огромен max_vertices, децимируйте исходник; рассинхрон с картинкой — mesh_path отличается от пути MeshFilter.</p>
+<p>Связанное: MeshFilter, Terrain-коллайдер, Rigidbody, заметки о компаунде в обзоре.</p>
               
             </div>
           </div><footer>

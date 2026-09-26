@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,18 +1173,21 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="3d">Обзор физики 3D</h1>
-<p>Встроенный 3D-солвер работает вне главного потока: симуляция шагает в фоновом воркере, пока поток ECS рисует, выполняет скрипты и синхронизирует трансформы каждый кадр.</p>
+<p>Встроенный 3D-солвер работает вне главного потока: симуляция шагает в фоновом воркере, пока поток ECS рисует, выполняет скрипты и синхронизирует трансформы каждый кадр. Геймплейный код никогда не ждёт солвер; он читает результаты прошлого шага и пишет пожелания (силы, скорости, телепорты), применяющиеся на следующем.</p>
 <p>Конвейер фиксированного шага:</p>
 <ol>
-<li>Регистрация новых сущностей и периодическая перепроверка шейпов.</li>
-<li>Синхронизация ECS → физика (телепорт грязных трансформов, иначе накопленные силы/моменты и грязные скорости).</li>
-<li>Шаг солвера с <code>dt</code> (по умолчанию <code>0.02</code>).</li>
-<li>Ограничение 2D-тел (обнуление внеплоскостных скоростей).</li>
-<li>Синхронизация физика → ECS (позиции, повороты, скорости; кинематика и грязные тела пропускаются).</li>
-<li>Рассылка событий столкновений в колбэки скриптов <code>on_collision_enter/stay/exit</code>.</li>
+<li>Регистрация новых сущностей (создание тел солвера свежим парам Rigidbody + коллайдер) и периодическая перепроверка шейпов изменившихся мешей и скейлов.</li>
+<li>Синхронизация ECS → физика: грязные трансформы телепортируются прямо в тела, иначе пушатся накопленные силы/моменты и грязные скорости.</li>
+<li>Шаг солвера с <code>dt</code> (по умолчанию <code>0.02</code> из <code>Engine._fixed_dt</code>).</li>
+<li>Ограничение 2D-тел (обнуление внеплоскостных скоростей — плоские игры никогда не дрейфуют из плоскости).</li>
+<li>Синхронизация физика → ECS: позиции, повороты, скорости назад в трансформы и состояние Rigidbody; кинематика и грязные тела пропускаются (они ведомы трансформом).</li>
+<li>Рассылка событий столкновений в колбэки скриптов <code>on_collision_enter/stay/exit</code> с id сущностей и силами удара.</li>
 </ol>
-<p>Солверы: <code>culverin</code> (на базе Jolt) по умолчанию, альтернативы <code>pybullet</code> и <code>physx</code>. Режимы: <code>single</code> (в процессе), <code>multi_threaded</code> (по умолчанию, отдельный процесс), <code>per_layer_process</code> (процессы по требованию на слой).</p>
-<p>Подстраницы: Rigidbody, коллайдеры, CharacterController, джойнты, материалы и слои, солвер и многопоточность, продвинутые тела (плавучесть, soft body, PhysBone, мотор).</p>
+<p>Солверы втыкаются через <code>IPhysicsSolver</code>: <code>culverin</code> (на базе Jolt) по умолчанию, альтернативы <code>pybullet</code> и <code>physx</code> в <code>physics_solvers/registry.py</code>. Режимы: <code>single</code> (в процессе, минимальная задержка, требуется CharacterController), <code>multi_threaded</code> (по умолчанию, демон-процесс с очередями и общими буферами), <code>per_layer_process</code> (процессы по требованию на слой).</p>
+<p>Обвязка фиксированного шага: <code>Engine.tick_fixed_step</code> копит реальное время относительно <code>_fixed_dt</code>, выполняет <code>pre_step</code> плагинов, <code>scene.fixed_update</code>, затем шаг физики — скрипты всегда видят стабильный <code>dt</code> в <code>on_fixed_update</code> независимо от FPS рендера.</p>
+<p>Таксономия тел: динамическое (Rigidbody положительной массы не-kinematic + коллайдер — полная симуляция), kinematic (ведётся трансформом, толкает динамику, не толкается), статичное (один коллайдер — неподвижные декорации), триггер (сообщает пересечения без отклика), персонаж (move-функция солвера), soft (деформируемый меш), составное (слитые примитивы).</p>
+<p>Подстраницы: Rigidbody, все шесть коллайдеров, CharacterController, джойнты, материалы и слои, внутренности солвера и потоков, продвинутые тела (плавучесть, soft body, PhysBone, мотор).</p>
+<p>Рецепт первой комнаты: статичный пол (box-коллайдер без Rigidbody), несколько динамических ящиков (Rigidbody масса 1–5 + box), один направленный свет — Play, и ящики оседают. Затем игрок на CharacterController и слои коллизий до роста контента.</p>
               
             </div>
           </div><footer>

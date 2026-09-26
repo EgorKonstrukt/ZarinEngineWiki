@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,22 +1173,27 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="solver-and-threading">Solver and Threading</h1>
+<p>Where simulation actually runs, and how data crosses the thread/process boundary without gameplay code ever blocking.</p>
 <p>Execution modes:</p>
 <ul>
-<li><code>single</code> — <code>PhysicsScene</code> + solver in the game process. Lowest latency, required by <code>CharacterController</code>.</li>
-<li><code>multi_threaded</code> (default) — a daemon <code>multiprocessing.Process</code> owns the solver; command and result queues plus shared buffers (<code>SharedPhysicsBuffer</code>, <code>SoftSharedBuffer</code>) carry transforms, velocities, forces and collision events.</li>
-<li><code>per_layer_process</code> — solver processes spawned on demand per collision layer.</li>
+<li><code>single</code> — <code>PhysicsScene</code> + solver in the game process. Lowest latency, simplest debugging, required by <code>CharacterController</code> (it reads solver world state directly).</li>
+<li><code>multi_threaded</code> (default) — a daemon <code>multiprocessing.Process</code> owns the solver; command and result queues plus <code>SharedPhysicsBuffer</code> / <code>SoftSharedBuffer</code> carry transforms, velocities, forces and collision events.</li>
+<li><code>per_layer_process</code> — solver processes spawned on demand per collision layer for isolated sub-simulations.</li>
 </ul>
-<p>Background step:</p>
+<p>Background step, in order:</p>
 <ol>
-<li>Pending <code>step</code> commands coalesce into one <code>dt</code> (no spiral of death on hitches).</li>
-<li>The worker applies teleports (<code>set_body_transform</code>) or velocities/forces/torques from shared memory.</li>
-<li><code>solver.step_simulation(dt)</code> runs; 2D-flagged bodies get out-of-plane velocity zeroed.</li>
-<li>Positions, rotations and velocities are written back with a version bump; soft-body vertices, center of mass and velocities go to the soft buffer.</li>
-<li>Collision events map solver body ids to entity ids and land in the result queue for script dispatch.</li>
+<li>Pending <code>step</code> commands coalesce into one <code>dt</code> — hitches never spiral into catch-up death.</li>
+<li>The worker applies teleports (<code>set_body_transform</code>) or velocities/forces/torques from shared memory into bodies.</li>
+<li><code>solver.step_simulation(dt)</code> integrates; 2D-flagged bodies get out-of-plane velocity zeroed right after.</li>
+<li>Positions, rotations and velocities write back with a version bump; soft-body vertices, centers of mass and velocities go to the soft buffer.</li>
+<li>Collision events map solver body ids to entity ids and land in the result queue for script dispatch with impact forces.</li>
 </ol>
 <p>Per-body shared flags: 1 = active, 2 = velocity dirty, 4 = teleport, 8 = 2D body. The in-process path mirrors the same order without serialization: register → ECS-to-physics → step → constrain 2D → physics-to-ECS → soft sync → events.</p>
-<p>Fixed-step plumbing: <code>Engine.tick_fixed_step</code> accumulates real time against <code>_fixed_dt = 0.02</code>, runs plugin <code>pre_step</code>, <code>scene.fixed_update</code>, then the physics step — scripts see a stable <code>dt</code> in <code>on_fixed_update</code>.</p>
+<p>Sync details that matter: ECS→physics pushes only when the Transform is dirty or forces accumulated — untouched sleeping bodies cost nothing; physics→ECS skips kinematic and dirty bodies (Transform-driven, never overwritten); force accumulators clear after every push, so <code>add_force</code> must be called each fixed step for continuous thrust.</p>
+<p>Fixed-step plumbing: <code>Engine.tick_fixed_step</code> accumulates real time against <code>_fixed_dt = 0.02</code>, runs plugin <code>pre_step</code>, <code>scene.fixed_update</code>, then the physics step. Render hitches do not change physics <code>dt</code> — determinism holds.</p>
+<p>Choosing a mode: prototype in default multi-threaded; switch to single when using CharacterController or debugging solver behavior; per-layer for minigame arenas that must never interact.</p>
+<p>Troubleshooting: laggy response → background process starved, check CPU or switch single; teleport ignored → body asleep or flag race, wake via velocity write; stale reads in scripts → you are reading between steps, which is by design — act in <code>on_fixed_update</code>.</p>
+<p>Related: Physics Overview, Rigidbody, Collision Layers, CharacterController, Profiler (physics_ms).</p>
               
             </div>
           </div><footer>

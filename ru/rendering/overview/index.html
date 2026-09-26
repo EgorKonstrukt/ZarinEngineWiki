@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,18 +1173,21 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Обзор рендеринга</h1>
-<p>ZarinEngine рисует через ModernGL в контексте OpenGL 4.6 core profile. Вся математика движка работает в <code>numpy.float64</code>; понижение до <code>float32</code> происходит только при загрузке вершинных данных в GPU, что убирает дрожание координат в больших мирах.</p>
-<p>Строительные блоки:</p>
+<p>ZarinEngine рисует через ModernGL в контексте OpenGL 4.6 core profile. Вся математика движка — в <code>numpy.float64</code>; понижение до <code>float32</code> только при загрузке вершин в GPU, что убирает дрожание координат в больших мирах — координаты точны на километрах декораций, а растеризатор получает нужные ему float.</p>
+<p>Строительные блоки снизу вверх:</p>
 <ul>
-<li>Кастомные <code>.shader</code>-файлы с блоком <code>Properties { }</code> (в стиле Unity ShaderLab) плюс GLSL-код вершин и фрагментов.</li>
-<li>Ассеты материалов (<code>.zpem</code> / <code>.mat</code>, JSON), связывающие шейдер с конкретными значениями свойств.</li>
-<li><code>MeshFilter</code> (какой меш) + <code>MeshRenderer</code> (как рисовать) на сущностях.</li>
-<li>Камеры (перспектива / ортография), свет (направленный / точечный / спот / area) с тенями.</li>
-<li>Рендереры спрайтов, SVG, текста и видео для 2D и плоскостей в мире.</li>
-<li>Системы частиц, скайбокс, туман, стек PostFX из 30+ эффектов, эффекты объектов, GPU-скиннинг.</li>
-<li>Редакторные проходы гизмо, иконок и контуров, которые никогда не попадают в игровое окно.</li>
+<li>Кастомные <code>.shader</code>-файлы с блоком <code>Properties { }</code> (стиль Unity ShaderLab) плюс GLSL вершин/фрагментов. Загрузчик компилирует, перебирает SubShader, инжектит инстансинг и UV-оверрайды, неудачные 430-шейдеры повторяет как 330.</li>
+<li>Ассеты материалов (<code>.zpem</code> / <code>.mat</code>, JSON), связывающие шейдер с конкретными значениями, с живым редактированием в инспекторе и мастере материалов.</li>
+<li><code>MeshFilter</code> (какой меш) + <code>MeshRenderer</code> (как рисовать) на сущностях; <code>SkinnedMeshRenderer</code> + <code>Armature</code> для анимации; <code>MeshCollider</code> переиспользует тот же импорт для физики.</li>
+<li>Камеры (перспектива/ортография, ordering по depth, render scale), свет (направленный/точечный/спот/area в физических единицах) с каскадными, кубическими и спотовыми картами теней.</li>
+<li>Рендереры спрайтов, SVG, текста и видео для 2D в мире; GUI-система (<code>GuiCanvas</code> + 30+ виджетов) для экранного UI.</li>
+<li>Системы частиц с видимыми в редакторе гизмо-формами, силовые поля, GPU-проигрывание для тяжёлых эффектов.</li>
+<li>Набор окружения: процедурное небо в связке с солнцем, HDRI-скайбокс, облака, вода, рассеяние атмосферы.</li>
+<li>Стек PostFX из 31 эффекта плюс 11 эффектов объектов, GPU-скиннинг, Gaussian-сплаты, экспериментальный рейтрейс-вид, воксельные пути.</li>
+<li>Редакторные проходы гизмо, иконок, контуров и сетки, никогда не попадающие в сборки.</li>
 </ul>
-<p>Подстраницы: конвейер и контексты, камеры, свет и тени, материалы, шейдеры, меш-рендеринг, спрайт/SVG/текст/видео, частицы, скайбокс и туман, PostFX, эффекты объектов, скиннинг, сплаты/рейтрейсинг/воксели, гизмо.</p>
+<p>Бюджет кадра: draw calls растут с видимыми субмешами, проходы теней перерисовывают сцену на каскад/грань, прозрачный overdraw и многотапные пост-эффекты доминируют в fill rate. Встроенный профайлер раскладывает каждую стадию (<code>render_scene</code>, тайминги теней, <code>postfx</code>, <code>gizmo_lines</code>) — профилируйте до слепой оптимизации.</p>
+<p>Подстраницы: конвейер и контексты, камеры, свет и тени, меш-рендеринг и скиннинг, спрайты и видео, частицы, окружение, материалы, шейдеры, PostFX, эффекты объектов, сплаты и воксели, гизмо.</p>
               
             </div>
           </div><footer>

@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,22 +1173,27 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Солвер и многопоточность</h1>
+<p>Где реально работает симуляция и как данные пересекают границу потоков/процессов, никогда не блокируя геймплейный код.</p>
 <p>Режимы выполнения:</p>
 <ul>
-<li><code>single</code> — <code>PhysicsScene</code> + солвер в процессе игры. Минимальная задержка, требуется для <code>CharacterController</code>.</li>
-<li><code>multi_threaded</code> (по умолчанию) — демон-<code>multiprocessing.Process</code> владеет солвером; очереди команд/результатов плюс общие буферы (<code>SharedPhysicsBuffer</code>, <code>SoftSharedBuffer</code>) несут трансформы, скорости, силы и события столкновений.</li>
-<li><code>per_layer_process</code> — процессы солвера spawning по требованию на слой коллизий.</li>
+<li><code>single</code> — <code>PhysicsScene</code> + солвер в процессе игры. Минимальная задержка, простейшая отладка, требуется CharacterController (читает состояние мира напрямую).</li>
+<li><code>multi_threaded</code> (по умолчанию) — демон-<code>multiprocessing.Process</code> владеет солвером; очереди команд/результатов плюс <code>SharedPhysicsBuffer</code> / <code>SoftSharedBuffer</code> несут трансформы, скорости, силы и события.</li>
+<li><code>per_layer_process</code> — процессы солвера по требованию на слой для изолированных суб-симуляций.</li>
 </ul>
-<p>Фоновый шаг:</p>
+<p>Фоновый шаг по порядку:</p>
 <ol>
-<li>Висящие команды <code>step</code> сливаются в один <code>dt</code> (нет спирали смерти на фризах).</li>
-<li>Воркер применяет телепорты (<code>set_body_transform</code>) или скорости/силы/моменты из общей памяти.</li>
-<li>Работает <code>solver.step_simulation(dt)</code>; у 2D-тел обнуляются внеплоскостные скорости.</li>
-<li>Позиции, повороты и скорости пишутся назад с bump версии; вершины soft-body, центр масс и скорости — в soft-буфер.</li>
-<li>События столкновений маппят id тел солвера на id сущностей и уходят в очередь результатов для диспатча в скрипты.</li>
+<li>Висящие команды <code>step</code> сливаются в один <code>dt</code> — фризы никогда не уходят в спираль догона.</li>
+<li>Воркер применяет телепорты (<code>set_body_transform</code>) или скорости/силы/моменты из общей памяти в тела.</li>
+<li><code>solver.step_simulation(dt)</code> интегрирует; 2D-тела сразу получают обнуление внеплоскостных скоростей.</li>
+<li>Позиции, повороты и скорости пишутся назад с bump версии; вершины soft-body, центры масс и скорости — в soft-буфер.</li>
+<li>События маппят id тел на id сущностей и уходят в очередь результатов для диспатча в скрипты с силами удара.</li>
 </ol>
-<p>Флаги тел в общей памяти: 1 = активно, 2 = грязная скорость, 4 = телепорт, 8 = 2D-тело. Внутрипроцессный путь повторяет тот же порядок без сериализации: регистрация → ECS-в-физику → шаг → ограничение 2D → физика-в-ECS → soft-синк → события.</p>
-<p>Обвязка фиксированного шага: <code>Engine.tick_fixed_step</code> копит реальное время относительно <code>_fixed_dt = 0.02</code>, выполняет <code>pre_step</code> плагинов, <code>scene.fixed_update</code>, затем шаг физики — скрипты видят стабильный <code>dt</code> в <code>on_fixed_update</code>.</p>
+<p>Флаги тел в общей памяти: 1 = активно, 2 = грязная скорость, 4 = телепорт, 8 = 2D-тело. Внутрипроцессный путь повторяет порядок без сериализации: регистрация → ECS-в-физику → шаг → ограничение 2D → физика-в-ECS → soft-синк → события.</p>
+<p>Детали синка, которые важны: ECS-в-физику пушит только при грязном трансформе или накопленных силах — нетронутые спящие тела бесплатны; физика-в-ECS пропускает kinematic и грязные тела (ведомы трансформом, не перезаписываются); аккумуляторы сил сбрасываются после каждого пуша — <code>add_force</code> для постоянной тяги дёргайте каждый fixed-шаг.</p>
+<p>Обвязка: <code>Engine.tick_fixed_step</code> копит реальное время относительно <code>_fixed_dt = 0.02</code>, выполняет <code>pre_step</code> плагинов, <code>scene.fixed_update</code>, затем шаг физики. Фризы рендера не меняют физический <code>dt</code> — детерминизм держится.</p>
+<p>Выбор режима: прототип на дефолтном multi-threaded; single при CharacterController или отладке солвера; per-layer для арен миниигр без взаимодействий.</p>
+<p>Диагностика: ватный отклик — фоновый процесс голодает, смотрите CPU или переходите на single; телепорт проигнорирован — тело спит или гонка флага, будите записью скорости; несвежие чтения в скриптах — читаете между шагами, так задумано: действуйте в <code>on_fixed_update</code>.</p>
+<p>Связанное: обзор физики, Rigidbody, слои коллизий, CharacterController, профайлер (physics_ms).</p>
               
             </div>
           </div><footer>

@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="terrain-">Terrain-коллайдер</h1>
-<p>Heightfield-коллизия по данным террейна — дешевле и стабильнее меш-коллайдера для ландшафтов.</p>
+<p>Heightfield-коллизия по данным террейна: единственный sane способ сталкиваться с ландшафтами — гладкий высотный сэмплинг вместо миллионов треугольников.</p>
 <table>
 <thead>
 <tr>
@@ -1185,15 +1189,15 @@
 </tr>
 <tr>
 <td>Terrain: World Size</td>
-<td>XZ-протяжённость heightfield</td>
+<td>XZ-протяжённость heightfield в юнитах</td>
 </tr>
 <tr>
 <td>Terrain: Height Scale</td>
-<td>Вертикальное преувеличение</td>
+<td>Множитель вертикального преувеличения</td>
 </tr>
 <tr>
 <td>Terrain: Resolution</td>
-<td>Плотность высотных сэмплов</td>
+<td>Плотность высотных сэмплов (точность против памяти)</td>
 </tr>
 <tr>
 <td>Terrain: Center</td>
@@ -1209,8 +1213,11 @@
 </tr>
 </tbody>
 </table>
-<p>Перегенерируйте коллайдер после скульпта террейна, иначе физическая поверхность разойдётся с видимой.</p>
-<p>Связанное: террейн (раздел рендеринга), Rigidbody, Mesh-коллайдер.</p>
+<p>Коллайдер обязан совпадать с визуальным террейном: тот же world size, тот же height scale, то же семейство resolution. Перегенерируйте после каждого скульпта — классический баг невидимых стен / парящего игрока это несвежий heightfield против отредактированного меша.</p>
+<p>Гид разрешения: геймплейной точности нужны сэмплы плотнее мельчайшей трогаемой фичи (бордюры, колеи); дальние горы остаются грубыми. Избыточное разрешение жжёт память и время готовки за нулевой геймплейный выигрыш.</p>
+<p>Персонажи идут по heightfield гладко, где меш-коллайдеры стучали бы на рёбрах треугольников — ещё причина всегда pair террейн с этим коллайдером, никогда с меш-.</p>
+<p>Диагностика: тонет по колени — mismatch height scale; парит — несвежее поле, перегенерируйте; обрывы по краям — world size меньше визуала, расширьте; долгая загрузка — перебор resolution, делите пополам.</p>
+<p>Связанное: террейн (раздел рендеринга), Rigidbody, Mesh-коллайдер, CharacterController (перекличка max slope).</p>
               
             </div>
           </div><footer>

@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="spriterenderer">SpriteRenderer</h1>
-<p>World-space textured quad: billboards, pickups, decals, 2D characters in 3D scenes.</p>
+<p>World-space textured quad: billboards, pickups, decals, 2D characters inside 3D scenes, sprite-based VFX sheets.</p>
 <table>
 <thead>
 <tr>
@@ -1187,18 +1191,22 @@
 </tr>
 <tr>
 <td>color</td>
-<td>white</td>
-<td>Tint multiplier <code>[1,1,1,1]</code></td>
+<td>white <code>[1,1,1,1]</code></td>
+<td>Tint multiplier — white keeps source colors</td>
 </tr>
 <tr>
 <td>flip_x / flip_y</td>
 <td>off / off</td>
-<td>Mirroring</td>
+<td>Horizontal / vertical mirroring</td>
 </tr>
 </tbody>
 </table>
-<p>Drawn through a dedicated sprite path with instancing support; follows the entity Transform. For full UI layouts use the GUI system instead.</p>
-<p>Related: SvgRenderer, TextRenderer, VideoRenderer, GUI Overview.</p>
+<p>Drawn through a dedicated sprite path with instancing support, so hundreds of pickups batch cheaply. Follows the entity Transform for position, rotation and scale; billboard-facing behavior comes from the internal <code>Sprite</code> shader path.</p>
+<p>Workflows: pickups — quad with texture, small emissive-leaning material, slow <code>Rotator</code> script for attention; foliage cards — crossed quads with alpha-tested materials and <code>_double_sided</code>; flip-book animation — swap <code>texture_path</code> on a timer from a script (or use the GIF flipbook importer upstream); decals — quads floated 1 cm off surfaces with transparent materials.</p>
+<p>Tint tricks: white keeps art intact; red tint for damage flash (animate back over 0.2 s); per-instance color variation across a crowd from spawner scripts.</p>
+<p>For full screen-space UI layouts use the GUI system (Image widget on GuiCanvas); SpriteRenderer is for diegetic content inside the world.</p>
+<p>Troubleshooting: pink quad → texture path broken, re-pick; mirrored art → flip flags; sorting artifacts between sprites → transparent bucket sorts by depth, separate layers in Z; blurry pixels → texture filter import setting, use nearest for pixel art.</p>
+<p>Related: SvgRenderer, TextRenderer, VideoRenderer, GUI Overview, Textures and Compression.</p>
               
             </div>
           </div><footer>

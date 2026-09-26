@@ -5,14 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../../img/favicon.ico" />
-    <title>Аудиосистема и кодеки - ZarinEngine Wiki</title>
+    <title>Аудиосистема - ZarinEngine Wiki</title>
     <link rel="stylesheet" href="../../../css/theme.css" />
     <link rel="stylesheet" href="../../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "\u0410\u0443\u0434\u0438\u043e\u0441\u0438\u0441\u0442\u0435\u043c\u0430 \u0438 \u043a\u043e\u0434\u0435\u043a\u0438";
+        var mkdocs_page_name = "\u0410\u0443\u0434\u0438\u043e\u0441\u0438\u0441\u0442\u0435\u043c\u0430";
         var mkdocs_page_input_path = "ru\\audio\\system.md";
         var mkdocs_page_url = null;
       </script>
@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -908,11 +910,13 @@
     <ul class="current">
                 <li class="toctree-l2"><a class="reference internal" href="../overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2 current"><a class="reference internal current" href="#">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Аудиосистема</a>
     <ul class="current">
     </ul>
                 </li>
@@ -1159,7 +1163,7 @@
     <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Русский</li>
           <li class="breadcrumb-item">Аудио</li>
-      <li class="breadcrumb-item active">Аудиосистема и кодеки</li>
+      <li class="breadcrumb-item active">Аудиосистема</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -1168,21 +1172,25 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="_1">Аудиосистема и кодеки</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Аудиосистема и кодеки в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+                <h1 id="_1">Аудиосистема</h1>
+<p>Сервисы движка за компонентами: ресурсы, декодирование, состояние источников и EFX-цепочка.</p>
+<p>Модули (<code>core/audio</code>):</p>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li><code>audio_system.AudioSystem</code> — синглтон: загрузка и кэширование клипов, асинхронные загрузки, сеттеры позиции/ориентации/скорости слушателя, доплер и скорость звука. Компоненты никогда не трогают OpenAL напрямую — вызывают сюда.</li>
+<li><code>audio_system.AudioSourceManager</code> — синглтон: владеет нативными id источников и их состоянием — play, stop, pause, loop, громкость, питч, spatial blend, дистанции, кривые спада, формы зон и размеры боксов.</li>
+<li><code>miniaudio_decoder.DecodedAudio</code> — бэкенд декодирования, превращающий <code>.wav</code> / <code>.mp3</code> / <code>.ogg</code> / <code>.flac</code> в PCM-буферы для загрузки в OpenAL.</li>
+<li><code>audio_analyzer</code> — хелперы анализа (спектр и фолловеры уровня) для визуализаторов и beat-реактивных эффектов.</li>
+<li><code>audio_efx</code> — обёртка расширения EFX для зон реверберации; <code>EFXError</code> сигналит отсутствие расширения, и движок откатывается на сухой выход.</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<p>Поток данных нового клипа: <code>AudioSource.play</code> → <code>play(...)</code> менеджера со всеми пространственными параметрами → система берёт клип из кэша или декодирует асинхронно → нативный источник конфигурируется (гейн, питч, зацикливание, позиция, спад) → компонент опрашивает состояние каждый кадр.</p>
+<p>Дисциплина ресурсов: клипы кэшируются по пути — десять источников на одном файле декодируют один раз; длинные треки стримятся, а не прелоадятся целиком; освобождение последнего источника возвращает нативный id, а декодированный буфер остаётся в кэше для мгновенного реплея.</p>
+<p>Поддержка гизмо: аудио-компоненты объявляют <code>audio</code> gizmo-проход с формами зон и кольцами дистанций — уровни миксуются визуально во вьюпорте.</p>
+<p>Связанное: AudioSource, AudioListener, зона реверберации, Curve, профайлер (readout audio_ms).</p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../reverb-zones/" class="btn btn-neutral float-left" title="Зоны реверберации и EFX"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../reverb-zone/" class="btn btn-neutral float-left" title="Зона реверберации"><span class="icon icon-circle-arrow-left"></span> Previous</a>
         <a href="../_section/" class="btn btn-neutral float-right" title="Указатель (audio)">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
@@ -1206,7 +1214,7 @@
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../reverb-zones/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../reverb-zone/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
       <span><a href="../_section/" style="color: #fcfcfc">Next &raquo;</a></span>

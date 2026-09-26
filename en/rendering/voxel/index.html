@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1171,9 +1175,11 @@
               
                 <h1 id="voxel-rendering">Voxel Rendering</h1>
 <p>Blocky reconstruction and volumetric experiments: CPU voxelization plus raymarched object effects and a voxel pass in the renderer.</p>
-<p>Entries: <code>voxelize</code> and <code>voxel_raymarch</code> object effects (per-object pages under Object Effects), with a CPU-side <code>voxel_cpu</code> helper.</p>
-<p>Like splats, voxels share scene collection and overlays but bypass parts of PostFX — check the final look in the game view.</p>
-<p>Related: Voxelize, Voxel Raymarch, Gaussian Splat Renderer.</p>
+<p>Entries: <code>voxelize</code> and <code>voxel_raymarch</code> object effects (dedicated pages under Object Effects) with the CPU-side <code>voxel_cpu</code> helper preparing volumes. The renderer voxel pass composites blocky media consistently with scene depth.</p>
+<p>Workflows: destructionChunks — voxelize effect driven 0→1 by a damage script; retro terrain accents — voxelized rocks alongside smooth meshes for style contrast; volumetric fog blocks — raymarched volumes for stylized smoke.</p>
+<p>Like splats, voxels share scene collection and overlays but bypass parts of PostFX — check the final look in the game view. Voxel density is the cost knob: halve density for 8× fewer cells.</p>
+<p>Troubleshooting: chunky in a bad way → density too low for the object size; seams → volume bounds smaller than the mesh; no effect in game view → PostFX chain ordering, verify pass order.</p>
+<p>Related: Voxelize, Voxel Raymarch, Gaussian Splat Renderer, Object Effects (Overview).</p>
               
             </div>
           </div><footer>

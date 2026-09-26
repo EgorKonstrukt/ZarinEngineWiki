@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="procedural-sky">Procedural Sky</h1>
-<p>Dynamic day-cycle sky: sun position, night stars, atmosphere tint — all computed, no textures.</p>
+<p>Dynamic day-cycle sky computed per frame: sun disc, night stars, twilight gradients — no textures to author or stream.</p>
 <table>
 <thead>
 <tr>
@@ -1189,11 +1193,14 @@
 </tr>
 <tr>
 <td>Milky Way</td>
-<td>Milky Way band controls</td>
+<td>Band density and tint controls</td>
 </tr>
 </tbody>
 </table>
-<p>A directional light with <code>procedural_sky_lighting</code> drives the sun: rotating the light moves the sun disc and rebalances ambient automatically.</p>
+<p>A directional light with <code>procedural_sky_lighting</code> drives the sun: rotating the light moves the disc and rebalances ambient automatically, so a full day cycle is one rotation animation plus exposure keyframes.</p>
+<p>Workflows: open-world day cycle — sun rotation 360° over the day length, night exposure low, stars fade in by sun elevation (drive density from a script); stylized dusk lock — freeze the sun low, push tint orange, keep stars faintly on; space scenes — night sky on, sun dim, strong Milky Way.</p>
+<p>Seed variation gives different constellations per level; twinkle speed scales with exposure for stable night renders.</p>
+<p>Troubleshooting: sun and disc disagree → coupling toggle off on the directional; stars at noon → night exposure too high; flat twilight → tint untouched, push orange/blue split.</p>
 <p>Related: Skybox, Atmosphere, Clouds, Directional Light.</p>
               
             </div>

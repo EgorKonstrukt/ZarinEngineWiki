@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,10 +1174,13 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="textrenderer">TextRenderer</h1>
-<p>World-space text runs: labels, signage, debug overlays.</p>
-<p>Rendered with font, size, color and alignment through the internal <code>Text</code> shader. Follows the entity Transform like any other renderer, so text panels rotate and scale with their mounts.</p>
+<p>World-space text runs: floating labels, signage, scoreboards, debug overlays readable inside the 3D view.</p>
+<p>Rendered with font, size, color and alignment through the internal <code>Text</code> shader. Follows the entity Transform like any renderer, so text panels rotate and scale with their mounts — a scoreboard tilts with its pole, a nameplate tracks its NPC.</p>
+<p>Workflows: NPC nameplates — small quad above the head with high-contrast color, billboarded by facing the camera each frame from a script; level signage — large static text with an unlit-style material for readability in any light; debug overlays — gizmo-adjacent readouts (positions, states) toggled by a debug flag.</p>
+<p>Keep strings short and sizes generous: world-space text competes with texture detail, and tiny glyphs alias. For paragraphs and rich text use GUI Label/TextEdit widgets on screen space instead.</p>
 <p>For screen-space UI text prefer GUI Label and related widgets; this component is for diegetic text inside the 3D world.</p>
-<p>Related: SpriteRenderer, SvgRenderer, GUI Controls.</p>
+<p>Troubleshooting: unreadable at angle → face the camera or raise size; washed out → text color fights the key light, switch to bright-on-dark; missing glyphs → font coverage, swap the font asset.</p>
+<p>Related: SpriteRenderer, SvgRenderer, GUI Controls (Label, TextEdit), Cameras.</p>
               
             </div>
           </div><footer>

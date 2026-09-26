@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="skybox">Skybox</h1>
-<p>Static HDRI environment background with image-based lighting contribution.</p>
+<p>Static HDRI environment background with image-based lighting contribution for PBR materials.</p>
 <table>
 <thead>
 <tr>
@@ -1181,11 +1185,11 @@
 <tbody>
 <tr>
 <td>HDRI Skybox: HDRI / EXR</td>
-<td>Environment image</td>
+<td>Environment image asset</td>
 </tr>
 <tr>
 <td>HDRI Skybox: Show Background</td>
-<td>Draw the image as the sky</td>
+<td>Draw the image as the visible sky</td>
 </tr>
 <tr>
 <td>HDRI Skybox: Affect Environment (IBL)</td>
@@ -1197,16 +1201,18 @@
 </tr>
 <tr>
 <td>Background Blur</td>
-<td>Soften the visible sky</td>
+<td>Soften the visible sky (cheap depth-of-field feel)</td>
 </tr>
 <tr>
-<td>Flip Y, Orientation, Rotation Yaw/Pitch/Roll</td>
+<td>Flip Y, Orientation, Rotation Yaw/Pitch/Roll (deg)</td>
 <td>Mapping controls</td>
 </tr>
 </tbody>
 </table>
-<p>Use Skybox for baked environments and Procedural Sky for dynamic day cycles. Match ambient values to the chosen sky.</p>
-<p>Related: Procedural Sky, Clouds, Atmosphere, Directional Light (procedural coupling).</p>
+<p>Use Skybox for baked, art-directed environments (interiors, stylized scenes, photo plates) and Procedural Sky for dynamic day cycles. Match ambient values to the chosen sky or materials drift.</p>
+<p>Rotation yaw animates dusk-to-dawn illusions on static HDRIs; exposure rides the day curve alongside the directional intensity.</p>
+<p>Troubleshooting: black sky → image path broken or Show Background off; materials too dark under HDRI → Affect Environment off or exposure low; seam line → orientation/flip mismatch with the capture, toggle Flip Y.</p>
+<p>Related: Procedural Sky, Clouds, Atmosphere, Directional Light, Materials (IBL response).</p>
               
             </div>
           </div><footer>

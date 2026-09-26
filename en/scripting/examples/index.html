@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,7 +1173,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="script-examples">Script Examples</h1>
-<p>Copy-paste behaviors. All of them run as-is: create a Python Script asset, replace its content, attach to an entity, press Play.</p>
+<p>Copy-paste behaviors. All run as-is: create a Python Script asset, replace its content, attach to an entity, press Play.</p>
 <p>Rotator — spins around Y using the frame delta:</p>
 <pre><code class="language-python">from core.maths.math3d import Vec3
 
@@ -1220,7 +1224,63 @@ class Driver:
         if t and v.length() &gt; 0.0:
             t.translate(v.normalized() * rate * dt)
 </code></pre>
-<p>Hit counter — collision callbacks with impact force:</p>
+<p>Patrol — waypoint ping-pong with an enum mode and a cached Transform:</p>
+<pre><code class="language-python">from enum import Enum
+from core.maths.math3d import Vec3
+
+
+class PatrolMode(Enum):
+    PINGPONG = 0
+    LOOP = 1
+
+
+class Patrol:
+    mode: PatrolMode = PatrolMode.PINGPONG
+    speed: float = 3.0
+    distance: float = 8.0
+
+    def on_awake(self):
+        self.t = self._entity.transform
+        self.home = Vec3(0.0, 0.0, 0.0)
+        self.dir = 1.0
+        if self.t:
+            self.home = self.t.position
+
+    def on_update(self, dt):
+        if not self.t:
+            return
+        step = self.speed * self.dir * dt
+        self.t.translate(Vec3(step, 0.0, 0.0))
+        walked = self.t.position.x - self.home.x
+        if self.mode == PatrolMode.LOOP:
+            if walked &gt; self.distance or walked &lt; 0.0:
+                self.t.position = Vec3(self.home.x, self.t.position.y, self.t.position.z)
+        else:
+            if walked &gt; self.distance or walked &lt; 0.0:
+                self.dir = -self.dir
+</code></pre>
+<p>Follower — chase an Entity picked in the Inspector:</p>
+<pre><code class="language-python">from core.maths.math3d import Vec3
+
+
+class Follower:
+    target: 'Entity' = None
+    speed: float = 4.0
+    stop_at: float = 1.5
+
+    def on_update(self, dt):
+        if not self.target:
+            return
+        t = self._entity.transform
+        goal = self.target.transform
+        if not t or not goal:
+            return
+        delta = goal.position - t.position
+        dist = delta.length()
+        if dist &gt; self.stop_at:
+            t.translate(delta.normalized() * self.speed * dt)
+</code></pre>
+<p>Hit counter — collision callbacks with impact force and an Inspector button:</p>
 <pre><code class="language-python">class HitCounter:
     hits: int = 0
     last_force: float = 0.0
@@ -1246,6 +1306,27 @@ class Kicker:
             rb = self._entity.get_component_by_name(&quot;Rigidbody&quot;)
             if rb:
                 rb.add_impulse(Vec3(0.0, self.impulse, 0.0))
+</code></pre>
+<p>Countdown spawner — timed logic with enable/disable safety:</p>
+<pre><code class="language-python">class Spawner:
+    interval: float = 2.0
+    active: bool = True
+
+    def on_awake(self):
+        self.clock = 0.0
+        self.count = 0
+
+    def on_update(self, dt):
+        if not self.active:
+            return
+        self.clock = self.clock + dt
+        if self.clock &gt;= self.interval:
+            self.clock = 0.0
+            self.count = self.count + 1
+            Logger.info(&quot;spawn tick&quot;)
+
+    def on_disable(self):
+        self.clock = 0.0
 </code></pre>
               
             </div>

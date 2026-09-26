@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1171,21 +1175,23 @@
                 <h1 id="moderngl-scene-renderer">Конвейер ModernGL и Scene Renderer</h1>
 <p>Контексты:</p>
 <ul>
-<li>Игровые и редакторные вьюпорты создают контекст через <code>moderngl.create_context(standalone=False)</code> — общий контекст 4.6 core внутри Qt-поверхности.</li>
-<li>Офскрин-задачи (превью, воркеры террейна, compute) используют <code>moderngl.create_standalone_context(require=430)</code>.</li>
-<li>Шейдеры пишутся как <code>#version 430 core</code>. При ошибке компиляции загрузчик повторяет как <code>#version 330 core</code>, вырезая <code>layout(std430)</code>-буферы и принудительно отключая инстансинг/скиннинг — фолбэк совместимости, а не второй путь для поддержки.</li>
+<li>Игровые и редакторные вьюпорты создают контекст через <code>moderngl.create_context(standalone=False)</code> — общий контекст 4.6 core внутри Qt-поверхности, редактор и игра делят текстуры и программы.</li>
+<li>Офскрин-задачи (превью материалов/моделей, воркеры террейна, compute) используют <code>moderngl.create_standalone_context(require=430)</code> без видимой поверхности.</li>
+<li>Шейдеры пишутся как <code>#version 430 core</code>. При ошибке компиляции загрузчик повторяет как <code>#version 330 core</code>, вырезая <code>layout(std430)</code>-буферы и отключая инстансинг/скиннинг — фолбэк совместимости, а не второй путь поддержки.</li>
 </ul>
-<p>Класс <code>Renderer</code> собран из миксинов: программы, uniform-переменные, фреймбуферы, сбор сцены, кэш геометрии, главный проход, проход теней, кубмапы, скиннинг, вода/воксели/эффекты объектов, пост-проход, гизмо/иконки/контуры, куллинг и статистика.</p>
+<p>Класс <code>Renderer</code> собран из миксинов по ответственности: программы, uniform, фреймбуферы, сбор сцены, кэш геометрии, главный проход, тени, кубмапы, скиннинг, вода/воксели/эффекты объектов, пост-проход, гизмо/иконки/контуры, куллинг и статистика. Стадия читается по своему миксину в <code>core/renderer</code> (<code>shadows.py</code>, <code>scene_renderer.py</code>, <code>materials.py</code>, <code>framebuffers.py</code> и соседи).</p>
 <p>Кадр идёт по стадиям:</p>
 <ol>
-<li>Сбор видимых элементов (фрустум-куллинг, маски слоёв).</li>
-<li>Рендер карт теней (каскадные направленные, кубические точечные, спотовые) в глубинные цели.</li>
-<li>Рендер главной сцены с материалами, светом (до 8 по умолчанию) и ambient.</li>
+<li>Сбор видимых элементов: фрустум-куллинг по плоскостям камеры, фильтрация масок слоёв, сортировка в бакеты opaque / transparent / overlay.</li>
+<li>Рендер карт теней (каскадные направленные, точечные кубы, спотовые перспективы) в глубинные цели; сюда же тени проекторов.</li>
+<li>Рендер главной сцены с забинденными материалами, до 8 светов по умолчанию плюс ambient, с обработкой прозрачности на материал.</li>
 <li>Проходы воды, вокселей и эффектов объектов в свои цели.</li>
-<li>Цепочка PostFX.</li>
+<li>Цепочка PostFX в порядке компонентов.</li>
 <li>Редакторные оверлеи (сетка, гизмо, иконки, контуры, выделение) — только вьюпорты редактора.</li>
 </ol>
-<p>Режимы рендера: <code>SHADED</code>, <code>SHADED_WIREFRAME</code>, <code>FLAT</code>. Цвет очистки по умолчанию тёмно-серый <code>[0.18, 0.18, 0.18]</code>, ambient по умолчанию холодный <code>[0.26, 0.28, 0.34]</code>.</p>
+<p>Ключевые дефолты: <code>_max_lights = 8</code> с uniform типа/позиции/направления/цвета/интенсивности/range/спота/area на свет; <code>_ambient = [0.26, 0.28, 0.34]</code>; тени 2048, дистанция 50, 4 каскада; очистка тёмно-серым <code>[0.18, 0.18, 0.18]</code>; ширина линий отладки 0.6667. Режимы: <code>SHADED</code>, <code>SHADED_WIREFRAME</code>, <code>FLAT</code>.</p>
+<p>Диагностика: чёрный вьюпорт — не создался контекст (проверьте OpenGL 4.6) или выкулены все света; розовые/пустые материалы — упала компиляция шейдера и промахнулся fallback (смотрите консоль и страницу шейдеров); z-fighting — отодвиньте <code>near</code> или подтяните <code>far</code> камеры; нет теней — выкл <code>cast_shadows</code> или вне дистанции теней.</p>
+<p>Связанное: камеры, свет и тени, материалы, шейдеры, профайлер (тайминги стадий), гизмо и иконки.</p>
               
             </div>
           </div><footer>

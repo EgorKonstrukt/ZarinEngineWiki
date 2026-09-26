@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -908,11 +910,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,24 +1173,26 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="scriptcomponent">ScriptComponent</h1>
-<p><code>ScriptComponent</code> — движковая сторона пользовательских скриптов: загружает <code>.py</code>-файл, строит поля инспектора по классу, перенаправляет вызовы жизненного цикла и хранит значения полей в сцене.</p>
+<p><code>ScriptComponent</code> — движковая сторона пользовательских скриптов: загружает <code>.py</code>-файл, строит поля инспектора по классу, перенаправляет вызовы жизненного цикла, хранит значения полей в сцене и проверяет по требованию.</p>
 <p>Факты о компоненте:</p>
 <ul>
-<li><code>script_path</code> хранится относительно корня проекта — сцены переносимы. Относительный путь, не резолвящийся напрямую, повторно ищется от корня проекта.</li>
+<li><code>script_path</code> хранится относительно корня проекта — сцены переносимы. Относительный путь, не резолвящийся напрямую, повторно ищется от корня проекта; абсолютные резолвятся как есть.</li>
 <li><code>hot_reload</code> по умолчанию <code>True</code>.</li>
-<li>Несколько инстансов <code>ScriptComponent</code> могут жить на одной сущности.</li>
-<li>Шапка инспектора показывает отображаемое имя файла (базовое имя без расширения) с действием reveal и кнопкой редактора.</li>
+<li>Несколько инстансов живут на одной сущности (<code>_allow_multiple = True</code>).</li>
+<li>Шапка инспектора показывает отображаемое имя файла (базовое имя без расширения) с reveal-действием и кнопкой редактора; вторая шапка перечисляет найденные переменные скрипта.</li>
 </ul>
 <p>Резолвинг класса по шагам:</p>
 <ol>
-<li>Если время изменения файла не менялось, используется кэшированный класс.</li>
-<li>Папка скрипта добавляется в поиск импортов, чтобы находились соседние модули (включая Cython-сборки).</li>
-<li>Файл проверяется на ошибки. При ошибках в консоль пишется одно сводное сообщение на версию файла, а старый инстанс сбрасывается; полей нет, пока файл не исправлен.</li>
-<li>Модуль выполняется с подставленным API (<code>Input</code>, <code>KeyCode</code>, <code>Vec2/3/4</code>, <code>Curve</code>, <code>Range</code>, <code>Logger</code>).</li>
-<li>Движок выбирает первый класс, определённый в этом файле (алфавитный порядок атрибутов), у которого есть хотя бы один колбэк жизненного цикла, колбэк столкновений, метод гизмо или <code>_inspector_buttons</code>. Класс инстанцируется без аргументов.</li>
-<li>Привязка методов кэшируется для каждого имени, вместе с быстрыми флагами <code>on_update</code> / <code>on_fixed_update</code>; арности коллизий измеряются один раз через инспекцию сигнатуры.</li>
+<li>Short-circuit по времени изменения: тот же <code>mtime</code> — кэшированный класс без работы.</li>
+<li>Подготовка импортов: папка скрипта встаёт в поиск модулей, находятся соседние <code>.py</code> и собранные Cython-модули.</li>
+<li>Сбор ошибок: парсинг синтаксиса, проверки <code>core.*</code>-импортов, пробное выполнение. При ошибках одно сводное <code>Script '...' has N error(s):</code> на версию файла, старый инстанс сбрасывается, полей нет до исправления.</li>
+<li>Выполнение модуля с подставленным API (<code>Input</code>, <code>KeyCode</code>, <code>Vec2/3/4</code>, <code>Curve</code>, <code>Range</code>, <code>Logger</code>).</li>
+<li>Выбор класса: первый класс файла (алфавитный порядок атрибутов) хотя бы с одним колбэком жизненного цикла, колбэком столкновений, методом гизмо или <code>_inspector_buttons</code>. Инстанцируется без аргументов; <code>self._entity</code> выставляется перед каждым вызовом.</li>
+<li>Кэширование методов: привязанные методы на каноническое имя с быстрыми флагами <code>on_update</code> / <code>on_fixed_update</code>; арности коллизий меряются один раз инспекцией сигнатуры; хинты полей кэшируются до изменения файла.</li>
 </ol>
-<p>Действие <code>Check</code> запускает ту же проверку, что и шаг 3, по требованию и показывает строки <code>файл:строка: сообщение</code>, так что сломанные скрипты диагностируются без нажатия Play.</p>
+<p>Сериализация: <code>script_path</code>, <code>hot_reload</code> и словарь <code>_field_values</code> persist в <code>.zpes</code> — настроенные инстансы переживают перезагрузки, префабы и version control.</p>
+<p>Действие <code>Check</code> запускает шаг 3 по требованию со строками <code>файл:строка: сообщение</code> — включая хинт <code>core.maths.math3d</code> против <code>core.math3d</code> и циклические импорты — сломанные скрипты диагностируются без Play.</p>
+<p>Несколько инстансов на сущности держат независимые состояние модуля, инстанс и набор полей; перезагружаются независимо. Межскриптовое общение — через сущность (соседний скрипт — через его компонент, или общее состояние на сущности).</p>
               
             </div>
           </div><footer>

@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="light">Свет Light (база)</h1>
-<p>Базовый компонент всего света. Конкретный тип задаётся компонентом-подклассом на той же сущности.</p>
+<p>Базовый компонент всего света. Конкретный тип задаётся подклассом на той же сущности: Directional, Point, Spot или Area. Общие поля живут здесь один раз.</p>
 <table>
 <thead>
 <tr>
@@ -1183,32 +1187,32 @@
 <tr>
 <td>color</td>
 <td>белый</td>
-<td>Оттенок света</td>
+<td>Оттенок, множит каждый вклад</td>
 </tr>
 <tr>
 <td>intensity</td>
 <td>100000.0</td>
-<td>Физические единицы, см. страницы подтипов</td>
+<td>Физические единицы — люксы, люмены или ниты по подтипу</td>
 </tr>
 <tr>
 <td>cast_shadows</td>
 <td>вкл</td>
-<td>Писать в карты теней</td>
+<td>Писать в карты теней; главный переключатель цены света</td>
 </tr>
 <tr>
 <td>range</td>
 <td>10.0</td>
-<td>Дистанция затухания point/spot/area</td>
+<td>Дистанция затухания point/spot/area (направленный игнорирует)</td>
 </tr>
 <tr>
 <td>spot_angle / spot_inner_angle</td>
 <td>30 / 20</td>
-<td>Конус спота, градусы</td>
+<td>Внешний/внутренний конус спота, градусы</td>
 </tr>
 <tr>
 <td>area_type</td>
 <td>RECT</td>
-<td>RECT или DISK для area</td>
+<td>Форма излучения RECT или DISK для area</td>
 </tr>
 <tr>
 <td>area_width / area_height</td>
@@ -1223,7 +1227,7 @@
 <tr>
 <td>area_samples</td>
 <td>6</td>
-<td>Сэмплы мягких теней</td>
+<td>Число сэмплов мягких теней</td>
 </tr>
 <tr>
 <td>area_shadow_bias</td>
@@ -1232,8 +1236,11 @@
 </tr>
 </tbody>
 </table>
-<p>Подтипы: направленный (люксы), точечный (люмены), спот (люмены), area (ниты), плюс компонент Projector для текстурной проекции. Весь свет рисует гизмо-хелперы во вьюпорте.</p>
-<p>Связанное: тени, скайбокс и процедурное небо, Fog и God Rays из PostFX.</p>
+<p>Как доходит до шейдера: сборщик сцены пакует до 8 светов в uniform-массивы (тип, позиция, направление, цвет, интенсивность, range, углы спота, размер area) плюс ambient. Сверхлимитные выкуливаются по приоритету — держите hero-света мало, остальное незaтенённая заливка.</p>
+<p>Весь свет рисует гизмо-хелперы (стрелки направления, сферы range, конусы, area-квады) — свет ставится визуально.</p>
+<p>Процесс: сначала ключевой (обычно один затенённый направленный), затем заливные точки/споты без теней, в конце контровой или area-акцент. Согласуйте интенсивности со шкалой — солнце 100000 люкс рядом с точкой 1.0 читается верно; два солнца по 100000 дерутся.</p>
+<p>Диагностика: темно — низкий ambient без заливки; пересвет — два hero перекрылись, делите один пополам; нет теней — выкл cast_shadows, вне дистанции, или превышен бюджет 4+4.</p>
+<p>Связанное: страницы направленного/точечного/спота/area, Projector, тени, скайбокс и атмосфера.</p>
               
             </div>
           </div><footer>

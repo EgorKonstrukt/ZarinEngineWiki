@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -908,11 +910,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,8 +1173,25 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="api">API ввода и математики</h1>
-<p>Эти имена подставляются в модуль каждого пользовательского скрипта автоматически, импортировать их не обязательно. Явный импорт с тем же именем в скрипте имеет приоритет.</p>
+<p>Эти имена подставляются в модуль каждого пользовательского скрипта автоматически, импортировать их не обязательно. Явный импорт с тем же именем в скрипте приоритетнее подстановки.</p>
 <p>Подставляемые имена: <code>Input</code>, <code>KeyCode</code>, <code>Vec2</code>, <code>Vec3</code>, <code>Vec4</code>, <code>Curve</code>, <code>Range</code>, <code>Logger</code>.</p>
+<p>Клавиатура и мышь:</p>
+<ul>
+<li><code>Input.GetKey(code)</code> — зажата в этом кадре; <code>Input.GetKeyDown(code)</code> — нажата в этом кадре; <code>Input.GetKeyUp(code)</code> — отпущена. Коды из <code>KeyCode</code> (<code>KeyCode.W</code>, <code>KeyCode.Space</code>, <code>KeyCode.Shift</code>, стрелки, цифры и другие).</li>
+<li><code>Input.GetMouseButton(i)</code>, <code>GetMouseButtonDown(i)</code>, <code>GetMouseButtonUp(i)</code> — состояние кнопок по индексу.</li>
+<li><code>Input.GetButton(name)</code>, <code>GetButtonDown(name)</code>, <code>GetButtonUp(name)</code> — именованные кнопки действий.</li>
+<li><code>Input.GetAxis(name)</code>, <code>Input.GetAxisRaw(name)</code> — сглаженные против сырых осей вроде <code>"Horizontal"</code>.</li>
+<li><code>Input.mousePosition</code> — курсор в экранных координатах; <code>Input.deltaTime</code> — масштабированное время кадра; <code>Input.cursorLocked</code> / <code>Input.cursorVisible</code> — состояние захвата указателя.</li>
+</ul>
+<p>Математика:</p>
+<ul>
+<li><code>Vec2</code>, <code>Vec3</code>, <code>Vec4</code> — полная векторная математика (сложение, масштаб, dot, cross, length, normalized, lerp) на <code>numpy.float64</code>; понижение до float32 для GPU только при загрузке.</li>
+<li><code>Quat</code>, <code>Mat4</code> — импортируются из <code>core.maths.math3d</code> для поворотов и матриц (slerp, look_at, perspective-хелперы там же с numba-ускорением).</li>
+<li><code>Curve</code> — кейфреймовые кривые отклика из инспектора с вычислением в рантайме для спадов, изингов и форм газа.</li>
+<li><code>Range</code> — метаданные слайдеров полей инспектора (см. поля инспектора).</li>
+<li><code>Logger</code> — <code>Logger.info/warning/error</code> с таймстампами; ошибки с трейсбеками доходят до панели консоли.</li>
+</ul>
+<p>Независимость от FPS: всегда умножайте движение на <code>dt</code> (или берите <code>Input.deltaTime</code>); логика фиксированного шага — в <code>on_fixed_update</code> со стабильным шагом.</p>
 <pre><code class="language-python">class Player:
     speed: float = 6.0
 
@@ -1184,20 +1205,6 @@
         if Input.GetKeyDown(KeyCode.Space):
             Logger.info(&quot;jump pressed&quot;)
 </code></pre>
-<p>Доступный API ввода:</p>
-<ul>
-<li><code>Input.GetKey</code>, <code>Input.GetKeyDown</code>, <code>Input.GetKeyUp</code> — состояние клавиатуры по <code>KeyCode</code>.</li>
-<li><code>Input.GetMouseButton</code>, <code>GetMouseButtonDown</code>, <code>GetMouseButtonUp</code> — кнопки мыши.</li>
-<li><code>Input.GetButton</code>, <code>GetButtonDown</code>, <code>GetButtonUp</code> — именованные кнопки.</li>
-<li><code>Input.GetAxis</code>, <code>Input.GetAxisRaw</code> — именованные оси, например <code>"Horizontal"</code>.</li>
-<li><code>Input.mousePosition</code>, <code>Input.deltaTime</code>, <code>Input.cursorLocked</code>, <code>Input.cursorVisible</code>.</li>
-</ul>
-<p>Доступная математика:</p>
-<ul>
-<li><code>Vec2</code>, <code>Vec3</code>, <code>Vec4</code> — векторы на <code>numpy.float64</code>.</li>
-<li><code>Quat</code>, <code>Mat4</code> — при необходимости импортируются из <code>core.maths.math3d</code>.</li>
-<li><code>Curve</code> — кейфреймовая кривая с виджетом редактора и вычислением в рантайме.</li>
-</ul>
 <pre><code class="language-python">class Looker:
     sensitivity: float = 2.0
 
@@ -1207,6 +1214,7 @@
         if t and x != 0.0:
             t.rotate(Vec3(0.0, x * self.sensitivity * dt, 0.0))
 </code></pre>
+<p>Паттерн курсора для fly-камер: лок при зажатой правой кнопке, релиз по отпусканию — ведите <code>Input.cursorLocked</code> из колбэков кнопок мыши в <code>on_update</code>.</p>
               
             </div>
           </div><footer>

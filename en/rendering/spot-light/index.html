@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,14 +1174,15 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="spot-light">Spot Light</h1>
-<p>Cone light: flashlight, stage lamp, headlight. Direction from the Transform, cone from <code>spot_angle</code> / <code>spot_inner_angle</code>.</p>
+<p>Cone light for flashlights, stage lamps, headlights and window shafts. Direction from the Transform rotation, cone from <code>spot_angle</code> (outer) and <code>spot_inner_angle</code> (full-bright core).</p>
 <ul>
-<li>Intensity in lumens, default 1000 (same scale as Point Light).</li>
-<li>Up to 4 simultaneous spot shadow maps (1024 default).</li>
-<li>Gizmo shows the cone with inner-angle falloff ring.</li>
+<li>Intensity in lumens, default 1000 — same scale as Point Light, so fixtures match when swapping types.</li>
+<li>Up to 4 simultaneous spot shadow maps (1024 default) — one face each, far cheaper than point cubes. Spots are the economical shadowed light: prefer them whenever directionality is acceptable.</li>
+<li>Gizmo shows the cone with the inner-angle ring; aim by rotating the entity, narrow <code>spot_angle</code> for theater beams, widen for flood coverage.</li>
 </ul>
-<p>Aim with the Transform rotation; animate <code>spot_angle</code> for zoom effects and <code>intensity</code> for flicker.</p>
-<p>Related: Light (Base), Shadows, Projector (textured cone).</p>
+<p>Workflows: flashlight — spot parented to the camera with shadows on and angle ~25°; stage — several narrow spots from a truss with animated colors; car headlights — two spots with range matched to braking distance; window shafts — wide-angle spot angled through a frame plus a Projector for the frame pattern.</p>
+<p>Animate <code>spot_angle</code> for zoom effects and <code>intensity</code> for flicker; both are cheap uniform updates with no re-registration.</p>
+<p>Related: Light (Base), Shadows, Projector (textured cone), Point Light.</p>
               
             </div>
           </div><footer>

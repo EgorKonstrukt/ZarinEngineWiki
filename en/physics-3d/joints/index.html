@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,7 +1173,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="joints">Joints</h1>
-<p>Connect two bodies with a constraint. Fields:</p>
+<p>Connect two bodies with a constraint: doors, wheels, suspension, ragdoll limbs, breakable attachments, jelly mounts.</p>
 <table>
 <thead>
 <tr>
@@ -1180,48 +1184,52 @@
 </thead>
 <tbody>
 <tr>
-<td><code>connected_entity_name</code></td>
+<td>connected_entity_name</td>
 <td>—</td>
-<td>Name of the other entity</td>
+<td>Name of the other entity (must carry Rigidbody + collider)</td>
 </tr>
 <tr>
-<td><code>anchor</code></td>
+<td>anchor</td>
 <td>origin</td>
 <td>Pivot in local space</td>
 </tr>
 <tr>
-<td><code>axis</code></td>
+<td>axis</td>
 <td>(0,0,1)</td>
 <td>Hinge/spring axis</td>
 </tr>
 <tr>
-<td><code>joint_type</code></td>
+<td>joint_type</td>
 <td>hinge</td>
 <td><code>HINGE</code>, <code>FIXED</code> or <code>SPRING</code></td>
 </tr>
 <tr>
-<td><code>limit_low</code></td>
-<td>−π</td>
-<td>Lower angular limit, radians</td>
+<td>limit_low / limit_high</td>
+<td>−π / +π</td>
+<td>Angular travel, radians</td>
 </tr>
 <tr>
-<td><code>limit_high</code></td>
-<td>+π</td>
-<td>Upper angular limit, radians</td>
-</tr>
-<tr>
-<td><code>stiffness</code></td>
+<td>stiffness</td>
 <td>10.0</td>
 <td>Spring stiffness</td>
 </tr>
 <tr>
-<td><code>damping</code></td>
+<td>damping</td>
 <td>1.0</td>
-<td>Spring damping</td>
+<td>Spring oscillation damping</td>
 </tr>
 </tbody>
 </table>
-<p>Use hinges for doors and wheels (set limits to lock an axis), fixed joints for breakable attachments, springs for suspension and jelly mounts. The connected entity must have its own <code>Rigidbody</code> + collider; both bodies must be registered before the joint resolves, so prefer creating the pair before Play or in <code>on_awake</code> order.</p>
+<p>Type guide:</p>
+<ul>
+<li><code>HINGE</code> — rotation about one axis within limits: doors (limits 0…π/2), wheels (free spin, limits ±π), levers.</li>
+<li><code>FIXED</code> — rigid attachment that still routes through the solver: crates strapped to trucks, breakable by removing the component from a script at a force threshold.</li>
+<li><code>SPRING</code> — elastic link with stiffness/damping: suspension (stiff, damped), jelly mounts (soft, bouncy), trailer hitches.</li>
+</ul>
+<p>Setup rules: both bodies must exist and be registered before the joint resolves — create the pair before Play or in deterministic <code>on_awake</code> order. Anchor in local space of the joint owner; a misplaced anchor reads as a stretched, fighting constraint — visualize it via the joint gizmo (anchors and axes draw in the viewport).</p>
+<p>Tuning: start limits wide, stiffness low; narrow and stiffen until motion looks right. Over-stiff springs with heavy masses jitter — raise damping first, then solver iterations, then reduce the mass ratio.</p>
+<p>Troubleshooting: bodies explode apart → anchor far from both centers or limits inverted (low &gt; high); joint ignores → connected entity name typo or missing Rigidbody; wobble at rest → stiffness/damping mismatch, raise damping.</p>
+<p>Related: Rigidbody, Motor (driven joints), PhysBone (chain alternative), CharacterController (player boarding).</p>
               
             </div>
           </div><footer>

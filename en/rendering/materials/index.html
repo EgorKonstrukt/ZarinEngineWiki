@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,11 +1173,14 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="materials-zpem">Materials (.zpem)</h1>
-<p>Material assets use <code>.zpem</code> (and legacy <code>.mat</code>) — both are JSON documents <code>{name, shader_path, properties}</code>. An empty <code>shader_path</code> falls back to the default shader. Properties missing from the file are completed from the shader <code>Properties</code> block at load.</p>
+<p>Material assets use <code>.zpem</code> (and legacy <code>.mat</code>) — both are JSON documents <code>{name, shader_path, properties}</code>. An empty <code>shader_path</code> falls back to the default shader. Properties missing from the file are completed from the shader <code>Properties</code> block at load, so hand-written files only carry overrides.</p>
 <p>Texture uniform mapping (excerpt): <code>albedo_texture → u_albedo_tex</code>, <code>normal → u_normal_tex</code>, <code>roughness → u_roughness_tex</code>, plus direct <code>_BaseMap</code>, <code>_NormalMap</code>, <code>_OcclusionMap</code>. Value aliases: <code>_BaseColor → u_albedo_color</code>, <code>_Metallic → u_metallic</code>, <code>_Smoothness → u_smoothness</code>, <code>_EmissionColor → u_emission</code>.</p>
-<p>Defaults applied at draw: albedo white <code>[1,1,1,1]</code>, metallic 0, smoothness 0.5, emission 0, a 1×1 white texture on unit 0, real textures from unit 1 with <code>*_Active</code> / <code>u_use_*</code> flags.</p>
-<p>Transparency rule: a surface is treated as transparent when its alpha drops below <code>0.999</code> or when the bound albedo texture contains an alpha channel (detected via image inspection).</p>
-<p>In the editor, materials are authored through the Inspector, the material wizard, and the live material preview. Runtime property edits apply immediately without reimport.</p>
+<p>Defaults applied at draw: albedo white <code>[1,1,1,1]</code>, metallic 0, smoothness 0.5, emission 0, a 1×1 white texture on unit 0, real textures from unit 1 with <code>*_Active</code> / <code>u_use_*</code> flags toggling each map.</p>
+<p>Transparency rule: a surface is treated as transparent when its alpha drops below <code>0.999</code> or when the bound albedo texture contains an alpha channel (detected via image inspection) — no manual blend flag to forget.</p>
+<p>Authoring workflow: create via the material wizard (picks shader, scaffolds defaults), preview in the material preview thumbnail, assign into MeshRenderer slots, tune live in the Inspector — runtime property edits apply immediately without reimport. Materials serialize by path, so renaming the file breaks slots until re-picked; prefer the Project panel rename action.</p>
+<p>PBR quick guide (<code>PBR.shader</code> properties): <code>_BaseColor</code>/<code>_BaseMap</code> for albedo, <code>_Metallic</code> 0 dielectric / 1 metal, <code>_Smoothness</code> for gloss, <code>_NormalMap</code> for detail, <code>_OcclusionMap</code> for crevices, <code>_EmissionColor</code> × <code>_EmissionIntensity</code> for glow, <code>_Cutoff</code> for alpha-tested cutout, <code>_Transmission</code>/<code>_IOR</code> for glass-like transmission, <code>_double_sided</code> for foliage and cards.</p>
+<p>Troubleshooting: black surface → shader failed and default has no light, check console; wrong colors → texture in sRGB vs linear mismatch or missing <code>u_use_*</code> flag; invisible transparent → alpha exactly 1 with alpha texture present, or depth-sorting against another transparent; changes lost → edited the preview copy, apply back to the asset.</p>
+<p>Related: Shaders, MeshRenderer, Material Wizard and Previews (Editor Manual), Textures and Compression.</p>
               
             </div>
           </div><footer>

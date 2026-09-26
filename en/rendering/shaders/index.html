@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,7 +1173,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="shaders-shader">Shaders (.shader)</h1>
-<p>Custom text format, Unity ShaderLab style. Minimal example:</p>
+<p>Custom text format in Unity ShaderLab style: a <code>Properties</code> header the editor understands plus raw GLSL the GPU compiles. Minimal example:</p>
 <pre><code class="language-shader">Shader &quot;Zarin/Unlit&quot; {
   Properties {
     _BaseColor(&quot;Base Color&quot;, Color) = (1, 1, 1, 1)
@@ -1204,14 +1208,19 @@
   }
 }
 </code></pre>
-<p>Format rules:</p>
+<p>Format rules, verified from the loader:</p>
 <ul>
 <li><code>Properties</code> entries look like <code>[_Attr] _Name("Display", Type) = default</code>. Types: <code>Color</code>/<code>Vector</code> as <code>(1,1,1,1)</code>, <code>Float</code>/<code>Range(a,b)</code> as float, <code>Int</code> as int, <code>2D</code>/<code>Cube</code> as <code>"white"</code> / <code>"bump"</code> plus <code>{}</code>.</li>
-<li>One file may hold several <code>SubShader</code> blocks; the loader tries them in order, then an optional <code>Fallback "Name"</code> shader.</li>
+<li>One file may hold several <code>SubShader</code> blocks; the loader tries them in order, then an optional <code>Fallback "Name"</code> shader when all fail.</li>
 <li>Each <code>GLSLPROGRAM … ENDGLSL</code> block splits into vertex/fragment at the <code>// @FRAGMENT</code> marker.</li>
-<li>The loader injects GPU-instancing attributes (<code>in_model0-3</code>, SSBO bindings 4/5 on 430+), UV overrides (<code>u_uv_scale</code>, <code>u_uv_offset</code>, <code>u_uv_world_scale</code>), and include markers for area shadows and caustics.</li>
+<li>The loader injects GPU-instancing attributes (<code>in_model0-3</code>, SSBO bindings 4/5 on 430+), UV overrides (<code>u_uv_scale</code>, <code>u_uv_offset</code>, <code>u_uv_world_scale</code>), and resolves include markers for area shadows and caustics.</li>
+<li>Shader lookup spans the engine root <code>core/shaders</code> tree: <code>materials</code>, <code>internal</code>, <code>compute</code>, <code>include</code>, <code>legacy</code>.</li>
 </ul>
-<p>Built-in library under <code>core/shaders</code>: 9 material shaders (<code>PBR</code>, <code>Unlit</code>, <code>Sky</code>, <code>Skybox</code>, <code>Water</code>, <code>WaterSim</code>, <code>Tree</code>, <code>Clouds</code>, <code>CloudLayer</code>), 20+ internal shaders (<code>Default</code>, <code>Shadow</code>, <code>Particle</code>, <code>ParticleGpu</code>, <code>Sprite</code>, <code>Text</code>, <code>Video</code>, <code>Icon</code>, <code>Gizmo</code>, <code>Grid</code>, <code>Outline</code>, <code>ObjectFx</code>, <code>Projector</code>, <code>GaussianSplat</code>, <code>Caustics</code>, <code>Underwater</code>, …) and shared <code>include/</code> snippets.</p>
+<p>Authoring workflow: duplicate <code>Unlit.shader</code>, rename the <code>Shader "..."</code> path, declare inputs in Properties (they auto-appear in every material using it), write the passes, assign to a material and iterate with hot material preview. Compile errors print with file and line — fix top-down, the first error usually cascades.</p>
+<p>Compilation fallback: <code>#version 430 core</code> is tried first; on failure the loader retries as <code>#version 330 core</code> with instancing and skinning defines forced off. Effects that fundamentally need 430 (SSBO paths) degrade visibly — check the console for the fallback notice.</p>
+<p>Built-in library under <code>core/shaders</code>: 9 material shaders (<code>PBR</code>, <code>Unlit</code>, <code>Sky</code>, <code>Skybox</code>, <code>Water</code>, <code>WaterSim</code>, <code>Tree</code>, <code>Clouds</code>, <code>CloudLayer</code>), 20+ internal shaders (<code>Default</code>, <code>Shadow</code>, <code>Particle</code>, <code>ParticleGpu</code>, <code>Sprite</code>, <code>Text</code>, <code>Video</code>, <code>Icon</code>, <code>Gizmo</code>, <code>Grid</code>, <code>Outline</code>, <code>ObjectFx</code>, <code>Projector</code>, <code>GaussianSplat</code>, <code>Caustics</code>, <code>Underwater</code> and more) and shared <code>include/</code> snippets (<code>area_shadows.glsl</code>, <code>caustics.glsl</code>).</p>
+<p>For node-based authoring see Shader Graph in the Editor Manual; for per-material values see Materials.</p>
+<p>Related: Materials, MeshRenderer (UV override uniforms), Lights (light uniforms), Shader Graph.</p>
               
             </div>
           </div><footer>

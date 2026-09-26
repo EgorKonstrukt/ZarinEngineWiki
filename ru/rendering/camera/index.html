@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="camera">Камера Camera</h1>
-<p>Рисует сцену из точки сущности. Одна на вид: главная игровая камера, камера UI-плоскости, камеры катсцен.</p>
+<p>Рисует сцену из точки сущности. Одна на вид: главная игровая, камера UI-плоскости, камеры катсцен, стены мониторов охраны.</p>
 <table>
 <thead>
 <tr>
@@ -1181,7 +1185,7 @@
 <tbody>
 <tr>
 <td>Projection: FOV</td>
-<td>Перспективный угол обзора, 1–179°, по умолчанию 60</td>
+<td>Перспективный угол, 1–179°, по умолчанию 60</td>
 </tr>
 <tr>
 <td>Projection: Near / Far</td>
@@ -1193,11 +1197,11 @@
 </tr>
 <tr>
 <td>Rendering: Depth</td>
-<td>Приоритет порядка отрисовки, −100…100</td>
+<td>Приоритет порядка, −100…100; выше рисуется позже (поверх)</td>
 </tr>
 <tr>
 <td>Render Resolution: Resolution Mode</td>
-<td>Native или Custom</td>
+<td>Native (за вьюпортом) или Custom</td>
 </tr>
 <tr>
 <td>Render Resolution: Viewport Width / Height</td>
@@ -1209,8 +1213,17 @@
 </tr>
 </tbody>
 </table>
-<p>Математика: вид — <code>look_at(позиция, позиция + вперёд, вверх)</code>; проекция — <code>perspective(fov, aspect, near, far)</code> или <code>orthographic(-half_w, half_w, -ortho_size, ortho_size, near, far)</code>, где <code>half_w = ortho_size * aspect</code>.</p>
-<p>Связанное: камера редактора (только монтаж сцены), свет и тени, режимы разрешения в build-профилях.</p>
+<p>Математика: вид — <code>look_at(позиция, позиция + вперёд, вверх)</code>; проекция — <code>perspective(fov, aspect, near, far)</code> или <code>orthographic(-half_w, half_w, -ortho_size, ortho_size, near, far)</code>, где <code>half_w = ortho_size * aspect</code>. Гизмо рисует фрустум во вьюпорте.</p>
+<p>Процессы:</p>
+<ul>
+<li>Главная камера: перспектива, FOV 55–70, near 0.1, far под уровень (500 интерьеры, 2000+ поля), depth 0.</li>
+<li>Камера UI-плоскости: ортография, ortho size под дизайн-юниты, depth выше главной, чтобы HUD рисовался последним.</li>
+<li>Катсцены: несколько камер с лесенкой depth, кросс-фейд анимацией depth или поочерёдным включением из скрипта.</li>
+<li>Пиксельный вид: render_scale 0.25–0.5 с выкл FXAA и пост-эффектом Pixelate.</li>
+</ul>
+<p>Точность глубины: решает near. Near 0.001 при far 10000 гарантирует мерцание; держите near максимально большим (0.1 улица, 0.01 интерьеры), far — минимальным.</p>
+<p>Диагностика: ничего не рисуется — камера выключена, depth похоронен под чистящей всё камерой, маска куллинга исключила все слои; растянутая картинка — aspect от вьюпорта, проверьте кастомное разрешение; дрожание вдали — сцена float64 против слишком tight near/far, расширьте отношение.</p>
+<p>Связанное: камера редактора, свет и тени, режимы разрешения, PostFX (Pixelate, Panini для широкого FOV).</p>
               
             </div>
           </div><footer>

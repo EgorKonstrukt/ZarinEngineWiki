@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="armature">Арматура Armature</h1>
-<p>Контейнер иерархии костей, ведущий скинированные меши и цепочки PhysBone.</p>
+<p>Контейнер иерархии костей, ведущий скинированные меши и цепочки PhysBone — скелетный ассет в сцене.</p>
 <table>
 <thead>
 <tr>
@@ -1181,7 +1185,7 @@
 <tbody>
 <tr>
 <td>Bone: Bone Name</td>
-<td>Читаемое имя сустава</td>
+<td>Читаемое имя сустава (ретаргетинг матчится по имени)</td>
 </tr>
 <tr>
 <td>Bone: Bone Index</td>
@@ -1193,12 +1197,14 @@
 </tr>
 <tr>
 <td>Armature: Root Bone</td>
-<td>Корень иерархии</td>
+<td>Корень иерархии; трансформ, двигающий весь риг</td>
 </tr>
 </tbody>
 </table>
-<p>Animator пишет позы в арматуру; SkinnedMeshRenderer и PhysBone их читают. Держите имена костей стабильными — ретаргетинг и оверрайды префабов матчатся по имени.</p>
-<p>Связанное: Skinned Mesh Renderer, PhysBone, клипы и Animator.</p>
+<p>Animator пишет позы в арматуру; SkinnedMeshRenderer и PhysBone их читают. Держите имена костей стабильными через реимпорты — ретаргетинг, оверрайды префабов и события анимации ключеваны именами.</p>
+<p>Процесс: импорт рига → сверка Bone Count с DCC-ригом → Root Bone на бёдра/таз → привязка SkinnedMeshRenderer → навеска PhysBone-цепочек (волосы, пальто) на ту же арматуру → анимация.</p>
+<p>Диагностика: частичная анимация — блудные кости вне count, проверьте DCC-экспорт; скользящие стопы — root motion не на том суставе, переназначьте Root Bone; спам оверрайдов префаба — кость переименована выше, верните имя.</p>
+<p>Связанное: Skinned Mesh Renderer, PhysBone, клипы и Animator, блендшейпы.</p>
               
             </div>
           </div><footer>

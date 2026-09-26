@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -908,11 +910,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,11 +1173,12 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="cython">Cython в скриптах</h1>
-<p>Тяжёлые вычисления можно вынести в Cython-модуль рядом с обычным скриптом — никаких ручных сборок.</p>
+<p>Тяжёлые вычисления выносятся в Cython-модуль рядом с обычным скриптом — без ручных сборок и без мусора в папках скриптов.</p>
+<p>Установка:</p>
 <ol>
-<li><code>Project → Create → Cython Script</code> — создаётся <code>fast_sum.pyx</code> с шаблоном.</li>
-<li>В обычном скрипте в той же папке пишется <code>import fast_sum</code>.</li>
-<li>При первом импорте движок сам собирает расширение в <code>cache/cython</code> (на Windows встроенный MinGW находится автоматически) и импортирует его.</li>
+<li><code>Project → Create → Cython Script</code> — создаётся <code>fast_sum.pyx</code> с рабочим шаблоном.</li>
+<li>В обычном скрипте той же папки пишется <code>import fast_sum</code>.</li>
+<li>Перед импортом движок кладёт папку скрипта в поиск модулей, затем при первом импорте сам собирает расширение в <code>cache/cython</code>. На Windows встроенный MinGW находится самим движком.</li>
 </ol>
 <pre><code class="language-python">import move_fast
 
@@ -1194,13 +1199,16 @@ class Mover:
         return hi
     return value
 </code></pre>
-<p>Правила:</p>
+<p>Правила и механика:</p>
 <ul>
-<li>Имя модуля — верхний уровень: <code>import foo</code>, где <code>foo.pyx</code> лежит рядом со скриптом. Имена должны быть уникальны в пределах проекта. Соседний <code>foo.pxd</code> тоже учитывается при пересборке.</li>
-<li>Пересборка — автоматически, когда <code>.pyx</code> новее сборки. Артефакты лежат в <code>cache/cython</code>, папка со скриптами не засоряется. Правка <code>.pyx</code> во время Play триггерит hot-reload скрипта как обычно.</li>
-<li>Кнопка <code>Check</code> проверяет <code>.pyx</code> без C-компилятора (только Cython-парсинг и типизация). Полная сборка происходит при первом импорте.</li>
-<li>Если компилятор не найден, в консоли будет понятная ошибка, а скрипт продолжит работать на предыдущей рабочей сборке.</li>
+<li>Имя модуля — верхний уровень: <code>import foo</code>, где <code>foo.pyx</code> лежит рядом со скриптом. Имена уникальны в пределах проекта. Соседний <code>foo.pxd</code> тоже отслеживается для пересборок.</li>
+<li>Пересборки автоматические, когда <code>.pyx</code> (или <code>.pxd</code>) новее кэшированной сборки. Артефакты в <code>cache/cython</code>; папка скриптов чистая. Правка <code>.pyx</code> во время Play триггерит hot-reload как обычно.</li>
+<li>Кнопка <code>Check</code> проверяет <code>.pyx</code> без C-компилятора (только Cython-парсинг и типизация). Полная нативная сборка — лениво при первом импорте.</li>
+<li>Без компилятора в консоли понятная ошибка, а скрипт работает на предыдущей рабочей сборке — итерация никогда жёстко не блокируется тулчейном.</li>
+<li>Держите границу Python/Cython типизированной (<code>cpdef</code>, типированные локалы) и батчуйте вызовы: один вызов на массив бьёт поэлементные через границу.</li>
 </ul>
+<p>Когда брать: покадровая математика по многим элементам (толпы, логика частиц, процедурные деформации), горячие циклы по профайлеру в скрипте, численные ядра. Игровой флоу, ввод и оркестрация остаются в обычном Python.</p>
+<p>Диагностика: несвежие результаты — троньте <code>.pyx</code> (пересборкой правит <code>mtime</code>); ошибки импорта — коллизия имени модуля в проекте, переименуйте уникально; медленный первый Play — одноразовая компиляция, дальше переиспользуется <code>cache/cython</code>.</p>
               
             </div>
           </div><footer>

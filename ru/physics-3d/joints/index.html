@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1169,7 +1173,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Джойнты</h1>
-<p>Соединяют два тела связью. Поля:</p>
+<p>Соединяют два тела связью: двери, колёса, подвеска, конечности рэгдолла, ломаемые крепления, желе-подвесы.</p>
 <table>
 <thead>
 <tr>
@@ -1180,48 +1184,52 @@
 </thead>
 <tbody>
 <tr>
-<td><code>connected_entity_name</code></td>
+<td>connected_entity_name</td>
 <td>—</td>
-<td>Имя другой сущности</td>
+<td>Имя другой сущности (нужны Rigidbody + коллайдер)</td>
 </tr>
 <tr>
-<td><code>anchor</code></td>
+<td>anchor</td>
 <td>начало</td>
 <td>Пивот в локальных координатах</td>
 </tr>
 <tr>
-<td><code>axis</code></td>
+<td>axis</td>
 <td>(0,0,1)</td>
 <td>Ось hinge/spring</td>
 </tr>
 <tr>
-<td><code>joint_type</code></td>
+<td>joint_type</td>
 <td>hinge</td>
 <td><code>HINGE</code>, <code>FIXED</code> или <code>SPRING</code></td>
 </tr>
 <tr>
-<td><code>limit_low</code></td>
-<td>−π</td>
-<td>Нижний угловой лимит, радианы</td>
+<td>limit_low / limit_high</td>
+<td>−π / +π</td>
+<td>Угловой ход, радианы</td>
 </tr>
 <tr>
-<td><code>limit_high</code></td>
-<td>+π</td>
-<td>Верхний угловой лимит, радианы</td>
-</tr>
-<tr>
-<td><code>stiffness</code></td>
+<td>stiffness</td>
 <td>10.0</td>
 <td>Жёсткость пружины</td>
 </tr>
 <tr>
-<td><code>damping</code></td>
+<td>damping</td>
 <td>1.0</td>
-<td>Демпфирование пружины</td>
+<td>Демпфирование колебаний</td>
 </tr>
 </tbody>
 </table>
-<p>Hinge — двери и колёса (лимитами лочится ось), fixed — ломаемые крепления, spring — подвеска и желе. У связанной сущности должны быть свои <code>Rigidbody</code> + коллайдер; оба тела должны зарегистрироваться до резолва джойнта, поэтому создавайте пару до Play или в порядке <code>on_awake</code>.</p>
+<p>Гид типов:</p>
+<ul>
+<li><code>HINGE</code> — вращение вокруг одной оси в лимитах: двери (0…π/2), колёса (свободное вращение ±π), рычаги.</li>
+<li><code>FIXED</code> — жёсткое крепление через солвер: ящики на грузовике, ломается снятием компонента из скрипта по порогу силы.</li>
+<li><code>SPRING</code> — упругая связь: подвеска (жёстко, задемпфировано), желе (мягко, прыгуче), фаркопы.</li>
+</ul>
+<p>Правила сборки: оба тела должны существовать и зарегистрироваться до резолва джойнта — создавайте пару до Play или в детерминированном порядке <code>on_awake</code>. Якорь в локале владельца; неверный якорь читается как растянутая дерущаяся связь — смотрите гизмо (якоря и оси рисуются во вьюпорте).</p>
+<p>Настройка: начните с широких лимитов и мягкой пружины; сужайте и жёстчейте до верного движения. Пережёсткие пружины с тяжёлыми массами дрожат — сначала damping, затем итерации солвера, затем отношение масс.</p>
+<p>Диагностика: тела разлетаются — якорь далеко от центров или инверсия лимитов (low &gt; high); джойнт игнорится — опечатка имени или нет Rigidbody; воббл в покое — mismatch stiffness/damping, растите damping.</p>
+<p>Связанное: Rigidbody, мотор (ведомые джойнты), PhysBone (альтернатива цепочек), CharacterController (посадка игрока).</p>
               
             </div>
           </div><footer>

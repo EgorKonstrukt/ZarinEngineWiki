@@ -361,11 +361,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../ru/audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,7 +1174,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="sphere-collider">Sphere Collider</h1>
-<p>Rolling balls, head hitboxes, radial triggers.</p>
+<p>Perfect ball: rolling, bouncing, head hitboxes, radial triggers and proximity sensors.</p>
 <table>
 <thead>
 <tr>
@@ -1212,8 +1216,11 @@
 </tr>
 </tbody>
 </table>
-<p>Recipe for a bouncy ball: bounciness ~0.8, friction ~0.2, own layer masked to world and player.</p>
-<p>Related: Rigidbody, Capsule Collider, Physics Materials.</p>
+<p>Rolling needs friction: a marble with friction 0.05 slides like ice, with 0.6 it grips and rolls. Bounce height comes from bounciness — 0 dead drop, 0.8 lively ball, never exactly 1 (energy gain jitters stacks).</p>
+<p>Recipes: bouncy ball — radius 0.3, bounciness 0.8, friction 0.2, own layer masked to world + player; proximity sensor — large trigger sphere (radius 5–10) with a script counting enters/exits; head hitbox — small sphere on the head bone with a damage-reporting script.</p>
+<p>Non-uniform parent scale picks the largest axis for the radius — a stretched parent makes a bigger ball than the mesh suggests. Keep visual and collision parents uniformly scaled.</p>
+<p>Troubleshooting: rolls forever → angular drag 0 and no friction; will not roll → frozen rotation axes on the Rigidbody; trigger double-fires → enter/exit pairs on fast bodies, debounce in script.</p>
+<p>Related: Rigidbody, Capsule Collider, Physics Materials, Circle Collider 2D.</p>
               
             </div>
           </div><footer>

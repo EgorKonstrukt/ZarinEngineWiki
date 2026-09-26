@@ -359,11 +359,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/overview/">Audio Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/source-listener/">AudioSource and AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zones/">Reverb Zones and EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System and Codecs</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/reverb-zone/">Reverb Zone</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/audio/system/">Audio System</a>
                 </li>
     </ul>
                   </li>
@@ -910,11 +912,13 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../audio/overview/">Обзор аудио</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/source-listener/">AudioSource и AudioListener</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-source/">AudioSource</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zones/">Зоны реверберации и EFX</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/audio-listener/">AudioListener</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема и кодеки</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/reverb-zone/">Зона реверберации</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../audio/system/">Аудиосистема</a>
                 </li>
     </ul>
                   </li>
@@ -1170,10 +1174,21 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Слои коллизий</h1>
-<p>Кто с кем сталкивается. Каждый коллайдер несёт <code>layer</code> (по умолчанию 0) и <code>mask</code> (по умолчанию <code>0xFFFF</code>, столкновения со всеми); пара должна совпасть с обеих сторон для контакта.</p>
-<p>Логика фильтрации живёт в <code>core/physics/collision_layers.py</code>. Режим <code>per_layer_process</code> дополнительно изолирует слои в процессы солвера по требованию.</p>
-<p>Паттерны: отдельные слои мира, игрока, врагов и снарядов; мьют enemy-vs-enemy ради экономии солвера; односторонние платформы — слоем, выведенным из маски игрока снизу через триггеры.</p>
-<p>Связанное: физические материалы, солвер и многопоточность, все страницы коллайдеров.</p>
+<p>Кто с кем сталкивается, независимо от реакции поверхности. Каждый коллайдер несёт <code>layer</code> (по умолчанию 0) и <code>mask</code> (по умолчанию <code>0xFFFF</code>, столкновения со всеми); контакт требует взаимного согласия сторон.</p>
+<p>Логика фильтрации в <code>core/physics/collision_layers.py</code>. Режим <code>per_layer_process</code> дополнительно изолирует слои в процессы солвера по требованию для полностью независимых суб-симуляций.</p>
+<p>План слоёв типового экшена:</p>
+<ul>
+<li>0 World — статичная геометрия, сталкивается со всем геймплейным.</li>
+<li>1 Player — персонаж и его хитбоксы.</li>
+<li>2 Enemy — боты; мьют enemy-vs-enemy экономит солвер на толпах.</li>
+<li>3 Projectile — выстрелы; маска на мир + персонажей, никогда на подборы.</li>
+<li>4 Pickup — только триггеры, маска на игрока.</li>
+<li>5 Sensor — триггеры зрения/слуха AI, маска на игрока + врагов, без физического отклика.</li>
+</ul>
+<p>Триггеры (<code>is_trigger</code>) сообщают пересечения через тот же тест масок без контактного отклика — сенсор не на том слое молчит, а не сломан.</p>
+<p>Односторонние платформы: коллайдер платформы на слое, выведенном из маски игрока, плюс тонкий верхний триггер, включающий коллизию при перекрытии сверху — скриптуется в пару строк на <code>on_collision_enter/exit</code>.</p>
+<p>Отладка: включите визуализацию физики (плагин) с раскраской тел по слоям; молчаливые пары почти всегда mismatch масок, а не отсутствующие компоненты.</p>
+<p>Связанное: физические материалы, солвер и потоки (per-layer режим), все страницы коллайдеров, джойнты (связанным телам нужна сталкивающаяся пара).</p>
               
             </div>
           </div><footer>
