@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../../img/favicon.ico" />
-    <title>NetworkIdentity, Transform, Spawn, RPC - ZarinEngine Wiki</title>
+    <title>Упаковка .zplugin - ZarinEngine Wiki</title>
     <link rel="stylesheet" href="../../../css/theme.css" />
     <link rel="stylesheet" href="../../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "NetworkIdentity, Transform, Spawn, RPC";
-        var mkdocs_page_input_path = "ru\\networking\\gameplay-net.md";
+        var mkdocs_page_name = "\u0423\u043f\u0430\u043a\u043e\u0432\u043a\u0430 .zplugin";
+        var mkdocs_page_input_path = "ru\\plugins\\zplugin-packaging.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -491,9 +491,29 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/overview/">Networking Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/collaboration/">Collab Server and Client</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/transport-protocol/">Transport and Protocol</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/gameplay-net/">NetworkIdentity, Transform, Spawn, RPC</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/network-plugin/">Network Plugin</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/network-manager/">NetworkManager</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/network-identity/">NetworkIdentity</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/network-transform/">NetworkTransform</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/network-rigidbody/">NetworkRigidbody</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/network-animator/">NetworkAnimator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/network-variables/">NetworkVariables</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/network-spawn/">NetworkSpawn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/network-player/">NetworkPlayer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/collaboration/">Collaboration</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/remote-collaborator/">RemoteCollaborator</a>
                 </li>
     </ul>
                   </li>
@@ -505,11 +525,23 @@
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/pluginbase/">PluginBase Lifecycle</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/system-plugins/">System Plugins</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/plugin-manager/">Plugin Manager</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/user-plugins-packaging/">User Plugins and .zplugin Packaging</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/example-plugin/">Example Plugin Walkthrough</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/integrations/">VR, MCP, Music Tracker, Plotter, QtQuick</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/user-plugins/">User Plugins Guide</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/zplugin-packaging/">.zplugin Packaging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/system-plugins/">System Plugins Catalog</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/network-plugin/">Network Plugin (Plugin Page)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/vr-plugin/">VR Plugin</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/mcp-plugin/">MCP Bridge</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/creative-plugins/">Music, Plotter and QtQuick</a>
                 </li>
     </ul>
                   </li>
@@ -1038,35 +1070,67 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../math/_section/">Указатель (math)</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" >Сеть</a>
-    <ul class="current">
-                <li class="toctree-l2"><a class="reference internal" href="../overview/">Обзор сетевой части</a>
-                </li>
-                <li class="toctree-l2"><a class="reference internal" href="../collaboration/">Сервер и клиент коллаборации</a>
-                </li>
-                <li class="toctree-l2 current"><a class="reference internal current" href="#">NetworkIdentity, Transform, Spawn, RPC</a>
-    <ul class="current">
-    </ul>
-                </li>
-    </ul>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../_section/">Указатель (networking)</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" >Плагины</a>
+                  <li class="toctree-l1"><a class="reference internal" >Сеть</a>
     <ul>
-                <li class="toctree-l2"><a class="reference internal" href="../../plugins/overview/">Обзор плагинов</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/overview/">Обзор сетевой части</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../plugins/pluginbase/">Жизненный цикл PluginBase</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/transport-protocol/">Транспорт и протокол</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../plugins/system-plugins/">Системные плагины</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/network-plugin/">Сетевой плагин</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../plugins/user-plugins-packaging/">Пользовательские плагины и упаковка .zplugin</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/network-manager/">NetworkManager</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../plugins/integrations/">Интеграции: VR, MCP, трекер музыки, плоттер, QtQuick</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/network-identity/">NetworkIdentity</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/network-transform/">NetworkTransform</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/network-rigidbody/">NetworkRigidbody</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/network-animator/">NetworkAnimator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/network-variables/">NetworkVariables</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/network-spawn/">NetworkSpawn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/network-player/">NetworkPlayer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/collaboration/">Коллаборация</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/remote-collaborator/">RemoteCollaborator</a>
                 </li>
     </ul>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../plugins/_section/">Указатель (plugins)</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../networking/_section/">Указатель (networking)</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Плагины</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../overview/">Обзор плагинов</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../pluginbase/">Жизненный цикл PluginBase</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../plugin-manager/">Менеджер плагинов</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../example-plugin/">Разбор example-плагина</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../user-plugins/">Гид пользовательских плагинов</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Упаковка .zplugin</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../system-plugins/">Каталог системных плагинов</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-plugin/">Сетевой плагин (страница плагина)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../vr-plugin/">VR-плагин</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../mcp-plugin/">MCP-мост</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../creative-plugins/">Музыка, плоттер и QtQuick</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../_section/">Указатель (plugins)</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" >Руководство по редактору</a>
     <ul>
@@ -1162,8 +1226,8 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Русский</li>
-          <li class="breadcrumb-item">Сеть</li>
-      <li class="breadcrumb-item active">NetworkIdentity, Transform, Spawn, RPC</li>
+          <li class="breadcrumb-item">Плагины</li>
+      <li class="breadcrumb-item active">Упаковка .zplugin</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -1172,22 +1236,34 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="networkidentity-transform-spawn-rpc">NetworkIdentity, Transform, Spawn, RPC</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел NetworkIdentity, Transform, Spawn, RPC в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+                <h1 id="zplugin">Упаковка .zplugin</h1>
+<p>Подписанный дистрибутируемый формат: один файл с кодом, нативными модулями, bundled-библиотеками и манифестом — установка броском внутрь, верификация до первого выполнения.</p>
+<p>Анатомия пакета:</p>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Манифест: имя, версия, описание входа, список <code>dependencies</code> (другие плагины/библиотеки с версиями), опциональные <code>cython_modules</code> для bundled нативных сборок.</li>
+<li>Кодовые записи: <code>.py</code>-модули через стандартную фабричную конвенцию.</li>
+<li>Нативные записи: <code>.pyd</code> / <code>.so</code> / <code>.dll</code> по дисциплине <code>_native/</code> — верификатор отвергает неиндексированные нативные модули сразу.</li>
+<li><code>libs/</code> bundled-зависимости, активируемые на плагин, изолированно от версий других плагинов.</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<p>Инструменты сборки: <code>tools/build_plugin.py</code> собирает обычный каталог плагина; <code>tools/build_zplugin.py</code> компилирует нативные части (Cython через cythonize при настройке), пакует манифест, код, natives и libs в архив <code>.zplugin</code>.</p>
+<p>Поток установки и верификации:</p>
+<ol>
+<li>Бросьте файл куда смотрит менеджер (или установите из панели пакетов).</li>
+<li><code>verify_zplugin_file</code> валидирует манифест, сообщает недостающие зависимости по именам, проверяет индекс записей.</li>
+<li>Подписи проверяются по <code>config/trusted_keys</code> (плюс опциональный каталог); недоверенные/неподписанные отказываются активироваться с явным логом.</li>
+<li><code>_zplugin_fingerprint</code> (sha256 + размер + mtime) спрашивает кэш распаковки — переустановки неизменных файлов бесплатны.</li>
+<li>Активация резолвит зависимости, монтирует bundled libs, грузит вход.</li>
+</ol>
+<p>Обновления: поднимите версию манифеста, пересоберите, раздайте — отпечаток меняется, кэш распаковывается заново, зависимые перерезолвятся. Держите <code>NAME</code> стабильным между версиями, иначе сиротеют конфиги.</p>
+<p>В репозитории пример артефакта: <code>plugins/mcp_pack-2.1.1.zplugin</code> — вскройте как архив: настоящий манифест, нативная раскладка, схема версионирования.</p>
+<p>Диагностика: отказ неподписанному — подпишите доверенным ключом или добавьте ключ; недостающая зависимость — сначала поставьте именованный пакет; несвежее поведение после пересборки — не изменился отпечаток (гранулярность mtime), троньте или bump версии; падение нативной загрузки — mismatch архитектуры (win <code>.pyd</code>/<code>.dll</code> против linux <code>.so</code>).</p>
+<p>Связанное: менеджер плагинов (цепочка верификации), гид пользовательских (что паковать), каталог системных.</p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../collaboration/" class="btn btn-neutral float-left" title="Сервер и клиент коллаборации"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../_section/" class="btn btn-neutral float-right" title="Указатель (networking)">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../user-plugins/" class="btn btn-neutral float-left" title="Гид пользовательских плагинов"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../system-plugins/" class="btn btn-neutral float-right" title="Каталог системных плагинов">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -1210,10 +1286,10 @@
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../collaboration/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../user-plugins/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../_section/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../system-plugins/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

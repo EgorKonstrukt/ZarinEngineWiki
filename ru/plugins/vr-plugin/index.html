@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../../img/favicon.ico" />
-    <title>Интеграции: VR, MCP, трекер музыки, плоттер, QtQuick - ZarinEngine Wiki</title>
+    <title>VR-плагин - ZarinEngine Wiki</title>
     <link rel="stylesheet" href="../../../css/theme.css" />
     <link rel="stylesheet" href="../../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "\u0418\u043d\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438: VR, MCP, \u0442\u0440\u0435\u043a\u0435\u0440 \u043c\u0443\u0437\u044b\u043a\u0438, \u043f\u043b\u043e\u0442\u0442\u0435\u0440, QtQuick";
-        var mkdocs_page_input_path = "ru\\plugins\\integrations.md";
+        var mkdocs_page_name = "VR-\u043f\u043b\u0430\u0433\u0438\u043d";
+        var mkdocs_page_input_path = "ru\\plugins\\vr-plugin.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -491,9 +491,29 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/overview/">Networking Overview</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/collaboration/">Collab Server and Client</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/transport-protocol/">Transport and Protocol</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/gameplay-net/">NetworkIdentity, Transform, Spawn, RPC</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/network-plugin/">Network Plugin</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/network-manager/">NetworkManager</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/network-identity/">NetworkIdentity</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/network-transform/">NetworkTransform</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/network-rigidbody/">NetworkRigidbody</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/network-animator/">NetworkAnimator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/network-variables/">NetworkVariables</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/network-spawn/">NetworkSpawn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/network-player/">NetworkPlayer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/collaboration/">Collaboration</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/networking/remote-collaborator/">RemoteCollaborator</a>
                 </li>
     </ul>
                   </li>
@@ -505,11 +525,23 @@
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/pluginbase/">PluginBase Lifecycle</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/system-plugins/">System Plugins</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/plugin-manager/">Plugin Manager</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/user-plugins-packaging/">User Plugins and .zplugin Packaging</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/example-plugin/">Example Plugin Walkthrough</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/integrations/">VR, MCP, Music Tracker, Plotter, QtQuick</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/user-plugins/">User Plugins Guide</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/zplugin-packaging/">.zplugin Packaging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/system-plugins/">System Plugins Catalog</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/network-plugin/">Network Plugin (Plugin Page)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/vr-plugin/">VR Plugin</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/mcp-plugin/">MCP Bridge</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../en/plugins/creative-plugins/">Music, Plotter and QtQuick</a>
                 </li>
     </ul>
                   </li>
@@ -1042,9 +1074,29 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../../networking/overview/">Обзор сетевой части</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../networking/collaboration/">Сервер и клиент коллаборации</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/transport-protocol/">Транспорт и протокол</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../networking/gameplay-net/">NetworkIdentity, Transform, Spawn, RPC</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/network-plugin/">Сетевой плагин</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/network-manager/">NetworkManager</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/network-identity/">NetworkIdentity</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/network-transform/">NetworkTransform</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/network-rigidbody/">NetworkRigidbody</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/network-animator/">NetworkAnimator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/network-variables/">NetworkVariables</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/network-spawn/">NetworkSpawn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/network-player/">NetworkPlayer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/collaboration/">Коллаборация</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../networking/remote-collaborator/">RemoteCollaborator</a>
                 </li>
     </ul>
                   </li>
@@ -1056,13 +1108,25 @@
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../pluginbase/">Жизненный цикл PluginBase</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../system-plugins/">Системные плагины</a>
+                <li class="toctree-l2"><a class="reference internal" href="../plugin-manager/">Менеджер плагинов</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../user-plugins-packaging/">Пользовательские плагины и упаковка .zplugin</a>
+                <li class="toctree-l2"><a class="reference internal" href="../example-plugin/">Разбор example-плагина</a>
                 </li>
-                <li class="toctree-l2 current"><a class="reference internal current" href="#">Интеграции: VR, MCP, трекер музыки, плоттер, QtQuick</a>
+                <li class="toctree-l2"><a class="reference internal" href="../user-plugins/">Гид пользовательских плагинов</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../zplugin-packaging/">Упаковка .zplugin</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../system-plugins/">Каталог системных плагинов</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-plugin/">Сетевой плагин (страница плагина)</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">VR-плагин</a>
     <ul class="current">
     </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../mcp-plugin/">MCP-мост</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../creative-plugins/">Музыка, плоттер и QtQuick</a>
                 </li>
     </ul>
                   </li>
@@ -1163,7 +1227,7 @@
     <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Русский</li>
           <li class="breadcrumb-item">Плагины</li>
-      <li class="breadcrumb-item active">Интеграции: VR, MCP, трекер музыки, плоттер, QtQuick</li>
+      <li class="breadcrumb-item active">VR-плагин</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -1172,22 +1236,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="vr-mcp-qtquick">Интеграции: VR, MCP, трекер музыки, плоттер, QtQuick</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Интеграции: VR, MCP, трекер музыки, плоттер, QtQuick в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+                <h1 id="vr-">VR-плагин</h1>
+<p>Поддержка виртуальной реальности редактора и рантайма в <code>plugins/vr_plugin/</code>: рантайм-ядро плюс док редактора.</p>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li><code>vr_core.py</code> — управление сессией и девайсами: позы шлема кормят камеры сцены, контроллеры появляются как трекаемый ввод рядом со стандартным Input API для скриптов.</li>
+<li><code>vr_dock.py</code> — панель редактора: старт/стоп VR-сессий, зеркало вида шлема во вьюпорт, статус девайсов и настройки на глаз.</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<p>Процесс: откройте VR-док, подключите шлем, стартуйте сессию — игровое окно рисует стереопару, а десктопный вьюпорт держит камеру редактора для постановки. Скрипты читают позы контроллеров через те же конвенции Transform/Input, что десктоп (девайсные биндинги всплывают кнопками и осями).</p>
+<p>Поза по производительности: VR удваивает рендер (два глаза) — сначала пополам render_scale, затем разрешение теней, затем PostFX. Постадийные тайминги профайлера идут на глаз; бюджет 11 мс суммарно, а не на глаз.</p>
+<p>Заметка скоупа: desktop-first движок с VR-пристройкой, а не VR-нативный: room-scale трекинг и guardian-потоки зависят от OpenVR/OpenXR-рантаймов на машине.</p>
+<p>Диагностика: шлем не найден — не запущен рантайм (SteamVR/monado); чёрный глаз — переполнение resolution scale, опустите render_scale; дрейф — потеря трекинга в рантайме, рецентр там.</p>
+<p>Связанное: камеры (источник стереопары), API ввода (биндинги контроллеров), профайлер, режимы разрешения.</p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../user-plugins-packaging/" class="btn btn-neutral float-left" title="Пользовательские плагины и упаковка .zplugin"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../_section/" class="btn btn-neutral float-right" title="Указатель (plugins)">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../network-plugin/" class="btn btn-neutral float-left" title="Сетевой плагин (страница плагина)"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../mcp-plugin/" class="btn btn-neutral float-right" title="MCP-мост">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -1210,10 +1275,10 @@
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../user-plugins-packaging/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../network-plugin/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../_section/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../mcp-plugin/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
