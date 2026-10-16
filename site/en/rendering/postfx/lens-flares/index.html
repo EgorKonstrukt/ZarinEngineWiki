@@ -215,13 +215,17 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Lens Flares</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    <li class="toctree-l4"><a class="reference internal" href="#shader-snippet">Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#performance-notes">Performance notes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1250,111 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="lens-flares">Lens Flares</h1>
-<p>Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.</p>
-<h2 id="how-it-works">How it works</h2>
-<p>Ghost and halo artifacts spawned by bright lights in frame.</p>
+<blockquote>
+<p>Ghost/streak flares. Luminance above threshold (with soft knee) is extracted, blurred, then composited as scaled ghosts, glow and horizontal anamorphic streak with chromatic offset. Class <code>LensFlares</code> in <code>core/components/rendering/postfx/lensp/component.py</code>. Runs in the PostFX stack in component order; skipped when <code>enabled</code> is False or the entity is inactive (<code>render()</code> early-out).</p>
+</blockquote>
 <h2 id="parameters">Parameters</h2>
-<p>Ghost count, spread, intensity, tint.</p>
-<h2 id="tips">Tips</h2>
-<p>Space suns, desert noon, night highways. Dies without bright sources — check threshold.</p>
-<h2 id="cost">Cost</h2>
-<p>Medium by ghost count.</p>
-<p>Related: <a href="../">PostFX Stack</a>, Cameras (render scale), Profiler.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intensity</td>
+<td><code>_intensity</code></td>
+<td>FLOAT</td>
+<td>0.0 – 5.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Scale</td>
+<td><code>_scale</code></td>
+<td>FLOAT</td>
+<td>0.0 – 5.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Glow</td>
+<td><code>_glow</code></td>
+<td>FLOAT</td>
+<td>0.0 – 5.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Bright Threshold</td>
+<td><code>_threshold</code></td>
+<td>FLOAT</td>
+<td>0.0 – 2.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Soft Knee</td>
+<td><code>_soft_threshold</code></td>
+<td>FLOAT</td>
+<td>0.0 – 1.0</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Ghost Intensity</td>
+<td><code>_ghost_intensity</code></td>
+<td>FLOAT</td>
+<td>0.0 – 5.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Anamorphic Streak</td>
+<td><code>_anamorphic</code></td>
+<td>FLOAT</td>
+<td>0.0 – 5.0</td>
+<td><code>0.6</code></td>
+</tr>
+<tr>
+<td>Chromatic</td>
+<td><code>_chromatic</code></td>
+<td>FLOAT</td>
+<td>0.0 – 3.0</td>
+<td><code>0.8</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">Usage</h2>
+<p>Editor: select the PostFX entity, Add Component &gt; <code>LensFlares</code>, tick <code>enabled</code>, tune fields above. Order among PostFX components defines execution order.</p>
+<p>Code:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.lensp.component import LensFlares
+fx = LensFlares()
+entity.add_component(fx)
+fx._threshold = 1.2
+fx._anamorphic = 1.0
+fx.enabled = True
+</code></pre>
+<h2 id="shader-snippet">Shader snippet</h2>
+<p>Shader: <code>core/components/rendering/postfx/lensp/shaders.py (FLARE_* / EXTRACT_* )</code>.</p>
+<pre><code class="language-glsl">// flare uniforms (exact names):
+// uniform sampler2D u_scene_color; uniform sampler2D u_bright_tex; uniform sampler2D u_glow_tex;
+// uniform float u_intensity; uniform float u_scale; uniform float u_glow;
+// uniform float u_threshold; uniform float u_soft_threshold;
+// uniform float u_ghost_intensity; uniform float u_anamorphic; uniform float u_chromatic;
+</code></pre>
+<h2 id="performance-notes">Performance notes</h2>
+<p>Bright-extract + downsample chain; cost scales with internal blur resolution, not with threshold.</p>
+<h2 id="related">Related</h2>
+<p>Related: <a href="../">PostFX Stack</a>, <a href="../color-grading/">Color Grading</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/lensp/component.py</code> — class <code>LensFlares</code>, <code>_inspector_fields</code>, <code>__init__</code> defaults, <code>Bright-extract → downsample → flare composite (ghosts + anamorphic streak)</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/lensp/shaders.py</code></p>
+</li>
+<li><code>core/components/rendering/postfx/graphics_effect.py</code> — <code>GraphicsEffect</code> base (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, <code>render()</code> signature).</li>
+</ul>
               
             </div>
           </div><footer>

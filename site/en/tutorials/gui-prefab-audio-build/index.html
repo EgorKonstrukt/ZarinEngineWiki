@@ -609,6 +609,14 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">GUI Menu, Prefabs, Audio, Build</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#a-gui-menu-button-label">A. GUI menu (Button + Label)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#b-prefabs-zpep-reuse">B. Prefabs (.zpep reuse)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#c-audio-audiosource-listener">C. Audio (AudioSource + listener)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#d-run-and-ship">D. Run and ship</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,15 +1245,63 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="gui-menu-prefabs-audio-build">GUI Menu, Prefabs, Audio, Build</h1>
-<p>TODO: Content pending. This page will document GUI Menu, Prefabs, Audio, Build in ZarinEngine.</p>
-<p>Planned sections:</p>
+<p>Four independent mini-tutorials sharing one scene. Each is complete on its own.</p>
+<h2 id="a-gui-menu-button-label">A. GUI menu (Button + Label)</h2>
+<p>GUI widgets are ECS components rendered by the <code>GuiCanvas</code> overlay; widget events propagate as Python signals and the widgets work both in-editor and at runtime.</p>
+<ol>
+<li>Create entity <code>Menu</code>. <code>Add Component</code> → <code>ButtonComponent</code>: Inspector shows <code>widget_text</code> (default <code>"Button"</code>); set it to <code>"Start"</code>.</li>
+<li>Create entity <code>Score</code>. <code>Add Component</code> → <code>LabelComponent</code>: <code>widget_text</code> (default <code>"Label"</code>) plus <code>H Align</code> (<code>left</code>/<code>center</code>/<code>right</code>); set text to <code>"Score: 0"</code>.</li>
+<li>Attach this script to <code>Score</code> (<code>Project → Create → Python Script</code> → <code>score.py</code>, <code>Add Component → Scripts</code>):</li>
+</ol>
+<pre><code class="language-python">class Score:
+    points: int = 0
+
+    def on_awake(self):
+        self.label = self._entity.get_component_by_name(&quot;LabelComponent&quot;)
+
+    def on_update(self, dt):
+        if Input.GetKeyDown(KeyCode.SPACE):
+            self.points = self.points + 1
+            if self.label:
+                self.label.widget_text = f&quot;Score: {self.points}&quot;
+</code></pre>
+<ol>
+<li>Press <code>Play</code>, hit <code>Space</code>: the label updates in the overlay. The pattern generalizes — any component field reachable via <code>get_component_by_name</code> can be driven from a script.</li>
+</ol>
+<h2 id="b-prefabs-zpep-reuse">B. Prefabs (<code>.zpep</code> reuse)</h2>
+<ol>
+<li>Select a finished entity subtree (e.g. the <code>Ball</code> with its <code>Rigidbody</code> + <code>SphereCollider</code> + script). Save it as <code>.zpep</code> (Zarin Prefab) — the prefab file stores the subtree with stable GUIDs.</li>
+<li>Instantiate the <code>.zpep</code> into any scene: the engine remaps GUIDs per instance so references inside the subtree stay intact.</li>
+<li>Per-instance edits (Inspector values changed after instantiation) are serialized as overrides alongside the prefab GUID — the prefab file itself is untouched.</li>
+<li>Prefab-backed entities carry <code>prefab_guid</code> / <code>prefab_source_id</code> in the scene JSON; deleting those keys turns the instance into a plain local copy.</li>
+</ol>
+<h2 id="c-audio-audiosource-listener">C. Audio (AudioSource + listener)</h2>
+<ol>
+<li>Create entity <code>Music</code>. <code>Add Component</code> → <code>AudioSource</code>. Real Inspector fields: <code>Clip</code> (<code>clip_path</code>, audio file filter <code>*.wav *.mp3 *.ogg *.flac</code>), <code>Volume</code> 0–1, <code>Pitch</code> −3–3, <code>Loop</code>, <code>Play On Awake</code>, <code>Spatial Blend</code> 0–1, <code>Zone Shape</code> (sphere/box), <code>Min/Max Distance</code>, box inner/outer sizes, <code>Volume Rolloff</code> curve, <code>Offset</code>, fade in/out times.</li>
+<li>Set <code>Clip</code> to a project audio file, <code>Loop</code> on, <code>Play On Awake</code> on — or trigger from a script:</li>
+</ol>
+<pre><code class="language-python">class Dj:
+    def on_awake(self):
+        self.src = self._entity.get_component_by_name(&quot;AudioSource&quot;)
+
+    def on_update(self, dt):
+        if Input.GetKeyDown(KeyCode.M):
+            if self.src:
+                if self.src.is_playing:
+                    self.src.stop()
+                else:
+                    self.src.play()
+</code></pre>
+<ol>
+<li>Positional audio needs ears: add the <code>AudioListener</code> component to the camera entity. <code>play()</code> / <code>stop()</code> / <code>is_playing</code> are the runtime API; <code>stop()</code> respects <code>Fade Out Time</code> when set. Edge case: <code>AudioSource.on_enable</code> auto-plays whenever <code>clip_path</code> is set — even without <code>Play On Awake</code> — so re-enabling the entity restarts the clip.</li>
+<li>Press <code>Play</code>: with <code>Play On Awake</code> the clip starts immediately; <code>M</code> toggles it. 3D attenuation follows <code>Min/Max Distance</code> and the rolloff curve.</li>
+</ol>
+<h2 id="d-run-and-ship">D. Run and ship</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Run a scene without the editor: <code>python player.py SampleScene.zpes</code> (any <code>.zpes</code> path works; the default scene constant is <code>"SampleScene.zpes"</code>).</li>
+<li>Ship a standalone executable: <code>python build_nuitka.py</code> (Nuitka-based; build settings live in <code>BuildSettings.json</code>). The player writes diagnostics to <code>player_diag.txt</code> and crash reports to <code>crash_logs/</code>.</li>
+<li>Scene files stay portable: <code>script_path</code> values and material/texture references are stored relative to the project root.</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
               
             </div>
           </div><footer>

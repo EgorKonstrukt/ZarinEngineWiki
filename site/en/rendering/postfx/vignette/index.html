@@ -239,13 +239,15 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Vignette</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    <li class="toctree-l4"><a class="reference internal" href="#shader-snippet">Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1248,82 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="vignette">Vignette</h1>
-<p>Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.</p>
-<h2 id="how-it-works">How it works</h2>
-<p>Darkened corners focusing attention on the frame center.</p>
+<blockquote>
+<p>Radial edge darkening/tint. Distance from center shaped by smoothness (falloff) and roundness (aspect compensation), mixed toward color by intensity. Class <code>Vignette</code> in <code>core/components/rendering/postfx/vignette.py</code>. Runs in the PostFX stack in component order; skipped when <code>enabled</code> is False or the entity is inactive (<code>render()</code> early-out).</p>
+</blockquote>
 <h2 id="parameters">Parameters</h2>
-<p>Strength, roundness, feather.</p>
-<h2 id="tips">Tips</h2>
-<p>Universal finish; horror pushes strength, product keeps it whisper-light.</p>
-<h2 id="cost">Cost</h2>
-<p>Negligible.</p>
-<p>Related: <a href="../">PostFX Stack</a>, Cameras (render scale), Profiler.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intensity</td>
+<td><code>_intensity</code></td>
+<td>FLOAT</td>
+<td>0.0 – 5.0</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Smoothness</td>
+<td><code>_smoothness</code></td>
+<td>FLOAT</td>
+<td>0.0 – 1.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Roundness</td>
+<td><code>_roundness</code></td>
+<td>FLOAT</td>
+<td>0.0 – 2.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Color</td>
+<td><code>_color</code></td>
+<td>COLOR</td>
+<td>—</td>
+<td><code>(0.0, 0.0, 0.0)</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">Usage</h2>
+<p>Editor: select the PostFX entity, Add Component &gt; <code>Vignette</code>, tick <code>enabled</code>, tune fields above. Order among PostFX components defines execution order.</p>
+<p>Code:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.vignette import Vignette
+fx = Vignette()
+entity.add_component(fx)
+fx._intensity = 0.7
+fx._smoothness = 0.8
+fx.enabled = True
+</code></pre>
+<h2 id="shader-snippet">Shader snippet</h2>
+<p>Shader: <code>core/components/rendering/postfx/vignette.py</code>.</p>
+<pre><code class="language-glsl">#version 330 core
+uniform sampler2D u_input_tex;
+uniform float u_intensity;
+uniform float u_smoothness;
+uniform float u_roundness;
+uniform vec2 u_center;
+// + uniform vec3 u_color;
+</code></pre>
+<h2 id="related">Related</h2>
+<p>Related: <a href="../">PostFX Stack</a>, <a href="../color-grading/">Color Grading</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/vignette.py</code> — class <code>Vignette</code>, <code>_inspector_fields</code>, <code>__init__</code> defaults, <code>Fullscreen radial mask pass (u_center is internal, fixed at screen center)</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/graphics_effect.py</code> — <code>GraphicsEffect</code> base (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, <code>render()</code> signature).</p>
+</li>
+</ul>
               
             </div>
           </div><footer>

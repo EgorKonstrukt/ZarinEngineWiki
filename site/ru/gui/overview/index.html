@@ -980,6 +980,16 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Обзор GUI</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api">Свойства / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_1">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Связанные</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../canvas/">Канвас GuiCanvas</a>
@@ -1237,15 +1247,70 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="gui">Обзор GUI</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Обзор GUI в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<p>Qt-виджеты на оверлее <code>GuiCanvas</code>: каждый виджет — настоящий подкласс <code>QWidget</code> с якорной раскладкой, стилем Fusion и JSON-сериализацией.</p>
+<h2 id="api">Свойства / API</h2>
+<table>
+<thead>
+<tr>
+<th>Элемент</th>
+<th>Источник</th>
+<th>Смысл</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GuiCanvas</code></td>
+<td><code>core/gui/canvasp/canvas.py</code></td>
+<td>Корневая <code>Panel</code> + дети, <code>add_widget</code>, <code>remove_widget</code>, <code>clear</code>, <code>serialize</code>/<code>deserialize</code>, <code>save_to_file</code>/<code>load_from_file</code></td>
+</tr>
+<tr>
+<td><code>GuiApi</code></td>
+<td><code>core/gui/api.py</code></td>
+<td>Хелперы <code>panel</code>, <code>label</code>, <code>button</code>, <code>slider</code>, <code>input</code>, <code>image</code>, <code>toggle</code>, <code>progress</code>, <code>dropdown</code>, <code>scroll</code>, <code>mdi_area</code>, <code>clear</code>, <code>save</code>, <code>load</code></td>
+</tr>
+<tr>
+<td><code>GuiCanvasSystem</code></td>
+<td><code>core/gui/system.py</code></td>
+<td>Синхронизация GUI-компонентов сущностей с канвасом: <code>sync_entity</code>, <code>rebuild_from_scene</code>, <code>sync_all</code></td>
+</tr>
+<tr>
+<td><code>WIDGET_REGISTRY</code></td>
+<td><code>core/gui/wid/__init__.py</code></td>
+<td>Маппинг строки <code>type</code> в класс для десериализации канваса</td>
+</tr>
+<tr>
+<td>Якоря 0–11</td>
+<td><code>core/gui/wid/base.py</code></td>
+<td><code>ANCHOR_TOP_LEFT</code> … <code>ANCHOR_STRETCH_HEIGHT</code>, применяются через <code>update_anchor(canvas_w, canvas_h)</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_1">Использование в редакторе</h2>
+<ol>
+<li>Добавьте GUI-компонент (<code>ButtonComponent</code>, <code>LabelComponent</code> и т.д.) на сущность.</li>
+<li>Задайте <code>x</code>, <code>y</code>, <code>w</code>, <code>h</code>, <code>anchor</code>, <code>z_index</code>, <code>tag</code> в Inspector.</li>
+<li><code>GuiCanvasSystem.rebuild_from_scene</code> создаёт виджеты; <code>sync_all</code> обновляет их каждый кадр.</li>
+<li>Редактор канваса: drag, snap-to-grid (<code>grid_size</code> 8), zoom, мультивыделение.</li>
+</ol>
+<h2 id="_2">Использование в коде</h2>
+<pre><code class="language-python">from core.gui.api import GuiApi
+
+gui = GuiApi(name=&quot;default&quot;)
+btn = gui.button(x=10, y=10, w=120, h=40, text=&quot;Играть&quot;)
+btn.clicked.connect(lambda: print(&quot;clicked&quot;))
+lbl = gui.label(x=10, y=60, w=200, h=30, text=&quot;Счёт: 0&quot;)
+gui.save(&quot;ui/main.json&quot;)
+gui.load(&quot;ui/main.json&quot;)
+</code></pre>
+<h2 id="_3">Связанные</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Канвас, Контролы, Контейнеры, Раскладка и события</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_4">Проверено по</h2>
+<ul>
+<li><code>core/gui/canvasp/canvas.py</code>, <code>core/gui/api.py</code>, <code>core/gui/system.py</code></li>
+<li><code>core/gui/wid/__init__.py</code>, <code>core/gui/wid/base.py</code></li>
+</ul>
               
             </div>
           </div><footer>

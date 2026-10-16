@@ -698,6 +698,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Спот</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../area-light/">Area-свет</a>
@@ -1237,16 +1245,92 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="_1">Спот</h1>
-<p>Конусный свет для фонариков, софитов, фар и оконных столбов. Направление из поворота трансформа, конус из <code>spot_angle</code> (внешний) и <code>spot_inner_angle</code> (яркое ядро).</p>
+                <h1 id="_1">Прожектор</h1>
+<blockquote>
+<p>Конусный свет: <code>SpotLight</code> (<code>core/components/lighting/lightp/light.py:304-381</code>) с люменами, дальностью и внешним/внутренним углами.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Те же люмены, что у point, но сконцентрированы в конусе: узкий конус ярче широкого при равных люменах (описание инспектора, <code>light.py:317</code>). Гизмо рисует круг основания + 8 рёбер (<code>light.py:335-364</code>).</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>color</code></td>
+<td>color3</td>
+<td><code>[1.0, 1.0, 1.0]</code></td>
+<td>Цвет (<code>light.py:316</code>).</td>
+</tr>
+<tr>
+<td><code>intensity</code></td>
+<td>float люмены (0–200000)</td>
+<td><code>1000.0</code></td>
+<td>Поток внутри конуса (<code>light.py:317,327</code>).</td>
+</tr>
+<tr>
+<td><code>range</code></td>
+<td>float (0–10000)</td>
+<td><code>10.0</code></td>
+<td>Длина конуса (<code>light.py:318,328</code>).</td>
+</tr>
+<tr>
+<td><code>spot_angle</code></td>
+<td>float (1–179)</td>
+<td><code>30.0</code></td>
+<td>Внешний конус, градусы (<code>light.py:320,329</code>).</td>
+</tr>
+<tr>
+<td><code>spot_inner_angle</code></td>
+<td>float (0–179)</td>
+<td><code>20.0</code></td>
+<td>Начало спада, градусы (<code>light.py:321,330</code>).</td>
+</tr>
+<tr>
+<td><code>cast_shadows</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Перспективная карта; нужен <code>SpotShadow</code> (<code>light.py:323,331</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Наведение транформом; держать <code>spot_inner_angle &lt; spot_angle</code> для мягкого края. Фонарик <code>100–1000</code> лм, улица <code>1000–40000</code> лм.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">sp.spot_angle = 45.0
+sp.spot_inner_angle = 30.0
+sp.range = 25.0
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Интенсивность в люменах, по умолчанию 1000 — та же шкала, что у Point Light, светильники матчатся при смене типа.</li>
-<li>До 4 одновременных спотовых карт (1024 по умолчанию) — по одной грани, куда дешевле точечных кубов. Споты — экономный затенённый свет: предпочитайте везде, где приемлема направленность.</li>
-<li>Гизмо показывает конус с кольцом внутреннего угла; наводите поворотом сущности, сужайте <code>spot_angle</code> для театральных лучей, расширяйте для заливки.</li>
+<li><a href="../light/">Light</a>, <a href="../point-light/">Point Light</a>, <a href="../projector/">Projector</a>, <a href="../shadows/">Shadows</a></li>
 </ul>
-<p>Процессы: фонарик — спот родителем к камере с тенями и углом ~25°; сцена — несколько узких спотов с фермы с анимированными цветами; фары — два спота с range под тормозной путь; оконные столбы — широкоугольный спот сквозь раму плюс Projector для узора рамы.</p>
-<p>Анимируйте <code>spot_angle</code> для зума и <code>intensity</code> для мерцания; оба — дешёвые uniform-обновления без перерегистрации.</p>
-<p>Связанное: Light (база), тени, Projector (текстурный конус), точечный свет.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/lighting/lightp/light.py:304-381</code></li>
+</ul>
               
             </div>
           </div><footer>

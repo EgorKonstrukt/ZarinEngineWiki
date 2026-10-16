@@ -1246,7 +1246,7 @@
 <li><code>AudioSystem</code> owns resources: clip loading and caching, async loads, listener state, doppler and speed of sound.</li>
 <li><code>ReverbZone</code> components feed the OpenAL EFX chain (<code>audio_efx</code>, guarded by <code>EFXError</code> when the extension is missing).</li>
 </ol>
-<p>Supported clip formats: <code>.wav</code>, <code>.mp3</code>, <code>.ogg</code>, <code>.flac</code> (also <code>.aiff</code> / <code>.m4a</code> through the script resource filter). Decoding is handled by the miniaudio backend into <code>DecodedAudio</code> buffers.</p>
+<p>Supported clip formats (decoder): <code>.wav</code>, <code>.wave</code>, <code>.mp3</code>, <code>.ogg</code>, <code>.vorbis</code>, <code>.flac</code> (<code>AUDIO_EXTENSIONS</code> in <code>core/audio/miniaudio_decoder.py</code>). The AudioSource Inspector file filter is narrower — <code>Audio (*.wav *.mp3 *.ogg *.flac)</code> (<code>core/components/audio/source/component.py</code>). Decoding is handled by the miniaudio backend into <code>DecodedAudio</code> buffers (<code>decode_audio</code> / <code>decode_audio_stereo</code> / <code>decode_audio_channels</code>); <code>.wav</code>/<code>.wave</code> also decode via stdlib <code>wave</code> when miniaudio is absent (<code>core/audio/sys/clip.py</code>).</p>
 <p>Pages: AudioSource, AudioListener, Reverb Zone, Audio System (manager, decoders, analyzer, EFX).</p>
 <p>Setup minimum for audible sound: one entity with AudioListener (usually the camera), one entity with AudioSource pointing at a clip, press Play. If <code>play_on_awake</code> is off, start playback from a script or enable the component at runtime — enabling replays the clip from the start.</p>
               

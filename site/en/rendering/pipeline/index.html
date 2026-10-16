@@ -97,6 +97,14 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">ModernGL Pipeline and Scene Renderer</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" >Cameras</a>
@@ -1236,26 +1244,77 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="moderngl-pipeline-and-scene-renderer">ModernGL Pipeline and Scene Renderer</h1>
-<p>Contexts:</p>
+                <h1 id="pipeline">Pipeline</h1>
+<blockquote>
+<p>Forward pipeline in <code>SceneRendererMixin.render_scene</code>: collect snapshot → shadow maps → opaque phase → transparent phase → environment (sky/water/clouds) → editor overlays.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p><code>render_scene(scene, view_mat, proj_mat, cam_pos, viewport_w, viewport_h, ...)</code> (<code>core/renderer/scenev/mixin.py:24</code>) applies <code>_render_scale</code> to get render size, collects a <code>_RenderSnapshot</code> (lights, <code>dir_light</code>, sky/cloud/water components, renderable entries), renders shadow maps via <code>ShadowRenderer</code>, then calls <code>_scenev_render_forward_phases(opaque, transparent, ...)</code> (<code>core/renderer/scenev/forward.py:19</code>). Transparent phase enables <code>SRC_ALPHA, ONE_MINUS_SRC_ALPHA</code> blending with <code>depth_mask = False</code>. Specialized passes: <code>WaterPassMixin</code>, <code>VoxelPassMixin</code>, <code>SkinnedPassMixin</code>, cubemap pass for dynamic reflections, <code>GizmoPassMixin</code>/<code>IconPassMixin</code>/<code>OutlinePassMixin</code> for the editor.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_render_scale</code></td>
+<td>float</td>
+<td><code>1.0</code></td>
+<td>Global render-size multiplier (<code>core/renderer/scenev/mixin.py:27</code>).</td>
+</tr>
+<tr>
+<td><code>_shadow_resolution</code></td>
+<td>int</td>
+<td>per-light-type</td>
+<td>Shadow map size; see <a href="../shadows/">Shadows</a>.</td>
+</tr>
+<tr>
+<td><code>_scene_fbo</code></td>
+<td>moderngl.Framebuffer</td>
+<td><code>None</code> until init</td>
+<td>Scene color+depth target (<code>core/renderer/renderer.py:83-86</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Viewport size comes from the Qt viewport; per-camera <code>render_scale</code> / custom resolution further scales it (see <a href="../camera/">Camera</a>). Stats overlay reads <code>_draw_calls</code>, <code>_opaque_draws</code>, <code>_trans_draws</code>, <code>_triangles_drawn</code>.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">renderer.render_scene(scene, cam.get_view_matrix(),
+                      cam.get_projection_matrix(aspect),
+                      cam_pos, 1280, 720)
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Game and editor viewports create the context with <code>moderngl.create_context(standalone=False)</code> — a shared 4.6 core context inside the Qt surface, so editor and game views share textures and programs.</li>
-<li>Offscreen work (material/model previews, terrain workers, compute runners) uses <code>moderngl.create_standalone_context(require=430)</code> with no visible surface.</li>
-<li>Shaders are authored as <code>#version 430 core</code>. If compilation fails, the loader retries as <code>#version 330 core</code>, stripping <code>layout(std430)</code> buffers and forcing instancing/skinning off — a compatibility fallback, not a second code path to maintain.</li>
+<li><a href="../overview/">Overview</a>, <a href="../camera/">Camera</a>, <a href="../shadows/">Shadows</a>, <a href="../water/">Water</a>, <a href="../gizmos/">Gizmos</a></li>
 </ul>
-<p>The <code>Renderer</code> class is composed from mixins, one responsibility each: programs, uniforms, framebuffers, scene collection, geometry cache, main scene pass, shadow pass, cubemap pass, skinned pass, water/voxel/object-FX passes, post pass, gizmo/icon/outline passes, culling and stats. Read a stage by opening its mixin file under <code>core/renderer</code> (<code>shadows.py</code>, <code>scene_renderer.py</code>, <code>materials.py</code>, <code>framebuffers.py</code> and siblings).</p>
-<p>A frame walks these stages:</p>
-<ol>
-<li>Collect visible render items from the scene: frustum culling against camera planes, layer-mask filtering, sorting into opaque / transparent / overlay buckets.</li>
-<li>Render shadow maps (cascaded directional, point cubes, spot perspectives) into depth targets; projector shadows join this pass.</li>
-<li>Render the main scene with bound materials, up to 8 lights by default plus ambient, and per-material transparency handling.</li>
-<li>Run water, voxel and object-FX passes into their targets.</li>
-<li>Run the PostFX chain in component order.</li>
-<li>Draw editor overlays (grid, gizmos, icons, outlines, selection) — editor viewports only.</li>
-</ol>
-<p>Key defaults: <code>_max_lights = 8</code> with per-light type/position/direction/color/intensity/range/spot/area uniforms; <code>_ambient = [0.26, 0.28, 0.34]</code>; shadow resolution 2048, distance 50, 4 cascades; clear color dark grey <code>[0.18, 0.18, 0.18]</code>; line width 0.6667 for debug drawing. Render modes: <code>SHADED</code>, <code>SHADED_WIREFRAME</code>, <code>FLAT</code>.</p>
-<p>Troubleshooting: black viewport → context creation failed (check OpenGL 4.6 support) or all lights culled; pink/missing materials → shader compile failed and fallback missed (see console, check Shaders page); z-fighting → push <code>near</code> out or pull <code>far</code> in on the camera; shadows absent → <code>cast_shadows</code> off or outside shadow distance.</p>
-<p>Related: Cameras, Lights and Shadows, Materials, Shaders, Profiler (per-stage timings), Gizmos and Icons.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/renderer/scencev/mixin.py</code> → <code>core/renderer/scenev/mixin.py:24-80</code></li>
+<li><code>core/renderer/scenev/forward.py:19-57</code></li>
+<li><code>core/renderer/renderer.py:56-120</code></li>
+<li><code>core/renderer/framebuffers.py</code>, <code>core/renderer/shadows/passes.py:183</code></li>
+</ul>
               
             </div>
           </div><footer>

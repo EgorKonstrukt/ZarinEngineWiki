@@ -1,21 +1,49 @@
 # Pixelate
 
-Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.
-
-## How it works
-
-Retro mosaic downsampling with adjustable cell size.
+> Retro mosaic. UVs are quantized to pixel_size blocks relative to the render resolution. Class `Pixelate` in `core/components/rendering/postfx/pixelate.py`. Runs in the PostFX stack in component order; skipped when `enabled` is False or the entity is inactive (`render()` early-out).
 
 ## Parameters
 
-Cell size.
+| Inspector | Field | Type | Range | Default |
+|---|---|---|---|---|
+| Pixel Size | `_pixel_size` | FLOAT | 1.0 – 256.0 | `8.0` |
 
-## Tips
+## Usage
 
-Retro modes with Scanlines and Dithering; pair with low render_scale for honest pixels.
+Editor: select the PostFX entity, Add Component > `Pixelate`, tick `enabled`, tune fields above. Order among PostFX components defines execution order.
 
-## Cost
+Code:
 
-Cheap (fewer pixels, in fact).
+```python
+from core.components.rendering.postfx.pixelate import Pixelate
+fx = Pixelate()
+entity.add_component(fx)
+fx._pixel_size = 12.0
+fx.enabled = True
+```
 
-Related: [PostFX Stack](../postfx.md), Cameras (render scale), Profiler.
+## Shader snippet
+
+Shader: `core/components/rendering/postfx/pixelate.py`.
+
+```glsl
+#version 330 core
+uniform sampler2D u_input_tex;
+uniform vec2 u_resolution;
+uniform float u_pixel_size;
+```
+
+
+## Performance notes
+
+Single pass, resolution-independent cost.
+
+## Related
+
+Related: [PostFX Stack](../postfx.md), [Color Grading](color-grading.md), [Bloom](bloom.md).
+
+## Verified against
+
+- `core/components/rendering/postfx/pixelate.py` — class `Pixelate`, `_inspector_fields`, `__init__` defaults, `Fullscreen nearest-block pass (u_resolution)`.
+
+- `core/components/rendering/postfx/graphics_effect.py` — `GraphicsEffect` base (`enabled`, `_registry`, `should_skip`, `render()` signature).

@@ -632,6 +632,20 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Начало работы</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Обзор</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_6">Сериализация</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_7">Связанные страницы</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_8">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="requirements/">Системные требования</a>
@@ -1236,8 +1250,90 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="zarinengine-wiki-ru">ZarinEngine Wiki (RU)</h1>
-<p>TODO: Русская главная в подготовке. Начните с разделов Начало работы, Ядро, Рендеринг, Скриптинг, Руководство по редактору.</p>
+                <h1 id="_1">Начало работы</h1>
+<blockquote>
+<p>Точка входа в ZarinEngine: игровой движок на Python с ECS-архитектурой и визуальным редактором. Установка зависимостей, запуск редактора через <code>python main.py</code>, запуск сцен через <code>python player.py</code>.</p>
+</blockquote>
+<p><a href="../../">Home</a> | <a href="_section/">Section index</a></p>
+<h2 id="_2">Обзор</h2>
+<p>ZarinEngine — 3D игровой и симуляционный движок на Python (ECS-архитектура, рендеринг ModernGL, редактор PySide6). API в духе Unity: иерархия сцены, компоненты, инспектор, префабы. Лицензия: Mozilla Public License 2.0.</p>
+<h2 id="_3">Свойства</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>entry_editor</td>
+<td>command</td>
+<td><code>python main.py</code></td>
+<td>Открывает визуальный редактор (см. <code>main.py</code>)</td>
+</tr>
+<tr>
+<td>entry_player</td>
+<td>command</td>
+<td><code>python player.py &lt;scene.zpes&gt;</code></td>
+<td>Запуск собранной игры из файла сцены (см. <code>player.py</code>)</td>
+</tr>
+<tr>
+<td>entry_build</td>
+<td>command</td>
+<td><code>python build_nuitka.py</code></td>
+<td>Компиляция standalone-исполняемого файла через Nuitka</td>
+</tr>
+<tr>
+<td>scene_extension</td>
+<td>str</td>
+<td><code>.zpes</code></td>
+<td>Файл сцены (JSON)</td>
+</tr>
+<tr>
+<td>language</td>
+<td>str</td>
+<td>Python 3.13+</td>
+<td>Единственный нужный язык; компиляция для итераций не требуется</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">Использование в редакторе</h2>
+<ol>
+<li>Установите зависимости, запустите <code>python main.py</code>.</li>
+<li>Прочитайте <a href="requirements/">Системные требования</a>, затем <a href="installation/">Установка</a>.</li>
+<li>Пройдите <a href="quick-start/">Быстрый старт</a>, осмотрите интерфейс в <a href="editor-tour/">Обзор редактора</a>.</li>
+<li>Соберите <a href="first-scene/">Первая сцена</a>. При сбоях откройте <a href="faq/">Частые вопросы</a>.</li>
+</ol>
+<h2 id="_5">Использование в коде</h2>
+<pre><code class="language-python"># Подготовка проекта не требуется. Из корня движка:
+#   pip install -r requirements.txt
+#   python main.py                  # редактор
+#   python player.py SampleScene.zpes  # запуск сцены
+</code></pre>
+<h2 id="_6">Сериализация</h2>
+<p>Неприменимо. Сохранение сцен — в <a href="../core/registry-serialization/">Реестр и сериализация</a> и <a href="../scenes-prefabs/scenes/">Сцены</a>.</p>
+<h2 id="_7">Связанные страницы</h2>
+<ul>
+<li><a href="requirements/">Системные требования</a></li>
+<li><a href="installation/">Установка</a></li>
+<li><a href="quick-start/">Быстрый старт</a></li>
+<li><a href="editor-tour/">Обзор редактора</a></li>
+<li><a href="first-scene/">Первая сцена</a></li>
+<li><a href="faq/">Частые вопросы</a></li>
+<li><a href="../core/ecs-overview/">Обзор ECS</a></li>
+<li><a href="../scripting/overview/">Скриптинг</a></li>
+</ul>
+<h2 id="_8">Проверено по</h2>
+<ul>
+<li><code>README.md</code> (возможности, быстрый старт, требования, лицензия)</li>
+<li><code>main.py</code> (точка входа редактора)</li>
+<li><code>player.py</code> (точка входа плеера, <code>DEFAULT_SCENE</code>)</li>
+<li><code>build_nuitka.py</code> (точка входа сборки)</li>
+<li><code>LICENSE</code> (MPL-2.0)</li>
+</ul>
               
             </div>
           </div><footer>

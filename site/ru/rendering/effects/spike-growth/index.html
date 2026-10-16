@@ -844,13 +844,15 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Рост шипов</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#_2">Как работает</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Параметры</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_3">Параметры</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Использование</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_4">Советы</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Шейдер</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_5">Цена</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Связанное</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_6">Проверено по коду</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1248,140 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Рост шипов</h1>
-<p>Эффект объекта через проход ObjectFx (в отличие от PostFX на весь кадр). Построен на общей базе ObjectEffect; скрипты ведут его, анимируя float прогресса/интенсивности.</p>
-<h2 id="_2">Как работает</h2>
-<p>Выращивает процедурные шипы из поверхности по нормалям с контролем длины.</p>
-<h2 id="_3">Параметры</h2>
-<p>Прогресс/длина, плотность, острота.</p>
-<h2 id="_4">Советы</h2>
-<p>Расползание порчи, паверапы брони, взведение морских мин.</p>
-<h2 id="_5">Цена</h2>
-<p>Средне по плотности шипов.</p>
-<p>Связанное: <a href="../">эффекты объектов</a>, материалы, примеры скриптов.</p>
+<blockquote>
+<p>Спайки геометрическим шейдером. Каждый треугольник экструдируется до 4× (макс. 12 вершин) вдоль нормалей; length × amount — высота, radius сужает базу, noise/cell варьируют длину, twist крутит, emission/color + rim красят спайки. Опционально animate/ping_pong. Класс <code>SpikeGrowthEffect</code> в <code>core/components/rendering/effects/spike_growth_effect.py</code>. ObjectFx geometry-shader extrusion (layout triangles → triangle_strip max_vertices = 12): vertices push along normals by length × amount with cell noise.</p>
+</blockquote>
+<h2 id="_2">Параметры</h2>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Amount</td>
+<td><code>amount</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Spike Length</td>
+<td><code>length</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>1.5</code></td>
+</tr>
+<tr>
+<td>Base Shrink</td>
+<td><code>radius</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>0.35</code></td>
+</tr>
+<tr>
+<td>Length Noise</td>
+<td><code>noise</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>0.6</code></td>
+</tr>
+<tr>
+<td>Twist</td>
+<td><code>twist</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>0.6</code></td>
+</tr>
+<tr>
+<td>Glow</td>
+<td><code>emission</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>3.0</code></td>
+</tr>
+<tr>
+<td>Spike Color</td>
+<td><code>color</code></td>
+<td>COLOR</td>
+<td>—</td>
+<td><code>[0.35, 0.9, 1.0]</code></td>
+</tr>
+<tr>
+<td>Rim Power</td>
+<td><code>rim</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>2.5</code></td>
+</tr>
+<tr>
+<td>Cell Size</td>
+<td><code>cell</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>0.25</code></td>
+</tr>
+<tr>
+<td>Double Sided</td>
+<td><code>double_sided</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>True</code></td>
+</tr>
+<tr>
+<td>Animate</td>
+<td><code>animate</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td>Anim Speed</td>
+<td><code>speed_anim</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Ping Pong</td>
+<td><code>ping_pong</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">Использование</h2>
+<p>Редактор: выбрать меш-сущность, Add Component &gt; <code>SpikeGrowthEffect</code>, включить <code>enabled</code>, анимировать amount-поля из скрипта.</p>
+<p>Код:</p>
+<pre><code class="language-python">from core.components.rendering.effects.spike_growth_effect import SpikeGrowthEffect
+fx = SpikeGrowthEffect()
+entity.add_component(fx)
+fx.amount = 0.7
+fx.length = 2.0
+fx.enabled = True
+# каждый кадр: fx.amount = min(1.0, fx.amount + dt * 0.5)
+</code></pre>
+<h2 id="_4">Шейдер</h2>
+<p>Шейдер: <code>core/components/rendering/effects/spike_growth_effect.py (geometry header) + ObjectFx.shader</code>. Привязанные uniform-ы: <code>u_spike_amount</code>, <code>u_spike_length</code>, <code>u_spike_radius</code>, <code>u_spike_noise</code>, <code>u_spike_twist</code>, <code>u_spike_emission</code>, <code>u_spike_color</code>, <code>u_spike_rim</code>, <code>u_spike_cell</code>, <code>u_double_sided</code>, <code>u_time</code>.</p>
+<pre><code class="language-glsl">#version 330 core
+layout(triangles) in;
+layout(triangle_strip, max_vertices = 12) out;
+// uniforms: u_spike_amount, u_spike_length, u_spike_radius, u_spike_noise, u_spike_twist, u_spike_cell, u_spike_color, u_spike_emission, u_spike_rim
+</code></pre>
+<h2 id="_5">Связанное</h2>
+<p>См. <a href="../">Эффекты объектов</a>, проход ObjectFx (<code>core/renderer/object_fx_pass.py</code>), <code>core/shaders/internal/ObjectFx.shader</code>.</p>
+<h2 id="_6">Проверено по коду</h2>
+<ul>
+<li><code>core/components/rendering/effects/spike_growth_effect.py</code> — класс <code>SpikeGrowthEffect</code>, <code>_inspector_fields</code>, дефолты <code>__init__</code>, uniform-ы <code>_apply</code>.</li>
+<li><code>core/components/rendering/effects/object_effect.py</code> — базовый <code>ObjectEffect</code> (<code>bind</code> ставит <code>u_time</code>, гварды <code>_set</code>/<code>_set_vec</code>, <code>reset_all_defaults</code>).</li>
+<li><code>core/renderer/object_fx_pass.py</code> — <code>_find_object_effect</code>, <code>_render_object_effects</code>, <code>_get_fx_program</code>.</li>
+</ul>
               
             </div>
           </div><footer>

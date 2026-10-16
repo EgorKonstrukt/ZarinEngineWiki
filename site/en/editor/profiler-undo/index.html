@@ -563,6 +563,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Profiler Panel and Undo History</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../curve-gradient-editors/">Curve, Gradient, Color Editors</a>
@@ -1237,15 +1247,114 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="profiler-panel-and-undo-history">Profiler Panel and Undo History</h1>
-<p>TODO: Content pending. This page will document Profiler Panel and Undo History in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p>Performance surface (<code>editor/panels/profiler/</code>) — <code>ProfilerPanel</code> with hierarchy/flame/timeline views — plus the command stack: <code>UndoStack</code> (<code>editor/undo_stack.py</code>), <code>UndoHistoryPanel</code>, <code>TracemallocPanel</code>.</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Signature</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ProfilerPanel</code></td>
+<td><code>(engine, parent=None)</code> + <code>load_config(config)</code></td>
+<td><code>profiler/panel.py</code>; <code>showEvent/hideEvent</code> gate sampling</td>
+</tr>
+<tr>
+<td><code>ProfilerPanel</code> controls</td>
+<td><code>_on_toggle(checked)</code>, <code>_on_clear()</code>, <code>_refresh()</code>, <code>_select_frame(idx)</code>, <code>_get_fps()</code></td>
+<td>Capture toggle, clear, frame pick</td>
+</tr>
+<tr>
+<td><code>HierarchyView.set_frame_data</code></td>
+<td><code>(samples: list, frame_time_ms: float, flat_data: dict \| None)</code></td>
+<td>Tree of aggregated samples</td>
+</tr>
+<tr>
+<td><code>FlameGraphWidget.set_data</code> / <code>clear_data</code></td>
+<td><code>(samples: list, frame_time_ms: float)</code></td>
+<td><code>profiler/flame.py</code></td>
+</tr>
+<tr>
+<td><code>TimelineWidget.add_frame</code> / <code>clear_data</code></td>
+<td><code>(flat_data: dict[str, float])</code></td>
+<td><code>profiler/timeline.py</code> scrolling chart</td>
+</tr>
+<tr>
+<td><code>TimelineOverview.add_frame</code></td>
+<td><code>(flat_data: dict, frame_time_ms: float)</code></td>
+<td>Mini-map strip; <code>_bar_color(total)</code> scales color</td>
+</tr>
+<tr>
+<td><code>ProfilerHeader.update_stats</code></td>
+<td><code>(fps, frame_count, frame_time_ms, ...)</code></td>
+<td><code>profiler/views.py</code> header readout</td>
+</tr>
+<tr>
+<td><code>UndoCommand</code></td>
+<td><code>redo()</code> / <code>undo()</code> (override)</td>
+<td>Base in <code>editor/undo_stack.py</code></td>
+</tr>
+<tr>
+<td><code>CallbackCommand</code></td>
+<td><code>(do_fn, undo_fn, description="")</code></td>
+<td>Lambda-backed command</td>
+</tr>
+<tr>
+<td><code>MacroCommand</code></td>
+<td><code>(commands: list[UndoCommand], description="")</code></td>
+<td>Atomic group</td>
+</tr>
+<tr>
+<td><code>UndoStack</code></td>
+<td><code>push(cmd)</code>, <code>undo()</code>, <code>redo()</code>, <code>can_undo()</code>, <code>can_redo()</code>, <code>begin_macro(desc)</code>, <code>end_macro(desc)</code>, <code>clear()</code>, <code>undo_description()</code>, <code>redo_description()</code>, <code>index()</code></td>
+<td><code>QObject</code> with change notify (<code>_notify</code>)</td>
+</tr>
+<tr>
+<td><code>UndoHistoryPanel</code></td>
+<td><code>refresh()</code>, <code>_on_item_clicked(item)</code>, <code>_timed_refresh()</code></td>
+<td>Click-to-jump history (<code>panels/undo_history_panel.py</code>)</td>
+</tr>
+<tr>
+<td><code>TracemallocPanelBase</code></td>
+<td><code>_build_short_report()</code>, <code>_build_full_report()</code>, <code>_on_copy_report()</code>, <code>_on_save_report()</code>, <code>_on_analyze()</code></td>
+<td><code>panels/tracemalloc/panel.py</code></td>
+</tr>
+<tr>
+<td><code>TracemallocPanel</code></td>
+<td><code>_refresh()</code>, <code>_kick_heavy(do_trace, do_objs)</code>, <code>_update_gc_stats()</code>, <code>_update_tracemalloc()</code>, <code>_format_size(n, show_sign=False)</code></td>
+<td><code>panels/tracemalloc/__init__.py</code>; heavy work off-thread</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Profiler dock: toggle capture, pick a frame to freeze hierarchy/flame/timeline on it, Clear drops all frames; the header shows FPS/frame-count/frame-time. Undo History lists pushed commands with descriptions — clicking an entry undoes/redoes to that point. Tracemalloc dock builds short/full allocation reports, copyable to clipboard or savable to disk, with GC stats alongside. Global Undo/Redo menu actions live in the main window Edit menu.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from editor.undo_stack import UndoStack, CallbackCommand, MacroCommand
+
+stack = UndoStack()
+stack.push(CallbackCommand(do_fn=apply, undo_fn=revert, description=&quot;Move entity&quot;))
+stack.begin_macro(&quot;Drop asset&quot;)
+# ... push several commands ...
+stack.end_macro(&quot;Drop asset&quot;)
+stack.undo(); stack.redo()
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Main Window (Edit → Undo/Redo actions), Hierarchy/Inspector (command producers), Console (error surface)</li>
+<li><code>tools/profile_flamegraph.bat</code>, <code>tools/profile_svg.bat</code>, <code>tools/profile_top.bat</code> (offline profiling)</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>editor/panels/profiler/panel.py</code>, <code>editor/panels/profiler/views.py</code>, <code>editor/panels/profiler/flame.py</code>, <code>editor/panels/profiler/timeline.py</code></li>
+<li><code>editor/undo_stack.py</code>, <code>editor/panels/undo_history_panel.py</code></li>
+<li><code>editor/panels/tracemalloc/panel.py</code>, <code>editor/panels/tracemalloc/__init__.py</code></li>
+</ul>
               
             </div>
           </div><footer>

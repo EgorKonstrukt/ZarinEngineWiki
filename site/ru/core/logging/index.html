@@ -666,6 +666,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Логирование</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Обзор</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_6">Сериализация</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_7">Связанные страницы</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_8">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../profiler/">Профайлер</a>
@@ -1237,15 +1251,105 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Логирование</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Логирование в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p><code>Logger</code> — статический лог с фильтром по уровню, in-memory кольцевым буфером (2000 записей) и колбэками-лисенерами, которые питают панель Console редактора.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="_2">Обзор</h2>
+<p>Уровни — <code>LogLevel.DEBUG = 0, INFO = 1, WARNING = 2, ERROR = 3</code>; <code>_min_level</code> по умолчанию <code>DEBUG</code>, т.е. записывается всё (<code>debug</code>/<code>info</code>/<code>warning</code> отсекаются гейтом; <code>error()</code> пишет всегда). <code>_emit</code> добавляет <code>LogEntry(level, message, traceback_str)</code> (метка времени через <code>time.time()</code>), за пределом <code>_max_entries = LOGGER_MAX_ENTRIES = 2000</code> старейшая запись вытесняется, затем вызываются лисенеры (исключения лисенеров глотаются). <code>Logger.error(msg, exc)</code> прикладывает <code>traceback.format_exc()</code> только если <code>exc</code> передан. <code>main.py</code>/<code>player.py</code> направляют необработанные исключения через <code>Logger.error</code> с полным трейсбэком.</p>
+<h2 id="_3">Свойства</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LogLevel</td>
+<td>IntEnum</td>
+<td><code>DEBUG/INFO/WARNING/ERROR = 0/1/2/3</code></td>
+<td>Порядок серьёзности</td>
+</tr>
+<tr>
+<td>debug / info / warning</td>
+<td>methods</td>
+<td><code>Logger.info(msg)</code></td>
+<td>Отсекаются через <code>_min_level</code></td>
+</tr>
+<tr>
+<td>error(msg, exc=None)</td>
+<td>method</td>
+<td><code>exc=None</code></td>
+<td><code>traceback.format_exc()</code> прикладывается, когда <code>exc</code> дан</td>
+</tr>
+<tr>
+<td>add_listener(fn) / remove_listener(fn)</td>
+<td>methods</td>
+<td>—</td>
+<td><code>fn(LogEntry)</code>; сюда подписана панель консоли</td>
+</tr>
+<tr>
+<td>get_entries</td>
+<td>method</td>
+<td>copy of list</td>
+<td>Снапшот для отрисовки UI</td>
+</tr>
+<tr>
+<td>clear</td>
+<td>method</td>
+<td>—</td>
+<td>Сбрасывает все записи</td>
+</tr>
+<tr>
+<td>_max_entries</td>
+<td>int</td>
+<td><code>2000</code></td>
+<td><code>LOGGER_MAX_ENTRIES</code> (<code>core/config/constants.py</code>)</td>
+</tr>
+<tr>
+<td>LogEntry fields</td>
+<td>slots</td>
+<td>—</td>
+<td><code>level</code>, <code>message</code>, <code>timestamp</code>, <code>traceback_str</code>; хелперы <code>formatted_time()</code> (<code>%H:%M:%S</code>), <code>level_str()</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">Использование в редакторе</h2>
+<p>Панель Console рендерит <code>get_entries()</code> (настройки шрифта — глобальный конфиг <code>console.*</code>). Ошибки движка, плагинов и скриптов появляются здесь с контекстом сущности/компонента.</p>
+<h2 id="_5">Использование в коде</h2>
+<pre><code class="language-python">from core.foundation.logger import Logger
+
+Logger.info(&quot;Play mode started.&quot;)
+Logger.warning(&quot;Missing texture, using fallback.&quot;)
+try:
+    risky()
+except Exception as e:
+    Logger.error(f&quot;System failed: {e}&quot;, e)
+
+Logger.add_listener(lambda entry: print(entry.level_str(), entry.formatted_time(), entry.message))
+</code></pre>
+<pre><code class="language-python">print(len(Logger.get_entries()))  # в кольцевом буфере не больше 2000 записей
+Logger.clear()  # сбросить все записи (только рантайм, не сериализуется)
+</code></pre>
+<h2 id="_6">Сериализация</h2>
+<p>Неприменимо. Записи только рантайм; <code>player.py</code> дополнительно зеркалит стартовую диагностику в <code>player_diag.txt</code>.</p>
+<h2 id="_7">Связанные страницы</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li><a href="../config/">Конфигурация</a></li>
+<li><a href="../profiler/">Профайлер</a></li>
+<li><a href="../ecs-overview/">Обзор ECS</a></li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_8">Проверено по</h2>
+<ul>
+<li><code>core/foundation/logger.py</code> (уровни, буфер, лисенеры, поведение трейсбэка в <code>error</code>)</li>
+<li><code>core/config/constants.py</code> (<code>LOGGER_MAX_ENTRIES = 2000</code>)</li>
+<li><code>main.py</code> (<code>excepthook</code> → <code>Logger.error</code>), <code>player.py</code> (<code>excepthook</code>, <code>player_diag.txt</code>)</li>
+<li><code>core/ecs/query.py</code> (формат логирования ошибок покомпонентно)</li>
+</ul>
               
             </div>
           </div><footer>

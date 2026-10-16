@@ -569,6 +569,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Shader Graph</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../terrain-node-graph/">Terrain Graph and NodeGraphQt</a>
@@ -1237,15 +1247,74 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="shader-graph">Shader Graph</h1>
-<p>TODO: Content pending. This page will document Shader Graph in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p>Node-based shader authoring (<code>editor/shader_graph/</code>): typed nodes in <code>nodesp/</code> assembled on a <code>NodeGraphQt</code> canvas, compiled to GLSL by <code>code_generator.generate_shader_code</code>.</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Signature</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>generate_shader_code</code></td>
+<td><code>(graph, shader_name: str = "Custom/GeneratedShader") -&gt; str</code></td>
+<td><code>shader_graph/code_generator.py</code> entry point</td>
+</tr>
+<tr>
+<td><code>_generate_vertex_section</code> / <code>_generate_fragment_section</code></td>
+<td><code>(graph, nodes, uid_map, vertex_output/fragment_output) -&gt; str</code></td>
+<td>Stage emitters</td>
+</tr>
+<tr>
+<td><code>_empty_shader</code></td>
+<td><code>(name) -&gt; str</code></td>
+<td>Fallback when the graph has no output path</td>
+</tr>
+<tr>
+<td>Node base</td>
+<td><code>_ShaderNode(BaseNode)</code>; <code>_InputNode</code>, <code>_OutputNode</code>, <code>_MathNode</code>, <code>_TextureNode</code>, <code>_VectorNode</code> in <code>nodesp/base.py</code></td>
+<td>Every node implements <code>generate_code(uid_map)</code></td>
+</tr>
+<tr>
+<td>Input nodes</td>
+<td>VertexPosition, UV, Normal, Time, Color, Float, Texture2D (<code>nodesp/inputs_outputs.py</code>)</td>
+<td>Constants and mesh/shader inputs</td>
+</tr>
+<tr>
+<td>Output nodes</td>
+<td>VertexOutput, FragmentOutput (<code>nodesp/inputs_outputs.py</code>)</td>
+<td>Graph sinks per stage</td>
+</tr>
+<tr>
+<td>Math/vector nodes</td>
+<td>Add, Multiply, Subtract, Lerp, Normalize, DotProduct, Fresnel, Step, Clamp (<code>nodesp/math_vector.py</code>)</td>
+<td>GLSL expression emitters</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>The shader-graph dock presents the node palette (inputs, math, texture, outputs); links connect typed ports; the canvas validates that exactly one vertex path and one fragment path reach the output nodes; Apply regenerates the GLSL via <code>generate_shader_code</code> and assigns it to the edited shader asset. Empty or disconnected graphs fall back to <code>_empty_shader</code>, so the material never breaks.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from editor.shader_graph.code_generator import generate_shader_code
+
+glsl = generate_shader_code(graph, shader_name=&quot;Custom/MyEffect&quot;)
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Terrain Node Graph (same NodeGraphQt foundation, heightfield domain), Material Wizard and Previews</li>
+<li>Rendering: Shaders, Materials</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>editor/shader_graph/code_generator.py</code>, <code>editor/shader_graph/__init__.py</code></li>
+<li><code>editor/shader_graph/nodesp/base.py</code>, <code>editor/shader_graph/nodesp/inputs_outputs.py</code>, <code>editor/shader_graph/nodesp/math_vector.py</code></li>
+<li><code>editor/NodeGraphQt/</code></li>
+</ul>
               
             </div>
           </div><footer>

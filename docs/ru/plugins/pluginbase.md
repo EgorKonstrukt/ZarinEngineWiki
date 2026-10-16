@@ -1,9 +1,9 @@
 # Жизненный цикл PluginBase
 
-Каждый плагин — подкласс `PluginBase` (`core/foundation/plugin_manager.py`), конструируется через фабрику `get_plugin()` уровня модуля. Сначала метаданные, затем поведение.
+Каждый плагин — подкласс `PluginBase` (`core/foundation/plugins/base.py`, реэкспорт в `core/foundation/plugins/__init__.py`), конструируется через фабрику `get_plugin()` уровня модуля. Сначала метаданные, затем поведение.
 
 ```python
-from core.foundation.plugin_manager import PluginBase
+from core.foundation.plugins import PluginBase
 from core.foundation.logger import Logger
 
 

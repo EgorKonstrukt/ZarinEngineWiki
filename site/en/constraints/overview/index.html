@@ -443,6 +443,16 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Constraints</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties-api">Properties / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,15 +1247,94 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="constraints">Constraints</h1>
-<p>TODO: Content pending. This page will document Constraints in ZarinEngine.</p>
-<p>Planned sections:</p>
+<p>Per-frame Transform followers: position/rotation/scale blend, look-at/aim, parenting and movement helpers. All are <code>ComponentRegistry.register</code> components with <code>is_active</code> gating.</p>
+<h2 id="properties-api">Properties / API</h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Key fields</th>
+<th>Behavior (<code>on_update</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PositionConstraint</code></td>
+<td><code>sources[{entity_id, weight}]</code>, <code>weight_x/y/z</code>, <code>is_active</code></td>
+<td>Weighted-average source position + stored offset, axis-blended</td>
+</tr>
+<tr>
+<td><code>RotationConstraint</code></td>
+<td>sources + axis weights</td>
+<td>Weighted source rotation blend</td>
+</tr>
+<tr>
+<td><code>ScaleConstraint</code></td>
+<td>sources + axis weights</td>
+<td>Weighted source scale blend</td>
+</tr>
+<tr>
+<td><code>ParentConstraint</code></td>
+<td>source entity</td>
+<td>Copy source world transform (position+rotation)</td>
+</tr>
+<tr>
+<td><code>FollowTransformConstraint</code></td>
+<td>target + offsets</td>
+<td>Hard-follow target Transform</td>
+</tr>
+<tr>
+<td><code>LookAtConstraint</code></td>
+<td>target, up</td>
+<td>Orient <code>forward</code> toward target</td>
+</tr>
+<tr>
+<td><code>AimConstraint</code></td>
+<td>target, aim axis</td>
+<td>Aim a local axis at target</td>
+</tr>
+<tr>
+<td><code>MoveTowardsConstraint</code></td>
+<td>target, speed, stop distance</td>
+<td>Step position toward target</td>
+</tr>
+<tr>
+<td><code>RotateTowardsConstraint</code></td>
+<td>target, angular speed</td>
+<td>Slerp rotation toward target</td>
+</tr>
+<tr>
+<td><code>ScaleToConstraint</code></td>
+<td>target scale, speed</td>
+<td>Lerp scale toward value</td>
+</tr>
+</tbody>
+</table>
+<p>Common API: <code>add_source(entity, weight)</code>, <code>remove_source(index)</code>, <code>set_offset_from_current_position()</code>, <code>serialize()</code> / <code>deserialize()</code>.</p>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<ol>
+<li>Add a constraint component to the follower entity.</li>
+<li>Assign one or more source entities with weights; call <code>Set Offset From Current</code> (via <code>set_offset_from_current_position</code>) to keep the current gap.</li>
+<li>Tune per-axis weights (<code>weight_x/y/z</code>) to lock axes; disable via <code>is_active</code>.</li>
+</ol>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">c = entity.get_component_by_name(&quot;PositionConstraint&quot;)
+c.add_source(leader_entity, weight=1.0)
+c.set_offset_from_current_position()
+c.weight_y = 0.0  # lock vertical
+
+m = entity.get_component_by_name(&quot;MoveTowardsConstraint&quot;)
+m.target_entity_id = goal.id
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Navigation (<code>NavAgent</code>), Animation (bone paths), Parenting/Transform</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/constraints/__init__.py</code></li>
+<li><code>core/components/constraints/position_constraint.py</code> and sibling <code>*_constraint.py</code> files</li>
+</ul>
               
             </div>
           </div><footer>

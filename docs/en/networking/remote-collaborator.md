@@ -2,7 +2,7 @@
 
 In-editor visual stand-in for a remote peer: where they look, what they hold selected, what they drag.
 
-A 54-line component with no Inspector fields — presence is the data. It renders `gizmo_lines` / `gizmo_meshes` every frame: peer camera frustum, cursor ray, selection highlight and active gizmo operation handles in the peer's color.
+A 46-line component (`core/components/network/remote_collaborator.py`) with no custom `_inspector_fields` — presence is the data (identity lives in `peer_id` / `peer_name` / `color`, persisted via `serialize`/`deserialize`). It renders `gizmo_lines` / `gizmo_meshes` every frame: a square marker plus stem at the peer transform in the peer's color (`gizmo_meshes` returns `[]`).
 
 Peers appear when collaboration connects and vanish on disconnect timeout; the CollaborationManager owns the mapping from peer id to entity. Colors stay stable per peer within a session so teams learn who is who.
 

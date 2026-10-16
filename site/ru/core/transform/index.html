@@ -660,6 +660,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Трансформ</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Обзор</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_6">Сериализация</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_7">Связанные страницы</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_8">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../time/">Время и Fixed Update</a>
@@ -1237,15 +1251,132 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Трансформ</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Трансформ в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p><code>Transform</code> (<code>core.components.transform.tr</code>) хранит локальные position (<code>Vec3</code>), rotation (<code>Quat</code>), scale (<code>Vec3</code>) и лениво вычисляет мировую матрицу по цепочке родителей.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="_2">Обзор</h2>
+<p>Дефолты: position <code>(0,0,0)</code>, rotation identity <code>Quat(0,0,0,1)</code>, scale <code>(1,1,1)</code>. Любой локальный сеттер помечает поддерево dirty (<code>_mark_dirty</code> идёт по детям, регистрирует корни в <code>Scene._dirty_roots</code>, флаги spatial + версии трансформа). <code>world_matrix</code> пересчитывается при чтении, если dirty: корневые сущности пишут локальную TRS-матрицу напрямую; дети умножают <code>local @ parent_world</code>. Инспектор редактирует <code>local_position</code> (Position), <code>local_euler_angles</code> в градусах (Rotation), <code>local_scale</code> (Scale). <code>Entity.set_parent(..., preserve_world=True)</code> сохраняет мировую матрицу через сеттер <code>world_matrix</code>. <code>position</code> читает мировую трансляцию; установка конвертируется в локалку через инверсную матрицу родителя. <code>forward</code> — <code>-Z</code> мировой матрицы (нормализованный), <code>right</code> — <code>+X</code>, <code>up</code> — <code>+Y</code>.</p>
+<h2 id="_3">Свойства</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>local_position</td>
+<td>Vec3</td>
+<td><code>(0,0,0)</code></td>
+<td>Принимает <code>Vec3</code>, <code>ndarray</code>, tuple/list</td>
+</tr>
+<tr>
+<td>local_rotation</td>
+<td>Quat</td>
+<td>identity</td>
+<td>Сеттер нормализует, если дан <code>Quat</code></td>
+</tr>
+<tr>
+<td>local_scale</td>
+<td>Vec3</td>
+<td><code>(1,1,1)</code></td>
+<td>Принимает <code>Vec3</code>, <code>ndarray</code>, tuple/list</td>
+</tr>
+<tr>
+<td>local_euler_angles</td>
+<td>Vec3</td>
+<td><code>(0,0,0)</code> deg</td>
+<td>Эйлеров вид кватерниона (<code>Quat.from_euler</code> на set)</td>
+</tr>
+<tr>
+<td>position</td>
+<td>Vec3</td>
+<td>world origin</td>
+<td>Трансляция в мировых координатах; сеттер конвертирует в локалку</td>
+</tr>
+<tr>
+<td>world_matrix</td>
+<td>Mat4</td>
+<td>identity</td>
+<td>Ленивая; пересчёт пока <code>_dirty</code></td>
+</tr>
+<tr>
+<td>forward / right / up</td>
+<td>Vec3</td>
+<td>axes</td>
+<td>Нормализованные мировые оси (<code>-Z</code> / <code>+X</code> / <code>+Y</code>)</td>
+</tr>
+<tr>
+<td>translate(delta, world_space=False)</td>
+<td>method</td>
+<td>—</td>
+<td>Локальное сложение или через <code>position</code> в мире</td>
+</tr>
+<tr>
+<td>rotate(euler)</td>
+<td>method</td>
+<td>—</td>
+<td><code>euler</code> в градусах; домножает локальный кватернион</td>
+</tr>
+<tr>
+<td>look_at(target, up)</td>
+<td>method</td>
+<td><code>up=None</code> (дефолт <code>Vec3.up()</code>)</td>
+<td>Ставит <code>local_rotation</code> через <code>Quat.look_rotation</code></td>
+</tr>
+<tr>
+<td>world set</td>
+<td>setter</td>
+<td>—</td>
+<td>Отложенно через <code>_world_target</code>, декомпозиция на flush</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">Использование в редакторе</h2>
+<p>Inspector → Transform: числовые поля Position / Rotation (градусы) / Scale. Drag гизмо вьюпорта пишет те же локалки. Репарент в Hierarchy сохраняет мировое положение (<code>preserve_world=True</code>).</p>
+<h2 id="_5">Использование в коде</h2>
+<pre><code class="language-python">from core.components.transform.tr import Transform
+from core.maths.math3d import Vec3
+
+tr = entity.add_component(Transform())
+tr.local_position = Vec3(0.0, 1.0, 0.0)
+tr.local_euler_angles = Vec3(0.0, 45.0, 0.0)
+tr.local_scale = Vec3(2.0, 2.0, 2.0)
+
+tr.translate(Vec3(0.0, 0.0, 1.0))   # local move
+tr.rotate(Vec3(0.0, 90.0, 0.0))     # degrees
+print(tr.position)                  # world-space Vec3
+print(tr.forward)                   # world -Z
+</code></pre>
+<pre><code class="language-python">tr.translate(Vec3(1.0, 0.0, 0.0), world_space=True)  # через мировую позицию
+tr.look_at(Vec3(0.0, 1.0, 0.0))  # local_rotation через Quat.look_rotation
+</code></pre>
+<h2 id="_6">Сериализация</h2>
+<pre><code class="language-json">{ &quot;type&quot;: &quot;Transform&quot;, &quot;enabled&quot;: true,
+  &quot;local_position&quot;: [0.0, 1.0, 0.0],
+  &quot;local_rotation&quot;: [0.0, 0.0, 0.0, 1.0],
+  &quot;local_scale&quot;: [1.0, 1.0, 1.0] }
+</code></pre>
+<p>Отсутствующие ключи откатываются на <code>[0,0,0]</code> / <code>[0,0,0,1]</code> / <code>[1,1,1]</code> в <code>Transform.deserialize</code>.</p>
+<h2 id="_7">Связанные страницы</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li><a href="../entity/">Сущность Entity</a></li>
+<li><a href="../ecs-overview/">Обзор ECS</a></li>
+<li><a href="../../math/overview/">Математика</a></li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_8">Проверено по</h2>
+<ul>
+<li><code>core/components/transform/tr/__init__.py</code> (класс <code>Transform</code>, зарегистрирован)</li>
+<li><code>core/components/transform/tr/component.py</code> (локалки, euler, <code>_inspector_fields</code>, дефолты)</li>
+<li><code>core/components/transform/tr/matrix.py</code> (<code>world_matrix</code>, <code>position</code>, <code>forward/right/up</code>, <code>translate</code>, <code>rotate</code>, <code>look_at</code>)</li>
+<li><code>core/components/transform/tr/hierarchy.py</code> (<code>_mark_dirty</code>, batch-апдейты)</li>
+<li><code>core/components/transform/tr/serialize.py</code> (ключи + дефолты)</li>
+<li><code>core/ecs/entity.py</code> (<code>set_parent</code> с сохранением мира)</li>
+</ul>
               
             </div>
           </div><footer>

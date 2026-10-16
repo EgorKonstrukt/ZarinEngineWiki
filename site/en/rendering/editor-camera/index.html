@@ -103,6 +103,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Editor Camera</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1238,50 +1246,91 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="editor-camera">Editor Camera</h1>
-<p>The scene-editing camera. Never part of the build; it only drives editor viewports with orbit, pan and fly controls.</p>
+<blockquote>
+<p>Viewport fly camera: <code>EditorCamera</code> component (<code>core/components/rendering/cameras/editor_camera.py</code>); right-mouse WASD/QE flight, middle-mouse pan, wheel dolly.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Rotation via right-mouse or Alt+Left drag (<code>rotate_speed</code>), pan via middle-mouse, dolly via wheel (<code>zoom_speed</code> with scroll acceleration). <code>on_update</code> flies with W/A/S/D + Q/E and Shift-style speed boost ramp (<code>FAST_MULT = 3.0</code>, <code>SPEED_BOOST_RAMP = 2.0</code>), accel <code>12.0</code>, damping <code>8.0</code> (<code>editor_camera.py:22-29,136-175</code>).</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector field</th>
-<th>Default</th>
-<th>Meaning</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Move Speed</td>
-<td>5</td>
-<td>Fly/orbit translation rate</td>
+<td><code>move_speed</code></td>
+<td>float (0.1–100.0)</td>
+<td><code>5.0</code></td>
+<td>Base fly/pan speed (<code>editor_camera.py:35,47</code>).</td>
 </tr>
 <tr>
-<td>Rotate Speed</td>
-<td>—</td>
-<td>Yaw/pitch rate</td>
+<td><code>rotate_speed</code></td>
+<td>float (0.01–5.0)</td>
+<td><code>0.3</code></td>
+<td>Mouse-look gain (<code>editor_camera.py:36,48</code>).</td>
 </tr>
 <tr>
-<td>Zoom Speed</td>
-<td>—</td>
-<td>Dolly rate</td>
+<td><code>zoom_speed</code></td>
+<td>float (0.1–50.0)</td>
+<td><code>4.0</code></td>
+<td>Wheel dolly gain (<code>editor_camera.py:37,49</code>).</td>
 </tr>
 <tr>
-<td>Pan Speed</td>
-<td>—</td>
-<td>Screen-plane pan rate</td>
+<td><code>pan_speed</code></td>
+<td>float (0.001–0.1)</td>
+<td><code>0.01</code></td>
+<td>Middle-mouse pan gain (<code>editor_camera.py:38,50</code>).</td>
 </tr>
 <tr>
-<td>Damping</td>
-<td>—</td>
-<td>Motion smoothing</td>
+<td><code>damping</code></td>
+<td>float (0.1–50.0)</td>
+<td><code>8.0</code></td>
+<td>Velocity smoothing (<code>editor_camera.py:39,51</code>).</td>
 </tr>
 <tr>
-<td>Acceleration</td>
-<td>—</td>
-<td>Speed ramp</td>
+<td><code>acceleration</code></td>
+<td>float (1.0–100.0)</td>
+<td><code>12.0</code></td>
+<td>Fly acceleration (<code>editor_camera.py:40,52</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Hold right mouse + WASD to fly, Q/E for down/up; release to keep damped drift. Middle-drag pans; wheel dollies forward. Yaw/pitch persist via <code>serialize</code> (<code>yaw</code>, <code>pitch</code>).</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Controls: WASD/QE fly, right/middle mouse drags, Alt+LMB orbit, fast mode ×3.</p>
-<p>Related: Camera (runtime views), Viewport page of the Editor Manual.</p>
+<pre><code class="language-python">ec = entity.get_component(EditorCamera)
+ec.move_speed = 8.0
+ec.rotate_speed = 0.25
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../camera/">Camera</a>, <a href="../gizmos/">Gizmos</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/cameras/editor_camera.py:22-60,95-175</code></li>
+</ul>
               
             </div>
           </div><footer>

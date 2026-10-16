@@ -902,6 +902,18 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Слои коллизий</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Свойства</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Использование в коде</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#fixed-update">Заметки о fixed update</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Связанные</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_6">Проверено по</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1238,21 +1250,78 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Слои коллизий</h1>
-<p>Кто с кем сталкивается, независимо от реакции поверхности. Каждый коллайдер несёт <code>layer</code> (по умолчанию 0) и <code>mask</code> (по умолчанию <code>0xFFFF</code>, столкновения со всеми); контакт требует взаимного согласия сторон.</p>
-<p>Логика фильтрации в <code>core/physics/collision_layers.py</code>. Режим <code>per_layer_process</code> дополнительно изолирует слои в процессы солвера по требованию для полностью независимых суб-симуляций.</p>
-<p>План слоёв типового экшена:</p>
+<p>Кто с кем сталкивается, независимо от реакции поверхности. Каждый коллайдер несёт <code>layer</code> (<code>0</code>) и <code>mask</code> (<code>0xFFFF</code>); контакт требует взаимного согласия.</p>
+<h2 id="_2">Свойства</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>По умолчанию</th>
+<th>Примечания</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MAX_LAYERS</code></td>
+<td><code>16</code></td>
+<td>Слои <code>0–15</code></td>
+</tr>
+<tr>
+<td><code>layer</code></td>
+<td><code>0</code></td>
+<td>Индекс на коллайдере</td>
+</tr>
+<tr>
+<td><code>mask</code></td>
+<td><code>0xFFFF</code></td>
+<td>Битмаска</td>
+</tr>
+<tr>
+<td>Имена</td>
+<td><code>Default, TransparentFX, Ignore Raycast, Water, UI, Player, Enemy, Projectile, Trigger, Ground, Layer10–15</code></td>
+<td><code>DEFAULT_LAYER_NAMES</code></td>
+</tr>
+<tr>
+<td>Матрица</td>
+<td>Все-со-всеми кроме исключений</td>
+<td><code>build_default_collision_matrix()</code>: слой <code>2</code> ни с кем; слой <code>4</code> только сам с собой</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">Использование в редакторе</h2>
+<p><code>Layer</code> + <code>Collision Mask</code> на каждом коллайдере. Типовой план: <code>0</code> мир, <code>5</code> игрок, <code>6</code> враги (выкл. враг-vs-враг), <code>7</code> снаряды (мир + персонажи), <code>8</code> подборы-триггеры (только игрок).</p>
+<h2 id="_4">Использование в коде</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Pickup&quot;)
+from core.components.physics.sphere_collider import SphereCollider
+
+s = SphereCollider()
+s.radius = 1.0
+s.is_trigger = True
+s.layer = 8
+s.mask = 1 &lt;&lt; 5  # только слой игрока
+entity.add_component(s)
+
+from core.physics.collision_layers import build_default_collision_matrix, get_layer_mask
+matrix = build_default_collision_matrix()
+mask = get_layer_mask([], matrix, 0)
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass  # триггеры идут через тот же масочный тест, без отклика
+</code></pre>
+<p>Хелперы: <code>layer_mask_from_names</code>, <code>layer_names_from_mask</code>.</p>
+<h2 id="fixed-update">Заметки о fixed update</h2>
 <ul>
-<li>0 World — статичная геометрия, сталкивается со всем геймплейным.</li>
-<li>1 Player — персонаж и его хитбоксы.</li>
-<li>2 Enemy — боты; мьют enemy-vs-enemy экономит солвер на толпах.</li>
-<li>3 Projectile — выстрелы; маска на мир + персонажей, никогда на подборы.</li>
-<li>4 Pickup — только триггеры, маска на игрока.</li>
-<li>5 Sensor — триггеры зрения/слуха AI, маска на игрока + врагов, без физического отклика.</li>
+<li><code>layer</code>/<code>mask</code> уходят в каждый <code>create_rigid_body</code> / compound / soft-вызов и проверяются солвером каждый шаг.</li>
+<li>Режим <code>per_layer_process</code> изолирует слои в процессы по требованию (<code>plugin._get_layer_process</code>).</li>
 </ul>
-<p>Триггеры (<code>is_trigger</code>) сообщают пересечения через тот же тест масок без контактного отклика — сенсор не на том слое молчит, а не сломан.</p>
-<p>Односторонние платформы: коллайдер платформы на слое, выведенном из маски игрока, плюс тонкий верхний триггер, включающий коллизию при перекрытии сверху — скриптуется в пару строк на <code>on_collision_enter/exit</code>.</p>
-<p>Отладка: включите визуализацию физики (плагин) с раскраской тел по слоям; молчаливые пары почти всегда mismatch масок, а не отсутствующие компоненты.</p>
-<p>Связанное: физические материалы, солвер и потоки (per-layer режим), все страницы коллайдеров, джойнты (связанным телам нужна сталкивающаяся пара).</p>
+<h2 id="_5">Связанные</h2>
+<p>Материалы, солвер и потоки, все коллайдеры, Joints.</p>
+<h2 id="_6">Проверено по</h2>
+<ul>
+<li><code>core/physics/collision_layers.py</code></li>
+<li><code>core/physics/physics_solver.py</code></li>
+<li><code>plugins/physics_plug/plugin.py</code></li>
+</ul>
               
             </div>
           </div><footer>

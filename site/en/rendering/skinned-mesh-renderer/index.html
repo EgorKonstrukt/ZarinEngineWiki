@@ -131,6 +131,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Skinned Mesh Renderer</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../armature/">Armature</a>
@@ -1238,42 +1246,92 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="skinned-mesh-renderer">Skinned Mesh Renderer</h1>
-<p>Draws skeletal-animated meshes with GPU skinning: characters, creatures, animated props.</p>
+<blockquote>
+<p>Animated mesh: <code>SkinnedMeshRenderer</code> (<code>core/components/rendering/renderers/skinned_mesh_renderer.py</code>) with embedded mesh reference, GPU skinning in <code>core/renderer/gpu_skinning.py</code> + <code>skinned_pass.py</code>.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Unlike static meshes, the mesh reference lives on this component (no <code>MeshFilter</code> needed). Bone matrices upload to <code>u_bone_matrices</code>; see <a href="../armature/">Armature</a>. <code>update_when_offscreen</code> keeps skinning when culled (for shadows/reflections).</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group / field</th>
-<th>Meaning</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Mesh: Mesh</td>
-<td>Animated mesh source with bone weights</td>
+<td><code>mesh_name</code></td>
+<td>string</td>
+<td><code>""</code></td>
+<td>Mesh asset name (<code>skinned_mesh_renderer.py:24,38</code>).</td>
 </tr>
 <tr>
-<td>Mesh: Source</td>
-<td>Bind source selector</td>
+<td><code>mesh_path</code></td>
+<td>resource path (obj/fbx/glb/gltf)</td>
+<td><code>""</code></td>
+<td>Source model (<code>skinned_mesh_renderer.py:25,37</code>).</td>
 </tr>
 <tr>
-<td>Skinned Mesh Renderer: Materials</td>
-<td>Material slots, one per submesh</td>
+<td><code>materials</code></td>
+<td>list of <code>{path: *.mat}</code></td>
+<td><code>[{"path": ""}]</code></td>
+<td>Per-submesh materials (<code>skinned_mesh_renderer.py:27-29,39</code>).</td>
 </tr>
 <tr>
-<td>Cast Shadows / Receive Shadows</td>
-<td>Shadow toggles</td>
+<td><code>cast_shadows</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Shadow caster (<code>skinned_mesh_renderer.py:30,40</code>).</td>
 </tr>
 <tr>
-<td>Update When Offscreen</td>
-<td>Keep skinning culled meshes (correct shadows and probes)</td>
+<td><code>receive_shadows</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Shadow receiver (<code>skinned_mesh_renderer.py:31,41</code>).</td>
+</tr>
+<tr>
+<td><code>update_when_offscreen</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Update skinning offscreen (<code>skinned_mesh_renderer.py:32,42</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Import an FBX/GLB with a skeleton, set Source, assign materials, add <a href="../armature/">Armature</a> + <a href="../blend-shapes/">Blend Shapes</a> as needed.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Bone weights arrive with the mesh from Assimp (positions, normals, UVs, tangents, colors, weights in one import). The animation system (clips, Animator, controllers) writes bone poses into the Armature every frame; the skinned pass uploads bone matrices once per mesh and skins all vertices on the GPU, so CPU cost stays flat regardless of vertex count.</p>
-<p>Workflow: import the rigged FBX, add Armature (bone names must match), add SkinnedMeshRenderer with materials, attach the Animator with its controller, verify in Play — then enable Update When Offscreen only for shadow-casting crowds.</p>
-<p>Blend Shapes layer morph targets over the skeleton for faces (see Blend Shapes page).</p>
-<p>Troubleshooting: rigid T-pose → armature mismatch or animator missing; exploding vertices → weight/normalization import issue, reimport with tangents; shadows frozen → Update When Offscreen off on a culled caster.</p>
-<p>Related: Armature, Blend Shapes, Animation Clips and Animator, MeshRenderer (static), PhysBone (physical secondary motion).</p>
+<pre><code class="language-python">smr = entity.get_component(SkinnedMeshRenderer)
+smr.mesh_path = &quot;assets/models/hero.fbx&quot;
+smr.materials = [{&quot;path&quot;: &quot;assets/materials/Hero.mat&quot;}]
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../armature/">Armature</a>, <a href="../blend-shapes/">Blend Shapes</a>, <a href="../mesh-renderer/">Mesh Renderer</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/renderers/skinned_mesh_renderer.py:20-80</code></li>
+<li><code>core/renderer/gpu_skinning.py</code>, <code>core/renderer/skinned_pass.py</code></li>
+</ul>
               
             </div>
           </div><footer>

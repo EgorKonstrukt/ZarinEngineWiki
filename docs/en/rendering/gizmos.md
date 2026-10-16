@@ -1,18 +1,30 @@
-# Gizmos and Icons
-
-Editor-only overlay passes: gizmo lines/solids, billboard icons, selection outlines and the grid. They render after everything else in editor viewports and never appear in builds — zero runtime cost, full staging value.
-
-How components plug in:
-
-- Each component declares `_gizmo_pass` (e.g. `"light"`, `"camera"`, `"audio"`, `"script"`, physics and navigation passes) routing its drawing into the right batch.
-- Optional `_icon` file, `_gizmo_icon_color` and `_gizmo_icon_label` produce the billboarded letter badges (Light `L`, Audio `A`, Projector `P` and friends) through the icon pass.
-- Scripts draw custom gizmos by defining `gizmo_lines()` / `gizmo_meshes()` — these execute even outside Play, ideal for patrol paths, spawn radii and sensor cones.
-- Built-ins draw their domain shapes: lights show frustums/volumes, cameras show frustums, audio sources show zone shapes (sphere/box) with distance rings, colliders show wireframe shapes, joints show anchors and axes, navigation shows agent radii.
-
-Passes behind the scenes: the icon pass batches billboards (one draw for many badges), the outline pass highlights the selection, the grid pass draws the reference grid with overlay controls, and the line width defaults to 0.6667 for crisp debug drawing.
-
-Workflow: stage with gizmos on (light cones, audio zones, trigger boxes all visible), then toggle overlays off for beauty screenshots. Custom script gizmos should be cheap — they run every editor frame.
-
-Troubleshooting: gizmo missing → component `_show_gizmo_icon` disabled or pass filtered in viewport options; script gizmo stale → hot-reload recreated the instance, re-open the method; clutter → hide passes per category in the viewport menu.
-
-Related: Scripting gizmo callbacks, Light/Projector/AudioSource/Collider pages (their shapes), Viewport (Editor Manual).
+# Gizmos
+> Editor debug draw: `GizmoRenderer` (`core/renderer/gizmor/renderer.py`, lines `gizmor/lines.py`) fed by `GizmoPassMixin` (`core/renderer/gizmo_pass.py`) and `Gizmo*` components (`core/components/gizmo/gizmo_comp/`).
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+Pass API: `render_gizmo_lines / render_gizmo_arrays / render_instanced_gizmo / render_gizmo_meshes / render_wireframe_box` (`gizmo_pass.py:19-68`). Line backend: `render_lines / render_raw_lines / render_wireframe_box` (`gizmor/lines.py:83-422`); instanced icons/meshes (`gizmor/icons.py:129-332`). Components: `GizmoCube/Sphere/Cylinder/Cone` (`solids.py`), `GizmoLine/Ray/Arrow` (`lines.py`), `GizmoPlane/Grid/Circle/Disc` (`planes.py`), `GizmoCapsule/Pyramid/Frustum/Bounds` (`bodies.py`), `GizmoArc/Torus/Cross` (`curves.py`), `GizmoPoint/Poly/Bezier` (`paths.py`), `GizmoStar/Icon/Label` (`extra.py`). Light/camera/particle icons use `_gizmo_pass = "light"/"camera"/"particle"` and `_gizmo_cache_attrs`.
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `GizmoLine.start` / `end` | vec3 | `[-1,0,0]` / `[1,0,0]` | Segment endpoints (`lines.py:21-30`). |
+| `GizmoCube.size` | vec3 | `[1,1,1]` | Box size (`solids.py:21-30`). |
+| `GizmoSphere.radius` | float | `0.5` | Radius (`solids.py:82-90`). |
+| `GizmoIcon.icon` | texture | engine default | Billboard icon (`extra.py:78-90`). |
+| `gizmo.line_width` | float (global config) | renderer default | Fat-line width (`rconfig/config_state.py:51-56`). |
+## Usage in Editor
+Add Gizmo* components for level markup (triggers, spawn boxes, path points). They render only in the editor viewport, never in builds.
+## Usage in Code
+```python
+from core.components.gizmo.gizmo_comp.lines import GizmoLine
+gl = GizmoLine()
+gl.start = [0, 0, 0]
+gl.end = [0, 5, 0]
+entity.add_component(gl)
+```
+## Related pages
+- [Camera](./camera.md), [Light](./light.md), [Particle Force Field](./particle-force-field.md)
+## Verified against
+- `core/renderer/gizmo_pass.py:19-68`
+- `core/renderer/gizmor/lines.py:83-422`, `core/renderer/gizmor/icons.py`
+- `core/components/gizmo/gizmo_comp/lines.py`, `solids.py`, `planes.py`, `bodies.py`, `curves.py`, `paths.py`, `extra.py`
+- `core/gizmo/pipeline.py`, `core/gizmo/core/`

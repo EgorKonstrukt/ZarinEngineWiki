@@ -57,6 +57,22 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Editor Tour</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#serialization">Serialization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#screenshots">Screenshots</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../first-scene/">First Scene</a>
@@ -1237,15 +1253,152 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="editor-tour">Editor Tour</h1>
-<p>TODO: Content pending. This page will document Editor Tour in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p>The Zarin editor is a PySide6 application (<code>EditorMainWindow</code>): 3D viewport, Hierarchy, Inspector, Project panel, Console, and Play controls.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="overview">Overview</h2>
+<p><code>main.py</code> builds the editor: OpenGL 4.6 Core <code>QSurfaceFormat</code>, application name <code>Zarin</code>, Fusion style, 8-step splash screen, <code>Engine.initialize()</code>, plugins from <code>plugins/</code> and <code>plugins/user/</code>, a <code>CollaborationManager</code>, then <code>EditorMainWindow</code> with the viewport assigned to <code>engine.viewport</code>. A second <code>main.py</code> launch forwards <code>.zpes</code> paths to the running instance via <code>IpcServer</code>.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>window_class</td>
+<td>class</td>
+<td><code>EditorMainWindow</code></td>
+<td>Main window (<code>editor/main_window</code>)</td>
+</tr>
+<tr>
+<td>viewport</td>
+<td>widget</td>
+<td>ModernGL-based</td>
+<td>Real-time 3D view; editor camera with orbit, pan, fly</td>
+</tr>
+<tr>
+<td>hierarchy</td>
+<td>panel</td>
+<td><code>editor/panels/hierarchy</code></td>
+<td>Entity tree; drag to reparent; right-click context menu</td>
+</tr>
+<tr>
+<td>inspector</td>
+<td>panel</td>
+<td><code>editor/inspector</code></td>
+<td>Auto-generated fields per component <code>InspectorField</code> metadata (<code>float</code>, <code>int</code>, <code>bool</code>, <code>string</code>, <code>color</code>, <code>enum</code>, <code>Vec2/Vec3</code>, resource path with picker, <code>curve</code>, list)</td>
+</tr>
+<tr>
+<td>project</td>
+<td>panel</td>
+<td><code>editor/panels/project</code></td>
+<td>Asset browser; <code>Project → Create → Python Script</code>; double-click <code>.py</code> opens the script editor</td>
+</tr>
+<tr>
+<td>console</td>
+<td>panel</td>
+<td><code>editor/panels/console</code></td>
+<td>Log listener view over <code>Logger</code> entries</td>
+</tr>
+<tr>
+<td>terminal</td>
+<td>panel</td>
+<td><code>editor/panels/terminal</code></td>
+<td>Built-in terminal</td>
+</tr>
+<tr>
+<td>profiler_panel</td>
+<td>panel</td>
+<td><code>editor/panels/profiler</code></td>
+<td>Frame timing overlay over <code>engine.profiler_data</code></td>
+</tr>
+<tr>
+<td>undo_history</td>
+<td>panel</td>
+<td><code>editor/panels/undo_history_panel.py</code></td>
+<td>View over <code>CommandHistory</code> (<code>undo_text</code> / <code>redo_text</code>)</td>
+</tr>
+<tr>
+<td>timetravel</td>
+<td>panel</td>
+<td><code>editor/panels/timetravel</code></td>
+<td>View over <code>SnapshotRecorder</code> frames</td>
+</tr>
+<tr>
+<td>scripts_panel</td>
+<td>panel</td>
+<td><code>editor/panels/scripts_panel.py</code></td>
+<td>Shader-graph dock (<code>ScriptsPanel</code>, titled <code>Shaders</code>)</td>
+</tr>
+<tr>
+<td>script_editor</td>
+<td>panel</td>
+<td><code>editor/panels/script_editor_panel</code></td>
+<td>Script editor with <code>Check</code> / <code>Check Script</code> syntax check (<code>_check_current</code>)</td>
+</tr>
+<tr>
+<td>splash_steps</td>
+<td>int</td>
+<td><code>8</code></td>
+<td><code>SplashScreen.set_total_steps(8)</code> in <code>main.py</code></td>
+</tr>
+<tr>
+<td>default_geometry</td>
+<td>size</td>
+<td><code>1920x1080</code></td>
+<td>Centered on first start</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<ol>
+<li>Hierarchy: right-click → create entity; drag entities to reparent (<code>Entity.set_parent</code> with world preservation).</li>
+<li>Inspector: <code>Add Component</code> lists <code>ComponentRegistry.all()</code> grouped by category; edit fields; per-component <code>enabled</code> toggle.</li>
+<li>Project: create scripts, materials, scenes; scene files are <code>.zpes</code>.</li>
+<li>Press Play: <code>Engine.start_play()</code>; press again to stop (<code>Engine.stop_play()</code> stops all audio via <code>AudioSourceManager.stop_all()</code>).</li>
+</ol>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from core.engine.eng import Engine
+
+engine = Engine()
+engine.initialize()
+scene = engine.new_scene(&quot;MyScene&quot;)  # adds &quot;Shadow System&quot; entity, notifies plugins
+engine.start_play()
+# ... Engine.tick() is driven by GameWorker while in play mode ...
+engine.stop_play()
+</code></pre>
+<h2 id="serialization">Serialization</h2>
+<p>Not applicable. Editor layout is not part of the scene format.</p>
+<h2 id="screenshots">Screenshots</h2>
+<p><img alt="ZarinEngine editor main window" src="../../../assets/screenshots/editor-main.png" /></p>
+<blockquote>
+<p>Main window with viewport, Hierarchy, Inspector, Project panel, Console.
+File: <code>assets/screenshots/editor-main.png</code> (verified copy of engine
+<code>zarin_screenshot.png</code>).</p>
+</blockquote>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li><a href="../quick-start/">Quick Start</a></li>
+<li><a href="../first-scene/">First Scene</a></li>
+<li><a href="../../core/entity/">Entity</a></li>
+<li><a href="../../core/logging/">Logging</a></li>
+<li><a href="../../core/profiler/">Profiler</a></li>
+<li><a href="../../editor/main-window/">Main Window</a></li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>main.py</code> (format, app name, splash steps, plugin dirs, <code>EditorMainWindow</code>, <code>engine.viewport</code>, geometry, <code>IpcServer</code>)</li>
+<li><code>README.md</code> (Visual Editor section)</li>
+<li><code>core/engine/eng/engine.py</code> (<code>new_scene</code>, <code>_add_default_scene_objects</code>, <code>start_play</code>, <code>stop_play</code>)</li>
+<li><code>editor/panels/</code> (directory listing: hierarchy, project, console, terminal, profiler, timetravel, scripts_panel, script_editor_panel, undo_history_panel, collab, anim, terrain, prefab_editor_panel, plugin_manager_panel)</li>
+<li><code>core/foundation/logger.py</code>, <code>core/foundation/profiler.py</code>, <code>core/foundation/cmd/history.py</code> (panel data sources)</li>
+</ul>
               
             </div>
           </div><footer>

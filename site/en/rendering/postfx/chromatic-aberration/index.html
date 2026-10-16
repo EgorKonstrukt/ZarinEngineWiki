@@ -185,13 +185,15 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Chromatic Aberration</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    <li class="toctree-l4"><a class="reference internal" href="#shader-snippet">Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1248,65 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="chromatic-aberration">Chromatic Aberration</h1>
-<p>Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.</p>
-<h2 id="how-it-works">How it works</h2>
-<p>Samples RGB channels with tiny radial offsets growing toward the frame edges.</p>
+<blockquote>
+<p>Radial / axial color-channel shift. Samples R/B at radially offset UVs scaled by intensity. Class <code>ChromaticAberration</code> in <code>core/components/rendering/postfx/chromatic_aberration.py</code>. Runs in the PostFX stack in component order; skipped when <code>enabled</code> is False or the entity is inactive (<code>render()</code> early-out).</p>
+</blockquote>
 <h2 id="parameters">Parameters</h2>
-<p>Intensity, center, edge falloff.</p>
-<h2 id="tips">Tips</h2>
-<p>Damage feedback, cheap camera character, dream sequences. Subtle values sell lenses; high values sell injury.</p>
-<h2 id="cost">Cost</h2>
-<p>Cheap: three offset taps.</p>
-<p>Related: <a href="../">PostFX Stack</a>, Cameras (render scale), Profiler.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intensity</td>
+<td><code>_intensity</code></td>
+<td>FLOAT</td>
+<td>0.0 – 5.0</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Radial</td>
+<td><code>_radial</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>True</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">Usage</h2>
+<p>Editor: select the PostFX entity, Add Component &gt; <code>ChromaticAberration</code>, tick <code>enabled</code>, tune fields above. Order among PostFX components defines execution order.</p>
+<p>Code:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.chromatic_aberration import ChromaticAberration
+fx = ChromaticAberration()
+entity.add_component(fx)
+fx._intensity = 0.8
+fx._radial = True
+fx.enabled = True
+</code></pre>
+<h2 id="shader-snippet">Shader snippet</h2>
+<p>Shader: <code>core/components/rendering/postfx/chromatic_aberration.py</code>.</p>
+<pre><code class="language-glsl">#version 330 core
+uniform sampler2D u_input_tex;
+uniform float u_intensity;
+uniform int u_radial;
+</code></pre>
+<h2 id="related">Related</h2>
+<p>Related: <a href="../">PostFX Stack</a>, <a href="../color-grading/">Color Grading</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/chromatic_aberration.py</code> — class <code>ChromaticAberration</code>, <code>_inspector_fields</code>, <code>__init__</code> defaults, <code>render_type = "screen" (GraphicsEffect base)</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/graphics_effect.py</code> — <code>GraphicsEffect</code> base (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, <code>render()</code> signature).</p>
+</li>
+</ul>
               
             </div>
           </div><footer>

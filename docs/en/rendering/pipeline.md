@@ -1,24 +1,26 @@
-# ModernGL Pipeline and Scene Renderer
-
-Contexts:
-
-- Game and editor viewports create the context with `moderngl.create_context(standalone=False)` — a shared 4.6 core context inside the Qt surface, so editor and game views share textures and programs.
-- Offscreen work (material/model previews, terrain workers, compute runners) uses `moderngl.create_standalone_context(require=430)` with no visible surface.
-- Shaders are authored as `#version 430 core`. If compilation fails, the loader retries as `#version 330 core`, stripping `layout(std430)` buffers and forcing instancing/skinning off — a compatibility fallback, not a second code path to maintain.
-
-The `Renderer` class is composed from mixins, one responsibility each: programs, uniforms, framebuffers, scene collection, geometry cache, main scene pass, shadow pass, cubemap pass, skinned pass, water/voxel/object-FX passes, post pass, gizmo/icon/outline passes, culling and stats. Read a stage by opening its mixin file under `core/renderer` (`shadows.py`, `scene_renderer.py`, `materials.py`, `framebuffers.py` and siblings).
-
-A frame walks these stages:
-
-1. Collect visible render items from the scene: frustum culling against camera planes, layer-mask filtering, sorting into opaque / transparent / overlay buckets.
-2. Render shadow maps (cascaded directional, point cubes, spot perspectives) into depth targets; projector shadows join this pass.
-3. Render the main scene with bound materials, up to 8 lights by default plus ambient, and per-material transparency handling.
-4. Run water, voxel and object-FX passes into their targets.
-5. Run the PostFX chain in component order.
-6. Draw editor overlays (grid, gizmos, icons, outlines, selection) — editor viewports only.
-
-Key defaults: `_max_lights = 8` with per-light type/position/direction/color/intensity/range/spot/area uniforms; `_ambient = [0.26, 0.28, 0.34]`; shadow resolution 2048, distance 50, 4 cascades; clear color dark grey `[0.18, 0.18, 0.18]`; line width 0.6667 for debug drawing. Render modes: `SHADED`, `SHADED_WIREFRAME`, `FLAT`.
-
-Troubleshooting: black viewport → context creation failed (check OpenGL 4.6 support) or all lights culled; pink/missing materials → shader compile failed and fallback missed (see console, check Shaders page); z-fighting → push `near` out or pull `far` in on the camera; shadows absent → `cast_shadows` off or outside shadow distance.
-
-Related: Cameras, Lights and Shadows, Materials, Shaders, Profiler (per-stage timings), Gizmos and Icons.
+# Pipeline
+> Forward pipeline in `SceneRendererMixin.render_scene`: collect snapshot → shadow maps → opaque phase → transparent phase → environment (sky/water/clouds) → editor overlays.
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+`render_scene(scene, view_mat, proj_mat, cam_pos, viewport_w, viewport_h, ...)` (`core/renderer/scenev/mixin.py:24`) applies `_render_scale` to get render size, collects a `_RenderSnapshot` (lights, `dir_light`, sky/cloud/water components, renderable entries), renders shadow maps via `ShadowRenderer`, then calls `_scenev_render_forward_phases(opaque, transparent, ...)` (`core/renderer/scenev/forward.py:19`). Transparent phase enables `SRC_ALPHA, ONE_MINUS_SRC_ALPHA` blending with `depth_mask = False`. Specialized passes: `WaterPassMixin`, `VoxelPassMixin`, `SkinnedPassMixin`, cubemap pass for dynamic reflections, `GizmoPassMixin`/`IconPassMixin`/`OutlinePassMixin` for the editor.
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `_render_scale` | float | `1.0` | Global render-size multiplier (`core/renderer/scenev/mixin.py:27`). |
+| `_shadow_resolution` | int | per-light-type | Shadow map size; see [Shadows](./shadows.md). |
+| `_scene_fbo` | moderngl.Framebuffer | `None` until init | Scene color+depth target (`core/renderer/renderer.py:83-86`). |
+## Usage in Editor
+Viewport size comes from the Qt viewport; per-camera `render_scale` / custom resolution further scales it (see [Camera](./camera.md)). Stats overlay reads `_draw_calls`, `_opaque_draws`, `_trans_draws`, `_triangles_drawn`.
+## Usage in Code
+```python
+renderer.render_scene(scene, cam.get_view_matrix(),
+                      cam.get_projection_matrix(aspect),
+                      cam_pos, 1280, 720)
+```
+## Related pages
+- [Overview](./overview.md), [Camera](./camera.md), [Shadows](./shadows.md), [Water](./water.md), [Gizmos](./gizmos.md)
+## Verified against
+- `core/renderer/scencev/mixin.py` → `core/renderer/scenev/mixin.py:24-80`
+- `core/renderer/scenev/forward.py:19-57`
+- `core/renderer/renderer.py:56-120`
+- `core/renderer/framebuffers.py`, `core/renderer/shadows/passes.py:183`

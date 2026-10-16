@@ -345,6 +345,18 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Physics 2D Overview</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#fixed-update-notes">Fixed update notes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../rigidbody2d/">Rigidbody 2D</a>
@@ -1237,12 +1249,68 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="physics-2d-overview">Physics 2D Overview</h1>
-<p>A separate lightweight 2D pipeline with its own components, simulated by the same solver but flagged as 2D: out-of-plane velocity (<code>vz</code>, tilt rates) is zeroed every step so bodies never drift off-plane.</p>
-<p>Use it for side-scrollers, top-down games and 2D UI-plane physics where full 3D bodies would be overkill and harder to constrain. 2D shapes map onto the solver as flat primitives: <code>Box2D → box</code> with size <code>[sx, sy, 1.0]</code> and center <code>[ox, oy, 0]</code>, <code>Circle2D → sphere</code>.</p>
-<p>Scripts use the same collision callbacks (<code>on_collision_enter/stay/exit</code>), the same fixed step (<code>dt = 0.02</code>), and the same layer/mask filtering as 3D. Entity rule: one pipeline per body — never mix 2D and 3D components on the same entity.</p>
-<p>Platformer starter: static ground (BoxCollider2D, no Rigidbody2D), player (Rigidbody2D + BoxCollider2D, freeze rotation on), coins as trigger circles with <code>is_trigger</code> reporting pickups to scripts.</p>
-<p>Pages: Rigidbody 2D, Box Collider 2D, Circle Collider 2D.</p>
-<p>Related: Physics 3D Overview (shared solver and threading), Collision Layers, Script Examples (Driver adapts to 2D by dropping the Z axis).</p>
+<p>Planar dynamics with its own components (<code>Rigidbody2D</code>, <code>BoxCollider2D</code>, <code>CircleCollider2D</code>), simulated by the same solver but flagged 2D: out-of-plane velocity and tilt are zeroed every step so bodies never drift off-plane.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bodies</td>
+<td><code>Rigidbody2D</code> + one 2D collider; never mix 2D and 3D components on one entity</td>
+</tr>
+<tr>
+<td>Shape mapping</td>
+<td><code>BoxCollider2D → box</code> size <code>[sx, sy, 1.0]</code> center <code>[ox, oy, 0]</code>; <code>CircleCollider2D → sphere</code></td>
+</tr>
+<tr>
+<td>Plane lock</td>
+<td><code>z = 0</code>, rotation <code>(0, 0, rz)</code>, velocity <code>(vx, vy, 0)</code>, spin <code>(0, 0, az)</code></td>
+</tr>
+<tr>
+<td>Callbacks / layers</td>
+<td>Same <code>on_collision_enter/stay/exit</code> and <code>layer</code>/<code>mask</code> filtering as 3D</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Static ground: <code>BoxCollider2D</code> only. Player: <code>Rigidbody2D</code> + <code>BoxCollider2D</code> with <code>Freeze Rotation</code> on. Coins: trigger <code>CircleCollider2D</code> reporting pickups.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Player2D&quot;)
+from core.components.physics2d.rigidbody2d import Rigidbody2D
+from core.components.physics2d.box_collider2d import BoxCollider2D
+
+rb = Rigidbody2D()
+rb.mass = 1.0
+rb.freeze_rotation = True
+entity.add_component(rb)
+box = BoxCollider2D()
+entity.add_component(box)
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody2D)
+    if rb is not None:
+        rb.add_force(Vec2(10.0, 0.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+</code></pre>
+<h2 id="fixed-update-notes">Fixed update notes</h2>
+<ul>
+<li>Same <code>dt = Engine._fixed_dt</code> (<code>0.02</code> default) and same threading path as 3D; <code>_constrain_2d_bodies</code> clamps transform/velocity after <code>step_simulation(dt)</code>; shared flag <code>8</code> marks 2D bodies.</li>
+</ul>
+<h2 id="related">Related</h2>
+<p>Rigidbody2D, Box/Circle Collider 2D, Physics 3D Overview, Collision Layers, Solver &amp; Threading.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/physics2d/</code></li>
+<li><code>core/physics/scene/scene.py</code> (<code>_constrain_2d_bodies</code>)</li>
+<li><code>core/physics/shapep/shapes.py</code> (2D shape mapping)</li>
+</ul>
               
             </div>
           </div><footer>

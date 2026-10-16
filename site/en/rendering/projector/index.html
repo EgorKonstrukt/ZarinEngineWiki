@@ -119,6 +119,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Projector</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../shadows/">Shadows</a>
@@ -1238,68 +1246,123 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="projector">Projector</h1>
-<p>Projects a texture from a frustum: slide projector, fake window light, graffiti beam, logo thrower.</p>
+<blockquote>
+<p>Texture projector: <code>Projector</code> component (<code>core/components/lighting/projector.py</code>) throwing an image along the entity forward axis like a slide projector.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Perspective slide defined by <code>spot_angle</code>, <code>aspect_ratio</code>, <code>near_plane</code>/<code>far_plane</code>; <code>range</code> caps the throw distance. Gizmo draws the frustum + mid sprite quad (<code>projector.py:52-106</code>). Shadow pass hook: <code>render_projector_shadows</code> (<code>core/renderer/shadows/projector.py:28</code>).</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group / field</th>
-<th>Default</th>
-<th>Meaning</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Texture: texture_path</td>
-<td>—</td>
-<td>Projected image (png/jpg/jpeg)</td>
+<td><code>texture_path</code></td>
+<td>resource path (png/jpg/jpeg)</td>
+<td><code>""</code></td>
+<td>Projected slide (<code>projector.py:22,40</code>).</td>
 </tr>
 <tr>
-<td>Texture: color</td>
-<td>white</td>
-<td>Tint multiplier</td>
+<td><code>color</code></td>
+<td>color3</td>
+<td><code>[1.0, 1.0, 1.0]</code></td>
+<td>Tint multiplier (<code>projector.py:23,41</code>).</td>
 </tr>
 <tr>
-<td>Texture: intensity</td>
-<td>1.0</td>
-<td>Brightness, 0–1000</td>
+<td><code>intensity</code></td>
+<td>float (0–1000)</td>
+<td><code>1.0</code></td>
+<td>Brightness (<code>projector.py:24,42</code>).</td>
 </tr>
 <tr>
-<td>Projection: range</td>
-<td>10.0</td>
-<td>Throw distance</td>
+<td><code>range</code></td>
+<td>float (0–10000)</td>
+<td><code>10.0</code></td>
+<td>Throw distance (<code>projector.py:26,43</code>).</td>
 </tr>
 <tr>
-<td>Projection: spot_angle</td>
-<td>30°</td>
-<td>Frustum angle, 1–179</td>
+<td><code>spot_angle</code></td>
+<td>float (1–179)</td>
+<td><code>30.0</code></td>
+<td>Vertical FOV, deg (<code>projector.py:27,44</code>).</td>
 </tr>
 <tr>
-<td>Projection: aspect_ratio</td>
-<td>1.0</td>
-<td>Frustum width/height</td>
+<td><code>aspect_ratio</code></td>
+<td>float (0.1–10)</td>
+<td><code>1.0</code></td>
+<td>Width/height ratio (<code>projector.py:28,45</code>).</td>
 </tr>
 <tr>
-<td>Projection: near_plane / far_plane</td>
-<td>0.1 / 100</td>
-<td>Depth slice of the throw</td>
+<td><code>near_plane</code></td>
+<td>float (0.01–10)</td>
+<td><code>0.1</code></td>
+<td>Near clip (<code>projector.py:29,46</code>).</td>
 </tr>
 <tr>
-<td>Options: flip_x / flip_y</td>
-<td>off / on</td>
-<td>Image mirroring</td>
+<td><code>far_plane</code></td>
+<td>float (1–10000)</td>
+<td><code>100.0</code></td>
+<td>Far clip (<code>projector.py:30,47</code>).</td>
 </tr>
 <tr>
-<td>Options: cast_shadows</td>
-<td>on</td>
-<td>Occluders block the projection</td>
+<td><code>flip_y</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Flip image vertically (<code>projector.py:32,48</code>).</td>
+</tr>
+<tr>
+<td><code>flip_x</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Flip image horizontally (<code>projector.py:33,49</code>).</td>
+</tr>
+<tr>
+<td><code>cast_shadows</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Projector shadow cookie (<code>projector.py:34,50</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Add Component → Projector, assign Texture, aim with the transform. Keep Aspect matched to the source image; enable Flip Y for camera-style slides.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>The viewport gizmo draws the projection cone with an aspect-correct base rectangle — frame the target surface visually, then fine-tune angle and range. Aim with the Transform exactly like a Spot Light; the throw slice (near/far) clips the projection so it never leaks through back walls.</p>
-<p>Workflows: cinema — projector entity behind the audience aimed at a white VideoRenderer-style screen; fake windows — bright projector with a frame texture plus a soft spot for spill; decals-in-motion — animated texture offset is not built in, swap <code>texture_path</code> from a script for slideshow projection.</p>
-<p>Cost: one extra frustum sample set per projector; shadowed projectors join the projector shadow pass. Keep counts low (1–3) and ranges tight.</p>
-<p>Troubleshooting: mirrored image → toggle flip_x/flip_y; projection through walls → pull far_plane in; washed out → intensity competes with the key light, raise it or dim the scene.</p>
-<p>Related: Spot Light, Shadows (projector shadows pass), VideoRenderer (screen surfaces), TextRenderer (static slides alternative).</p>
+<pre><code class="language-python">pj.texture_path = &quot;assets/textures/logo.png&quot;
+pj.spot_angle = 40.0
+pj.aspect_ratio = 16.0 / 9.0
+pj.range = 20.0
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../spot-light/">Spot Light</a>, <a href="../shadows/">Shadows</a>, <a href="../materials/">Materials</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/lighting/projector.py:18-50,108-140</code></li>
+<li><code>core/renderer/shadows/projector.py:28</code></li>
+</ul>
               
             </div>
           </div><footer>

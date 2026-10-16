@@ -173,6 +173,18 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Materials (.zpem)</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#materialshader-snippet">Material/Shader snippet</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#screenshots">Screenshots</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../shaders/">Shaders (.shader)</a>
@@ -1236,15 +1248,87 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="materials-zpem">Materials (.zpem)</h1>
-<p>Material assets use <code>.zpem</code> (and legacy <code>.mat</code>) — both are JSON documents <code>{name, shader_path, properties}</code>. An empty <code>shader_path</code> falls back to the default shader. Properties missing from the file are completed from the shader <code>Properties</code> block at load, so hand-written files only carry overrides.</p>
-<p>Texture uniform mapping (excerpt): <code>albedo_texture → u_albedo_tex</code>, <code>normal → u_normal_tex</code>, <code>roughness → u_roughness_tex</code>, plus direct <code>_BaseMap</code>, <code>_NormalMap</code>, <code>_OcclusionMap</code>. Value aliases: <code>_BaseColor → u_albedo_color</code>, <code>_Metallic → u_metallic</code>, <code>_Smoothness → u_smoothness</code>, <code>_EmissionColor → u_emission</code>.</p>
-<p>Defaults applied at draw: albedo white <code>[1,1,1,1]</code>, metallic 0, smoothness 0.5, emission 0, a 1×1 white texture on unit 0, real textures from unit 1 with <code>*_Active</code> / <code>u_use_*</code> flags toggling each map.</p>
-<p>Transparency rule: a surface is treated as transparent when its alpha drops below <code>0.999</code> or when the bound albedo texture contains an alpha channel (detected via image inspection) — no manual blend flag to forget.</p>
-<p>Authoring workflow: create via the material wizard (picks shader, scaffolds defaults), preview in the material preview thumbnail, assign into MeshRenderer slots, tune live in the Inspector — runtime property edits apply immediately without reimport. Materials serialize by path, so renaming the file breaks slots until re-picked; prefer the Project panel rename action.</p>
-<p>PBR quick guide (<code>PBR.shader</code> properties): <code>_BaseColor</code>/<code>_BaseMap</code> for albedo, <code>_Metallic</code> 0 dielectric / 1 metal, <code>_Smoothness</code> for gloss, <code>_NormalMap</code> for detail, <code>_OcclusionMap</code> for crevices, <code>_EmissionColor</code> × <code>_EmissionIntensity</code> for glow, <code>_Cutoff</code> for alpha-tested cutout, <code>_Transmission</code>/<code>_IOR</code> for glass-like transmission, <code>_double_sided</code> for foliage and cards.</p>
-<p>Troubleshooting: black surface → shader failed and default has no light, check console; wrong colors → texture in sRGB vs linear mismatch or missing <code>u_use_*</code> flag; invisible transparent → alpha exactly 1 with alpha texture present, or depth-sorting against another transparent; changes lost → edited the preview copy, apply back to the asset.</p>
-<p>Related: Shaders, MeshRenderer, Material Wizard and Previews (Editor Manual), Textures and Compression.</p>
+                <h1 id="materials">Materials</h1>
+<blockquote>
+<p>Material asset: <code>.mat</code> JSON (<code>core/assets/matp/materials.py:14-169</code>) resolved/cached by <code>MaterialManager</code> (<code>core/renderer/mats/manager.py:54-80</code>).
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p><code>Material { name, shader_path, properties }</code>. <code>shader_path = "default"</code> maps to the built-in PBR; otherwise resolved against project root then engine <code>core/shaders/</code> (<code>materials.py:26-46</code>). Missing files warn once and fall back to default (<code>manager.py:63-71</code>). <code>MeshRenderer.materials[i].path</code> points at <code>.mat</code> files.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td><code>""</code></td>
+<td>Material name (<code>materials.py:14-24</code>).</td>
+</tr>
+<tr>
+<td><code>shader_path</code></td>
+<td>string</td>
+<td><code>"default"</code></td>
+<td><code>.shader</code> path or <code>default</code> (<code>materials.py:48-52,110-118</code>).</td>
+</tr>
+<tr>
+<td><code>properties</code></td>
+<td>object</td>
+<td><code>{}</code></td>
+<td>Shader uniforms incl. <code>_BaseColor</code>, <code>_Metallic</code>, <code>_Smoothness</code> (<code>manager.py:89-96</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Create <code>.mat</code> in Assets, pick Shader, edit exposed properties. Assign to <a href="../mesh-renderer/">Mesh Renderer</a> material slots.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">from core.assets.matp import Material
+m = Material.load(&quot;assets/materials/Brick.mat&quot;, project_root)
+</code></pre>
+<h2 id="materialshader-snippet">Material/Shader snippet</h2>
+<p><code>assets/materials/ProBuilderPrototype.mat</code> (verbatim):</p>
+<pre><code class="language-json">{&quot;name&quot;: &quot;ProBuilderPrototype&quot;, &quot;properties&quot;: {&quot;_BaseColor&quot;: [1.0, 1.0, 1.0, 1.0], &quot;_EmissionColor&quot;: [0.0, 0.0, 0.0, 0.0], &quot;_EmissionIntensity&quot;: 0.0, &quot;_Metallic&quot;: 0.0, &quot;_Smoothness&quot;: 0.5, &quot;albedo_texture&quot;: &quot;../textures/prototype_texture.png&quot;}, &quot;shader_path&quot;: &quot;default&quot;}
+</code></pre>
+<h2 id="screenshots">Screenshots</h2>
+<p><img alt="Prototype texture (WALL, 1x1 meter, 1024x1024)" src="../../../assets/screenshots/prototype-texture.png" /></p>
+<blockquote>
+<p><code>prototype_texture.png</code> used by <code>assets/materials/ProBuilderPrototype.mat</code>
+as <code>albedo_texture</code>. File: <code>assets/screenshots/prototype-texture.png</code>
+(verified copy of engine <code>prototype_texture.png</code>; identical to
+<code>assets/textures/prototype_texture.png</code> in the engine repo).</p>
+</blockquote>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../shaders/">Shaders</a>, <a href="../mesh-renderer/">Mesh Renderer</a>, <a href="../pipeline/">Pipeline</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/assets/matp/materials.py:14-169</code></li>
+<li><code>core/renderer/mats/manager.py:54-100</code></li>
+<li><code>assets/materials/ProBuilderPrototype.mat</code></li>
+</ul>
               
             </div>
           </div><footer>

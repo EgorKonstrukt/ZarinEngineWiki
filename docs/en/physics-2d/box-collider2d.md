@@ -2,20 +2,47 @@
 
 Rectangle shape in plane: platforms, walls, crates, hitboxes and trigger zones.
 
-| Inspector group / field | Meaning |
-|---|---|
-| Collision: Layer / Collision Mask | Filtering |
-| Shape: Offset | In-plane offset `[ox, oy]` from the pivot |
-| Shape: Size | In-plane extents |
-| Is Trigger | Overlap events without contact response |
-| Material: Physic Material | `.zphysmat` asset override |
+## Properties
 
-Maps onto the solver as a flat box `[sx, sy, 1.0]` with center `[ox, oy, 0]`. Combine with Rigidbody2D; never mix 2D and 3D components on one entity.
+| Field | Default | Notes |
+|---|---|---|
+| `layer` / `mask` | `0` / `0xFFFF` | Filtering |
+| `offset` | `(0, 0)` | `Vec2`; world center `[ox*sx, oy*sy, 0]` |
+| `size` | `(1, 1)` | `Vec2`; solver size `[sx, sy, 1.0]` |
+| `is_trigger` | `False` | Overlap only |
+| `physic_material` | `""` | `.zphysmat` path |
+| `material_friction` / `material_bounciness` | `0.6` / `0.0` | Fallbacks |
 
-Patterns: ground — wide thin box, static, friction high; one-way platform — box on a player-excluded layer plus a top trigger enabling collision from above via script; crates — small boxes with dynamic Rigidbody2D mass 1–3; checkpoints — tall thin triggers spanning the track.
+## Usage in Editor
 
-Pixel-perfect tip: size colliders in whole design units and keep pixel-to-unit scale consistent, or visual/collision edges drift apart at large coordinates.
+Set `Size`/`Offset`, layer + mask, `Is Trigger` for zones.
 
-Troubleshooting: falls through fast movers → tunneling, cap speed or lower fixed dt; trigger silent → mask mismatch; edges catch the player → adjacent boxes overlap slightly, butt-join them exactly or merge into one.
+## Usage in Code
 
-Related: Rigidbody 2D, Circle Collider 2D, Box Collider (3D), Collision Layers.
+```python
+entity = scene.create_entity("Platform")
+from core.components.physics2d.box_collider2d import BoxCollider2D
+from core.maths.math3d import Vec2
+
+box = BoxCollider2D()
+box.size = Vec2(4.0, 0.5)
+box.offset = Vec2(0.0, 0.0)
+box.is_trigger = False
+entity.add_component(box)  # no Rigidbody2D = static
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+```
+
+## Fixed update notes
+
+- Solver call: `create_rigid_body(shape_type="box", shape_params={"size": [sx, sy, 1.0], "center": [ox, oy, 0.0]})`; `dt = Engine._fixed_dt` (`0.02` default).
+
+## Related
+
+Rigidbody 2D, Circle Collider 2D, Box Collider (3D), Collision Layers.
+
+## Verified against
+
+- `core/components/physics2d/box_collider2d.py`
+- `core/physics/shapep/shapes.py`

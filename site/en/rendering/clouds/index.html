@@ -165,6 +165,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Clouds</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../water/">Water</a>
@@ -1238,45 +1246,187 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="clouds">Clouds</h1>
-<p>Volumetric-style cloud layer with coverage, density, wind drift and sun response — skies with weather, not wallpapers.</p>
+<blockquote>
+<p>Volumetric cloud layer: <code>Cloud</code> (<code>core/components/rendering/environment/clouds.py:17-273</code>), shader <code>core/shaders/materials/Clouds.shader</code> (+ <code>CloudLayer.shader</code> plane fallback).
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Full-screen raymarch (<code>render_clouds</code>) uses <code>u_time</code>, <code>u_cam_pos</code>, <code>u_inv_view_proj</code>, <code>_Coverage…_Tint</code> uniforms and the sun dir/color from the <a href="../directional-light/">Directional Light</a> (<code>clouds.py:75-150</code>). Planar fallback (<code>render_cloud_layer</code>) skips when <code>height &lt; 8.0</code> or <code>opacity &lt;= 0.001</code> and draws a <code>1400</code> m plane at <code>height + thickness*0.5</code> following the camera (<code>clouds.py:152-217</code>).</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group / field</th>
-<th>Meaning</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Cloud: Cloud Material</td>
-<td>Shading material built on the <code>Clouds</code> / <code>CloudLayer</code> shaders</td>
+<td><code>material_path</code></td>
+<td>shader path</td>
+<td><code>core/shaders/materials/Clouds.shader</code></td>
+<td>Cloud shader (<code>clouds.py:24,52</code>).</td>
 </tr>
 <tr>
-<td>Coverage / Density</td>
-<td>Sky fill fraction and layer thickness</td>
+<td><code>coverage</code></td>
+<td>slider (0–1)</td>
+<td><code>0.78</code></td>
+<td>Cloud cover (<code>clouds.py:25,53</code>).</td>
 </tr>
 <tr>
-<td>Wind Speed / Wind Direction</td>
-<td>Drift vector</td>
+<td><code>density</code></td>
+<td>slider (0–2)</td>
+<td><code>1.12</code></td>
+<td>Optical density (<code>clouds.py:26,54</code>).</td>
 </tr>
 <tr>
-<td>Height / Thickness / Noise Scale</td>
-<td>Layer placement and puff granularity</td>
+<td><code>speed</code></td>
+<td>float (0–5)</td>
+<td><code>0.38</code></td>
+<td>Wind speed (<code>clouds.py:27,55</code>).</td>
 </tr>
 <tr>
-<td>Opacity / Shadow Strength</td>
-<td>Look weight and how much sun they block</td>
+<td><code>wind_direction</code></td>
+<td>float deg (0–360)</td>
+<td><code>18.0</code></td>
+<td>Wind heading (<code>clouds.py:28,56</code>).</td>
 </tr>
 <tr>
-<td>Fog Density / Height Falloff / Scattering</td>
-<td>Blend into the atmospheric haze</td>
+<td><code>height</code></td>
+<td>float (0–500)</td>
+<td><code>82.0</code></td>
+<td>Layer base, m (<code>clouds.py:29,57</code>).</td>
+</tr>
+<tr>
+<td><code>thickness</code></td>
+<td>float (0–200)</td>
+<td><code>42.0</code></td>
+<td>Layer depth, m (<code>clouds.py:30,58</code>).</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>float (0.001–1)</td>
+<td><code>0.014</code></td>
+<td>Noise scale (<code>clouds.py:31,59</code>).</td>
+</tr>
+<tr>
+<td><code>opacity</code></td>
+<td>slider (0–1)</td>
+<td><code>0.68</code></td>
+<td>Alpha (<code>clouds.py:32,60</code>).</td>
+</tr>
+<tr>
+<td><code>shadow_strength</code></td>
+<td>slider (0–1)</td>
+<td><code>0.52</code></td>
+<td>Self-shadow (<code>clouds.py:33,61</code>).</td>
+</tr>
+<tr>
+<td><code>fog_density</code></td>
+<td>slider (0–1)</td>
+<td><code>0.0</code></td>
+<td>In-cloud fog (<code>clouds.py:34,62</code>).</td>
+</tr>
+<tr>
+<td><code>height_falloff</code></td>
+<td>float (0–4)</td>
+<td><code>0.025</code></td>
+<td>Vertical fade (<code>clouds.py:35,63</code>).</td>
+</tr>
+<tr>
+<td><code>scattering</code></td>
+<td>slider (0–2)</td>
+<td><code>1.05</code></td>
+<td>Forward scatter (<code>clouds.py:36,64</code>).</td>
+</tr>
+<tr>
+<td><code>absorption</code></td>
+<td>slider (0–4)</td>
+<td><code>0.92</code></td>
+<td>Beer absorption (<code>clouds.py:37,65</code>).</td>
+</tr>
+<tr>
+<td><code>softness</code></td>
+<td>slider (0.02–0.8)</td>
+<td><code>0.28</code></td>
+<td>Edge softness (<code>clouds.py:38,66</code>).</td>
+</tr>
+<tr>
+<td><code>detail_strength</code></td>
+<td>slider (0–1)</td>
+<td><code>0.92</code></td>
+<td>Erosion detail (<code>clouds.py:39,67</code>).</td>
+</tr>
+<tr>
+<td><code>steps</code></td>
+<td>int slider (4–32)</td>
+<td><code>16</code></td>
+<td>March steps (<code>clouds.py:40,68</code>).</td>
+</tr>
+<tr>
+<td><code>evolution</code></td>
+<td>slider (0–2)</td>
+<td><code>1.1</code></td>
+<td>Time morph (<code>clouds.py:41,69</code>).</td>
+</tr>
+<tr>
+<td><code>contrast</code></td>
+<td>slider (0.2–2.5)</td>
+<td><code>1.7</code></td>
+<td>Density contrast (<code>clouds.py:42,70</code>).</td>
+</tr>
+<tr>
+<td><code>silver_lining</code></td>
+<td>slider (0–2)</td>
+<td><code>1.35</code></td>
+<td>Edge brightening (<code>clouds.py:43,71</code>).</td>
+</tr>
+<tr>
+<td><code>seed</code></td>
+<td>float (0–10000)</td>
+<td><code>11.3</code></td>
+<td>Noise seed (<code>clouds.py:44,72</code>).</td>
+</tr>
+<tr>
+<td><code>tint</code></td>
+<td>color3</td>
+<td><code>[0.86, 0.92, 1.0]</code></td>
+<td>Tint (<code>clouds.py:45,73</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Raise Coverage/Density for overcast, Steps for quality (cost), Silver Lining for backlit edges. Keep Height ≥ 8 for the plane fallback.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Shadowed clouds darken the scene consistently with the sun position — overcast lighting comes free once strength is tuned. Animate wind slowly (0.1–0.5 units) for living skies; fast values read as time-lapse.</p>
-<p>Pairs with Procedural Sky or Skybox backgrounds. Coverage near 1 with high density gives storm ceilings; low coverage with high scattering gives fair-weather dots.</p>
-<p>Troubleshooting: invisible → coverage zero or opacity zero; flat white → density maxed with no noise scale variation; no scene darkening → shadow strength zero.</p>
-<p>Related: Procedural Sky, Skybox, Atmosphere, Directional Light.</p>
+<pre><code class="language-python">cl.coverage = 0.5
+cl.steps = 24
+cl.wind_direction = 45.0
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../procedural-sky/">Procedural Sky</a>, <a href="../directional-light/">Directional Light</a>, <a href="../atmosphere/">Atmosphere</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/environment/clouds.py:22-73,75-217</code></li>
+</ul>
               
             </div>
           </div><footer>

@@ -852,13 +852,15 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Покачивание ветра</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#_2">Как работает</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Параметры</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_3">Параметры</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Использование</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_4">Советы</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Шейдер</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_5">Цена</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Связанное</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_6">Проверено по коду</a>
     </li>
     </ul>
                 </li>
@@ -1245,17 +1247,78 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="_1">Покачивание ветра</h1>
-<p>Эффект объекта через проход ObjectFx (в отличие от PostFX на весь кадр). Построен на общей базе ObjectEffect; скрипты ведут его, анимируя float прогресса/интенсивности.</p>
-<h2 id="_2">Как работает</h2>
-<p>Мягкое общее покачивание вершин для травы, ткани и висящего реквизита.</p>
-<h2 id="_3">Параметры</h2>
-<p>Сила, частота, вариация фазы.</p>
-<h2 id="_4">Советы</h2>
-<p>Поля травы, знамёна, люстры. Вариация фазы против синхронного марша.</p>
-<h2 id="_5">Цена</h2>
-<p>Пренебрежимая вершинная математика.</p>
-<p>Связанное: <a href="../">эффекты объектов</a>, материалы, примеры скриптов.</p>
+                <h1 id="_1">Качание ветра</h1>
+<blockquote>
+<p>Общее качание вершин. Нормированный direction × strength × amount смещает вершины с фазой от u_time × speed; быстрый путь пишет u_wind_amount = 0 при выключении или amount ≤ 0. Класс <code>WindSwayEffect</code> в <code>core/components/rendering/effects/wind_sway_effect.py</code>. ObjectFx pass vertex bend (generic props/grass), same collection/bind path as Dissolve.</p>
+</blockquote>
+<h2 id="_2">Параметры</h2>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Amount</td>
+<td><code>amount</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Wind Direction</td>
+<td><code>direction</code></td>
+<td>VEC3</td>
+<td>-1.0 – 1.0</td>
+<td><code>(1.0, 0.0, 0.0)</code></td>
+</tr>
+<tr>
+<td>Speed</td>
+<td><code>speed</code></td>
+<td>FLOAT</td>
+<td>0.0 – 20.0</td>
+<td><code>2.0</code></td>
+</tr>
+<tr>
+<td>Sway</td>
+<td><code>strength</code></td>
+<td>FLOAT</td>
+<td>0.0 – 3.0</td>
+<td><code>0.3</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">Использование</h2>
+<p>Редактор: выбрать меш-сущность, Add Component &gt; <code>WindSwayEffect</code>, включить <code>enabled</code>, анимировать amount-поля из скрипта.</p>
+<p>Код:</p>
+<pre><code class="language-python">from core.components.rendering.effects.wind_sway_effect import WindSwayEffect
+fx = WindSwayEffect()
+entity.add_component(fx)
+fx.amount = 1.0
+fx.strength = 0.5
+fx.speed = 3.0
+fx.enabled = True
+# каждый кадр: fx.amount = min(1.0, fx.amount + dt * 0.5)
+</code></pre>
+<h2 id="_4">Шейдер</h2>
+<p>Шейдер: <code>core/shaders/internal/ObjectFx.shader (u_wind_* branch)</code>. Привязанные uniform-ы: <code>u_wind_amount</code>, <code>u_wind_dir</code>, <code>u_wind_speed</code>, <code>u_wind_strength</code>, <code>u_time</code>.</p>
+<pre><code class="language-glsl">// wind_sway_effect.py::_apply (exact):
+// prog[&quot;u_wind_amount&quot;] = float(amount)  // 0 fast-path when disabled
+// prog[&quot;u_wind_dir&quot;] = normalized vec3, prog[&quot;u_wind_speed&quot;], prog[&quot;u_wind_strength&quot;]
+</code></pre>
+<h2 id="_5">Связанное</h2>
+<p>См. <a href="../">Эффекты объектов</a>, проход ObjectFx (<code>core/renderer/object_fx_pass.py</code>), <code>core/shaders/internal/ObjectFx.shader</code>.</p>
+<h2 id="_6">Проверено по коду</h2>
+<ul>
+<li><code>core/components/rendering/effects/wind_sway_effect.py</code> — класс <code>WindSwayEffect</code>, <code>_inspector_fields</code>, дефолты <code>__init__</code>, uniform-ы <code>_apply</code>.</li>
+<li><code>core/components/rendering/effects/object_effect.py</code> — базовый <code>ObjectEffect</code> (<code>bind</code> ставит <code>u_time</code>, гварды <code>_set</code>/<code>_set_vec</code>, <code>reset_all_defaults</code>).</li>
+<li><code>core/renderer/object_fx_pass.py</code> — <code>_find_object_effect</code>, <code>_render_object_effects</code>, <code>_get_fx_program</code>.</li>
+</ul>
               
             </div>
           </div><footer>

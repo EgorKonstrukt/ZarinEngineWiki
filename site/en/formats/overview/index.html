@@ -595,6 +595,14 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">File Formats</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#zpes-entity-block-from-entityserialize">.zpes entity block (from Entity.serialize)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#material-real-file-assetsmaterialsprobuilderprototypemat">Material (real file assets/materials/ProBuilderPrototype.mat)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#shader-block-real-file-coreshadersinternaldefaultshader-head">Shader block (real file core/shaders/internal/Default.shader, head)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#import-settings-real-file-assetstexturesprototype_texturepngimport">Import settings (real file assets/textures/prototype_texture.png.import)</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1236,16 +1244,97 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="file-formats">File Formats</h1>
-<p>TODO: Content pending. This page will document File Formats in ZarinEngine.</p>
-<p>Planned sections:</p>
-<ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
-</ul>
-<p>Related pages: see English section index and home page.</p>
+                <h1 id="file-formats-overview">File Formats Overview</h1>
+<p>All formats are plain text (JSON or a Unity-ShaderLab-like block format). Paths inside files are stored relative to the project root, so scenes move between machines.</p>
+<table>
+<thead>
+<tr>
+<th>Extension</th>
+<th>Type</th>
+<th>Real shape</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.zpes</code></td>
+<td>Scene (JSON)</td>
+<td><code>{"entities": [{"id", "name", "active", "tags", "layer", "parent", "components", "prefab_guid"?}], ...}</code> — one entry per entity; each component dict carries its <code>type</code> plus a <code>_key</code></td>
+</tr>
+<tr>
+<td><code>.zpep</code></td>
+<td>Prefab (JSON subtree)</td>
+<td>Same entity-dict shape as <code>.zpes</code>, with stable GUIDs; instances add <code>prefab_guid</code> / <code>prefab_source_id</code> and per-instance overrides</td>
+</tr>
+<tr>
+<td><code>.zpem</code> / <code>.mat</code></td>
+<td>Material (JSON)</td>
+<td><code>{"name", "shader_path", "properties": {...}}</code></td>
+</tr>
+<tr>
+<td><code>.shader</code></td>
+<td>Shader (block format)</td>
+<td><code>Shader "Name" { Properties { } SubShader { Tags { } Pass { GLSLPROGRAM ... } } }</code> with GLSL vertex/fragment inside</td>
+</tr>
+<tr>
+<td><code>.import</code></td>
+<td>Per-asset import settings (JSON)</td>
+<td>Texture/mesh/audio sidecar: <code>{filter_mode, wrap_mode, ...}</code> next to the asset</td>
+</tr>
+<tr>
+<td><code>.zphysmat</code></td>
+<td>Physics material (resource pick)</td>
+<td>Referenced by collider <code>physic_material</code> fields via the asset picker</td>
+</tr>
+<tr>
+<td><code>.animclip</code> / <code>.animcontroller</code></td>
+<td>Animation data (resource picks)</td>
+<td>Referenced by animation components via the asset picker</td>
+</tr>
+</tbody>
+</table>
+<h2 id="zpes-entity-block-from-entityserialize"><code>.zpes</code> entity block (from <code>Entity.serialize</code>)</h2>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;7f3a...&quot;,
+  &quot;name&quot;: &quot;Ball&quot;,
+  &quot;active&quot;: true,
+  &quot;tags&quot;: [],
+  &quot;layer&quot;: 0,
+  &quot;parent&quot;: null,
+  &quot;components&quot;: [
+    {&quot;type&quot;: &quot;Rigidbody&quot;, &quot;mass&quot;: 1.0, &quot;use_gravity&quot;: true, &quot;is_kinematic&quot;: false, &quot;_key&quot;: &quot;Rigidbody&quot;},
+    {&quot;type&quot;: &quot;ScriptComponent&quot;, &quot;script_path&quot;: &quot;assets/ball.py&quot;,
+     &quot;script_fields&quot;: {&quot;push&quot;: 8.0, &quot;hits&quot;: 0}, &quot;_key&quot;: &quot;ScriptComponent&quot;}
+  ]
+}
+</code></pre>
+<p>Script fields serialize typed values losslessly: <code>Vec3</code> as <code>[x, y, z]</code>, <code>Enum</code> as its value, <code>Curve</code> as <code>{"keys": [{"time", "value", "in_tangent", "out_tangent", "tangent_mode"}], "pre_wrap", "post_wrap"}</code>. Entity references persist as UUID strings and resolve to live objects before each script call. The full <code>Rigidbody</code> dict additionally carries <code>drag</code>, <code>angular_drag</code>, <code>freeze_pos</code> / <code>freeze_rot</code> arrays alongside the abbreviated keys in the example above.</p>
+<h2 id="material-real-file-assetsmaterialsprobuilderprototypemat">Material (real file <code>assets/materials/ProBuilderPrototype.mat</code>)</h2>
+<pre><code class="language-json">{&quot;name&quot;: &quot;ProBuilderPrototype&quot;, &quot;properties&quot;: {&quot;_BaseColor&quot;: [1.0, 1.0, 1.0, 1.0], &quot;_EmissionColor&quot;: [0.0, 0.0, 0.0, 0.0], &quot;_EmissionIntensity&quot;: 0.0, &quot;_Metallic&quot;: 0.0, &quot;_Smoothness&quot;: 0.5, &quot;albedo_texture&quot;: &quot;../textures/prototype_texture.png&quot;}, &quot;shader_path&quot;: &quot;default&quot;}
+</code></pre>
+<p><code>Material.save</code> writes exactly <code>{"name", "shader_path", "properties"}</code> with texture paths relativized; <code>Material.load</code> accepts <code>.mat</code> and <code>.zpem</code> identically and falls back to <code>shader_path: "default"</code> when empty.</p>
+<h2 id="shader-block-real-file-coreshadersinternaldefaultshader-head">Shader block (real file <code>core/shaders/internal/Default.shader</code>, head)</h2>
+<pre><code class="language-shader">Shader &quot;Zarin/Default&quot;
+{
+    Properties
+    {
+    }
+
+    SubShader
+    {
+        Tags { &quot;RenderType&quot; = &quot;Opaque&quot; }
+
+        Pass
+        {
+            GLSLPROGRAM
+            #version 430 core
+            layout(location = 0) in vec3 in_position;
+</code></pre>
+<p>Materials declare runtime-editable properties (colors, floats, textures, vectors, ranges) that the <code>Properties { }</code> block exposes; mesh data reaches the GPU as <code>float32</code> converted at upload time from the engine's <code>float64</code> math.</p>
+<h2 id="import-settings-real-file-assetstexturesprototype_texturepngimport">Import settings (real file <code>assets/textures/prototype_texture.png.import</code>)</h2>
+<pre><code class="language-json">{&quot;anisotropic&quot;: 4, &quot;compression&quot;: &quot;none&quot;, &quot;filter_mode&quot;: &quot;trilinear&quot;, &quot;max_size&quot;: 2048, &quot;srgb&quot;: true, &quot;wrap_mode&quot;: &quot;repeat&quot;}
+</code></pre>
+<p>Mesh <code>.import</code> sidecars carry the same idea for geometry: scale, generate-normals/tangents flags, smoothing angle. The importer resolves <code>&lt;asset&gt;.import</code> next to the asset (including project-root-relative fallbacks) before falling back to defaults.</p>
+<p>Related: Script Examples (field storage), ScriptComponent (how <code>script_fields</code> persist), API Index (loader entry points).</p>
               
             </div>
           </div><footer>

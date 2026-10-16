@@ -619,6 +619,10 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Glossary</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#glossary">Glossary</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#faq">FAQ</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../roadmap-changelog-license/">Roadmap, Changelog, License</a>
@@ -1236,16 +1240,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="glossary">Glossary</h1>
-<p>TODO: Content pending. This page will document Glossary in ZarinEngine.</p>
-<p>Planned sections:</p>
+                <h1 id="glossary-and-faq">Glossary and FAQ</h1>
+<h2 id="glossary">Glossary</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li><strong>Entity</strong> — scene object with UUID, name, parent/children, tags, layer, active toggle. Behavior comes only from components.</li>
+<li><strong>Component</strong> — data + lifecycle hooks (<code>on_awake/on_start/on_update/on_fixed_update/on_destroy/on_enable/on_disable</code>) auto-discovered via <code>ComponentRegistry</code>.</li>
+<li><strong>ScriptComponent</strong> — the component that hosts a user <code>.py</code> behavior: <code>script_path</code> + <code>script_fields</code> + <code>hot_reload</code>.</li>
+<li><strong>Behavior class</strong> — first class in the script file declaring a lifecycle/collision/gizmo member or <code>_inspector_buttons</code>; no base class, constructed with no arguments.</li>
+<li><strong>Inspector field</strong> — annotated class attribute rendered as a widget; values persist per instance in the scene.</li>
+<li><strong>Play</strong> — run mode: scripts load, <code>on_awake</code>/<code>on_start</code> fire, per-frame updates run. Gizmo methods also run outside Play.</li>
+<li><strong>Hot-reload</strong> — mtime-triggered instance recreation during Play preserving Inspector values.</li>
+<li><strong>Fixed update</strong> — physics-clock callback with stable <code>dt</code> (<code>0.02</code> default); render <code>dt</code> is already time-scaled.</li>
+<li><strong>Prefab (<code>.zpep</code>)</strong> — saved entity subtree with stable GUIDs; instances remap GUIDs and keep overrides.</li>
+<li><strong>Cython companion</strong> — sibling <code>.pyx</code> auto-built into <code>cache/cython</code> on first import, rebuilt when newer.</li>
+<li><strong>Time scale</strong> — multiplier applied to render <code>dt</code>; fixed-step <code>dt</code> stays constant.</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="faq">FAQ</h2>
+<ul>
+<li><strong>Script does nothing on Play?</strong> The <code>Script</code> field is empty or points at a moved file (<code>script_path</code> is project-root-relative). Re-pick it; the Check action reports <code>file:line</code> errors.</li>
+<li><strong><code>Vec3.rotate</code> missing?</strong> Correct — rotation lives on <code>Transform.rotate(Vec3 degrees)</code>. <code>Vec3</code> offers <code>dot/cross/length/normalized/lerp</code>, not <code>rotate</code>.</li>
+<li><strong><code>core.math3d</code> import fails?</strong> Import from <code>core.maths.math3d</code>. The Check button suggests exactly this.</li>
+<li><strong>Edit during Play lost state?</strong> Expected: <code>__init__</code> state resets on reload by design; keep tunable state in Inspector fields and rebuild caches in <code>on_awake</code>/<code>on_start</code>.</li>
+<li><strong>Ball falls through the floor?</strong> Missing collider, <code>Is Trigger</code> without contact handling, or <code>Is Kinematic</code> where solver motion is expected.</li>
+<li><strong>No sound?</strong> <code>clip_path</code> empty/unresolvable, <code>AudioListener</code> missing from the camera entity, or <code>play()</code> called with no <code>AudioSystem</code> in a headless context.</li>
+<li><strong>First Play is slow with <code>.pyx</code>?</strong> One-time native compile into <code>cache/cython</code>; later runs reuse it. The Check button validates <code>.pyx</code> without a C compiler.</li>
+</ul>
               
             </div>
           </div><footer>

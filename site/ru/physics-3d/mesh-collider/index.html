@@ -886,6 +886,18 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Mesh-коллайдер</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#_1">Свойства</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Использование в коде</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#fixed-update">Заметки о fixed update</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Связанные</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../terrain-collider/">Terrain-коллайдер</a>
@@ -1238,44 +1250,85 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="mesh-">Mesh-коллайдер</h1>
-<p>Коллизии из геометрии меша там, где примитивы не ложатся: статуи, куски террейна, корпуса техники, вогнутые декорации.</p>
+<p>Коллизии из геометрии меша там, где примитивы не ложатся: статуи, корпуса техники, вогнутые декорации.</p>
+<h2 id="_1">Свойства</h2>
 <table>
 <thead>
 <tr>
 <th>Поле</th>
-<th>Default</th>
-<th>Смысл</th>
+<th>По умолчанию</th>
+<th>Примечания</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>center</td>
-<td>начало</td>
-<td>Локальный сдвиг</td>
+<td><code>mesh_path</code></td>
+<td><code>""</code></td>
+<td><code>*.obj *.stl *.gltf *.glb</code></td>
 </tr>
 <tr>
-<td>mesh_path</td>
-<td>—</td>
-<td>Исходный файл (тот же импорт, что MeshFilter)</td>
+<td><code>collision_mode</code></td>
+<td><code>auto</code></td>
+<td><code>auto</code> / <code>mesh</code> / <code>convex_hull</code> / <code>box</code> / <code>sphere</code></td>
 </tr>
 <tr>
-<td>collision_mode</td>
-<td>AUTO</td>
-<td>AUTO / MESH / CONVEX_HULL / BOX / SPHERE-аппроксимации</td>
+<td><code>max_vertices</code></td>
+<td><code>2000</code></td>
+<td><code>0–100000</code>, бюджет hull</td>
 </tr>
 <tr>
-<td>max_vertices</td>
-<td>2000</td>
-<td>Бюджет упрощения генерируемых оболочек</td>
+<td><code>center</code></td>
+<td><code>(0, 0, 0)</code></td>
+<td>Смещение</td>
+</tr>
+<tr>
+<td><code>layer</code> / <code>mask</code></td>
+<td><code>0</code> / <code>0xFFFF</code></td>
+<td>Фильтрация</td>
+</tr>
+<tr>
+<td><code>is_trigger</code></td>
+<td><code>False</code></td>
+<td>Только пересечение</td>
+</tr>
+<tr>
+<td><code>physic_material</code></td>
+<td><code>""</code></td>
+<td><code>.zphysmat</code></td>
+</tr>
+<tr>
+<td><code>material_friction</code> / <code>material_bounciness</code></td>
+<td><code>0.6</code> / <code>0.0</code></td>
+<td>Запасные</td>
 </tr>
 </tbody>
 </table>
-<p>Логика эффективного режима, сверено: AUTO становится MESH для статики (точные треугольники) и CONVEX_HULL для динамики (стабильная аппроксимация); явный MESH на динамике автоматически понижается до CONVEX_HULL. Тело динамическое при активном Rigidbody положительной массы (кинематика тоже) и не-триггере.</p>
-<p>Реальность цены: треугольный меш против динамического тела — самая дорогая пара в физике; она для статичной геометрии уровня. Всё движущееся получает примитивы, компаунды или выпуклые оболочки. <code>max_vertices</code> капает сложность оболочки; опускайте, пока гизмо ещё обнимает силуэт.</p>
-<p>Режимы BOX/SPHERE — даунгрейд в один клик, когда меш оказался примерно боксом или шаром — дешевле, чем перевыпускать коллайдер.</p>
-<p>Процесс: статичная статуя — AUTO (→MESH), без Rigidbody; движущиеся обломки — AUTO (→CONVEX_HULL) с Rigidbody, а лучше компаунд из 3 боксов; террейн — предпочитайте TerrainCollider мешу.</p>
-<p>Диагностика: проваливается — динамическое тело с форсированным MESH (проверьте эффективный режим), грубая оболочка или туннелирование; долгая готовка при загрузке — огромен max_vertices, децимируйте исходник; рассинхрон с картинкой — mesh_path отличается от пути MeshFilter.</p>
-<p>Связанное: MeshFilter, Terrain-коллайдер, Rigidbody, заметки о компаунде в обзоре.</p>
+<h2 id="_2">Использование в редакторе</h2>
+<p>Назначить <code>Mesh</code>, оставить <code>auto</code> (статика → точный <code>mesh</code>, динамика → <code>convex_hull</code>). Hull держать в <code>max_vertices</code>.</p>
+<h2 id="_3">Использование в коде</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Statue&quot;)
+from core.components.physics.meshcol.collider import MeshCollider
+
+mc = MeshCollider()
+mc.mesh_path = &quot;assets/statue.obj&quot;
+mc.max_vertices = 2000
+entity.add_component(mc)  # без Rigidbody = статика
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+</code></pre>
+<p>Правило режимов: <code>AUTO</code> → <code>MESH</code> для статики, <code>CONVEX_HULL</code> для динамики; явный <code>MESH</code> на динамике форсируется в <code>CONVEX_HULL</code>. Меш на динамическом теле даунгрейдится до бокса (<code>downgrade_mesh_to_box</code> с варнингом); остальные непримитивы — отдельные статичные тела.</p>
+<h2 id="fixed-update">Заметки о fixed update</h2>
+<ul>
+<li>Вызов: <code>create_rigid_body(shape_type="mesh", ...)</code>; <code>dt</code> — <code>Engine._fixed_dt</code> (<code>0.02</code>).</li>
+</ul>
+<h2 id="_4">Связанные</h2>
+<p>Rigidbody, Box (цель даунгрейда), Terrain, материалы, слои.</p>
+<h2 id="_5">Проверено по</h2>
+<ul>
+<li><code>core/components/physics/meshcol/collider.py</code>, <code>meshcol/mode.py</code></li>
+<li><code>core/physics/shapep/shapes.py</code></li>
+</ul>
               
             </div>
           </div><footer>

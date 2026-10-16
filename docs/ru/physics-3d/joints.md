@@ -1,27 +1,54 @@
 # Джойнты
 
-Соединяют два тела связью: двери, колёса, подвеска, конечности рэгдолла, ломаемые крепления, желе-подвесы.
+Соединяют два тела связью: двери, колёса, подвеска, конечности рэгдолла, ломаемые крепления.
 
-| Поле | Default | Смысл |
+## Свойства
+
+| Поле | По умолчанию | Примечания |
 |---|---|---|
-| connected_entity_name | — | Имя другой сущности (нужны Rigidbody + коллайдер) |
-| anchor | начало | Пивот в локальных координатах |
-| axis | (0,0,1) | Ось hinge/spring |
-| joint_type | hinge | `HINGE`, `FIXED` или `SPRING` |
-| limit_low / limit_high | −π / +π | Угловой ход, радианы |
-| stiffness | 10.0 | Жёсткость пружины |
-| damping | 1.0 | Демпфирование колебаний |
+| `connected_entity_name` | `""` | Другая сущность **по имени** |
+| `anchor` | `(0, 0, 0)` | Мировой якорь |
+| `axis` | `(0, 0, 1)` | Ось hinge/slider |
+| `joint_type` | `"hinge"` | `hinge` / `fixed` / `spring` |
+| `limit_low` / `limit_high` | `-3.14159` / `3.14159` | Радианы |
+| `stiffness` / `damping` | `10.0` / `1.0` | Пружинные крепления |
 
-Гид типов:
+## Использование в редакторе
 
-- `HINGE` — вращение вокруг одной оси в лимитах: двери (0…π/2), колёса (свободное вращение ±π), рычаги.
-- `FIXED` — жёсткое крепление через солвер: ящики на грузовике, ломается снятием компонента из скрипта по порогу силы.
-- `SPRING` — упругая связь: подвеска (жёстко, задемпфировано), желе (мягко, прыгуче), фаркопы.
+Обеим сущностям — `Rigidbody` + коллайдер; одной — `Joint`; в `Connected Entity` вписать **имя** второй; якорь/ось/лимиты.
 
-Правила сборки: оба тела должны существовать и зарегистрироваться до резолва джойнта — создавайте пару до Play или в детерминированном порядке `on_awake`. Якорь в локале владельца; неверный якорь читается как растянутая дерущаяся связь — смотрите гизмо (якоря и оси рисуются во вьюпорте).
+## Использование в коде
 
-Настройка: начните с широких лимитов и мягкой пружины; сужайте и жёстчейте до верного движения. Пережёсткие пружины с тяжёлыми массами дрожат — сначала damping, затем итерации солвера, затем отношение масс.
+```python
+entity = scene.create_entity("Door")
+from core.components.physics.joint import Joint
+from core.maths.math3d import Vec3
 
-Диагностика: тела разлетаются — якорь далеко от центров или инверсия лимитов (low > high); джойнт игнорится — опечатка имени или нет Rigidbody; воббл в покое — mismatch stiffness/damping, растите damping.
+j = Joint()
+j.connected_entity_name = "Frame"
+j.joint_type = "hinge"
+j.anchor = Vec3(0.0, 1.0, 0.0)
+j.axis = Vec3(0.0, 0.0, 1.0)
+j.limit_low = -1.57
+j.limit_high = 1.57
+entity.add_component(j)
 
-Связанное: Rigidbody, мотор (ведомые джойнты), PhysBone (альтернатива цепочек), CharacterController (посадка игрока).
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+```
+
+Маппинг солвера: `fixed` → fixed, `point`/`point2point` → point, `hinge`/`revolute` → hinge, `slider`/`prismatic` → slider, `distance`/`spring` → distance, `cone`/`spherical` → cone. Хелперы: `create_drag_constraint`, `create_fixed_constraint`, `create_hinge_constraint`, `remove_joint_constraint`.
+
+## Заметки о fixed update
+
+- Джойнты создаются при загрузке сцены; отсутствующие имя/тело — варнинг и пропуск. Решение связей внутри `solver.step_simulation(dt)` при `dt = Engine._fixed_dt` (`0.02`).
+
+## Связанные
+
+Rigidbody, Motor, слои (тела должны иметь общую пару), солвер и потоки, Constraints (Transform-последователи — отдельная система, не солверные джойнты).
+
+## Проверено по
+
+- `core/components/physics/joint.py`, `core/physics/scene/joints.py`
+- `core/physics/physics_solver.py`
+- `physics_solvers/culverin_solver/solverp/broadphase.py`

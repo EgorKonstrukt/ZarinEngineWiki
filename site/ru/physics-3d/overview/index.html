@@ -874,6 +874,18 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Обзор физики 3D</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_1">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#fixed-update">Заметки о fixed update</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Связанные</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../rigidbody/">Твёрдое тело Rigidbody</a>
@@ -1237,21 +1249,94 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="3d">Обзор физики 3D</h1>
-<p>Встроенный 3D-солвер работает вне главного потока: симуляция шагает в фоновом воркере, пока поток ECS рисует, выполняет скрипты и синхронизирует трансформы каждый кадр. Геймплейный код никогда не ждёт солвер; он читает результаты прошлого шага и пишет пожелания (силы, скорости, телепорты), применяющиеся на следующем.</p>
-<p>Конвейер фиксированного шага:</p>
+<p>3D-симуляция твёрдых тел ZarinEngine: сущности с <code>Rigidbody</code> и коллайдерами шагаются подключаемым солвером (<code>IPhysicsSolver</code>), всё остальное — статичные декорации.</p>
+<h2 id="_1">Свойства</h2>
+<table>
+<thead>
+<tr>
+<th>Настройка</th>
+<th>По умолчанию</th>
+<th>Где</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Солвер</td>
+<td><code>culverin</code> (Jolt через пакет <code>culverin</code>)</td>
+<td><code>physics_solvers/registry.py</code> <code>DEFAULT_SOLVER</code>, <code>physics.solver</code></td>
+</tr>
+<tr>
+<td>Гравитация</td>
+<td><code>(0.0, -9.81, 0.0)</code></td>
+<td><code>physics.gravity_x/y/z</code>, <code>CulverinSolver._gravity</code></td>
+</tr>
+<tr>
+<td>Фиксированный шаг</td>
+<td><code>0.02</code> с</td>
+<td><code>engine.fixed_update_dt</code>, <code>physics.fixed_time_step</code>, <code>Engine._fixed_dt</code></td>
+</tr>
+<tr>
+<td>Подшаги</td>
+<td><code>2</code></td>
+<td><code>physics.num_sub_steps</code></td>
+</tr>
+<tr>
+<td>Итерации солвера</td>
+<td><code>10</code></td>
+<td><code>physics.solver_iterations</code></td>
+</tr>
+<tr>
+<td>Режим симуляции</td>
+<td><code>multi_threaded</code></td>
+<td><code>single</code> / <code>multi_threaded</code> / <code>per_layer_process</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">Использование в редакторе</h2>
 <ol>
-<li>Регистрация новых сущностей (создание тел солвера свежим парам Rigidbody + коллайдер) и периодическая перепроверка шейпов изменившихся мешей и скейлов.</li>
-<li>Синхронизация ECS → физика: грязные трансформы телепортируются прямо в тела, иначе пушатся накопленные силы/моменты и грязные скорости.</li>
-<li>Шаг солвера с <code>dt</code> (по умолчанию <code>0.02</code> из <code>Engine._fixed_dt</code>).</li>
-<li>Ограничение 2D-тел (обнуление внеплоскостных скоростей — плоские игры никогда не дрейфуют из плоскости).</li>
-<li>Синхронизация физика → ECS: позиции, повороты, скорости назад в трансформы и состояние Rigidbody; кинематика и грязные тела пропускаются (они ведомы трансформом).</li>
-<li>Рассылка событий столкновений в колбэки скриптов <code>on_collision_enter/stay/exit</code> с id сущностей и силами удара.</li>
+<li>Статичный пол: только <code>BoxCollider</code> (без <code>Rigidbody</code>).</li>
+<li>Динамический ящик: <code>Rigidbody</code> (масса <code>1.0</code>) + <code>BoxCollider</code> (<code>1,1,1</code>).</li>
+<li>Нажать Play. Кинематические движители: <code>is_kinematic</code> + движение трансформом; триггеры: <code>is_trigger</code> + колбэки пересечений.</li>
 </ol>
-<p>Солверы втыкаются через <code>IPhysicsSolver</code>: <code>culverin</code> (на базе Jolt) по умолчанию, альтернативы <code>pybullet</code> и <code>physx</code> в <code>physics_solvers/registry.py</code>. Режимы: <code>single</code> (в процессе, минимальная задержка, требуется CharacterController), <code>multi_threaded</code> (по умолчанию, демон-процесс с очередями и общими буферами), <code>per_layer_process</code> (процессы по требованию на слой).</p>
-<p>Обвязка фиксированного шага: <code>Engine.tick_fixed_step</code> копит реальное время относительно <code>_fixed_dt</code>, выполняет <code>pre_step</code> плагинов, <code>scene.fixed_update</code>, затем шаг физики — скрипты всегда видят стабильный <code>dt</code> в <code>on_fixed_update</code> независимо от FPS рендера.</p>
-<p>Таксономия тел: динамическое (Rigidbody положительной массы не-kinematic + коллайдер — полная симуляция), kinematic (ведётся трансформом, толкает динамику, не толкается), статичное (один коллайдер — неподвижные декорации), триггер (сообщает пересечения без отклика), персонаж (move-функция солвера), soft (деформируемый меш), составное (слитые примитивы).</p>
-<p>Подстраницы: Rigidbody, все шесть коллайдеров, CharacterController, джойнты, материалы и слои, внутренности солвера и потоков, продвинутые тела (плавучесть, soft body, PhysBone, мотор).</p>
-<p>Рецепт первой комнаты: статичный пол (box-коллайдер без Rigidbody), несколько динамических ящиков (Rigidbody масса 1–5 + box), один направленный свет — Play, и ящики оседают. Затем игрок на CharacterController и слои коллизий до роста контента.</p>
+<h2 id="_3">Использование в коде</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Crate&quot;)
+from core.components.physics.rigidbody import Rigidbody
+from core.components.physics.box_collider import BoxCollider
+from core.maths.math3d import Vec3
+
+rb = Rigidbody()
+rb.mass = 1.0
+entity.add_component(rb)
+box = BoxCollider()
+box.size = Vec3(1.0, 1.0, 1.0)
+entity.add_component(box)
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody)
+    if rb is not None:
+        rb.add_force(Vec3(0.0, 10.0, 0.0))
+        rb.add_torque(Vec3(0.0, 1.0, 0.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass  # (id_сущности, сила_удара), также on_collision_stay/exit
+</code></pre>
+<p>Заморозка осей: <code>rb.freeze_pos_x/y/z</code>, <code>rb.freeze_rot_x/y/z</code> (сериализация <code>freeze_pos</code> / <code>freeze_rot</code>).</p>
+<h2 id="fixed-update">Заметки о fixed update</h2>
+<ul>
+<li><code>Engine.tick_fixed_step</code> (<code>core/engine/eng/loop.py</code>): накопление реального времени по <code>_fixed_dt</code> (<code>0.02</code>), потолок backlog <code>5 * _fixed_dt</code>, максимум <code>5</code> шагов за тик (<code>MAX_FIXED_STEPS</code>), затем <code>scene.fixed_update(fd)</code> (компонентный <code>on_fixed_update</code>: силы/приводы <code>Buoyancy</code>/<code>Motor</code>/<code>CharacterController</code>) и наконец системный <code>step(fd)</code> плагинов.</li>
+<li>Порядок <code>PhysicsScene.step</code>: регистрация новых сущностей → проверка форм (каждые 60 шагов) → синхронизация ECS→физика → AABB-разделение soft-тел (только при <code>≥2</code> soft-телах) → <code>solver.step_simulation(dt)</code> → 2D-ограничение → физика→ECS → soft-синхронизация → события коллизий.</li>
+<li>Область параметров: <code>num_sub_steps</code> (<code>2</code>), <code>solver_iterations</code> (<code>10</code>), <code>erp</code> (<code>0.2</code>) — дефолты конфига проекта, потребляемые PyBullet-солвером (его собственные дефолты <code>1</code> / <code>50</code> / <code>0.4</code>); дефолтный Culverin/Jolt их игнорирует и использует капы мира <code>culverin_*</code>.</li>
+<li>Колбэки коллизий: скриптовые методы принимают <code>(other_id)</code> или <code>(other_id, force)</code> — арность определяется по <code>inspect.signature</code> (<code>ScriptComponent._py_collision_arity</code>); хендлеры движковых компонентов всегда получают <code>(other_id, force)</code>.</li>
+<li>Потоки: <code>multi_threaded</code> — солвер в демоне <code>multiprocessing.Process</code> (<code>PhysicsProcess</code>) через <code>SharedPhysicsBuffer</code> / <code>SoftSharedBuffer</code>; <code>single</code> — в процессе (требуется для <code>CharacterController</code> / <code>Motor</code>); <code>per_layer_process</code> — процессы по слоям.</li>
+</ul>
+<h2 id="_4">Связанные</h2>
+<p>Rigidbody, коллайдеры Box/Sphere/Capsule/Mesh/Terrain/GSVolume, CharacterController, Joints, Motor, материалы, слои, солвер и потоки, Buoyancy, Soft Body, PhysBone, Constraints (Transform-последователи — отдельная система, не солверные джойнты).</p>
+<h2 id="_5">Проверено по</h2>
+<ul>
+<li><code>core/physics/scene/scene.py</code>, <code>core/physics/scene/events.py</code></li>
+<li><code>core/engine/eng/loop.py</code>, <code>core/engine/eng/engine.py</code></li>
+<li><code>core/config/config.py</code>, <code>physics_solvers/registry.py</code>, <code>plugins/physics_plug/plugin.py</code></li>
+</ul>
               
             </div>
           </div><footer>

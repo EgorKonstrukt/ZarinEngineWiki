@@ -670,6 +670,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Foundation: Curve, команды, Time Travel</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_1">Обзор</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Сериализация</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_6">Связанные страницы</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_7">Проверено по</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,15 +1251,109 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="foundation-curve-time-travel">Foundation: Curve, команды, Time Travel</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Foundation: Curve, команды, Time Travel в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p><code>core/foundation/</code> — общедвижковые утилиты: <code>Curve</code> (кейфреймовая float-функция), стек undo <code>Command</code>/<code>CommandHistory</code> и <code>SnapshotRecorder</code> (покадровые снапшоты сцены для time travel).</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="_1">Обзор</h2>
+<p><strong>Curve</strong> (<code>core/foundation/curve.py</code>): <code>@dataclass Curve(keys, pre_wrap="clamp", post_wrap="clamp")</code>. <code>CurveKey(time, value, in_tangent=0.0, out_tangent=0.0, tangent_mode=SMOOTH)</code>. <code>TangentMode</code>: <code>FREE</code>, <code>LINEAR</code>, <code>CONSTANT</code>, <code>SMOOTH</code>. <code>add_key</code> вставляет с сортировкой и пересглаживает SMOOTH-касательные; <code>evaluate(t)</code> клампит вне диапазона ключей, внутри возвращает <code>CONSTANT</code>/<code>LINEAR</code>/Эрмит. <code>evaluate_array</code> использует Cython batch-путь при наличии. <code>to_list</code>/<code>from_list</code> хранят <code>[[time, value]]</code>; <code>to_dict</code>/<code>from_dict</code> сохраняют касательные и wrap-режимы. <code>QuaternionCurve</code> — slerp-вариант для вращений (<code>(0,0,0,1)</code> когда пуст).</p>
+<p><strong>Команды</strong> (<code>core/foundation/cmd/</code>): база <code>Command</code> (<code>execute</code>, <code>undo</code>, <code>redo</code> → повторный <code>execute</code>, <code>merge</code> → <code>False</code>, <code>description</code>). <code>CompoundCommand(commands, description)</code> выполняет/откатывает по порядку/в обратном порядке. <code>CommandHistory(max_size=100)</code>: <code>execute</code> (чистит redo), <code>undo</code>/<code>redo</code>, <code>seek(target_head)</code> для слайдера панели истории, <code>mark_saved</code>/<code>is_dirty</code>, <code>can_undo</code>/<code>can_redo</code>, <code>undo_text</code>/<code>redo_text</code>, <code>undo_count</code>/<code>redo_count</code>, списки описаний. <code>get_history()</code> возвращает провайдер или модульный синглтон. Готовые: <code>CreateEntityCommand</code>, <code>DeleteEntityCommand</code>, <code>InstantiatePrefabCommand</code>. <code>execute</code> и <code>seek</code> всегда генерят событие движка <code>history_changed</code>; <code>undo</code>/<code>redo</code> — когда зарегистрированы лисенеры изменений (<code>add_on_change</code> / <code>set_on_undo</code> / <code>set_on_redo</code>).</p>
+<p><strong>Time travel</strong> (<code>core/foundation/time_travel.py</code>): <code>SnapshotRecorder(max_frames=600)</code> держит <code>FrameSnapshot(frame_number, timestamp, entity_count, data, frame_time_ms)</code> с md5-<code>hash</code>, опциональными <code>camera_data</code>, <code>bookmarked</code>, <code>breakpoint_hit</code>. <code>capture_interval</code> (дефолт <code>1</code>), <code>filter_unchanged</code>, <code>breakpoint_expr</code> (вычисляется с <code>scene_data</code>, <code>entity_count</code>, <code>frame</code>, <code>time</code>; truthy-результат останавливает запись). <code>capture(scene)</code> сериализует сцену; <code>restore(registry, index)</code> десериализует снапшот обратно в <code>Scene</code>. Хелперы: <code>diff_scenes</code>, <code>find_entity_frame_changes</code>, <code>toggle_bookmark</code>, <code>export_frame</code>.</p>
+<h2 id="_2">Свойства</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Curve.add_key(time, value)</td>
+<td>method</td>
+<td>—</td>
+<td>Вставка с сортировкой + автосглаживание; возвращает <code>CurveKey</code></td>
+</tr>
+<tr>
+<td>Curve.evaluate(t)</td>
+<td>method</td>
+<td><code>0.0</code> empty</td>
+<td>Клампнутая интерполяция Эрмит/LINEAR/CONSTANT</td>
+</tr>
+<tr>
+<td>TangentMode</td>
+<td>Enum</td>
+<td><code>SMOOTH</code></td>
+<td><code>free/linear/constant/smooth</code></td>
+</tr>
+<tr>
+<td>CommandHistory</td>
+<td>class</td>
+<td><code>max_size=100</code></td>
+<td>Undo/redo/seek/dirty-трекинг</td>
+</tr>
+<tr>
+<td>history_changed</td>
+<td>event</td>
+<td>—</td>
+<td>Emit на <code>execute</code>/<code>seek</code> всегда; на <code>undo</code>/<code>redo</code> — когда есть лисенеры изменений</td>
+</tr>
+<tr>
+<td>SnapshotRecorder</td>
+<td>class</td>
+<td><code>max_frames=600</code></td>
+<td>Кольцевой буфер снапшотов сцены</td>
+</tr>
+<tr>
+<td>SnapshotRecorder.capture_interval</td>
+<td>int</td>
+<td><code>1</code></td>
+<td>Писать каждый N-й кадр</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">Использование в редакторе</h2>
+<p>Панель curve-редактора правит <code>Curve</code>-поля (тип <code>curve</code> в инспекторе). Панель undo-истории крутит <code>seek()</code>. Панель time-travel крутит <code>start/stop/capture/restore/toggle_bookmark/export_frame</code>.</p>
+<h2 id="_4">Использование в коде</h2>
+<pre><code class="language-python">from core.foundation.curve import Curve
+from core.foundation.cmd.history import get_history
+from core.foundation.cmd.entity_cmds import CreateEntityCommand
+from core.foundation.time_travel import SnapshotRecorder
+from core.ecs import ComponentRegistry
+
+curve = Curve()
+curve.add_key(0.0, 0.0)
+curve.add_key(1.0, 10.0)
+print(curve.evaluate(0.5))
+
+history = get_history()
+history.execute(CreateEntityCommand(scene, &quot;Enemy&quot;))
+history.undo()
+
+rec = SnapshotRecorder()
+rec.start()
+rec.capture(scene)
+restored = rec.restore(ComponentRegistry, 0)
+</code></pre>
+<h2 id="_5">Сериализация</h2>
+<p>Кривые сериализуются как <code>to_dict()</code> (<code>keys</code> с <code>time/value/in_tangent/out_tangent/tangent_mode</code>, <code>pre_wrap</code>, <code>post_wrap</code>); <code>ScriptComponent</code> хранит их в <code>script_fields</code>. Снапшоты сериализуются как полные dict сцены (<code>export_frame</code> пишет один в JSON).</p>
+<h2 id="_6">Связанные страницы</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li><a href="../ecs-overview/">Обзор ECS</a></li>
+<li><a href="../components-lifecycle/">Компоненты и жизненный цикл</a></li>
+<li><a href="../registry-serialization/">Реестр и сериализация</a></li>
+<li><a href="../time/">Время и Fixed Update</a></li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_7">Проверено по</h2>
+<ul>
+<li><code>core/foundation/curve.py</code> (<code>Curve</code>, <code>CurveKey</code>, <code>TangentMode</code>, <code>QuaternionCurve</code>)</li>
+<li><code>core/foundation/cmd/history.py</code> (<code>Command</code>, <code>CompoundCommand</code>, <code>CommandHistory</code>, <code>get_history</code>, <code>history_changed</code>)</li>
+<li><code>core/foundation/cmd/entity_cmds.py</code> (<code>CreateEntityCommand</code>, <code>DeleteEntityCommand</code>, <code>InstantiatePrefabCommand</code>)</li>
+<li><code>core/foundation/time_travel.py</code> (<code>SnapshotRecorder</code>, <code>FrameSnapshot</code>, <code>diff_scenes</code>, <code>restore</code>)</li>
+<li><code>core/components/scripting/scriptc/component.py</code> (Curve в <code>script_fields</code>)</li>
+</ul>
               
             </div>
           </div><footer>

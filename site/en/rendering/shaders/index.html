@@ -175,6 +175,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Shaders (.shader)</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#materialshader-snippet">Material/Shader snippet</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" >PostFX</a>
@@ -1236,55 +1246,85 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="shaders-shader">Shaders (.shader)</h1>
-<p>Custom text format in Unity ShaderLab style: a <code>Properties</code> header the editor understands plus raw GLSL the GPU compiles. Minimal example:</p>
-<pre><code class="language-shader">Shader &quot;Zarin/Unlit&quot; {
-  Properties {
-    _BaseColor(&quot;Base Color&quot;, Color) = (1, 1, 1, 1)
-    _BaseMap(&quot;Base Map&quot;, 2D) = &quot;white&quot; {}
-  }
-  SubShader {
-    Tags { &quot;RenderType&quot; = &quot;Opaque&quot; }
-    Pass {
-      GLSLPROGRAM
-      #version 430 core
-      layout(location = 0) in vec3 in_position;
-      layout(location = 1) in vec3 in_normal;
-      layout(location = 2) in vec2 in_uv;
-      uniform mat4 u_model;
-      uniform mat4 u_view;
-      uniform mat4 u_proj;
-      out vec2 v_uv;
-      void main() {
-        v_uv = in_uv;
-        gl_Position = u_proj * u_view * u_model * vec4(in_position, 1.0);
-      }
-      // @FRAGMENT
-      #version 430 core
-      uniform vec4 u_albedo_color;
-      in vec2 v_uv;
-      out vec4 fragColor;
-      void main() {
-        fragColor = u_albedo_color;
-      }
-      ENDGLSL
-    }
-  }
-}
+                <h1 id="shaders">Shaders</h1>
+<blockquote>
+<p>Shader asset: <code>.shader</code> text with <code>Shader "Name" { Properties { ... } SubShader { Pass { GLSLPROGRAM ... } } }</code>, compiled by <code>ShaderManager</code> (<code>core/renderer/shaderp/manager.py</code>) with fallback (<code>fallback.py</code>).
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Built-ins in <code>core/shaders/materials/</code>: <code>PBR</code>, <code>Unlit</code>, <code>Sky</code>, <code>Skybox</code>, <code>Clouds</code>, <code>CloudLayer</code>, <code>Water</code>, <code>WaterSim</code>, <code>Tree</code>. Compute in <code>core/shaders/compute/</code> (raytracing). Shaders requiring OpenGL 4.3+ storage buffers warn and fall back (<code>shaderp/fallback.py:110</code>). PBR vertex inputs include instancing (<code>in_model0-3</code>, <code>in_color</code>) + skinning (<code>in_bone_indices/weights</code>, SSBO <code>u_bone_matrices</code>).</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Properties</code> block</td>
+<td>declaration list</td>
+<td>per-shader</td>
+<td>Exposed uniforms parsed for the inspector/materials.</td>
+</tr>
+<tr>
+<td><code>SubShader.Tags.RenderType</code></td>
+<td>string</td>
+<td><code>"Opaque"</code></td>
+<td>Opaque/transparent routing (e.g. PBR <code>Tags { "RenderType" = "Opaque" }</code>).</td>
+</tr>
+<tr>
+<td><code>GLSLPROGRAM</code></td>
+<td>GLSL <code>#version 430 core</code></td>
+<td>per-shader</td>
+<td>Vertex/fragment bodies.</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Reference by path in <code>material_path</code> / <code>Material.shader_path</code> / component <code>shader</code> fields. Missing shaders fall back with a warning — check the log.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">prog = shaders.get_or_compile(&quot;core/shaders/materials/Water.shader&quot;)
 </code></pre>
-<p>Format rules, verified from the loader:</p>
+<h2 id="materialshader-snippet">Material/Shader snippet</h2>
+<p><code>core/shaders/materials/PBR.shader</code> Properties (verbatim head):</p>
+<pre><code class="language-c">Properties
+{
+    [MainColor] _BaseColor(&quot;Base Color&quot;, Color) = (1, 1, 1, 1)
+    [MainTexture] _BaseMap(&quot;Base Map&quot;, 2D) = &quot;white&quot; {}
+    _Metallic(&quot;Metallic&quot;, Range(0, 1)) = 0
+    _Smoothness(&quot;Smoothness&quot;, Range(0, 1)) = 0.5
+    _EmissionColor(&quot;Emission Color&quot;, Color) = (0, 0, 0, 0)
+    _EmissionIntensity(&quot;Emission Intensity&quot;, Float) = 0
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li><code>Properties</code> entries look like <code>[_Attr] _Name("Display", Type) = default</code>. Types: <code>Color</code>/<code>Vector</code> as <code>(1,1,1,1)</code>, <code>Float</code>/<code>Range(a,b)</code> as float, <code>Int</code> as int, <code>2D</code>/<code>Cube</code> as <code>"white"</code> / <code>"bump"</code> plus <code>{}</code>.</li>
-<li>One file may hold several <code>SubShader</code> blocks; the loader tries them in order, then an optional <code>Fallback "Name"</code> shader when all fail.</li>
-<li>Each <code>GLSLPROGRAM … ENDGLSL</code> block splits into vertex/fragment at the <code>// @FRAGMENT</code> marker.</li>
-<li>The loader injects GPU-instancing attributes (<code>in_model0-3</code>, SSBO bindings 4/5 on 430+), UV overrides (<code>u_uv_scale</code>, <code>u_uv_offset</code>, <code>u_uv_world_scale</code>), and resolves include markers for area shadows and caustics.</li>
-<li>Shader lookup spans the engine root <code>core/shaders</code> tree: <code>materials</code>, <code>internal</code>, <code>compute</code>, <code>include</code>, <code>legacy</code>.</li>
+<li><a href="../materials/">Materials</a>, <a href="../pipeline/">Pipeline</a>, <a href="../mesh-renderer/">Mesh Renderer</a>, <a href="../water/">Water</a></li>
 </ul>
-<p>Authoring workflow: duplicate <code>Unlit.shader</code>, rename the <code>Shader "..."</code> path, declare inputs in Properties (they auto-appear in every material using it), write the passes, assign to a material and iterate with hot material preview. Compile errors print with file and line — fix top-down, the first error usually cascades.</p>
-<p>Compilation fallback: <code>#version 430 core</code> is tried first; on failure the loader retries as <code>#version 330 core</code> with instancing and skinning defines forced off. Effects that fundamentally need 430 (SSBO paths) degrade visibly — check the console for the fallback notice.</p>
-<p>Built-in library under <code>core/shaders</code>: 9 material shaders (<code>PBR</code>, <code>Unlit</code>, <code>Sky</code>, <code>Skybox</code>, <code>Water</code>, <code>WaterSim</code>, <code>Tree</code>, <code>Clouds</code>, <code>CloudLayer</code>), 20+ internal shaders (<code>Default</code>, <code>Shadow</code>, <code>Particle</code>, <code>ParticleGpu</code>, <code>Sprite</code>, <code>Text</code>, <code>Video</code>, <code>Icon</code>, <code>Gizmo</code>, <code>Grid</code>, <code>Outline</code>, <code>ObjectFx</code>, <code>Projector</code>, <code>GaussianSplat</code>, <code>Caustics</code>, <code>Underwater</code> and more) and shared <code>include/</code> snippets (<code>area_shadows.glsl</code>, <code>caustics.glsl</code>).</p>
-<p>For node-based authoring see Shader Graph in the Editor Manual; for per-material values see Materials.</p>
-<p>Related: Materials, MeshRenderer (UV override uniforms), Lights (light uniforms), Shader Graph.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/shaders/materials/PBR.shader:7-45</code></li>
+<li><code>core/renderer/shaderp/manager.py</code>, <code>core/renderer/shaderp/fallback.py:110</code></li>
+<li><code>core/renderer/mats/shader.py</code></li>
+</ul>
               
             </div>
           </div><footer>

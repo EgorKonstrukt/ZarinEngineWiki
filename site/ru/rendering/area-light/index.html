@@ -700,6 +700,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Area-свет</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../projector/">Проектор Projector</a>
@@ -1237,16 +1245,117 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="area-">Area-свет</h1>
-<p>Мягкий прямоугольный или дисковый излучатель для студий, окон, софтбоксов и панелей — ближе всего к реальным приборам.</p>
+                <h1 id="_1">Прямоугольный свет</h1>
+<blockquote>
+<p>Панельный свет: <code>AreaLight</code> (<code>core/components/lighting/lightp/shadows.py:79-185</code>) с яркостью в нитах, формой rect/disk и мультисэмпл-тенями.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Яркость поверхности в нитах (кд/м²): монитор <code>200</code>, офисная панель <code>500</code>, пасмурное небо <code>2000</code>, софтбокс <code>10000</code>. Те же ниты на большей панели дают больше света (<code>shadows.py:92</code>). Гизмо рисует рамку, опциональное кольцо диска и заднюю рамку двусторонних (<code>shadows.py:118-161</code>).</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>color</code></td>
+<td>color3</td>
+<td><code>[1.0, 1.0, 1.0]</code></td>
+<td>Цвет (<code>shadows.py:91</code>).</td>
+</tr>
+<tr>
+<td><code>intensity</code></td>
+<td>float ниты (0–200000)</td>
+<td><code>100.0</code></td>
+<td>Яркость поверхности (<code>shadows.py:92,106</code>).</td>
+</tr>
+<tr>
+<td><code>range</code></td>
+<td>float (0–10000)</td>
+<td><code>10.0</code></td>
+<td>Дистанция отсечения (<code>shadows.py:93,107</code>).</td>
+</tr>
+<tr>
+<td><code>area_type</code></td>
+<td><code>LightAreaType</code></td>
+<td><code>RECT</code></td>
+<td><code>rect</code> / <code>disk</code> (<code>shadows.py:95,108</code>).</td>
+</tr>
+<tr>
+<td><code>area_width</code></td>
+<td>float (0.01–100)</td>
+<td><code>1.0</code></td>
+<td>Ширина панели, м (<code>shadows.py:96,109</code>).</td>
+</tr>
+<tr>
+<td><code>area_height</code></td>
+<td>float (0.01–100)</td>
+<td><code>1.0</code></td>
+<td>Высота панели, м (<code>shadows.py:97,110</code>).</td>
+</tr>
+<tr>
+<td><code>area_double_sided</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Излучение с двух сторон (<code>shadows.py:98,111</code>).</td>
+</tr>
+<tr>
+<td><code>area_samples</code></td>
+<td>int (1–64)</td>
+<td><code>6</code></td>
+<td>Сэмплы теней (<code>shadows.py:99,112</code>).</td>
+</tr>
+<tr>
+<td><code>area_shadow_bias</code></td>
+<td>float (0–0.1)</td>
+<td><code>0.005</code></td>
+<td>Биас теней (<code>shadows.py:100,113</code>).</td>
+</tr>
+<tr>
+<td><code>cast_shadows</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Нужен активный <code>AreaShadow</code> (<code>shadows.py:102,114</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Масштаб — через Area Width/Height, не трансформ. Disk для круглых софтбоксов; Double Sided для фонарей. Samples выше — мягче, Bias — от акне.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">al.area_type = LightAreaType.DISK
+al.area_width = 2.0
+al.area_samples = 12
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Интенсивность в нитах, по умолчанию 100. Ориентиры: SDR-монитор 200, офисная панель 500, пасмурное небо 2000, ясное небо 5000, LED-софтбокс 10000.</li>
-<li><code>area_type</code> RECT или DISK; размер из <code>area_width</code> / <code>area_height</code>; <code>area_double_sided</code> излучает с двух сторон (тонкие панели, окна).</li>
-<li>Мягкость из <code>area_samples</code> (по умолчанию 6) — больше сэмплов, мягче и дороже тени; <code>area_shadow_bias</code> 0.005 против акне.</li>
+<li><a href="../light/">Light</a>, <a href="../shadows/">Shadows</a></li>
 </ul>
-<p>Area — самый дорогой тип на единицу: используйте как hero-источники (один мягкий ключ сквозь окно, одна панель над столом), остальное добирайте точками и спотами. Гизмо рисует излучающий квад — постановка к окнам читается напрямую.</p>
-<p>Процесс мягкого интерьера: area снаружи окна внутрь (double-sided выкл), холодная ambient- или небесная заливка, одна тёплая незатенённая точка внутри для ощущения bounce. Подгоняйте width/height под реальное окно — несовпадение ломает направление мягких теней.</p>
-<p>Связанное: Light (база), тени, скайбокс (альтернатива IBL-заливки), заметки Dynamic Cubemap.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/lighting/lightp/shadows.py:79-185</code></li>
+<li><code>core/components/lighting/lightp/light.py:20-22</code> (<code>LightAreaType</code>)</li>
+</ul>
               
             </div>
           </div><footer>

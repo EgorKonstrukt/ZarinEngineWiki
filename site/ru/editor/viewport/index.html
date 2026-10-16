@@ -1136,6 +1136,18 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Вьюпорт, камера, гизмо</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Скриншоты</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../hierarchy/">Иерархия</a>
@@ -1237,15 +1249,133 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Вьюпорт, камера, гизмо</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Вьюпорт, камера, гизмо в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p><code>SceneViewport</code> (<code>editor/viewport/viewport.py</code>) — <code>QOpenGLWidget</code> вида сцены: управление камерой, пикинг/выделение, трансформ-гизмо, миксины рендера и ввода.</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Член</th>
+<th>Сигнатура</th>
+<th>Примечания</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SceneViewport</code></td>
+<td><code>(engine, parent=None)</code></td>
+<td>Миксины <code>ViewportCameraMixin</code>, <code>ViewportOverlayMixin</code>, <code>ViewportSelectionMixin</code>, <code>ViewportRenderMixin</code>, <code>ViewportInputMixin</code></td>
+</tr>
+<tr>
+<td><code>camera</code> / <code>gizmo</code> / <code>renderer</code></td>
+<td>свойства</td>
+<td>Доступ к подобъектам</td>
+</tr>
+<tr>
+<td><code>selected_entities</code></td>
+<td><code>() -&gt; list</code></td>
+<td>Текущее выделение</td>
+</tr>
+<tr>
+<td><code>initializeGL</code> / <code>resizeGL</code> / <code>paintGL</code></td>
+<td><code>(w, h)</code> / <code>()</code></td>
+<td>Жизненный цикл GL</td>
+</tr>
+<tr>
+<td><code>load_config</code></td>
+<td><code>(config) -&gt; None</code></td>
+<td>Восстановление сохранённых настроек</td>
+</tr>
+<tr>
+<td><code>showEvent</code> / <code>hideEvent</code></td>
+<td><code>(event)</code></td>
+<td>Старт/стоп отрисовки</td>
+</tr>
+<tr>
+<td><code>on_dock_top_level_changed</code></td>
+<td><code>(floating: bool)</code></td>
+<td>Обработка отстыковки дока</td>
+</tr>
+<tr>
+<td>Камера: <code>_on_fov_changed</code> / <code>_on_near_changed</code> / <code>_on_far_changed</code></td>
+<td><code>(value: float)</code></td>
+<td>В <code>viewport/viewport_camera.py</code></td>
+</tr>
+<tr>
+<td>Камера: <code>_on_move_speed_changed</code> / <code>_on_rotate_speed_changed</code></td>
+<td><code>(value: float)</code></td>
+<td>Скорости облёта/орбиты</td>
+</tr>
+<tr>
+<td>Камера: <code>_on_render_scale_changed</code></td>
+<td><code>(value: int)</code></td>
+<td>Масштаб разрешения рендера</td>
+</tr>
+<tr>
+<td>Камера: <code>set_grid_step</code> / <code>snap_to_grid</code> / <code>snap_vec3_to_grid</code></td>
+<td><code>(step: float)</code> / <code>(value: float)</code> / <code>(v: Vec3)</code></td>
+<td>Привязка к сетке</td>
+</tr>
+<tr>
+<td>Выделение: <code>set_selected_entity</code> / <code>set_selected_entities</code></td>
+<td><code>(entity)</code> / <code>(entities: list)</code></td>
+<td>В <code>viewport/viewport_selection.py</code></td>
+</tr>
+<tr>
+<td>Выделение: <code>_delete_selected</code> / <code>_copy_selected_entities</code> / <code>_paste_entities</code> / <code>_frame_selected</code></td>
+<td><code>()</code></td>
+<td>Операции над выделением</td>
+</tr>
+<tr>
+<td>Выделение: <code>_emit_create_request</code></td>
+<td><code>(obj_type="empty", subtype=None)</code></td>
+<td>Точка входа create-меню вьюпорта</td>
+</tr>
+<tr>
+<td>Клавиши ввода</td>
+<td><code>KEY_W/A/S/D/Q/E/R/F</code>, <code>KEY_SHIFT/CTRL/ALT/SPACE/DELETE</code>, <code>MOUSE_L/R/M</code> из <code>core/input/constants.py</code></td>
+<td>В <code>viewport/viewport_input.py</code>; C/V/D — копирование/вставка/дублирование</td>
+</tr>
+<tr>
+<td><code>OverlayWidget</code></td>
+<td><code>(viewport, parent=None)</code> + <code>set_visible(bool)</code></td>
+<td><code>viewport/overlay_widget.py</code></td>
+</tr>
+<tr>
+<td><code>ProgressToast</code></td>
+<td><code>(parent=None)</code> + <code>reposition()</code></td>
+<td>Тосты задач в <code>viewport/progress_toast.py</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Режим облёта: <code>WASD</code> + осмотр правой кнопкой, пан средней, долли колесом. Режим орбиты: правая кнопка вращает вокруг 3D-курсора, <code>Shift+RMB</code> ставит курсор, <code>Ctrl+MMB</code>/колесо — долли (текст тултипа режима навигации). <code>C</code>/<code>V</code>/<code>D</code> работают с выделением (пути копирования/вставки/дублирования в обработчике клавиш). Гизмо следует за <code>_update_gizmo_pivot</code>; мульти-перетаскивание фиксируется через <code>_commit_multi_transform</code>. FOV/near/far/скорости/масштаб рендера правятся через контролы камеры.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">vp.set_selected_entity(ent)
+vp.set_selected_entities([a, b])
+vp.snap_vec3_to_grid(pos)   # привязка Vec3 к шагу сетки
+vp.set_grid_step(0.5)
+</code></pre>
+<h2 id="_2">Скриншоты</h2>
+<p><img alt="Вьюпорт редактора ZarinEngine (по центру) в главном окне" src="../../../assets/screenshots/editor-main.png" /></p>
+<blockquote>
+<p>Вид сцены с камерой, сеткой и тестовой моделью дракона; справа — Game view.
+Файл: <code>assets/screenshots/editor-main.png</code> (проверенная копия
+<code>zarin_screenshot.png</code> из репозитория движка).</p>
+</blockquote>
+<h2 id="related">Related</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Главное окно (тулбар с Play и режимом навигации), Иерархия (зеркало выделения), Инспектор (правка выделения)</li>
+<li>Гизмо: <code>editor/gizmo/pb_scale_gizmo.py</code>, <code>editor/gizmo/phys_bone_grab.py</code></li>
+<li>Вьюпорт дока Play: <code>editor/panels/play/viewport.py</code></li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>editor/viewport/viewport.py</code>, <code>editor/viewport/viewport_camera.py</code>, <code>editor/viewport/viewport_selection.py</code>, <code>editor/viewport/viewport_input.py</code></li>
+<li><code>editor/viewport/overlay_widget.py</code>, <code>editor/viewport/progress_toast.py</code>, <code>editor/viewport/perf.py</code>, <code>editor/viewport/projection.py</code>, <code>editor/viewport/undo_filter.py</code></li>
+<li><code>editor/main_window/toolbar.py</code> (тултип навигации), <code>editor/scene_viewport.py</code>, <code>editor/scene_toolbar.py</code></li>
+</ul>
               
             </div>
           </div><footer>

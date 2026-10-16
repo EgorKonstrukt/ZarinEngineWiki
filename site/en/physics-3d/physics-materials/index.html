@@ -317,6 +317,18 @@
     <ul class="current">
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Physics Materials</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#fixed-update-notes">Fixed update notes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../collision-layers/">Collision Layers</a>
@@ -1238,23 +1250,80 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="physics-materials">Physics Materials</h1>
-<p>Surface response per collider: friction grips, bounciness rebounds. Two ways to set them — asset or inline — with one rule: the asset wins when assigned.</p>
+<p>Surface response per collider: friction grips, bounciness rebounds. Asset or inline — the asset wins when assigned.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Default</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dynamic_friction</code></td>
+<td><code>0.6</code></td>
+<td><code>≥0</code></td>
+</tr>
+<tr>
+<td><code>static_friction</code></td>
+<td><code>0.6</code></td>
+<td><code>≥0</code></td>
+</tr>
+<tr>
+<td><code>bounciness</code></td>
+<td><code>0.0</code></td>
+<td><code>≥0</code></td>
+</tr>
+<tr>
+<td><code>friction_combine</code></td>
+<td><code>average</code></td>
+<td><code>average</code> / <code>minimum</code> / <code>maximum</code> / <code>multiply</code></td>
+</tr>
+<tr>
+<td><code>bounce_combine</code></td>
+<td><code>average</code></td>
+<td>Same set</td>
+</tr>
+<tr>
+<td>File</td>
+<td><code>.zphysmat</code> (JSON)</td>
+<td><code>PhysicsMaterial.save/load/load_cached</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Create a <code>.zphysmat</code> asset, reference it via <code>Physic Material</code> on any collider (<code>Box</code>/<code>Sphere</code>/<code>Capsule</code>/<code>Mesh</code>/<code>Terrain</code>/<code>GSVolume</code>/2D). Share one ice asset across the rink instead of tuning ten colliders.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Ice&quot;)
+from core.components.physics.box_collider import BoxCollider
+from core.assets.physics_material import PhysicsMaterial
+
+mat = PhysicsMaterial(&quot;Ice&quot;)
+mat.dynamic_friction = 0.05
+mat.static_friction = 0.05
+mat.bounciness = 0.0
+mat.save(&quot;assets/ice.zphysmat&quot;)
+
+box = BoxCollider()
+box.physic_material = &quot;assets/ice.zphysmat&quot;  # asset wins over inline
+box.material_friction = 0.6                  # fallback when asset missing
+box.material_bounciness = 0.0
+entity.add_component(box)
+</code></pre>
+<p>Resolution rule (verified): <code>resolve_physics_material</code> loads <code>physic_material</code> via <code>load_cached</code>; on missing/empty path it falls back to <code>material_friction</code>/<code>material_bounciness</code> with combine <code>average</code>. Combine math: <code>minimum</code>/<code>maximum</code>/<code>multiply</code> as named, default <code>average = (a+b)/2</code>.</p>
+<h2 id="fixed-update-notes">Fixed update notes</h2>
 <ul>
-<li>Asset filter <code>Physics Materials (*.zphysmat)</code>, referenced through <code>physic_material</code> on any collider. Share one ice asset across the whole rink instead of tuning ten colliders.</li>
-<li>Without an asset, inline <code>material_friction</code> (0.6) and <code>material_bounciness</code> (0.0) apply.</li>
-<li>Body creation passes friction and restitution to the solver on spawn; later changes re-register the shape, so mid-game swaps cost a hitch — preassign variants instead.</li>
+<li>Materials resolve at body-creation time (<code>_shape_info_for</code>); changing the asset later rebuilds via the 60-step shape check. No per-step cost.</li>
 </ul>
-<p>Preset cookbook:</p>
+<h2 id="related">Related</h2>
+<p>All collider pages, Collision Layers (response vs. filtering), Solver &amp; Threading.</p>
+<h2 id="verified-against">Verified against</h2>
 <ul>
-<li>Ice rink: friction 0.03–0.08, bounce 0 — glide with steering from scripts.</li>
-<li>Rubber ball court: friction 0.7–0.9, bounce 0.7–0.85 — lively but controllable.</li>
-<li>Metal hangar: friction 0.25–0.35, bounce 0.05–0.15 — crates slide when pushed, stop on their own.</li>
-<li>Mud: friction 1.0+, bounce 0 — use high drag on the Rigidbody too.</li>
-<li>Trampoline: bounce 0.9–0.95 on a trigger-adjacent pad plus an upward impulse script (pure bounce never exceeds incoming energy).</li>
+<li><code>core/assets/physics_material.py</code></li>
+<li><code>core/physics/shapep/materials.py</code> (<code>resolve_physics_material</code>, <code>default_physics_material_dict</code>)</li>
 </ul>
-<p>Combine pairs thoughtfully: the contact solver blends both materials, so an icy ball (0.05) on ice (0.05) glides while the same ball on rubber (0.9) grips.</p>
-<p>Troubleshooting: slides everywhere → global friction too low, check the floor material first; dead bounce → restitution lost in the pair, raise both sides; changes ignored at runtime → shape re-registration pending, re-enter Play or reassign.</p>
-<p>Related: Collision Layers, Box/Sphere/Capsule/Mesh Collider pages, Rigidbody (drag interplay).</p>
               
             </div>
           </div><footer>

@@ -453,6 +453,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Prefabs (.zpep) and Library</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties-api">Properties / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1236,16 +1246,95 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="prefabs-zpep-and-library">Prefabs (.zpep) and Library</h1>
-<p>TODO: Content pending. This page will document Prefabs (.zpep) and Library in ZarinEngine.</p>
-<p>Planned sections:</p>
+                <h1 id="prefabs-and-library">Prefabs and Library</h1>
+<p><code>Prefab</code> captures entity subtrees to JSON (<code>.zpep</code>), re-instantiates them with fresh GUIDs, and tracks per-instance overrides.</p>
+<h2 id="properties-api">Properties / API</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Source</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Prefab(name, guid, base_guid, menu_path)</code></td>
+<td><code>core/ecs/prefabp/prefab.py</code></td>
+<td><code>guid</code> identity, <code>base_guid</code> marks a variant, <code>roots_data</code> payload</td>
+</tr>
+<tr>
+<td><code>capture(entities)</code></td>
+<td><code>prefab.py</code></td>
+<td><code>Entity.serialize</code> + <code>source_id</code>, strips <code>prefab_guid</code>/<code>parent</code>, recurses children</td>
+</tr>
+<tr>
+<td><code>save(path)</code></td>
+<td><code>prefab.py</code></td>
+<td>JSON <code>{guid, name, roots[, base_guid, menu_path]}</code>; relatives resolved, <code>_key</code> stripped</td>
+</tr>
+<tr>
+<td><code>instantiate(scene, registry, parent)</code></td>
+<td><code>prefab.py</code></td>
+<td>Deep-copy roots, <code>_remap_ids</code> (uuid4), <code>Entity.deserialize</code>, set <code>_prefab_guid/_prefab_source_id</code></td>
+</tr>
+<tr>
+<td><code>instantiate_plain(scene, registry, parent)</code></td>
+<td><code>prefab.py</code></td>
+<td>Instantiate then <code>Prefab.unpack</code> (detach from prefab)</td>
+</tr>
+<tr>
+<td><code>PrefabOverrideType</code></td>
+<td><code>prefab.py</code></td>
+<td><code>modified_property / added_component / removed_component / added_child / removed_child</code></td>
+</tr>
+<tr>
+<td><code>compute_overrides / compute_all_overrides / has_overrides / apply_overrides</code></td>
+<td><code>core/ecs/prefabp/overrides.py</code></td>
+<td>Diff instance vs asset, write back to <code>.zpep</code></td>
+</tr>
+<tr>
+<td><code>PrefabLibrary</code></td>
+<td><code>core/ecs/prefabp/library.py</code></td>
+<td>Asset cache/index</td>
+</tr>
+<tr>
+<td><code>register_system_prefab / create_system_prefab / ensure_builtin_prefabs</code></td>
+<td><code>core/prefabs/registry.py</code>, <code>builtins.py</code></td>
+<td>Built-ins from <code>system_prefabs.yaml</code></td>
+</tr>
+<tr>
+<td>File filter</td>
+<td><code>core/components/network/network_spawn.py</code>, <code>scriptc/fields.py</code></td>
+<td><code>Prefab (*.zpep)</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<ol>
+<li>Select root entity, create prefab asset (<code>.zpep</code> JSON with <code>guid</code>, <code>name</code>, <code>roots</code>).</li>
+<li>Drag instances into scenes; edits on an instance are recorded as overrides, not asset edits.</li>
+<li>Apply overrides to write instance diff back to the <code>.zpep</code> file.</li>
+</ol>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from core.ecs.prefabp.prefab import Prefab
+
+pref = Prefab(name=&quot;Enemy&quot;)
+pref.capture([enemy_entity])
+pref.save(&quot;assets/prefabs/enemy.zpep&quot;)
+
+spawned = pref.instantiate(scene, registry, parent=None)
+plain = pref.instantiate_plain(scene, registry)
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Scenes, ECS Entity, Network spawn (<code>*.zpep</code> filter)</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/ecs/prefabp/prefab.py</code>, <code>core/ecs/prefabp/overrides.py</code>, <code>core/ecs/prefabp/library.py</code></li>
+<li><code>core/prefabs/registry.py</code>, <code>core/prefabs/builtins.py</code></li>
+</ul>
               
             </div>
           </div><footer>

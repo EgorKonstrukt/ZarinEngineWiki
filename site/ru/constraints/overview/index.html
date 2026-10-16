@@ -1026,6 +1026,16 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Ограничения Constraints</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api">Свойства / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_1">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Связанные</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Проверено по</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,15 +1247,90 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="constraints">Ограничения Constraints</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Ограничения Constraints в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<p>Покадровые followers Трансформа: бленд позиции/вращения/масштаба, look-at/aim, родительство и движение. Все — компоненты реестра с <code>is_active</code>.</p>
+<h2 id="api">Свойства / API</h2>
+<table>
+<thead>
+<tr>
+<th>Компонент</th>
+<th>Поля</th>
+<th>Поведение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PositionConstraint</code></td>
+<td><code>sources[{entity_id, weight}]</code>, <code>weight_x/y/z</code></td>
+<td>Средневзвешенная позиция + offset</td>
+</tr>
+<tr>
+<td><code>RotationConstraint</code></td>
+<td>источники + веса осей</td>
+<td>Бленд вращения</td>
+</tr>
+<tr>
+<td><code>ScaleConstraint</code></td>
+<td>источники + веса осей</td>
+<td>Бленд масштаба</td>
+</tr>
+<tr>
+<td><code>ParentConstraint</code></td>
+<td>источник</td>
+<td>Копия мирового трансформа</td>
+</tr>
+<tr>
+<td><code>FollowTransformConstraint</code></td>
+<td>цель + офсеты</td>
+<td>Жёсткое следование</td>
+</tr>
+<tr>
+<td><code>LookAtConstraint</code></td>
+<td>цель, up</td>
+<td>Разворот forward к цели</td>
+</tr>
+<tr>
+<td><code>AimConstraint</code></td>
+<td>цель, ось</td>
+<td>Наведение локальной оси</td>
+</tr>
+<tr>
+<td><code>MoveTowardsConstraint</code></td>
+<td>цель, скорость</td>
+<td>Шаг к цели</td>
+</tr>
+<tr>
+<td><code>RotateTowardsConstraint</code></td>
+<td>цель, угловая скорость</td>
+<td>Slerp к цели</td>
+</tr>
+<tr>
+<td><code>ScaleToConstraint</code></td>
+<td>целевой масштаб</td>
+<td>Lerp масштаба</td>
+</tr>
+</tbody>
+</table>
+<p>Общее: <code>add_source(entity, weight)</code>, <code>remove_source(index)</code>, <code>set_offset_from_current_position()</code>, <code>serialize()</code> / <code>deserialize()</code>.</p>
+<h2 id="_1">Использование в редакторе</h2>
+<ol>
+<li>Добавьте constraint на follower-сущность.</li>
+<li>Назначьте источники с весами; <code>set_offset_from_current_position</code> сохраняет текущий зазор.</li>
+<li>Весами осей лочите оси; <code>is_active</code> выключает.</li>
+</ol>
+<h2 id="_2">Использование в коде</h2>
+<pre><code class="language-python">c = entity.get_component_by_name(&quot;PositionConstraint&quot;)
+c.add_source(leader_entity, weight=1.0)
+c.set_offset_from_current_position()
+c.weight_y = 0.0
+</code></pre>
+<h2 id="_3">Связанные</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Навигация, анимация (пути костей), Transform</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_4">Проверено по</h2>
+<ul>
+<li><code>core/components/constraints/__init__.py</code>, <code>position_constraint.py</code> и соседние файлы</li>
+</ul>
               
             </div>
           </div><footer>

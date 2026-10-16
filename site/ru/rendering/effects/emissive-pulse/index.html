@@ -834,13 +834,15 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Пульс эмиссии</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#_2">Как работает</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_1">Параметры</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_3">Параметры</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Использование</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_4">Советы</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Шейдер</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_5">Цена</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Связанное</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Проверено по коду</a>
     </li>
     </ul>
                 </li>
@@ -1245,17 +1247,76 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="_1">Пульс эмиссии</h1>
-<p>Эффект объекта через проход ObjectFx (в отличие от PostFX на весь кадр). Построен на общей базе ObjectEffect; скрипты ведут его, анимируя float прогресса/интенсивности.</p>
-<h2 id="_2">Как работает</h2>
-<p>Ритмичное свечение emission-канала с rate и резкостью.</p>
-<h2 id="_3">Параметры</h2>
-<p>Частота, резкость, уровни базы/пика.</p>
-<h2 id="_4">Советы</h2>
-<p>Маяки, подборы, ядра реакторов, тревоги. Синхронизируйте частоту с urgency геймплея.</p>
-<h2 id="_5">Цена</h2>
-<p>Пренебрежимо.</p>
-<p>Связанное: <a href="../">эффекты объектов</a>, материалы, примеры скриптов.</p>
+                <h1 id="emissive-">Emissive-пульс</h1>
+<blockquote>
+<p>Синусоидальный подъём эмиссии. Цвет эмиссии × strength × (0.5 + 0.5·sin(u_time·speed)) добавляется, гейт — amount. Класс <code>EmissivePulseEffect</code> в <code>core/components/rendering/effects/emissive_pulse_effect.py</code>. ObjectFx pass, same collection/bind path as Dissolve.</p>
+</blockquote>
+<h2 id="_1">Параметры</h2>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Amount</td>
+<td><code>amount</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Pulse Color</td>
+<td><code>color</code></td>
+<td>COLOR</td>
+<td>—</td>
+<td><code>[1.0, 0.4, 0.1]</code></td>
+</tr>
+<tr>
+<td>Speed</td>
+<td><code>speed</code></td>
+<td>FLOAT</td>
+<td>0.0 – 20.0</td>
+<td><code>3.0</code></td>
+</tr>
+<tr>
+<td>Intensity</td>
+<td><code>strength</code></td>
+<td>FLOAT</td>
+<td>0.0 – 10.0</td>
+<td><code>2.0</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">Использование</h2>
+<p>Редактор: выбрать меш-сущность, Add Component &gt; <code>EmissivePulseEffect</code>, включить <code>enabled</code>, анимировать amount-поля из скрипта.</p>
+<p>Код:</p>
+<pre><code class="language-python">from core.components.rendering.effects.emissive_pulse_effect import EmissivePulseEffect
+fx = EmissivePulseEffect()
+entity.add_component(fx)
+fx.amount = 1.0
+fx.strength = 3.0
+fx.speed = 4.0
+fx.enabled = True
+# каждый кадр: fx.amount = min(1.0, fx.amount + dt * 0.5)
+</code></pre>
+<h2 id="_3">Шейдер</h2>
+<p>Шейдер: <code>core/shaders/internal/ObjectFx.shader (u_pulse_* branch)</code>. Привязанные uniform-ы: <code>u_pulse_amount</code>, <code>u_pulse_speed</code>, <code>u_pulse_strength</code>, <code>(+ color buffer)</code>, <code>u_time</code>.</p>
+<pre><code class="language-glsl">// _apply uniforms (exact): u_pulse_amount, u_pulse_speed, u_pulse_strength (+ pulse color vec3)
+</code></pre>
+<h2 id="_4">Связанное</h2>
+<p>См. <a href="../">Эффекты объектов</a>, проход ObjectFx (<code>core/renderer/object_fx_pass.py</code>), <code>core/shaders/internal/ObjectFx.shader</code>.</p>
+<h2 id="_5">Проверено по коду</h2>
+<ul>
+<li><code>core/components/rendering/effects/emissive_pulse_effect.py</code> — класс <code>EmissivePulseEffect</code>, <code>_inspector_fields</code>, дефолты <code>__init__</code>, uniform-ы <code>_apply</code>.</li>
+<li><code>core/components/rendering/effects/object_effect.py</code> — базовый <code>ObjectEffect</code> (<code>bind</code> ставит <code>u_time</code>, гварды <code>_set</code>/<code>_set_vec</code>, <code>reset_all_defaults</code>).</li>
+<li><code>core/renderer/object_fx_pass.py</code> — <code>_find_object_effect</code>, <code>_render_object_effects</code>, <code>_get_fx_program</code>.</li>
+</ul>
               
             </div>
           </div><footer>

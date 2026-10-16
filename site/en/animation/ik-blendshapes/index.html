@@ -417,6 +417,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">IK and Blendshapes</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties-api">Properties / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,15 +1247,82 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="ik-and-blendshapes">IK and Blendshapes</h1>
-<p>TODO: Content pending. This page will document IK and Blendshapes in ZarinEngine.</p>
-<p>Planned sections:</p>
+<p>Two code-verified IK solvers pose bone chains toward targets; blendshape deltas arrive from the Assimp importer.</p>
+<h2 id="properties-api">Properties / API</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Source</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_IKBase.target_entity_id / target_position</code></td>
+<td><code>ikp/ccd.py</code></td>
+<td>Target entity or fallback <code>Vec3</code></td>
+</tr>
+<tr>
+<td><code>_IKBase.pole_entity_id / pole_position</code></td>
+<td><code>ikp/ccd.py</code></td>
+<td>Pole (elbow/knee hint) entity or <code>Vec3</code></td>
+</tr>
+<tr>
+<td><code>_IKBase.weight</code></td>
+<td><code>ikp/ccd.py</code></td>
+<td>0–1 solver influence</td>
+</tr>
+<tr>
+<td><code>TwoBoneIK</code></td>
+<td><code>ikp/ccd.py</code></td>
+<td>Two-bone analytic/CCD solver (<code>_IK_TYPES</code> member)</td>
+</tr>
+<tr>
+<td><code>FABRIKChain.root_bone / bones / chain_length</code></td>
+<td><code>ikp/fabrik.py</code></td>
+<td>Chain definition; empty <code>bones</code> walks children of <code>root_bone</code></td>
+</tr>
+<tr>
+<td><code>FABRIKChain.iterations / tolerance / bone_weights</code></td>
+<td><code>ikp/fabrik.py</code></td>
+<td>Defaults 8 / 1e-4 / per-bone weights</td>
+</tr>
+<tr>
+<td><code>blendshape_names / indices / positions / normals</code></td>
+<td><code>core/assets/importer/ctypes_types.py</code> (<code>MeshImportData</code>), <code>anim.py:_finalize_blendshapes</code></td>
+<td>Per-<code>aiAnimMesh</code> deltas, capped sanity 10000 meshes</td>
+</tr>
+<tr>
+<td><code>.import: blendshapes</code></td>
+<td><code>core/assets/importer/settings.py</code></td>
+<td>Default <code>true</code>; <code>skeleton_ctx.want_blend</code> gate</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<ol>
+<li>Add <code>TwoBoneIK</code> (limbs) or <code>FABRIKChain</code> (tails, spines) to the chain owner.</li>
+<li>Set <code>root_bone</code> + <code>bones</code> (or <code>chain_length</code>), assign target/pole entities, tune <code>weight</code>, <code>iterations</code>.</li>
+<li>For faces: import model with <code>.import</code> <code>blendshapes: true</code>; mesh carries <code>blendshape_*</code> arrays for the skinned renderer.</li>
+</ol>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">ik = entity.get_component_by_name(&quot;FABRIKChain&quot;)
+ik.root_bone = &quot;Hips/Spine&quot;
+ik.chain_length = 3
+ik.iterations = 8
+ik.weight = 1.0
+ik.target_entity_id = hand_target.id
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Animation Overview, Clip and Animator, Models via Assimp</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/animation/ikp/ccd.py</code>, <code>ikp/fabrik.py</code></li>
+<li><code>core/assets/importer/anim.py</code>, <code>mesh.py</code>, <code>settings.py</code>, <code>ctypes_types.py</code></li>
+</ul>
               
             </div>
           </div><footer>

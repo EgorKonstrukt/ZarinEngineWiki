@@ -652,6 +652,20 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Обзор ECS</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_1">Обзор</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Сериализация</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_6">Связанные страницы</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_7">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../entity/">Сущность Entity</a>
@@ -1237,15 +1251,85 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="ecs">Обзор ECS</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Обзор ECS в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p>ZarinEngine — движок с Entity-Component-System архитектурой: объекты <code>Entity</code> хранят данные, <code>Component</code> добавляют поведение, <code>Scene</code> владеет сущностями и рассылает <code>update</code> / <code>fixed_update</code>.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="_1">Обзор</h2>
+<p>Порядок слоёв (зависимости только вниз): <code>main.py / player.py</code> → <code>editor/</code> → <code>plugins/</code> → <code>core/components/</code> → <code>core/renderer, physics, audio, network</code> → <code>core/ecs/</code> (<code>Entity</code>, <code>Component</code>, <code>Scene</code>, <code>ComponentRegistry</code>) → <code>core/foundation/</code> → <code>core/spatial, core/maths</code> (<code>ARCHITECTURE.md</code>). <code>core/</code> никогда не импортирует <code>editor</code> и <code>plugins</code>; связь вверх — только события <code>Engine.on</code> / <code>Engine.off</code> и колбэки <code>_emit_event</code>.</p>
+<p>Рантайм-диспетч: <code>Engine.tick()</code> (только в play-режиме) выполняет до 5 фиксированных шагов (<code>Scene.fixed_update(fd)</code>), затем один <code>Scene.update(dt)</code>. <code>Scene</code> держит сеты <code>_active_update_components</code> / <code>_active_fixed_components</code> плюс кэшированные списки; <code>on_update</code> партиционируется на constraints → остальные → IK. Исключения в колбэках логируются с именами сущности и компонента и кадр не останавливают.</p>
+<h2 id="_2">Свойства</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Entity</td>
+<td>class</td>
+<td><code>core/ecs/entity.py</code></td>
+<td>Идентичность + иерархия + хранилище компонентов</td>
+</tr>
+<tr>
+<td>Component</td>
+<td>class</td>
+<td><code>core/ecs/component.py</code></td>
+<td>Единица поведения/данных с хуками жизненного цикла</td>
+</tr>
+<tr>
+<td>Scene</td>
+<td>class</td>
+<td><code>core/ecs/scene.py</code></td>
+<td>Владелец сущностей, индекс компонентов, диспетч апдейтов, Octree spatial-индекс</td>
+</tr>
+<tr>
+<td>ComponentRegistry</td>
+<td>class</td>
+<td><code>core/ecs/registry.py</code></td>
+<td>Мапа имя → класс компонента, категории</td>
+</tr>
+<tr>
+<td>public_import</td>
+<td>statement</td>
+<td><code>from core.ecs import Component, Entity, Scene, ComponentRegistry</code></td>
+<td>Канонический импорт (<code>ARCHITECTURE.md</code>)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">Использование в редакторе</h2>
+<p>Сущности создаются в панели Hierarchy; компоненты добавляются через <code>Add Component</code> (категории реестра: Transform, Rendering, Physics, Physics 2D, Lighting, Audio, Constraints, Network, Scripting). Инспектор редактирует поля; тогл <code>enabled</code> включает участие в апдейтах.</p>
+<h2 id="_4">Использование в коде</h2>
+<pre><code class="language-python">from core.ecs import Component, Entity, Scene, ComponentRegistry
+from core.components.transform.tr import Transform
+
+scene = Scene(&quot;Demo&quot;)
+player = scene.create_entity(&quot;Player&quot;)
+player.add_component(Transform())
+scene.start()          # Scene.start() -&gt; on_start() on all components
+scene.update(0.016)    # on_update(dt) on active, enabled components
+scene.fixed_update(0.02)
+</code></pre>
+<h2 id="_5">Сериализация</h2>
+<p><code>Scene.serialize()</code> → <code>{"name": ..., "entities": {id: entity-dict}}</code>, опционально <code>embed_all</code>, <code>compress_resources</code>, <code>compress_level</code>. <code>Scene.deserialize(data, registry)</code> пересобирает сущности и перелинковывает родителей. Больше 64 сущностей — обе стороны через thread pool.</p>
+<h2 id="_6">Связанные страницы</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li><a href="../entity/">Сущность Entity</a></li>
+<li><a href="../components-lifecycle/">Компоненты и жизненный цикл</a></li>
+<li><a href="../registry-serialization/">Реестр и сериализация</a></li>
+<li><a href="../transform/">Трансформ</a></li>
+<li><a href="../time/">Время и Fixed Update</a></li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_7">Проверено по</h2>
+<ul>
+<li><code>ARCHITECTURE.md</code> (слои, модули, правила компонентов)</li>
+<li><code>core/ecs/__init__.py</code>, <code>core/ecs/entity.py</code>, <code>core/ecs/component.py</code>, <code>core/ecs/scene.py</code>, <code>core/ecs/registry.py</code>, <code>core/ecs/query.py</code>, <code>core/ecs/scene_serialize.py</code></li>
+<li><code>core/engine/eng/loop.py</code> (<code>tick</code>, <code>tick_begin</code>, <code>tick_fixed_step</code>, <code>tick_update</code>)</li>
+</ul>
               
             </div>
           </div><footer>

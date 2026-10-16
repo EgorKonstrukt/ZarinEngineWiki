@@ -1158,6 +1158,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Панели анимации, скриптов, префабов, меша, VCS</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../collaboration-mcp/">Доки коллаборации и MCP</a>
@@ -1237,15 +1247,128 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="vcs">Панели анимации, скриптов, префабов, меша, VCS</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Панели анимации, скриптов, префабов, меша, VCS в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p>Доки-сателлиты в <code>editor/panels/</code>: вид Play, анимация, правка скриптов, префабы/библиотека, меш, пакеты, VCS плюс поддерживающие их мелкие диалоги/виджеты. Все имена классов/методов ниже прочитаны из указанных файлов.</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Панель</th>
+<th>Расположение</th>
+<th>Проверенный API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Док Play + рантайм-вид</td>
+<td><code>panels/play/dock.py</code>, <code>viewport.py</code>, <code>viewport_base.py</code>, <code>fallback_view.py</code></td>
+<td>Рендер-поверхность Play-режима</td>
+</tr>
+<tr>
+<td>Редактор клипов</td>
+<td><code>panels/anim/panel.py</code></td>
+<td>Поверхность правки ключей клипа</td>
+</tr>
+<tr>
+<td>Граф аниматора</td>
+<td><code>panels/animator/panel.py</code>, <code>graph.py</code>, <code>params.py</code></td>
+<td>Канва стейт-машины + список параметров</td>
+</tr>
+<tr>
+<td>Док террейна</td>
+<td><code>panels/terrain/panel.py</code>, <code>graph_widget.py</code></td>
+<td>Встраивает канву нод террейна (см. Граф террейна)</td>
+</tr>
+<tr>
+<td>Time travel</td>
+<td><code>panels/timetravel/panel.py</code>, <code>recorder.py</code>, <code>playback.py</code></td>
+<td>Запись + скруб истории сессии</td>
+</tr>
+<tr>
+<td>VCS</td>
+<td><code>panels/vcsp/panel.py</code>, <code>git.py</code>, <code>commit.py</code>, <code>diff.py</code>, <code>widgets.py</code></td>
+<td>Git-статус/коммит/дифф внутри редактора</td>
+</tr>
+<tr>
+<td>Меш-редактор</td>
+<td><code>panels/meshedit/panel.py</code>, <code>ops.py</code>, <code>widgets.py</code></td>
+<td>Операции с мешем (поддержан <code>plugins/mesh_editor_plugin.py</code> MeshEditorPlugin)</td>
+</tr>
+<tr>
+<td>Редактор скриптов</td>
+<td><code>panels/script_editor_panel/panel.py</code> + <code>edit/</code>, <code>tabsp/</code>, <code>wid/</code></td>
+<td>Многотабовый редактор кода: <code>highlighter.py</code>, <code>folding.py</code>, <code>gutter.py</code>, <code>diagnostics.py</code>, <code>inspection.py</code>, <code>api_words.py</code>, <code>doc_popup.py</code>/<code>doc_provider.py</code>, <code>blame.py</code>, <code>ot.py</code> (коллаб OT), <code>stripe.py</code>, <code>theme.py</code>, <code>vision.py</code>, <code>smooth.py</code></td>
+</tr>
+<tr>
+<td>Реестр скриптов</td>
+<td><code>panels/scripts_panel.py</code>, <code>syntax_config.py</code></td>
+<td>Список скриптов + настройки подсветки</td>
+</tr>
+<tr>
+<td>Редактор префабов</td>
+<td><code>panels/prefab_editor_panel.py</code></td>
+<td>Вкладка префаба (открывается из <code>handlersp/prefab.py</code>)</td>
+</tr>
+<tr>
+<td>Библиотечные паки</td>
+<td><code>panels/library_pack_dialog.py</code></td>
+<td>Диалог-браузер паков</td>
+</tr>
+<tr>
+<td>Менеджер пакетов</td>
+<td><code>panels/pkgmgr/panel.py</code>, <code>ops.py</code>, <code>bridge.py</code>, <code>dialogs.py</code> (+ <code>pkgcore/</code>)</td>
+<td>Установка/удаление пакетов</td>
+</tr>
+<tr>
+<td>Менеджер плагинов</td>
+<td><code>panels/plugin_manager_panel.py</code>: <code>PluginManagerPanel(engine)</code> + <code>_refresh()</code>, <code>_toggle_plugin(row, state)</code>, <code>_load_plugin()</code>, <code>_build_plugin()</code>, <code>_package_zplugin()</code>, <code>_new_library_pack()</code></td>
+<td>Вкл/выкл, загрузка, сборка, упаковка</td>
+</tr>
+<tr>
+<td>Упаковщик плагинов</td>
+<td><code>panels/plugin_package_panel.py</code></td>
+<td>UI упаковки <code>.zplugin</code></td>
+</tr>
+<tr>
+<td>Создание сущностей</td>
+<td><code>panels/add_entity_menu.py</code>, <code>panels/node_palette.py</code></td>
+<td>Диалог «Add Entity...» + палитра нод</td>
+</tr>
+<tr>
+<td>Обвязка сцен</td>
+<td><code>editor/scene_async.py</code>, <code>editor/scene_toolbar.py</code>, <code>editor/ipc_server.py</code></td>
+<td>Асинхронная загрузка сцен, тулбар сцены, внешний IPC</td>
+</tr>
+<tr>
+<td>Оформление app</td>
+<td><code>editor/splash.py</code>, <code>editor/bug_report.py</code>, <code>editor/project_manager.py</code>, <code>editor/file_associations.py</code>, <code>editor/shellmenu/</code></td>
+<td>Сплэш, репортер багов, привязки файлов, пункты шелла ОС</td>
+</tr>
+<tr>
+<td>Хелперы</td>
+<td><code>editor/cam/</code>, <code>editor/entframe/</code>, <code>editor/hover/</code>, <code>editor/gloff/</code>, <code>editor/gui_editor/</code>, <code>editor/matwiz/</code>, <code>editor/picker/</code>, <code>editor/icons.py</code>, <code>editor/constants.py</code>, <code>editor/keybinding_widget.py</code>, <code>editor/sphere_renderer.py</code></td>
+<td>Хелперы камеры/фрейма/ховера, GUI-редактор, пикеры, реестры иконок и констант</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Каждый док переключается из меню View и хранит геометрию через <code>load_config</code>. Вкладки скриптов зеркалят таб-бар скриптов главного окна (удалённые правки пиров приходят через <code>ot.py</code>). Панель Animator правит состояния/переходы, чьи поля рисуются во вложенных редакторах Inspector. Time travel пишет во время Play и скрубит после. Коммит/дифф VCS работают на корне проекта. Дополнительных глобальных хоткеев для этих доков в коде нет, кроме набора главного окна.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">panel = PluginManagerPanel(engine, parent=mw)
+panel._refresh()
+panel._toggle_plugin(row, state)
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Главное окно, Инспектор (вложенные редакторы аниматора), Панель проекта, Доки коллаборации и MCP</li>
+<li>Плагины: PluginBase Lifecycle, Plugin Manager, упаковка <code>.zplugin</code></li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li>Листинг каталога <code>editor/panels/</code> (все имена выше), <code>editor/panels/plugin_manager_panel.py</code></li>
+<li><code>editor/scene_async.py</code>, <code>editor/scene_toolbar.py</code>, <code>editor/ipc_server.py</code>, <code>editor/splash.py</code>, <code>editor/bug_report.py</code>, <code>editor/file_associations.py</code></li>
+</ul>
               
             </div>
           </div><footer>

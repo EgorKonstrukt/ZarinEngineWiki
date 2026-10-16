@@ -656,6 +656,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Компоненты и жизненный цикл</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Обзор</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_6">Сериализация</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_7">Связанные страницы</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_8">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../registry-serialization/">Реестр и сериализация</a>
@@ -1237,15 +1251,163 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Компоненты и жизненный цикл</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Компоненты и жизненный цикл в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p><code>Component</code> — данные плюс хуки жизненного цикла. Унаследуйтесь, повесьте <code>@ComponentRegistry.register</code>, реализуйте <code>serialize</code>/<code>deserialize</code>, и движок вызовет <code>on_awake → on_start → on_update(dt) / on_fixed_update(dt) → on_destroy</code>.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="_2">Обзор</h2>
+<p><code>Component.__init_subclass__</code> автоопределяет покадровое участие: <code>_updates</code> равен <code>True</code>, когда подкласс переопределяет <code>on_update</code>, <code>_fixed_updates</code> — когда переопределяет <code>on_fixed_update</code>. Только компоненты активных сущностей с <code>enabled</code> сидят в диспетч-сетах сцены; сеттер <code>enabled</code> синхронизирует их немедленно. <code>on_awake</code> вызывается в <code>add_component</code> (даже в edit-режиме); <code>on_start</code> — один раз за <code>Scene.start()</code> (т.е. старт Play). <code>Scene.update</code> делит компоненты на constraints → остальные → IK; <code>Scene.fixed_update</code> идёт по кэшированному fixed-сету в порядке сета (порядок вставки не гарантируется). Исключения в колбэках ловятся покомпонентно и логируются как <code>Update error in &lt;entity&gt;/&lt;component&gt;</code> (аналогично для fixed). <code>ScriptComponent._allow_multiple = True</code>; большинство встроенных — одиночные.</p>
+<h2 id="_3">Свойства</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>enabled</td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Сеттер добавляет/убирает компонент из диспетч-сетов сцены</td>
+</tr>
+<tr>
+<td>entity</td>
+<td>Entity|None</td>
+<td><code>None</code></td>
+<td>Владелец (ставит <code>add_component</code>)</td>
+</tr>
+<tr>
+<td>transform</td>
+<td>Component|None</td>
+<td>cached</td>
+<td><code>Transform</code> владеющей сущности, кэшируется на компоненте</td>
+</tr>
+<tr>
+<td>_allow_multiple</td>
+<td>bool</td>
+<td><code>False</code></td>
+<td><code>True</code> → ключ <code>Class.&lt;8-hex&gt;</code>; напр. <code>ScriptComponent</code>, коллайдеры</td>
+</tr>
+<tr>
+<td>_updates</td>
+<td>bool</td>
+<td>auto</td>
+<td><code>True</code>, если подкласс переопределяет <code>on_update</code></td>
+</tr>
+<tr>
+<td>_fixed_updates</td>
+<td>bool</td>
+<td>auto</td>
+<td><code>True</code>, если подкласс переопределяет <code>on_fixed_update</code></td>
+</tr>
+<tr>
+<td>on_awake</td>
+<td>hook</td>
+<td><code>pass</code></td>
+<td>В момент <code>add_component</code></td>
+</tr>
+<tr>
+<td>on_start</td>
+<td>hook</td>
+<td><code>pass</code></td>
+<td>Один раз за <code>Scene.start()</code></td>
+</tr>
+<tr>
+<td>on_update(dt)</td>
+<td>hook</td>
+<td><code>pass</code></td>
+<td>Каждый кадр в Play-режиме</td>
+</tr>
+<tr>
+<td>on_fixed_update(dt)</td>
+<td>hook</td>
+<td><code>pass</code></td>
+<td>Каждый фиксированный шаг в Play-режиме</td>
+</tr>
+<tr>
+<td>on_enable / on_disable</td>
+<td>hook</td>
+<td><code>pass</code></td>
+<td>При активации / деактивации сущности</td>
+</tr>
+<tr>
+<td>on_destroy</td>
+<td>hook</td>
+<td><code>pass</code></td>
+<td>При удалении компонента/сущности/сцены</td>
+</tr>
+<tr>
+<td>serialize</td>
+<td>method</td>
+<td><code>{"type", "enabled"}</code></td>
+<td>Базовый dict; подклассы расширяют</td>
+</tr>
+<tr>
+<td>gizmo hooks</td>
+<td>methods</td>
+<td><code>gizmo_lines</code>, <code>gizmo_primitives</code>, <code>gizmo_instances</code>, …</td>
+<td>Визуализация в редакторе; по умолчанию пусто</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">Использование в редакторе</h2>
+<p>Меню <code>Add Component</code> строится из <code>ComponentRegistry.all()</code> по вычисленным категориям. Поля инспектора — из <code>_inspector_fields()</code> (метаданные <code>InspectorField</code>). Мульти-инстанс компоненты показывают суффиксные ключи (<code>ScriptComponent.ab12cd34</code>) и управление порядком через <code>Entity.move_component(key, direction)</code>.</p>
+<h2 id="_5">Использование в коде</h2>
+<pre><code class="language-python">from core.ecs import Component
+from core.ecs import ComponentRegistry
+from core.maths.math3d import Vec3
+
+@ComponentRegistry.register
+class Mover(Component):
+    def __init__(self):
+        super().__init__()
+        self.speed = 5.0
+
+    def on_update(self, dt: float):
+        t = self.transform
+        if t:
+            t.translate(Vec3(0.0, 0.0, self.speed * dt))
+
+    def serialize(self):
+        d = super().serialize()
+        d[&quot;speed&quot;] = self.speed
+        return d
+
+    @classmethod
+    def deserialize(cls, data):
+        m = cls()
+        m._enabled = bool(data.get(&quot;enabled&quot;, True))
+        m.speed = float(data.get(&quot;speed&quot;, 5.0))
+        return m
+</code></pre>
+<pre><code class="language-python">from core.components.scripting.scriptc.component import ScriptComponent
+
+comp.enabled = False  # вне диспетч-сетов сцены до повторного включения
+multi = player.add_component(ScriptComponent())  # ключ вида &quot;ScriptComponent.&lt;8-hex&gt;&quot;
+player.move_component(multi._key, -1)  # переупорядочить мульти-инстанс компоненты
+</code></pre>
+<h2 id="_6">Сериализация</h2>
+<p>Базовый dict компонента: <code>{"type": "&lt;ClassName&gt;", "enabled": true, "_key": "&lt;key&gt;"}</code> (<code>_key</code> добавляет <code>Entity.serialize</code>). Подклассы дописывают свои поля; неизвестные имена <code>type</code> при загрузке пропускаются (<code>Entity.deserialize</code> проверяет <code>registry.get(ctype)</code>).</p>
+<h2 id="_7">Связанные страницы</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li><a href="../ecs-overview/">Обзор ECS</a></li>
+<li><a href="../entity/">Сущность Entity</a></li>
+<li><a href="../registry-serialization/">Реестр и сериализация</a></li>
+<li><a href="../../scripting/overview/">Скриптинг</a></li>
+<li><a href="../../scripting/examples/">Примеры скриптов</a></li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_8">Проверено по</h2>
+<ul>
+<li><code>core/ecs/component.py</code> (<code>__init_subclass__</code>, сеттер <code>enabled</code>, хуки, <code>serialize</code>/<code>deserialize</code>, кэш <code>transform</code>)</li>
+<li><code>core/ecs/entity.py</code> (<code>add_component</code> → <code>on_awake</code>, <code>_make_component_key</code>, <code>move_component</code>)</li>
+<li><code>core/ecs/query.py</code> (<code>run_update</code>, <code>run_fixed</code>, <code>run_start</code>, партиционирование)</li>
+<li><code>core/ecs/registry.py</code> (<code>register</code>)</li>
+<li><code>core/components/scripting/scriptc/component.py</code> (<code>_allow_multiple = True</code>)</li>
+</ul>
               
             </div>
           </div><footer>

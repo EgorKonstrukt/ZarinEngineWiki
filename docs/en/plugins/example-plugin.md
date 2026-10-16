@@ -3,7 +3,7 @@
 `plugins/example_plugin.py` (43 lines) is the canonical minimal plugin — every convention in one place. Read it, copy it, rename it.
 
 ```python
-from core.foundation.plugin_manager import PluginBase
+from core.foundation.plugins import PluginBase
 from core.foundation.logger import Logger
 
 class ExamplePlugin(PluginBase):

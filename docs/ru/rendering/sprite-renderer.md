@@ -1,21 +1,26 @@
-# SpriteRenderer
-
-Текстурированный квад в мировом пространстве: билборды, подборы, декали, 2D-персонажи внутри 3D-сцен, спрайтовые VFX-листы.
-
-| Поле | Default | Смысл |
-|---|---|---|
-| texture_path | — | Картинка спрайта |
-| color | белый `[1,1,1,1]` | Множитель оттенка — белый хранит цвета исходника |
-| flip_x / flip_y | выкл / выкл | Горизонтальное / вертикальное зеркаляние |
-
-Рисуется выделенным спрайтовым путём с поддержкой инстансинга — сотни подборов батчатся дёшево. Следует за трансформом (позиция, поворот, масштаб); билборд-поведение — из внутреннего пути шейдера `Sprite`.
-
-Процессы: подборы — квад с текстурой, слегка emissive материал, медленный скрипт `Rotator` для внимания; карточки листвы — скрещенные квады с alpha-tested материалами и `_double_sided`; flip-book анимация — смена `texture_path` по таймеру из скрипта (или GIF-импорт выше по потоку); декали — квады в 1 см от поверхностей с прозрачными материалами.
-
-Трюки оттенка: белый хранит арт; красный для вспышки урона (возврат за 0.2 с); вариации цвета толпы из скриптов спавнера.
-
-Для полных экранных UI-раскладок — GUI-система (виджет Image на GuiCanvas); SpriteRenderer — для диегетического контента в мире.
-
-Диагностика: розовый квад — бит путь текстуры, перепейк; зеркальный арт — флаги flip; артефакты сортировки спрайтов — прозрачный бакет сортируется по глубине, разносите слои по Z; мыльные пиксели — настройка фильтра импорта, nearest для пиксель-арта.
-
-Связанное: SvgRenderer, TextRenderer, VideoRenderer, обзор GUI, текстуры и сжатие.
+# Спрайт-рендерер
+> Квад к камере: `SpriteRenderer` (`core/components/rendering/renderers/sprite_renderer.py`), рисует `core/renderer/spr/`.
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+Одна текстура + RGBA-тинт; цвета из 3 элементов получают альфу `1.0` (`sprite_renderer.py:38-47`). Без освещения и теней.
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `texture_path` | путь (png/jpg/jpeg) | `""` | Картинка (`sprite_renderer.py:21,29`). |
+| `color` | color4 | `[1, 1, 1, 1]` | Тинт × текстура (`sprite_renderer.py:22,30`). |
+| `flip_x` | bool | `False` | Зеркало по горизонтали (`sprite_renderer.py:23,31`). |
+| `flip_y` | bool | `False` | Зеркало по вертикали (`sprite_renderer.py:24,32`). |
+## Usage in Editor
+Add Component → Sprite Renderer, назначить Texture, тинт через Color. Flip — зеркалирование без дублей ассетов.
+## Usage in Code
+```python
+sp = entity.get_component(SpriteRenderer)
+sp.texture_path = "assets/textures/coin.png"
+sp.color = [1.0, 0.9, 0.5, 1.0]
+sp.flip_x = True
+```
+## Related pages
+- [SVG Renderer](./svg-renderer.md), [Text Renderer](./text-renderer.md), [Video Renderer](./video-renderer.md), [Materials](./materials.md)
+## Verified against
+- `core/components/rendering/renderers/sprite_renderer.py:17-67`
+- `core/renderer/spr/sprites.py`, `core/renderer/spr/batch.py`

@@ -2,20 +2,51 @@
 
 Disc shape in plane: balls, wheels, coins, radial triggers and proximity sensors.
 
-| Inspector group / field | Meaning |
-|---|---|
-| Collision: Layer / Collision Mask | Filtering |
-| Shape: Offset | In-plane offset `[ox, oy]` |
-| Shape: Radius | Disc radius |
-| Is Trigger | Overlap events without contact response |
-| Material: Physic Material | `.zphysmat` asset override |
+## Properties
 
-Maps onto the solver as a sphere primitive. Rolls stably on Box Collider 2D ground with moderate friction; trigger discs make the best pickups (forgiving overlap vs exact rectangles).
+| Field | Default | Notes |
+|---|---|---|
+| `layer` / `mask` | `0` / `0xFFFF` | Filtering |
+| `offset` | `(0, 0)` | `Vec2`; world center `[ox*sx, oy*sy, 0]` |
+| `radius` | `0.5` | Inspector `0.001–10000`; world = `radius * max(sx, sy)` |
+| `is_trigger` | `False` | Overlap only |
+| `physic_material` | `""` | `.zphysmat` path |
+| `material_friction` / `material_bounciness` | `0.6` / `0.0` | Fallbacks |
 
-Patterns: coins — small trigger discs with a spin animation and a pickup script; wheels — dynamic discs with Rigidbody2D, freeze nothing, moderate angular drag; bumpers — high-bounciness discs plus an impulse script on enter; enemy sight — large trigger disc driving AI state.
+## Usage in Editor
 
-Stack discs for capsule-like enemies (two discs + a box) instead of wishing for a 2D capsule — the compound behaves identically.
+Set `Radius`/`Offset`, layer + mask, `Is Trigger` for pickups.
 
-Troubleshooting: rolls forever → zero drag/friction; will not roll → freeze rotation on; pickups missed at speed → tunneling, enlarge the disc or cap runner speed.
+## Usage in Code
 
-Related: Rigidbody 2D, Box Collider 2D, Sphere Collider (3D).
+```python
+entity = scene.create_entity("Coin")
+from core.components.physics2d.rigidbody2d import Rigidbody2D
+from core.components.physics2d.circle_collider2d import CircleCollider2D
+
+c = CircleCollider2D()
+c.radius = 0.3
+c.is_trigger = True
+entity.add_component(c)
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody2D)
+    if rb is not None:
+        rb.add_force(Vec2(5.0, 0.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+```
+
+## Fixed update notes
+
+- Solver call: `create_rigid_body(shape_type="sphere", shape_params={"radius", "center": [ox, oy, 0.0]})`; `dt = Engine._fixed_dt` (`0.02` default).
+
+## Related
+
+Rigidbody 2D, Box Collider 2D, Sphere Collider (3D), Collision Layers.
+
+## Verified against
+
+- `core/components/physics2d/circle_collider2d.py`
+- `core/physics/shapep/shapes.py`

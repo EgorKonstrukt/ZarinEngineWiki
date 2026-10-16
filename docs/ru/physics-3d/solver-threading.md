@@ -1,29 +1,57 @@
 # Солвер и многопоточность
 
-Где реально работает симуляция и как данные пересекают границу потоков/процессов, никогда не блокируя геймплейный код.
+Где реально работает симуляция и как данные пересекают границу потоков/процессов, не блокируя геймплейный код.
 
-Режимы выполнения:
+## Свойства
 
-- `single` — `PhysicsScene` + солвер в процессе игры. Минимальная задержка, простейшая отладка, требуется CharacterController (читает состояние мира напрямую).
-- `multi_threaded` (по умолчанию) — демон-`multiprocessing.Process` владеет солвером; очереди команд/результатов плюс `SharedPhysicsBuffer` / `SoftSharedBuffer` несут трансформы, скорости, силы и события.
-- `per_layer_process` — процессы солвера по требованию на слой для изолированных суб-симуляций.
+| Настройка | По умолчанию | Где |
+|---|---|---|
+| `simulation_mode` | `multi_threaded` | `single` / `multi_threaded` / `per_layer_process` |
+| `solver` | `culverin` | `culverin` (Jolt) / `pybullet` / `physx` |
+| `fixed_time_step` | `0.02` | Шаг `dt` |
+| `num_sub_steps` | `2` | Конфиг (собственный дефолт PyBullet-солвера `1`; Culverin/Jolt игнорирует) |
+| `solver_iterations` | `10` | Конфиг (собственный дефолт PyBullet `50`; Culverin/Jolt игнорирует) |
+| `erp` / `contact_erp` / `friction_erp` | `0.2` / `0.2` / `0.0` | Конфиг (собственные дефолты PyBullet `erp`/`contact_erp` — `0.4`; Culverin/Jolt игнорирует) |
+| `culverin_max_bodies` / `max_pairs` / `max_contact_constraints` | `65536` | Капы Jolt-мира |
+| `culverin_temp_allocator_size` | `16777216` | 16 МБ |
+| `culverin_num_threads` / `max_jobs` / `max_barriers` | `0` / `0` / `0` | `0` = однопоточный Jolt |
+| `culverin_penetration_slop` | `0.02` | |
+| `culverin_enable_ccd` / `enable_sleeping` | `False` / `True` | |
+| Флаги shared-памяти | `1` active, `2` dirty, `4` kinematic/teleport, `8` 2D | `SharedPhysicsBuffer` |
+| Лимиты | `65536` сущностей, `16` soft-тел × `32768` вершин | Буферы |
 
-Фоновый шаг по порядку:
+## Использование в редакторе
 
-1. Висящие команды `step` сливаются в один `dt` — фризы никогда не уходят в спираль догона.
-2. Воркер применяет телепорты (`set_body_transform`) или скорости/силы/моменты из общей памяти в тела.
-3. `solver.step_simulation(dt)` интегрирует; 2D-тела сразу получают обнуление внеплоскостных скоростей.
-4. Позиции, повороты и скорости пишутся назад с bump версии; вершины soft-body, центры масс и скорости — в soft-буфер.
-5. События маппят id тел на id сущностей и уходят в очередь результатов для диспатча в скрипты с силами удара.
+Прототип — дефолтный `multi_threaded`. Для `CharacterController`/`Motor` и отладки — `single`; для изолированных арен — `per_layer_process`.
 
-Флаги тел в общей памяти: 1 = активно, 2 = грязная скорость, 4 = телепорт, 8 = 2D-тело. Внутрипроцессный путь повторяет порядок без сериализации: регистрация → ECS-в-физику → шаг → ограничение 2D → физика-в-ECS → soft-синк → события.
+## Использование в коде
 
-Детали синка, которые важны: ECS-в-физику пушит только при грязном трансформе или накопленных силах — нетронутые спящие тела бесплатны; физика-в-ECS пропускает kinematic и грязные тела (ведомы трансформом, не перезаписываются); аккумуляторы сил сбрасываются после каждого пуша — `add_force` для постоянной тяги дёргайте каждый fixed-шаг.
+```python
+# Рантайм API солвера (IPhysicsSolver):
+solver.set_gravity((0.0, -9.81, 0.0))
+solver.step_simulation(0.02)
+solver.apply_force(body_id, (0.0, 10.0, 0.0))
+solver.apply_torque(body_id, (0.0, 1.0, 0.0))
+solver.apply_impulse(body_id, (0.0, 5.0, 0.0))
+hit = solver.ray_cast((0.0, 5.0, 0.0), (0.0, -1.0, 0.0), 100.0)
+```
 
-Обвязка: `Engine.tick_fixed_step` копит реальное время относительно `_fixed_dt = 0.02`, выполняет `pre_step` плагинов, `scene.fixed_update`, затем шаг физики. Фризы рендера не меняют физический `dt` — детерминизм держится.
+Порядок фонового шага: склейка `step`-команд в один `dt` → телепорты/силы из shared-памяти → `step_simulation(dt)` → обнуление внеплоскостных скоростей 2D → запись назад с bump версии (+ soft-буферы) → маппинг id тел в id сущностей для событий. In-process путь зеркалит без сериализации: регистрация → проверка форм (каждые 60 шагов) → ECS→физика → разделение soft-тел (только при `≥2`) → шаг → 2D-ограничение → физика→ECS → soft-синхронизация → события.
 
-Выбор режима: прототип на дефолтном multi-threaded; single при CharacterController или отладке солвера; per-layer для арен миниигр без взаимодействий.
+## Заметки о fixed update
 
-Диагностика: ватный отклик — фоновый процесс голодает, смотрите CPU или переходите на single; телепорт проигнорирован — тело спит или гонка флага, будите записью скорости; несвежие чтения в скриптах — читаете между шагами, так задумано: действуйте в `on_fixed_update`.
+- `Engine.tick_fixed_step`: накопление по `_fixed_dt` (`0.02`), потолок `5 * _fixed_dt`, макс. `5` шагов/тик, затем `scene.fixed_update(fd)` (компонентный `on_fixed_update`) и наконец `step(fd)` системных плагинов.
+- `PhysicsWorker`: демон `threading.Thread`, опрос очереди `0.004` с. `SceneThreadPool`: `max_workers = 2`, `ThreadPoolExecutor` `phys-scene`.
+- ECS→физика — только по грязному трансформу или накопленной силе; физика→ECS пропускает кинематику/грязные; аккумуляторы сил очищаются каждый пуш — `add_force` вызывать каждый шаг.
 
-Связанное: обзор физики, Rigidbody, слои коллизий, CharacterController, профайлер (physics_ms).
+## Связанные
+
+Обзор физики, Rigidbody, слои, CharacterController, Motor.
+
+## Проверено по
+
+- `core/physics/proc/process.py`, `proc/sync.py`
+- `core/physics/physics_worker.py`, `scene/scene.py`, `scene/threadpool.py`
+- `core/physics/shared_buffer.py`, `soft_shared_buffer.py`
+- `core/config/config.py`, `core/engine/eng/loop.py`, `plugins/physics_plug/plugin.py`
+- `physics_solvers/registry.py`, `culverin_solver/solverp/solver.py`

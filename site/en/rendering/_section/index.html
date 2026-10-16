@@ -287,6 +287,14 @@
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">Section Index (rendering)</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pages">Pages</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" >Physics 3D</a>
@@ -1236,8 +1244,33 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="rendering">Rendering</h1>
-<p>TODO: Section index pending. This page lists all articles in Rendering.</p>
-<p>Use the left navigation tree to open placeholder pages.</p>
+<blockquote>
+<p>Rendering core of ZarinEngine: forward renderer, cameras, lights, meshes, environment and debug draw. No postfx/effects here.
+<a href="../../../">Home</a> · <a href="./">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>This section covers the forward rendering core: <a href="../overview/">Overview</a>, <a href="../pipeline/">Pipeline</a>, cameras (<a href="../camera/">Camera</a>, <a href="../editor-camera/">Editor Camera</a>), lights (<a href="../light/">Light</a>, <a href="../directional-light/">Directional</a>, <a href="../point-light/">Point</a>, <a href="../spot-light/">Spot</a>, <a href="../area-light/">Area</a>, <a href="../projector/">Projector</a>, <a href="../shadows/">Shadows</a>), mesh path (<a href="../mesh-filter/">Mesh Filter</a>, <a href="../mesh-renderer/">Mesh Renderer</a>, <a href="../skinned-mesh-renderer/">Skinned Mesh Renderer</a>, <a href="../armature/">Armature</a>, <a href="../blend-shapes/">Blend Shapes</a>), billboards (<a href="../sprite-renderer/">Sprite Renderer</a>, <a href="../svg-renderer/">SVG Renderer</a>, <a href="../text-renderer/">Text Renderer</a>, <a href="../video-renderer/">Video Renderer</a>), particles (<a href="../particle-system/">Particle System</a>, <a href="../particle-force-field/">Particle Force Field</a>), environment (<a href="../skybox/">Skybox</a>, <a href="../procedural-sky/">Procedural Sky</a>, <a href="../clouds/">Clouds</a>, <a href="../water/">Water</a>, <a href="../atmosphere/">Atmosphere</a>), resources (<a href="../materials/">Materials</a>, <a href="../shaders/">Shaders</a>), debug (<a href="../gizmos/">Gizmos</a>) and experimental paths (<a href="../gaussian-splat-renderer/">Gaussian Splat Renderer</a>, <a href="../raytracing-renderer/">Raytracing Renderer</a>, <a href="../voxel/">Voxel</a>).</p>
+<h2 id="pages">Pages</h2>
+<ul>
+<li><a href="../overview/">Overview</a> — engine/glue facts: OpenGL 4.6 Core, vsync, forward phases.</li>
+<li><a href="../pipeline/">Pipeline</a> — snapshot → shadows → opaque/transparent → environment.</li>
+<li><a href="../camera/">Camera</a> · <a href="../editor-camera/">Editor Camera</a></li>
+<li><a href="../light/">Light</a> · <a href="../directional-light/">Directional Light</a> · <a href="../point-light/">Point Light</a> · <a href="../spot-light/">Spot Light</a> · <a href="../area-light/">Area Light</a> · <a href="../projector/">Projector</a> · <a href="../shadows/">Shadows</a></li>
+<li><a href="../mesh-filter/">Mesh Filter</a> · <a href="../mesh-renderer/">Mesh Renderer</a> · <a href="../skinned-mesh-renderer/">Skinned Mesh Renderer</a> · <a href="../armature/">Armature</a> · <a href="../blend-shapes/">Blend Shapes</a></li>
+<li><a href="../sprite-renderer/">Sprite Renderer</a> · <a href="../svg-renderer/">SVG Renderer</a> · <a href="../text-renderer/">Text Renderer</a> · <a href="../video-renderer/">Video Renderer</a></li>
+<li><a href="../particle-system/">Particle System</a> · <a href="../particle-force-field/">Particle Force Field</a></li>
+<li><a href="../skybox/">Skybox</a> · <a href="../procedural-sky/">Procedural Sky</a> · <a href="../clouds/">Clouds</a> · <a href="../water/">Water</a> · <a href="../atmosphere/">Atmosphere</a></li>
+<li><a href="../materials/">Materials</a> · <a href="../shaders/">Shaders</a> · <a href="../gizmos/">Gizmos</a></li>
+<li><a href="../gaussian-splat-renderer/">Gaussian Splat Renderer</a> · <a href="../raytracing-renderer/">Raytracing Renderer</a> · <a href="../voxel/">Voxel</a></li>
+</ul>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../../../">Home</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>docs/en/rendering/</code> listing in this wiki.</li>
+</ul>
               
             </div>
           </div><footer>

@@ -694,6 +694,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Направленный свет</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../point-light/">Точечный свет</a>
@@ -1238,15 +1246,78 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Направленный свет</h1>
-<p>Солнце-подобный параллельный свет. Позиция задаёт только начало гизмо; направление целиком из поворота трансформа, и каждая поверхность получает то же направление независимо от дистанции.</p>
+<blockquote>
+<p>Бесконечный свет-солнце: <code>DirectionalLight</code> (<code>core/components/lighting/lightp/light.py:185-225</code>) с интенсивностью в люксах и опциональной связью с процедурным небом.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Направление — из трансформа сущности (<code>-forward</code> используют шейдеры неба/облаков). Интенсивность — освещённость в люксах: солнце <code>100000</code>, день <code>10000–25000</code>, пасмурно <code>1000–10000</code>, рассвет <code>400</code>, офис <code>500</code>, сумерки <code>10</code>, луна <code>0.2</code> (описание инспектора + <code>LUX_REFERENCE</code>, <code>light.py:40-48,198</code>).</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>color</code></td>
+<td>color3</td>
+<td><code>[1.0, 1.0, 1.0]</code></td>
+<td>Цвет (<code>light.py:197</code>).</td>
+</tr>
+<tr>
+<td><code>intensity</code></td>
+<td>float люксы (0–200000)</td>
+<td><code>100000.0</code></td>
+<td>Освещённость; шкала выше (<code>light.py:198,205</code>).</td>
+</tr>
+<tr>
+<td><code>procedural_sky_lighting</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Связь с солнцем процедурного неба (<code>light.py:199,206</code>).</td>
+</tr>
+<tr>
+<td><code>cast_shadows</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Вклад CSM; нужен активный <code>DirectionalShadow</code> (<code>light.py:201,207</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Наведение — вращением сущности. Связывать с <a href="../procedural-sky/">Procedural Sky</a> через <code>procedural_sky_lighting</code> или <code>sun_light_entity_id</code>, CSM настраивать в <a href="../shadows/">Shadows</a>.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">sun.intensity = 15000.0  # полный день
+sun.procedural_sky_lighting = True
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Интенсивность в люксах, по умолчанию 100000 (прямое солнце). Шкала: полный день 15000, пасмурно 5000, восход/закат 400, офис 500, сумерки 10, полная луна 0.2.</li>
-<li><code>procedural_sky_lighting</code> связывает солнце с процедурным небом: поворот света двигает диск и автоматически перебалансирует ambient — сутки становятся одной анимацией поворота.</li>
-<li>Тени — каскадная карта (по умолчанию 4 каскада 2048/1024/1024/512, дистанция 50). Один свет кроет всю сцену, и его проход обычно самый дорогой одиночный свет — держите ровно один затенённый направленный.</li>
+<li><a href="../light/">Light</a>, <a href="../shadows/">Shadows</a>, <a href="../procedural-sky/">Procedural Sky</a>, <a href="../atmosphere/">Atmosphere</a></li>
 </ul>
-<p>Процессы: улица днём — солнце 80000–120000, тёплый цвет, тени вкл, процедурное небо в связке; ночь — тусклый синий направленный (ощущение 5–50 люкс) с выкл тенями плюс несколько затенённых спотов лужами света; интерьер — направленный выкл или минимум, сцену несут споты и точки.</p>
-<p>Гизмо показывает стрелки направления и бокс теневой камеры; если бокс не кроет игровую зону — тени обрежутся: сузьте дистанцию или загоните действие внутрь.</p>
-<p>Связанное: Light (база), тени, процедурное небо, атмосфера, облака (перекличка силы теней).</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/lighting/lightp/light.py:185-225</code></li>
+</ul>
               
             </div>
           </div><footer>

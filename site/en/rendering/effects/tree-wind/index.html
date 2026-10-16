@@ -263,13 +263,15 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Tree Wind</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    <li class="toctree-l4"><a class="reference internal" href="#shader-snippet">Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1248,104 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="tree-wind">Tree Wind</h1>
-<p>Per-object effect through the ObjectFx pass (unlike PostFX, which processes the whole frame). Built on the shared ObjectEffect base; scripts drive it by animating progress/intensity floats.</p>
-<h2 id="how-it-works">How it works</h2>
-<p>Canopy-grade vertex wind with trunk anchoring: crowns sway, trunks hold.</p>
+<blockquote>
+<p>Vegetation wind for trees. Normalized wind_direction × wind_strength × wind_influence bends trunks/branches at wind_speed; leaves add high-frequency flutter (leaf_flutter_speed/amount); turbulence_scale/amount adds gust noise. Disabled fast-path writes _WindInfluence = 0. Class <code>TreeWindEffect</code> in <code>core/components/rendering/effects/tree_wind_effect.py</code>. ObjectFx pass but with Tree material path: fx_geometry_shader() loads Tree.gshader (core/renderer/meshd.read_shader); _Wind* uniforms target the Tree/vegetation shader, not ObjectFx.shader.</p>
+</blockquote>
 <h2 id="parameters">Parameters</h2>
-<p>Strength, gust frequency, anchor height.</p>
-<h2 id="tips">Tips</h2>
-<p>Forests and parks. Anchor height at the trunk base or whole trees slide.</p>
-<h2 id="cost">Cost</h2>
-<p>Cheap vertex math.</p>
-<p>Related: <a href="../">Object Effects</a>, Materials, Script Examples.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wind Influence</td>
+<td><code>wind_influence</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Wind Direction</td>
+<td><code>wind_direction</code></td>
+<td>VEC3</td>
+<td>-1.0 – 1.0</td>
+<td><code>(1.0, 0.0, 0.5)</code></td>
+</tr>
+<tr>
+<td>Wind Speed</td>
+<td><code>wind_speed</code></td>
+<td>FLOAT</td>
+<td>0.0 – 20.0</td>
+<td><code>2.0</code></td>
+</tr>
+<tr>
+<td>Wind Strength</td>
+<td><code>wind_strength</code></td>
+<td>FLOAT</td>
+<td>0.0 – 3.0</td>
+<td><code>0.3</code></td>
+</tr>
+<tr>
+<td>Leaf Flutter Speed</td>
+<td><code>leaf_flutter_speed</code></td>
+<td>FLOAT</td>
+<td>0.0 – 30.0</td>
+<td><code>8.0</code></td>
+</tr>
+<tr>
+<td>Leaf Flutter Amount</td>
+<td><code>leaf_flutter_amount</code></td>
+<td>FLOAT</td>
+<td>0.0 – 0.3</td>
+<td><code>0.04</code></td>
+</tr>
+<tr>
+<td>Turbulence Scale</td>
+<td><code>turbulence_scale</code></td>
+<td>FLOAT</td>
+<td>0.0 – 5.0</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Turbulence Amount</td>
+<td><code>turbulence_amount</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>0.3</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">Usage</h2>
+<p>Editor: select the mesh entity, Add Component &gt; <code>TreeWindEffect</code>, tick <code>enabled</code>, animate the amount fields from a script.</p>
+<p>Code:</p>
+<pre><code class="language-python">from core.components.rendering.effects.tree_wind_effect import TreeWindEffect
+fx = TreeWindEffect()
+entity.add_component(fx)
+fx.wind_strength = 0.5
+fx.wind_speed = 3.0
+fx.enabled = True
+# per-frame: fx.amount = min(1.0, fx.amount + dt * 0.5)
+</code></pre>
+<h2 id="shader-snippet">Shader snippet</h2>
+<p>Shader: <code>core/shaders/legacy/Tree.gshader via core/renderer/meshd.read_shader + core/shaders/materials/Tree.shader</code>. Bound uniforms: <code>_WindInfluence</code>, <code>_WindDir</code>, <code>_WindSpeed</code>, <code>_WindStrength</code>, <code>_LeafFlutterSpeed</code>, <code>_LeafFlutterAmount</code>, <code>_TurbulenceScale</code>, <code>_TurbulenceAmount</code>, <code>u_time</code>.</p>
+<pre><code class="language-glsl">// tree_wind_effect.py::_apply (exact names, note capital W):
+// prog[&quot;_WindInfluence&quot;], prog[&quot;_WindDir&quot;], prog[&quot;_WindSpeed&quot;], prog[&quot;_WindStrength&quot;],
+// prog[&quot;_LeafFlutterSpeed&quot;], prog[&quot;_LeafFlutterAmount&quot;], prog[&quot;_TurbulenceScale&quot;], prog[&quot;_TurbulenceAmount&quot;]
+</code></pre>
+<h2 id="related">Related</h2>
+<p>Related: <a href="../">Object Effects</a>, ObjectFx pass (<code>core/renderer/object_fx_pass.py</code>), <code>core/shaders/internal/ObjectFx.shader</code>.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/effects/tree_wind_effect.py</code> — class <code>TreeWindEffect</code>, <code>_inspector_fields</code>, <code>__init__</code> defaults, <code>_apply</code> uniforms.</li>
+<li><code>core/components/rendering/effects/object_effect.py</code> — <code>ObjectEffect</code> base (<code>bind</code> sets <code>u_time</code>, <code>_set</code>/<code>_set_vec</code> guards, <code>reset_all_defaults</code>).</li>
+<li><code>core/renderer/object_fx_pass.py</code> — <code>_find_object_effect</code>, <code>_render_object_effects</code>, <code>_get_fx_program</code>.</li>
+</ul>
               
             </div>
           </div><footer>

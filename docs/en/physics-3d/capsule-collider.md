@@ -1,23 +1,63 @@
 # Capsule Collider
 
-Character bodies and pills: a cylinder with spherical caps that never snags on floor seams the way boxes do, and stays stable under rotation unlike raw cylinders.
+Character bodies and pills: cylinder with spherical caps that never snags on floor seams like boxes do.
 
-| Inspector group / field | Default | Meaning |
+## Properties
+
+| Field | Default | Notes |
 |---|---|---|
-| Collision: Layer / Collision Mask | 0 / 0xFFFF | Filtering |
-| Shape: Center | origin | Local offset |
-| Shape: Radius | 0.5 | Scaled by the largest axis |
-| Shape: Height | 2.0 | Total height, scaled along the direction axis |
-| Shape: Direction | 1 (Y) | 0 = X, 1 = Y, 2 = Z |
-| Is Trigger | off | Overlap events without contact response |
-| Material: Physic Material | — | `.zphysmat` asset override |
+| `layer` | `0` | `0–15` |
+| `mask` | `0xFFFF` | Collide-with bitmask |
+| `center` | `(0, 0, 0)` | `scaled_center` multiplies by Transform scale |
+| `radius` | `0.5` | Inspector `0.001–10000`; world = `radius * max(scale)` |
+| `height` | `2.0` | Inspector `0.001–10000`; world = `height * axis_scale` (`scaled_height`) |
+| `direction` | `1` | `0` = X, `1` = Y, `2` = Z |
+| `is_trigger` | `False` | Overlap only |
+| `physic_material` | `""` | `.zphysmat` path |
+| `material_friction` | `0.6` | Fallback |
+| `material_bounciness` | `0.0` | Fallback |
 
-Matches the CharacterController capsule (radius 0.5, height 2.0) when defaults are kept — use the same numbers for AI bodies so players and bots collide identically.
+## Usage in Editor
 
-Orientation guide: Y for standing characters, X/Z for lying or rolling bodies (logs, barrels on their side). Height includes the caps; a height below `radius * 2` degenerates toward a sphere — the solver clamps, but the gizmo shows the truth.
+Set `Radius`/`Height`, axis via `direction` (code/serialized; Inspector exposes radius/height/trigger/material). Use Y (`1`) for upright characters.
 
-Enemies with lunges and dashes stay upright by freezing rotation axes on the Rigidbody while keeping the capsule — tips without toppling.
+## Usage in Code
 
-Troubleshooting: catches on steps → radius too large for the tread depth or step height (controller) too low; floats above ground → center offset lifting the caps; spins like a log → freeze rotation axes.
+```python
+entity = scene.create_entity("Pill")
+from core.components.physics.rigidbody import Rigidbody
+from core.components.physics.capsule_collider import CapsuleCollider
 
-Related: CharacterController, Sphere Collider, Rigidbody.
+rb = Rigidbody()
+rb.mass = 80.0
+rb.freeze_rot_x = True
+rb.freeze_rot_z = True
+entity.add_component(rb)
+cap = CapsuleCollider()
+cap.radius = 0.4
+cap.height = 1.8
+cap.direction = 1
+entity.add_component(cap)
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody)
+    if rb is not None:
+        rb.add_force(Vec3(0.0, 0.0, 50.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+```
+
+## Fixed update notes
+
+- Solver call: `create_rigid_body(shape_type="capsule", shape_params={"radius", "height", "center", "direction"})`.
+- `dt` is `Engine._fixed_dt` (`0.02` default); shape re-check every 60 steps.
+
+## Related
+
+Rigidbody, CharacterController, Box/Sphere colliders, Physics Materials, Collision Layers.
+
+## Verified against
+
+- `core/components/physics/capsule_collider.py`
+- `core/physics/shapep/shapes.py`

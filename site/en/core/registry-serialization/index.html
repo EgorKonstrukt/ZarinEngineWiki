@@ -75,6 +75,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Registry and Serialization</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#serialization">Serialization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../transform/">Transform</a>
@@ -1237,15 +1251,108 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="registry-and-serialization">Registry and Serialization</h1>
-<p>TODO: Content pending. This page will document Registry and Serialization in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p><code>ComponentRegistry</code> maps type names to component classes via the <code>@ComponentRegistry.register</code> decorator. Scenes serialize to <code>.zpes</code> JSON: <code>{"name", "entities": {id: entity-dict}}</code>.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="overview">Overview</h2>
+<p>Registration is mandatory: an undecorated component class is invisible to <code>Add Component</code> menus and to deserialization (<code>ARCHITECTURE.md</code>: the architecture gate checks this). <code>ComponentRegistry.get(name)</code> resolves the class, honoring <code>_aliases</code> (<code>{"Sky": "ProceduralSky"}</code>). Categories are inferred from the module path (<code>core.components.&lt;sub&gt;</code> → display name via <code>_category_name_map</code>: transform→Transform, rendering→Rendering, physics→Physics, physics2d→Physics 2D, lighting→Lighting, audio→Audio, constraints→Constraints, network→Network, scripting→Scripting).</p>
+<p>Scene serialization (<code>core/ecs/scene_serialize.py</code>): <code>{"name", "entities": {id: entity-dict}}</code> plus optional <code>embed_all</code>, <code>compress_resources</code>, <code>compress_level</code>. Deserialization rebuilds entities, then re-links <code>parent</code> ids and re-registers components in the scene index. Above 64 entities both directions use a thread pool. <code>duplicate_entity</code> / <code>paste_entities</code> assign fresh UUIDs and rebind <code>Armature.bone_entity_ids</code>.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ComponentRegistry.register</td>
+<td>decorator</td>
+<td>required</td>
+<td><code>ComponentRegistry._registry[name] = cls</code>; bumps subclass cache</td>
+</tr>
+<tr>
+<td>ComponentRegistry.get</td>
+<td>method</td>
+<td><code>get(name)</code></td>
+<td>Class or <code>None</code>; resolves <code>Sky</code> → <code>ProceduralSky</code></td>
+</tr>
+<tr>
+<td>ComponentRegistry.all</td>
+<td>method</td>
+<td><code>all()</code></td>
+<td>Copy of the name → class map</td>
+</tr>
+<tr>
+<td>get_categories</td>
+<td>method</td>
+<td>per component</td>
+<td>e.g. <code>["Transform"]</code> for <code>Transform</code></td>
+</tr>
+<tr>
+<td>Scene.serialize</td>
+<td>method</td>
+<td>dict</td>
+<td><code>name</code>, <code>entities</code>, optional embed/compress flags</td>
+</tr>
+<tr>
+<td>Scene.deserialize</td>
+<td>classmethod</td>
+<td><code>deserialize(data, registry)</code></td>
+<td>Rebuild + parent re-link + index sync</td>
+</tr>
+<tr>
+<td>PATH_FIELDS</td>
+<td>frozenset</td>
+<td><code>core/config/constants.py</code></td>
+<td><code>mesh_path, material_path, clip_path, script_path, texture_path, ply_path, shader_path, env_path, svg_path, font_path, video_path, graph_path, skybox_path</code> — resolved against <code>project_root</code> on load, relativized on save</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p><code>Add Component</code> groups come from <code>get_categories</code>. Unknown component types in a <code>.zpes</code> file are skipped silently on load (entity keeps the rest). Prefab instances carry <code>prefab_guid</code> / <code>prefab_source_id</code>; overrides serialize alongside the GUID.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from core.ecs import Component, ComponentRegistry
+
+@ComponentRegistry.register
+class Health(Component):
+    pass
+
+assert ComponentRegistry.get(&quot;Health&quot;) is Health
+print(ComponentRegistry.get_categories(&quot;Health&quot;))  # category by module path
+
+data = scene.serialize()
+scene2 = Scene.deserialize(data, ComponentRegistry)
+</code></pre>
+<h2 id="serialization">Serialization</h2>
+<p>Full <code>.zpes</code> skeleton (entity keys: <code>id</code>, <code>name</code>, <code>active</code>, <code>tags</code>, <code>layer</code>, <code>parent</code>, <code>components</code>):</p>
+<pre><code class="language-json">{ &quot;name&quot;: &quot;MyScene&quot;,
+  &quot;entities&quot;: {
+    &quot;&lt;uuid&gt;&quot;: { &quot;id&quot;: &quot;&lt;uuid&gt;&quot;, &quot;name&quot;: &quot;E&quot;, &quot;active&quot;: true, &quot;tags&quot;: [],
+                &quot;layer&quot;: 0, &quot;parent&quot;: null, &quot;components&quot;: [] }
+  } }
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li><a href="../ecs-overview/">ECS Overview</a></li>
+<li><a href="../entity/">Entity</a></li>
+<li><a href="../components-lifecycle/">Components and Lifecycle</a></li>
+<li><a href="../../scenes-prefabs/scenes/">Scenes</a></li>
+<li><a href="../../scenes-prefabs/prefabs/">Prefabs</a></li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/ecs/registry.py</code> (<code>register</code>, <code>get</code>, <code>all</code>, <code>_aliases</code>, <code>_category_name_map</code>, <code>_infer_category</code>)</li>
+<li><code>core/ecs/scene_serialize.py</code> (<code>_serialize_inner</code>, <code>_deserialize_inner</code>, <code>_duplicate_entity_inner</code>, <code>_rebind_armatures</code>)</li>
+<li><code>core/ecs/entity.py</code> (<code>serialize</code>/<code>deserialize</code>, unknown-type skip)</li>
+<li><code>core/config/constants.py</code> (<code>PATH_FIELDS</code>)</li>
+<li><code>core/engine/eng/engine.py</code> (<code>resolve_scene_paths</code>, <code>relativize_scene_paths</code>)</li>
+<li><code>ARCHITECTURE.md</code> (register decorator mandatory)</li>
+</ul>
               
             </div>
           </div><footer>

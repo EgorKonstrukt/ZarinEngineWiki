@@ -329,6 +329,18 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Soft Body</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#fixed-update-notes">Fixed update notes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../phys-bone/">PhysBone</a>
@@ -1238,63 +1250,138 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="soft-body">Soft Body</h1>
-<p>Deformable mesh simulation for cloth, jelly, squashy props and soft characters — vertices simulated, mesh follows.</p>
+<p>Deformable mesh simulation for cloth, jelly, squashy props — vertices simulated by the solver, render mesh follows.</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group / field</th>
-<th>Meaning</th>
+<th>Field</th>
+<th>Default</th>
+<th>Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Soft Body: Mass / Stiffness</td>
-<td>Weight vs shape retention</td>
+<td><code>layer</code> / <code>mask</code></td>
+<td><code>0</code> / <code>0xFFFF</code></td>
+<td>Filtering</td>
 </tr>
 <tr>
-<td>Bend Mode</td>
-<td>Bending response model selector</td>
+<td><code>mass</code></td>
+<td><code>1.0</code></td>
+<td>Inspector <code>0.01–10000</code></td>
 </tr>
 <tr>
-<td>Pressure</td>
-<td>Inflation for closed meshes (balloons, tires)</td>
+<td><code>stiffness</code></td>
+<td><code>0.85</code></td>
+<td>Slider <code>0–1</code>; <code>compliance = (1-stiffness) * 0.01</code></td>
 </tr>
 <tr>
-<td>Damping / Iterations</td>
-<td>Settle behavior and solver quality per step</td>
+<td><code>bend_mode</code></td>
+<td><code>distance</code></td>
+<td><code>none</code> / <code>distance</code> / <code>dihedral</code></td>
 </tr>
 <tr>
-<td>Gravity Scale</td>
-<td>Local gravity multiplier</td>
+<td><code>pressure</code></td>
+<td><code>0.0</code></td>
+<td>Volume preservation</td>
 </tr>
 <tr>
-<td>Vertex Radius</td>
-<td>Collision thickness per vertex</td>
+<td><code>damping</code></td>
+<td><code>0.1</code></td>
+<td><code>0–10</code></td>
 </tr>
 <tr>
-<td>Max Velocity</td>
-<td>Stability clamp</td>
+<td><code>iterations</code></td>
+<td><code>10</code></td>
+<td><code>1–50</code> solver iterations</td>
 </tr>
 <tr>
-<td>Pin Mode / Pin Fraction</td>
-<td>Share of vertices attached to the anchor</td>
+<td><code>gravity_scale</code> (<code>gravity_factor</code>)</td>
+<td><code>1.0</code></td>
+<td><code>0–5</code></td>
 </tr>
 <tr>
-<td>Max Vertices</td>
-<td>Simulation budget cap</td>
+<td><code>vertex_radius</code></td>
+<td><code>0.05</code></td>
+<td><code>0.001–1</code></td>
 </tr>
 <tr>
-<td>Double Sided</td>
-<td>Two-face collision for thin cloth</td>
+<td><code>max_velocity</code></td>
+<td><code>500.0</code></td>
+<td><code>1–5000</code></td>
+</tr>
+<tr>
+<td><code>pin_mode</code></td>
+<td><code>none</code></td>
+<td><code>none</code> / <code>top</code> / <code>bottom</code> band <code>pin_fraction</code></td>
+</tr>
+<tr>
+<td><code>pin_fraction</code></td>
+<td><code>0.1</code></td>
+<td><code>0–0.5</code></td>
+</tr>
+<tr>
+<td><code>max_vertices</code></td>
+<td><code>3000</code></td>
+<td><code>0–30000</code>; voxel decimation applies when the mesh exceeds the budget (and <code>max_vertices ≥ 4</code>)</td>
+</tr>
+<tr>
+<td><code>double_sided</code></td>
+<td><code>True</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>update_com</code></td>
+<td><code>True</code></td>
+<td>Drive entity Transform from center of mass</td>
+</tr>
+<tr>
+<td><code>recompute_normals</code></td>
+<td><code>True</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>material_friction</code> / <code>material_bounciness</code></td>
+<td><code>0.2</code> / <code>0.0</code></td>
+<td>No asset path on this component</td>
+</tr>
+<tr>
+<td>Caps</td>
+<td><code>16</code> bodies, <code>32768</code> verts each</td>
+<td><code>SoftSharedBuffer</code></td>
 </tr>
 </tbody>
 </table>
-<p>Vertices, center of mass and velocities exchange with the solver through the soft shared buffer every step — heavier than rigid bodies, so budget vertex counts (hundreds, not thousands) and reserve soft bodies for hero props.</p>
-<p>Pin patterns: full pin row for curtains and capes, corner pins for tablecloths, zero pins for free jelly. Pressure turns closed meshes into bouncy balls; combine with high damping for waterbeds.</p>
-<p>Iterations are the quality knob: raise until squash recovers cleanly, then stop — cost grows linearly. Damping too low jiggles forever; too high feels frozen.</p>
-<p>Workflow: closed low-poly mesh → SoftBody with pressure for balls, open mesh with pins for cloth → tune stiffness/damping → verify gizmo volume → Play and poke it with a kinematic pusher.</p>
-<p>Troubleshooting: explodes → iterations too low for the stiffness, raise both carefully; falls through → vertex radius tiny plus fast motion, grow radius or slow down; pins tear → pin fraction too small for the load, add pins; heavy → max vertices overshot, decimate the source mesh.</p>
-<p>Related: Buoyancy (floating jelly), PhysBone (chain alternative for straps), Cloth-adjacent Object Effects, Rigidbody (pusher bodies).</p>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Add <code>MeshFilter</code> (mesh source) + <code>SoftBody</code>. Do <strong>not</strong> add <code>Rigidbody</code> — SoftBody owns the entity (warning logged, rigid body skipped). Pin <code>top</code> for curtains, <code>bottom</code> for tablecloths.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Cloth&quot;)
+from core.components.physics.soft_body import SoftBody
+
+sb = SoftBody()
+sb.mass = 1.0
+sb.stiffness = 0.85
+sb.iterations = 10
+sb.pin_mode = sb.pin_mode  # none by default
+entity.add_component(sb)  # needs MeshFilter with mesh_path on same entity
+</code></pre>
+<p>Solver entry: <code>create_soft_body(entity_id, vertices, indices, position, rotation, mass, compliance, bend_mode, pressure, damping, iterations, gravity_factor, friction, restitution, vertex_radius, max_velocity, max_vertices, pin_mode, pin_fraction, double_sided, update_com, layer, mask)</code>. Teleports rebuild the soft body; COM sync skipped while pinned.</p>
+<h2 id="fixed-update-notes">Fixed update notes</h2>
+<ul>
+<li>Bodies build in <code>_create_entity_soft</code> from <code>MeshFilter.mesh_path</code> via <code>load_collision_geometry</code>; results sync in <code>_sync_soft_bodies</code> / <code>_sync_soft_mesh</code> after <code>step_simulation(dt)</code> with <code>dt = Engine._fixed_dt</code> (<code>0.02</code> default).</li>
+<li>Multi-soft overlap separated by AABB impulse (<code>_separate_soft_bodies</code>) for <code>≥2</code> soft bodies.</li>
+</ul>
+<h2 id="related">Related</h2>
+<p>Rigidbody (do not combine), Mesh Collider, Solver &amp; Threading (soft buffers), Collision Layers.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/physics/soft_body.py</code></li>
+<li><code>core/physics/scene/colliders.py</code> (<code>_build_entity_soft</code>, <code>_soft_sig</code>)</li>
+<li><code>core/physics/scene/events.py</code> (<code>create_soft_body_in_solver</code>)</li>
+<li><code>physics_solvers/culverin_solver/solverp/integrate.py</code> (<code>create_soft_body</code>)</li>
+<li><code>core/physics/soft_shared_buffer.py</code></li>
+</ul>
               
             </div>
           </div><footer>

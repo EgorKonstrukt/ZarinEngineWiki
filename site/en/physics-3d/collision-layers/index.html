@@ -319,6 +319,18 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Collision Layers</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#fixed-update-notes">Fixed update notes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1238,21 +1250,78 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="collision-layers">Collision Layers</h1>
-<p>Who collides with whom, independent of surface response. Every collider carries <code>layer</code> (default 0) and <code>mask</code> (default <code>0xFFFF</code>, collide with all layers); contact requires both sides to accept each other.</p>
-<p>Filtering logic lives in <code>core/physics/collision_layers.py</code>. The <code>per_layer_process</code> execution mode can additionally isolate layers into on-demand solver processes for fully independent sub-simulations.</p>
-<p>Layer plan for a typical action game:</p>
+<p>Who collides with whom, independent of surface response. Every collider carries <code>layer</code> (default <code>0</code>) and <code>mask</code> (default <code>0xFFFF</code>); contact requires both sides to accept each other.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Default</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MAX_LAYERS</code></td>
+<td><code>16</code></td>
+<td>Layers <code>0–15</code></td>
+</tr>
+<tr>
+<td><code>layer</code></td>
+<td><code>0</code></td>
+<td>Per-collider index</td>
+</tr>
+<tr>
+<td><code>mask</code></td>
+<td><code>0xFFFF</code></td>
+<td>Per-c Collider bitmask</td>
+</tr>
+<tr>
+<td>Default names</td>
+<td><code>Default, TransparentFX, Ignore Raycast, Water, UI, Player, Enemy, Projectile, Trigger, Ground, Layer10–15</code></td>
+<td><code>DEFAULT_LAYER_NAMES</code></td>
+</tr>
+<tr>
+<td>Default matrix</td>
+<td>All-vs-all except exclusions</td>
+<td><code>build_default_collision_matrix()</code>: layer <code>2</code> (Ignore Raycast) collides with nothing; layer <code>4</code> (UI) collides only with itself</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Set <code>Layer</code> + <code>Collision Mask</code> on each collider. Typical plan: <code>0</code> World (everything), <code>5</code> Player, <code>6</code> Enemy (mute enemy-vs-enemy for crowds), <code>7</code> Projectile (world + characters only), <code>8</code> Trigger pickups (player only).</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Pickup&quot;)
+from core.components.physics.sphere_collider import SphereCollider
+
+s = SphereCollider()
+s.radius = 1.0
+s.is_trigger = True
+s.layer = 8
+s.mask = 1 &lt;&lt; 5  # only player layer
+entity.add_component(s)
+
+from core.physics.collision_layers import build_default_collision_matrix, get_layer_mask
+matrix = build_default_collision_matrix()
+mask = get_layer_mask([], matrix, 0)
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass  # triggers report through the same mask test, no contact response
+</code></pre>
+<p>Helpers: <code>layer_mask_from_names(names, indices)</code>, <code>layer_names_from_mask(names, mask)</code>.</p>
+<h2 id="fixed-update-notes">Fixed update notes</h2>
 <ul>
-<li>0 World — static geometry, collides with everything gameplay.</li>
-<li>1 Player — character and its hitboxes.</li>
-<li>2 Enemy — bots; mute enemy-vs-enemy to save solver time on crowds.</li>
-<li>3 Projectile — player and enemy shots; masked against world + characters, never against pickups.</li>
-<li>4 Pickup — triggers only, masked to player.</li>
-<li>5 Sensor — AI sight/hearing triggers, masked to player + enemy, no physical response.</li>
+<li><code>layer</code>/<code>mask</code> pass into every <code>create_rigid_body</code> / <code>create_compound_rigid_body</code> / soft-body call and are evaluated solver-side per step.</li>
+<li><code>per_layer_process</code> mode can additionally isolate layers into on-demand solver processes (<code>plugin._get_layer_process</code>).</li>
 </ul>
-<p>Triggers (<code>is_trigger</code>) report overlaps through the same mask test without contact response — a sensor on the wrong layer is silent, not broken.</p>
-<p>One-way platforms: platform collider on a layer masked out of the player mask, plus a thin top trigger that enables collision while the player overlaps from above — scripted in a few lines on <code>on_collision_enter/exit</code>.</p>
-<p>Debugging: enable physics visualization (plugin) to color bodies by layer; silent pairs almost always mean mask mismatch, not missing components.</p>
-<p>Related: Physics Materials, Solver and Threading (per-layer mode), all collider pages, Joints (connected bodies must share a colliding pair).</p>
+<h2 id="related">Related</h2>
+<p>Physics Materials, Solver &amp; Threading (per-layer mode), all collider pages, Joints.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/physics/collision_layers.py</code></li>
+<li><code>core/physics/physics_solver.py</code> (<code>collision_layer</code>, <code>collision_mask</code> params)</li>
+<li><code>plugins/physics_plug/plugin.py</code> (per-layer processes)</li>
+</ul>
               
             </div>
           </div><footer>

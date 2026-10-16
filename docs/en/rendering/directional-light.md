@@ -1,13 +1,23 @@
 # Directional Light
-
-Sun-style parallel light. Position only sets the gizmo origin; direction comes entirely from the Transform rotation, and every surface receives the same direction regardless of distance.
-
-- Intensity in lux, default 100000 (direct sun). Reference scale: full daylight 15000, overcast 5000, sunrise/sunset 400, office interior 500, twilight 10, full moon 0.2.
-- `procedural_sky_lighting` couples the sun to the procedural sky: rotating the light moves the sun disc and rebalances ambient automatically — day cycles become one rotation animation.
-- Shadows use the cascaded map (default 4 cascades at 2048/1024/1024/512, distance 50). Because one light covers the whole scene, its shadow pass is usually the most expensive single light — keep exactly one shadowed directional.
-
-Workflows: outdoor day — sun intensity 80000–120000, warm color, shadows on, procedural sky coupled; night — dim blue directional (5–50 lux range feel) with shadows off plus a few shadowed spots for pools of light; interior — directional off or very low, spots and points carry the scene.
-
-The viewport gizmo shows direction arrows and the shadow camera box; if the box does not cover the gameplay area, shadows clip — shrink shadow distance or move the action inside.
-
-Related: Light (Base), Shadows, Procedural Sky, Atmosphere, Clouds (shadow strength interplay).
+> Sun-style infinite light: `DirectionalLight` (`core/components/lighting/lightp/light.py:185-225`) with lux intensity and optional procedural-sky driving.
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+Direction comes from the entity transform (`-forward` is used by sky/cloud shaders). Intensity is illuminance in lux: direct sun `100000`, daylight `10000–25000`, overcast `1000–10000`, sunrise `400`, office `500`, twilight `10`, full moon `0.2` (inspector description + `LUX_REFERENCE`, `light.py:40-48,198`).
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `color` | color3 | `[1.0, 1.0, 1.0]` | Light color (`light.py:197`). |
+| `intensity` | float lux (0–200000) | `100000.0` | Illuminance; see scale above (`light.py:198,205`). |
+| `procedural_sky_lighting` | bool | `False` | Drive/link procedural sky sun (`light.py:199,206`). |
+| `cast_shadows` | bool | `True` | CSM contribution; needs active `DirectionalShadow` (`light.py:201,207`). |
+## Usage in Editor
+Rotate the entity to aim the sun. Pair with [Procedural Sky](./procedural-sky.md) via `procedural_sky_lighting` or `sun_light_entity_id`, and tune CSM in [Shadows](./shadows.md).
+## Usage in Code
+```python
+sun.intensity = 15000.0  # full daylight
+sun.procedural_sky_lighting = True
+```
+## Related pages
+- [Light](./light.md), [Shadows](./shadows.md), [Procedural Sky](./procedural-sky.md), [Atmosphere](./atmosphere.md)
+## Verified against
+- `core/components/lighting/lightp/light.py:185-225`

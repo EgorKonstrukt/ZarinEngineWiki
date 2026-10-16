@@ -237,13 +237,17 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">SVGF</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    <li class="toctree-l4"><a class="reference internal" href="#shader-snippet">Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#performance-notes">Performance notes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1250,98 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="svgf">SVGF</h1>
-<p>Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.</p>
-<h2 id="how-it-works">How it works</h2>
-<p>Spatiotemporal variance-guided denoiser that cleans noisy effects (SSR, soft shadows) across frames.</p>
+<blockquote>
+<p>Spatiotemporal variance-guided denoiser. Reprojection reuses history gated by stability/disocclusion; à-trous passes filter guided by depth/normal/luma phi weights; final composites. Class <code>SpatiotemporalVarianceGuidedFilter</code> in <code>core/components/rendering/postfx/svgfp/component.py</code>. Runs in the PostFX stack in component order; skipped when <code>enabled</code> is False or the entity is inactive (<code>render()</code> early-out).</p>
+</blockquote>
 <h2 id="parameters">Parameters</h2>
-<p>History length, variance feel.</p>
-<h2 id="tips">Tips</h2>
-<p>Always enable alongside SSR; mandatory for stable raytraced previews.</p>
-<h2 id="cost">Cost</h2>
-<p>Medium. Pays for itself under SSR.</p>
-<p>Related: <a href="../">PostFX Stack</a>, Cameras (render scale), Profiler.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Temporal Stability</td>
+<td><code>_stability</code></td>
+<td>FLOAT</td>
+<td>0.0 – 0.99</td>
+<td><code>0.9</code></td>
+</tr>
+<tr>
+<td>Disocclusion Depth</td>
+<td><code>_disocclusion</code></td>
+<td>FLOAT</td>
+<td>0.0 – 1.0</td>
+<td><code>0.08</code></td>
+</tr>
+<tr>
+<td>Phi Depth</td>
+<td><code>_phi_depth</code></td>
+<td>FLOAT</td>
+<td>0.01 – 10.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Phi Normal</td>
+<td><code>_phi_normal</code></td>
+<td>FLOAT</td>
+<td>1.0 – 512.0</td>
+<td><code>128.0</code></td>
+</tr>
+<tr>
+<td>Phi Luminance</td>
+<td><code>_phi_luma</code></td>
+<td>FLOAT</td>
+<td>0.1 – 16.0</td>
+<td><code>4.0</code></td>
+</tr>
+<tr>
+<td>Iterations</td>
+<td><code>_iterations</code></td>
+<td>INT</td>
+<td>1 – 8</td>
+<td><code>5</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">Usage</h2>
+<p>Editor: select the PostFX entity, Add Component &gt; <code>SpatiotemporalVarianceGuidedFilter</code>, tick <code>enabled</code>, tune fields above. Order among PostFX components defines execution order.</p>
+<p>Code:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.svgfp.component import SpatiotemporalVarianceGuidedFilter
+fx = SpatiotemporalVarianceGuidedFilter()
+entity.add_component(fx)
+fx._stability = 0.92
+fx._iterations = 5
+fx.enabled = True
+</code></pre>
+<h2 id="shader-snippet">Shader snippet</h2>
+<p>Shader: <code>core/components/rendering/postfx/svgfp/reproj.py (SVGF_REPROJ_FRAG), atrous.py (SVGF_ATROUS_FRAG), final.py (SVGF_FINAL_FRAG)</code>.</p>
+<pre><code class="language-glsl">// REPROJ: uniform sampler2D u_current; uniform sampler2D u_history; uniform sampler2D u_velocity; uniform float u_stability; uniform float u_disocclusion;
+// ATROUS: uniform sampler2D u_color; uniform sampler2D u_depth; uniform sampler2D u_moment; uniform float u_phi_depth; uniform float u_phi_normal; uniform float u_phi_luma; uniform int u_step_size;
+// FINAL: uniform sampler2D u_input;
+</code></pre>
+<h2 id="performance-notes">Performance notes</h2>
+<p>Cost scales with Iterations (1–8, default 5) à-trous passes + history/moment buffers. History invalidated on resize (<code>_history_valid</code>).</p>
+<h2 id="related">Related</h2>
+<p>Related: <a href="../">PostFX Stack</a>, <a href="../color-grading/">Color Grading</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/svgfp/component.py</code> — class <code>SpatiotemporalVarianceGuidedFilter</code>, <code>_inspector_fields</code>, <code>__init__</code> defaults, <code>Temporal reprojection → à-trous wavelet (N iterations) → composite. Keeps history + moments + 2 atrous buffers with frame counter.</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/svgfp/reproj.py</code></p>
+</li>
+<li><code>core/components/rendering/postfx/svgfp/atrous.py</code></li>
+<li><code>core/components/rendering/postfx/svgfp/final.py</code></li>
+<li><code>core/components/rendering/postfx/svgfp/vert.py</code></li>
+<li><code>core/components/rendering/postfx/graphics_effect.py</code> — <code>GraphicsEffect</code> base (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, <code>render()</code> signature).</li>
+</ul>
               
             </div>
           </div><footer>

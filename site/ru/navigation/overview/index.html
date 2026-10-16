@@ -1008,6 +1008,16 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Навигация и NavAgent</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api">Свойства / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_1">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Связанные</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Проверено по</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,15 +1247,82 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="navagent">Навигация и NavAgent</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Навигация и NavAgent в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<p>Сеточная навигация (<code>NavWorld</code>) с отложенным GPU-запросом пути; <code>NavAgent</code> ведёт сущность к цели.</p>
+<h2 id="api">Свойства / API</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Умолчание</th>
+<th>Смысл</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agent_radius / agent_height / agent_padding</code></td>
+<td>0.5 / 2.0 / 0.0</td>
+<td>Капсула и отступ от стен</td>
+</tr>
+<tr>
+<td><code>max_climb / max_slope</code></td>
+<td>0.5 / 45.0</td>
+<td>Ступень и склон</td>
+</tr>
+<tr>
+<td><code>max_speed / max_angular_speed</code></td>
+<td>5.0 / 360.0</td>
+<td>Лимиты руления</td>
+</tr>
+<tr>
+<td><code>use_physical_controller / flying / auto_move / show_path_cells</code></td>
+<td>true / false / false / false</td>
+<td>Физ-контроллер, полёт, автодвижение, дебаг</td>
+</tr>
+<tr>
+<td><code>target_x / target_y / target_z / target_entity_id</code></td>
+<td>0 / 0 / 0 / ""</td>
+<td>Точка или сущность цели</td>
+</tr>
+<tr>
+<td><code>repath_interval / arrival_distance</code></td>
+<td>1.0 / 0.5</td>
+<td>Период перестроения и радиус прибытия</td>
+</tr>
+<tr>
+<td><code>nav_resolution / nav_world_size</code></td>
+<td>512 / 500.0</td>
+<td>Плотность сетки и размер мира</td>
+</tr>
+<tr>
+<td><code>set_target / set_target_entity / stop / has_path / current_path</code></td>
+<td>—</td>
+<td>Рантайм API через <code>find_path_gpu_deferred</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_1">Использование в редакторе</h2>
+<ol>
+<li>Добавьте <code>NavAgent</code>; настройте радиус/высоту/скорость.</li>
+<li>Задайте XYZ цели или <code>target_entity_id</code>, включите <code>auto_move</code>; кнопки <code>Set Target</code> / <code>Stop</code>.</li>
+<li><code>show_path_cells</code> подсвечивает путь по сетке.</li>
+</ol>
+<h2 id="_2">Использование в коде</h2>
+<pre><code class="language-python">from core.maths.math3d import Vec3
+
+agent = entity.get_component_by_name(&quot;NavAgent&quot;)
+agent.set_target(Vec3(10.0, 0.0, 5.0))
+agent.set_target_entity(player_entity)
+if not agent.has_path():
+    agent.stop()
+</code></pre>
+<h2 id="_3">Связанные</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Террейн, Constraints, физ-контроллер</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_4">Проверено по</h2>
+<ul>
+<li><code>core/components/navigation/navagent/component.py</code>, <code>core/navigation/world.py</code></li>
+</ul>
               
             </div>
           </div><footer>

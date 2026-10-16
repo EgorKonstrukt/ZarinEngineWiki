@@ -1,21 +1,48 @@
 # PhysBone
 
-Динамика цепочек костей для волос, хвостов, плащей, антенн, висящих украшений и отростков монстров — пружинная симуляция вдоль существующей цепочки костей.
+Динамика цепочек костей для волос, хвостов, плащей, антенн — пружинная симуляция вдоль существующей цепочки. CPU-Verlet, не тело солвера.
 
-| Группа инспектора | Что покрывает |
+## Свойства
+
+| Группа | Поля (по умолчанию) |
 |---|---|
-| Transforms | Root Transform, Ignore Transforms, Ignore Other Phys Bones, Endpoint Position, Multi Child Type (поведение ветвлений) |
-| Forces | Integration Type, Pull (+Curve), Spring (+Curve), Damping (+Curve) и дальнейшая настройка сил |
-| Limits / Colliders | Limit Type, обработка Immobile, набор PhysBoneCollider |
+| Трансформы | `root_entity_id` `""`, `ignore_entity_ids` `[]`, `ignore_other_phys_bones` `False`, `endpoint_position` `(0,0,0)`, `multi_child_type` `ignore` |
+| Силы | `integration_type` `simplified`, `pull` `0.2`, `spring` `0.2`, `damping` `0.1`, `gravity` `0.0`, `gravity_falloff` `0.0`, `immobile_type` `all`, `immobile` `0.0` (у каждого `*_curve` `[[0,1],[1,1]]`) |
+| Лимиты | `limit_type` `none`, `max_angle` `45.0` + кривая, `hinge_axis` `(1,0,0)` |
+| Коллизия | `radius` `0.11` + кривая, `allow_collision` `True`, `collider_entity_ids` `[]` |
+| Stretch | `stretch_motion` `0.0`, `max_stretch` `0.0`, `max_squish` `0.0` (+ кривые) |
+| Опции | `parameter` `""`, `is_animated` `False`, `reset_when_disabled` `False`, `allow_grab` `True`, `show_gizmo` `True` |
 
-Кривые по длине цепочки — секретное оружие: жёсткие корни с болтающимися концами читаются естественно, плоские значения — роботизированно. Pull борется с гравитацией (высокий = паряще), spring возвращает форму, damping гасит колебания.
+## Использование в редакторе
 
-Ветвления: Multi Child Type управляет развилками (пальцы, пряди хвоста) — тестируйте на реальном ассете, поведение зависит от иерархии.
+Добавить `PhysBone` (можно несколько), задать `Root Transform`, pull/spring/damping, сущности `PhysBoneCollider` — в `Colliders`.
 
-Коллайдеры отклоняют цепочку каждый шаг; формы сфера/капсула/плоскость см. в PhysBoneCollider. Цепочки игнорируют друг друга без настройки — рукавам против плаща нужны explicit ignore-правила или коллайдеры.
+## Использование в коде
 
-Процесс: ригованная цепочка → PhysBone на корне с endpoint → коллайдеры на голову/торс → pull/spring/damping с кривыми → стресс-тест быстрыми поворотами головы в Play.
+```python
+entity = scene.create_entity("Hair")
+from core.components.physics.physbone.component import PhysBone
 
-Диагностика: тянется резиной — низок pull или нулевой damping; вибрирует — высок spring под масштаб масс, опустите и поднимите damping; клиппит тело — нет коллайдера или ignore съел; заморожена — неверно назначен immobile-тип.
+pb = PhysBone()
+pb.root_entity_id = root_id
+pb.pull = 0.2
+pb.spring = 0.2
+pb.gravity = 0.2
+pb.allow_collision = True
+pb.collider_entity_ids = [collider_entity_id]
+entity.add_component(pb)
+```
 
-Связанное: PhysBoneCollider, арматура, Skinned Mesh Renderer, заметки IK в анимации, тканевые эффекты объектов (статичная альтернатива).
+Цепочка пересобирается в `on_start` / `on_enable`; `on_disable`/`on_destroy` опционально `reset_to_rest()`.
+
+## Заметки о fixed update
+
+- Не шагается `solver.step_simulation`; интеграция покадрово на стороне компонента. Привязки к `Engine._fixed_dt` в проверенном пути нет — коллайдеры сэмплируются через `world_center`/`world_capsule`/`world_plane`.
+
+## Связанные
+
+PhysBoneCollider, Joints (жёсткая альтернатива), солвер и потоки.
+
+## Проверено по
+
+- `core/components/physics/physbone/component.py`, `physbone/params.py`, `physbone/types.py`

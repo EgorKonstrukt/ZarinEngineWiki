@@ -77,6 +77,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Transform</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#serialization">Serialization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../time/">Time and Fixed Update</a>
@@ -1237,15 +1251,132 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="transform">Transform</h1>
-<p>TODO: Content pending. This page will document Transform in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p><code>Transform</code> (<code>core.components.transform.tr</code>) stores local position (<code>Vec3</code>), rotation (<code>Quat</code>), scale (<code>Vec3</code>) and computes the world matrix lazily from the parent chain.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="overview">Overview</h2>
+<p>Defaults: position <code>(0,0,0)</code>, rotation identity <code>Quat(0,0,0,1)</code>, scale <code>(1,1,1)</code>. Any local setter marks the subtree dirty (<code>_mark_dirty</code> propagates to children, registers roots in <code>Scene._dirty_roots</code>, flags spatial + transform version). <code>world_matrix</code> recomputes on read when dirty: root entities write the local TRS matrix directly; children multiply <code>local @ parent_world</code>. The Inspector edits <code>local_position</code> (Position), <code>local_euler_angles</code> in degrees (Rotation), <code>local_scale</code> (Scale). <code>Entity.set_parent(..., preserve_world=True)</code> keeps the world matrix via the <code>world_matrix</code> setter. <code>position</code> reads the world translation; setting it converts to local space through the inverse parent matrix. <code>forward</code> is <code>-Z</code> of the world matrix (normalized), <code>right</code> is <code>+X</code>, <code>up</code> is <code>+Y</code>.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>local_position</td>
+<td>Vec3</td>
+<td><code>(0,0,0)</code></td>
+<td>Accepts <code>Vec3</code>, <code>ndarray</code>, tuple/list</td>
+</tr>
+<tr>
+<td>local_rotation</td>
+<td>Quat</td>
+<td>identity</td>
+<td>Setter normalizes when given a <code>Quat</code></td>
+</tr>
+<tr>
+<td>local_scale</td>
+<td>Vec3</td>
+<td><code>(1,1,1)</code></td>
+<td>Accepts <code>Vec3</code>, <code>ndarray</code>, tuple/list</td>
+</tr>
+<tr>
+<td>local_euler_angles</td>
+<td>Vec3</td>
+<td><code>(0,0,0)</code> deg</td>
+<td>Euler view of the quaternion (<code>Quat.from_euler</code> on set)</td>
+</tr>
+<tr>
+<td>position</td>
+<td>Vec3</td>
+<td>world origin</td>
+<td>World-space translation; setter converts to local</td>
+</tr>
+<tr>
+<td>world_matrix</td>
+<td>Mat4</td>
+<td>identity</td>
+<td>Lazy; recomputed while <code>_dirty</code></td>
+</tr>
+<tr>
+<td>forward / right / up</td>
+<td>Vec3</td>
+<td>axes</td>
+<td>Normalized world axes (<code>-Z</code> / <code>+X</code> / <code>+Y</code>)</td>
+</tr>
+<tr>
+<td>translate(delta, world_space=False)</td>
+<td>method</td>
+<td>—</td>
+<td>Local add, or world-space via <code>position</code></td>
+</tr>
+<tr>
+<td>rotate(euler)</td>
+<td>method</td>
+<td>—</td>
+<td><code>euler</code> in degrees; post-multiplies local quaternion</td>
+</tr>
+<tr>
+<td>look_at(target, up)</td>
+<td>method</td>
+<td><code>up=None</code> (defaults to <code>Vec3.up()</code>)</td>
+<td>Sets <code>local_rotation</code> via <code>Quat.look_rotation</code></td>
+</tr>
+<tr>
+<td>world set</td>
+<td>setter</td>
+<td>—</td>
+<td>Deferred through <code>_world_target</code>, decomposed on flush</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Inspector → Transform: Position / Rotation (degrees) / Scale numeric fields. Viewport gizmo drag writes the same locals. Reparent in Hierarchy preserves world placement (<code>preserve_world=True</code>).</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from core.components.transform.tr import Transform
+from core.maths.math3d import Vec3
+
+tr = entity.add_component(Transform())
+tr.local_position = Vec3(0.0, 1.0, 0.0)
+tr.local_euler_angles = Vec3(0.0, 45.0, 0.0)
+tr.local_scale = Vec3(2.0, 2.0, 2.0)
+
+tr.translate(Vec3(0.0, 0.0, 1.0))   # local move
+tr.rotate(Vec3(0.0, 90.0, 0.0))     # degrees
+print(tr.position)                  # world-space Vec3
+print(tr.forward)                   # world -Z
+</code></pre>
+<pre><code class="language-python">tr.translate(Vec3(1.0, 0.0, 0.0), world_space=True)  # via world position
+tr.look_at(Vec3(0.0, 1.0, 0.0))  # local_rotation via Quat.look_rotation
+</code></pre>
+<h2 id="serialization">Serialization</h2>
+<pre><code class="language-json">{ &quot;type&quot;: &quot;Transform&quot;, &quot;enabled&quot;: true,
+  &quot;local_position&quot;: [0.0, 1.0, 0.0],
+  &quot;local_rotation&quot;: [0.0, 0.0, 0.0, 1.0],
+  &quot;local_scale&quot;: [1.0, 1.0, 1.0] }
+</code></pre>
+<p>Missing keys fall back to <code>[0,0,0]</code> / <code>[0,0,0,1]</code> / <code>[1,1,1]</code> in <code>Transform.deserialize</code>.</p>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li><a href="../entity/">Entity</a></li>
+<li><a href="../ecs-overview/">ECS Overview</a></li>
+<li><a href="../../math/overview/">Math</a></li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/transform/tr/__init__.py</code> (<code>Transform</code> class, registered)</li>
+<li><code>core/components/transform/tr/component.py</code> (locals, euler, <code>_inspector_fields</code>, defaults)</li>
+<li><code>core/components/transform/tr/matrix.py</code> (<code>world_matrix</code>, <code>position</code>, <code>forward/right/up</code>, <code>translate</code>, <code>rotate</code>, <code>look_at</code>)</li>
+<li><code>core/components/transform/tr/hierarchy.py</code> (<code>_mark_dirty</code>, batch updates)</li>
+<li><code>core/components/transform/tr/serialize.py</code> (keys + defaults)</li>
+<li><code>core/ecs/entity.py</code> (<code>set_parent</code> world preservation)</li>
+</ul>
               
             </div>
           </div><footer>

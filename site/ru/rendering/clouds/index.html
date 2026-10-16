@@ -748,6 +748,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Облака</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../water/">Вода Water</a>
@@ -1238,45 +1246,187 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Облака</h1>
-<p>Облачный слой в объёмном стиле с покрытием, плотностью, дрейфом ветра и реакцией на солнце — небо с погодой, а не обои.</p>
+<blockquote>
+<p>Объёмный слой облаков: <code>Cloud</code> (<code>core/components/rendering/environment/clouds.py:17-273</code>), шейдер <code>core/shaders/materials/Clouds.shader</code> (+ плоский <code>CloudLayer.shader</code>).
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Полноэкранный реймарш (<code>render_clouds</code>) использует <code>u_time</code>, <code>u_cam_pos</code>, <code>u_inv_view_proj</code>, <code>_Coverage…_Tint</code> и солнце/цвет из <a href="../directional-light/">Directional Light</a> (<code>clouds.py:75-150</code>). Плоский фолбэк (<code>render_cloud_layer</code>) пропускается при <code>height &lt; 8.0</code> или <code>opacity &lt;= 0.001</code>, рисует плоскость <code>1400</code> м на <code>height + thickness*0.5</code> за камерой (<code>clouds.py:152-217</code>).</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Группа / поле инспектора</th>
-<th>Смысл</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Cloud: Cloud Material</td>
-<td>Материал шейдинга на шейдерах <code>Clouds</code> / <code>CloudLayer</code></td>
+<td><code>material_path</code></td>
+<td>путь шейдера</td>
+<td><code>core/shaders/materials/Clouds.shader</code></td>
+<td>Шейдер облаков (<code>clouds.py:24,52</code>).</td>
 </tr>
 <tr>
-<td>Coverage / Density</td>
-<td>Доля заполнения неба и толщина слоя</td>
+<td><code>coverage</code></td>
+<td>слайдер (0–1)</td>
+<td><code>0.78</code></td>
+<td>Покрытие (<code>clouds.py:25,53</code>).</td>
 </tr>
 <tr>
-<td>Wind Speed / Wind Direction</td>
-<td>Вектор дрейфа</td>
+<td><code>density</code></td>
+<td>слайдер (0–2)</td>
+<td><code>1.12</code></td>
+<td>Оптическая плотность (<code>clouds.py:26,54</code>).</td>
 </tr>
 <tr>
-<td>Height / Thickness / Noise Scale</td>
-<td>Положение слоя и зерно клубов</td>
+<td><code>speed</code></td>
+<td>float (0–5)</td>
+<td><code>0.38</code></td>
+<td>Скорость ветра (<code>clouds.py:27,55</code>).</td>
 </tr>
 <tr>
-<td>Opacity / Shadow Strength</td>
-<td>Вес вида и блокировка солнца</td>
+<td><code>wind_direction</code></td>
+<td>float град (0–360)</td>
+<td><code>18.0</code></td>
+<td>Направление ветра (<code>clouds.py:28,56</code>).</td>
 </tr>
 <tr>
-<td>Fog Density / Height Falloff / Scattering</td>
-<td>Смешивание в атмосферную дымку</td>
+<td><code>height</code></td>
+<td>float (0–500)</td>
+<td><code>82.0</code></td>
+<td>База слоя, м (<code>clouds.py:29,57</code>).</td>
+</tr>
+<tr>
+<td><code>thickness</code></td>
+<td>float (0–200)</td>
+<td><code>42.0</code></td>
+<td>Толщина, м (<code>clouds.py:30,58</code>).</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>float (0.001–1)</td>
+<td><code>0.014</code></td>
+<td>Масштаб шума (<code>clouds.py:31,59</code>).</td>
+</tr>
+<tr>
+<td><code>opacity</code></td>
+<td>слайдер (0–1)</td>
+<td><code>0.68</code></td>
+<td>Альфа (<code>clouds.py:32,60</code>).</td>
+</tr>
+<tr>
+<td><code>shadow_strength</code></td>
+<td>слайдер (0–1)</td>
+<td><code>0.52</code></td>
+<td>Самозатенение (<code>clouds.py:33,61</code>).</td>
+</tr>
+<tr>
+<td><code>fog_density</code></td>
+<td>слайдер (0–1)</td>
+<td><code>0.0</code></td>
+<td>Туман внутри (<code>clouds.py:34,62</code>).</td>
+</tr>
+<tr>
+<td><code>height_falloff</code></td>
+<td>float (0–4)</td>
+<td><code>0.025</code></td>
+<td>Вертикальное затухание (<code>clouds.py:35,63</code>).</td>
+</tr>
+<tr>
+<td><code>scattering</code></td>
+<td>слайдер (0–2)</td>
+<td><code>1.05</code></td>
+<td>Прямое рассеяние (<code>clouds.py:36,64</code>).</td>
+</tr>
+<tr>
+<td><code>absorption</code></td>
+<td>слайдер (0–4)</td>
+<td><code>0.92</code></td>
+<td>Поглощение Бера (<code>clouds.py:37,65</code>).</td>
+</tr>
+<tr>
+<td><code>softness</code></td>
+<td>слайдер (0.02–0.8)</td>
+<td><code>0.28</code></td>
+<td>Мягкость краёв (<code>clouds.py:38,66</code>).</td>
+</tr>
+<tr>
+<td><code>detail_strength</code></td>
+<td>слайдер (0–1)</td>
+<td><code>0.92</code></td>
+<td>Эррозия деталей (<code>clouds.py:39,67</code>).</td>
+</tr>
+<tr>
+<td><code>steps</code></td>
+<td>int слайдер (4–32)</td>
+<td><code>16</code></td>
+<td>Шаги марша (<code>clouds.py:40,68</code>).</td>
+</tr>
+<tr>
+<td><code>evolution</code></td>
+<td>слайдер (0–2)</td>
+<td><code>1.1</code></td>
+<td>Морфинг во времени (<code>clouds.py:41,69</code>).</td>
+</tr>
+<tr>
+<td><code>contrast</code></td>
+<td>слайдер (0.2–2.5)</td>
+<td><code>1.7</code></td>
+<td>Контраст плотности (<code>clouds.py:42,70</code>).</td>
+</tr>
+<tr>
+<td><code>silver_lining</code></td>
+<td>слайдер (0–2)</td>
+<td><code>1.35</code></td>
+<td>Серебристая кайма (<code>clouds.py:43,71</code>).</td>
+</tr>
+<tr>
+<td><code>seed</code></td>
+<td>float (0–10000)</td>
+<td><code>11.3</code></td>
+<td>Сид шума (<code>clouds.py:44,72</code>).</td>
+</tr>
+<tr>
+<td><code>tint</code></td>
+<td>color3</td>
+<td><code>[0.86, 0.92, 1.0]</code></td>
+<td>Тинт (<code>clouds.py:45,73</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Coverage/Density выше — пасмурно, Steps — качество (цена), Silver Lining — контровый край. Height держать ≥ 8 для плоского фолбэка.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Затенённые облака темнят сцену согласованно с солнцем — пасмурное освещение бесплатно после настройки силы. Анимируйте ветер медленно (0.1–0.5) для живого неба; быстрые значения читаются как таймлапс.</p>
-<p>Сочетается с фоном процедурного неба или скайбокса. Coverage около 1 с высокой плотностью — штормовой потолок; низкое покрытие с высоким scattering — хорошая погода точками.</p>
-<p>Диагностика: невидимо — нулевые coverage или opacity; плоская белизна — density в максимуме без вариации noise scale; сцена не темнеет — нулевая shadow strength.</p>
-<p>Связанное: процедурное небо, скайбокс, атмосфера, направленный свет.</p>
+<pre><code class="language-python">cl.coverage = 0.5
+cl.steps = 24
+cl.wind_direction = 45.0
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../procedural-sky/">Procedural Sky</a>, <a href="../directional-light/">Directional Light</a>, <a href="../atmosphere/">Atmosphere</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/environment/clouds.py:22-73,75-217</code></li>
+</ul>
               
             </div>
           </div><footer>

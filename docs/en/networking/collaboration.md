@@ -4,12 +4,12 @@ Real-time multi-editor sessions over TCP with msgpack framing: several humans, o
 
 What syncs live: peer cursors and viewport cameras, entity selections, gizmo drag operations, scene snapshots on demand, asset changes via the file watcher, open tabs, script contents with per-peer cursors and operational-transform edits.
 
-Entry points (`core/network/collaboration.py`, ~2300 lines):
+Entry points (`core/network/collab/*`, `core/network/client.py`, `core/network/serverp/*` — no single `collaboration.py`):
 
-- `CollabServer`: hosts the room — peer registry with join/leave callbacks (`set_peer_joined_callback`, `set_peer_left_callback`), scene snapshot serving (`set_scene_snapshot_callback`), broadcast of remote scene/tab/script events.
-- `CollabClient`: joins — connection-change and auth-failure hooks (`set_on_connection_change`, `set_on_auth_failed`), senders for script open/change/cursor (`send_script_open/change/cursor`), receivers for remote scene open, tab switch/close, script ops.
-- Background `_PollThread` drains the socket without blocking the editor; `_AssetWatcher` thread pushes file changes.
-- CollaborationManager (editor side) owns state sync, peer discovery and disconnect timeouts; the panel exposes host/join, peer list and kick.
+- `CollabServer` (`serverp/base.py` + `connection.py`): hosts the room — `set_password` / `set_room` / `set_max_clients`, `_auth_ok` room+token check, peer registry with join/leave callbacks (`set_peer_joined_callback`, `set_peer_left_callback` in `collab/presence.py`), scene snapshot serving (`set_scene_snapshot_callback`), broadcast of remote scene/tab/script events.
+- `CollabClient` (`core/network/client.py`): joins — `connect(host, port, name, password, room)`, `set_on_auth_failed` / `set_on_connected` / `set_on_disconnected`, `send()` + `poll_messages()`; script domain senders for open/change/cursor (`send_script_open/change/cursor` in `collab/script_sync.py`), receivers for remote scene open, tab switch/close, script ops.
+- Background `_PollThread` (`collab/poll.py`) drains the socket without blocking the editor; `_AssetWatcher` (`collab/watcher.py`) pushes file changes.
+- CollaborationManager (`collab/manager.py`, 449 lines, editor side) owns state sync (`start_server(host, port, password, room)`, `connect(...)`, `host_relay` / `join_relay`, `create_invite` / `create_lan_invite` / `join_invite`, `stop`), peer discovery and disconnect timeouts; the panel exposes host/join, peer list and kick.
 
 Session flow: host starts CollabServer from the collaboration panel → peers join with the address → each peer's camera and cursor appear as RemoteCollaborator gizmos → edits broadcast as operations → conflicts resolve by operation order, snapshots heal divergence.
 

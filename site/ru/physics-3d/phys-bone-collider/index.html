@@ -916,6 +916,18 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">PhysBoneCollider</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#_1">Свойства</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Использование в коде</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#fixed-update">Заметки о fixed update</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Связанные</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../motor/">Мотор Motor</a>
@@ -1238,42 +1250,85 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="physbonecollider">PhysBoneCollider</h1>
-<p>Отражатели, держащие цепочки PhysBone вне тел: волосы — из головы, плащ — из ног, хвосты — из стен.</p>
+<p>Отражатели, держащие цепочки PhysBone вне тел: волосы — из головы, плащ — из ног. Только CPU, как сам PhysBone.</p>
+<h2 id="_1">Свойства</h2>
 <table>
 <thead>
 <tr>
-<th>Группа / поле инспектора</th>
-<th>Смысл</th>
+<th>Поле</th>
+<th>По умолчанию</th>
+<th>Примечания</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Shape: Shape Type</td>
-<td>Объём sphere, capsule или plane</td>
+<td><code>shape_type</code></td>
+<td><code>sphere</code></td>
+<td><code>sphere</code> / <code>capsule</code> / <code>plane</code></td>
 </tr>
 <tr>
-<td>Radius / Height / Center</td>
-<td>Размеры формы в локале</td>
+<td><code>radius</code></td>
+<td><code>0.05</code></td>
+<td><code>0.001–10</code>; мир = <code>radius * max(scale)</code>, мин. <code>0.001</code></td>
 </tr>
 <tr>
-<td>Direction / Plane Normal</td>
-<td>Ориентация капсул и плоскостей</td>
+<td><code>height</code></td>
+<td><code>0.2</code></td>
+<td>Полная высота капсулы вдоль <code>direction</code></td>
 </tr>
 <tr>
-<td>Behavior: Inside Bounds</td>
-<td>Как резолвится глубокое проникновение (вытолкнуть vs скользить)</td>
+<td><code>center</code></td>
+<td><code>(0, 0, 0)</code></td>
+<td>Поворачивается мировым кватернионом, прибавляется к позиции</td>
 </tr>
 <tr>
-<td>Gizmos: Show Gizmo</td>
-<td>Визуализация объёма во вьюпорте</td>
+<td><code>direction</code></td>
+<td><code>y</code></td>
+<td>Ось капсулы <code>x</code> / <code>y</code> / <code>z</code></td>
+</tr>
+<tr>
+<td><code>plane_normal</code></td>
+<td><code>(0, 1, 0)</code></td>
+<td>Поворачивается в мир для плоскостей</td>
+</tr>
+<tr>
+<td><code>is_inside</code></td>
+<td><code>False</code></td>
+<td><code>True</code> = удерживать внутри вместо выталкивания</td>
+</tr>
+<tr>
+<td><code>show_gizmo</code></td>
+<td><code>True</code></td>
+<td>Гизмо + линии (только плоскости)</td>
 </tr>
 </tbody>
 </table>
-<p>Вешается на часть тела, которой цепочка избегает, размером чуть больше визуального меша — цепочки симулируются на костях внутри меша, и skin-tight коллайдеры всё равно клиппят. В рантайме цепочка скользит вокруг объёма вместо прохода.</p>
-<p>Паттерны: сфера головы + капсула торса для длинных волос; капсулы бёдер для пальто; плоскость пола для ползающих; inside-bounds для серёг у уха.</p>
-<p>Держите число коллайдеров на цепочку малым (1–3): каждый тестирует каждую частицу цепочки каждый шаг.</p>
-<p>Диагностика: всё равно клиппит — коллайдер меньше offset костей, растите; цепочку выталкивает целиком — коллайдер поглотил корень, двигайте вниз по цепи; дрожь на контакте — inside-bounds дерётся с лимитом, смените поведение.</p>
-<p>Связанное: PhysBone, арматура, Sphere/Capsule-коллайдеры (статичные аналоги мира).</p>
+<h2 id="_2">Использование в редакторе</h2>
+<p>Добавить <code>PhysBoneCollider</code>, выбрать форму и размер, сослаться на сущность из <code>PhysBone.collider_entity_ids</code>. <code>is_inside</code> — зоны удержания.</p>
+<h2 id="_3">Использование в коде</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;HeadBlocker&quot;)
+from core.components.physics.pbcollider.collider import PhysBoneCollider
+from core.maths.math3d import Vec3
+
+c = PhysBoneCollider()
+c.radius = 0.15
+c.center = Vec3(0.0, 0.1, 0.0)
+entity.add_component(c)
+
+# Выталкивание из сферы с учётом радиуса частицы:
+# pos = c.collide(pos, particle_radius)
+</code></pre>
+<p><code>collide(pos, particle_radius)</code>: сфера/капсула проецируют на поверхность <code>radius + pr</code> (или клампят внутрь при <code>is_inside</code>); плоскости толкают вдоль <code>±normal</code> на глубину проникновения.</p>
+<h2 id="fixed-update">Заметки о fixed update</h2>
+<ul>
+<li>Нет тела солвера и <code>dt</code>: чистая позиционная проекция в проходе PhysBone каждый кадр.</li>
+</ul>
+<h2 id="_4">Связанные</h2>
+<p>PhysBone, Sphere/Capsule (жёсткие аналоги).</p>
+<h2 id="_5">Проверено по</h2>
+<ul>
+<li><code>core/components/physics/pbcollider/collider.py</code>, <code>pbcollider/base.py</code></li>
+</ul>
               
             </div>
           </div><footer>

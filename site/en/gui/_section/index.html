@@ -409,6 +409,10 @@
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">Section Index (gui)</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#pages">Pages</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" >Animation</a>
@@ -1236,8 +1240,19 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="gui">GUI</h1>
-<p>TODO: Section index pending. This page lists all articles in GUI.</p>
-<p>Use the left navigation tree to open placeholder pages.</p>
+<p>Section index for the interface system.</p>
+<h2 id="pages">Pages</h2>
+<ul>
+<li>Overview — canvas, <code>GuiApi</code>, widget registry.</li>
+<li>Canvas — <code>GuiCanvas</code>, virtual resolution, save/load.</li>
+<li>Controls — Button, Toggle, RadioButton, ToolButton, Label, TextInput, PlainText, TextEdit, Slider, ScrollBar, ProgressBar, Dial, SpinBox, DoubleSpinBox, ListWidget, TreeWidget, TableWidget, Dropdown, FontCombo, Image, HtmlView, Calendar, LCDNumber, ChartPlotter.</li>
+<li>Containers — Panel, GroupBox, TabWidget, StackedWidget, Splitter, ScrollPanel, MdiSubWindow, MdiArea, ToolBox.</li>
+<li>Layout and Events — anchors 0–11, horizontal/vertical/grid layouts, Fusion style, Qt signals + <code>GuiEvent</code>.</li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/gui/wid/__init__.py</code>, <code>core/gui/canvasp/canvas.py</code>, <code>core/gui/api.py</code></li>
+</ul>
               
             </div>
           </div><footer>

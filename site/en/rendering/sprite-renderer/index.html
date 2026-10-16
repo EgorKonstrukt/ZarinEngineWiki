@@ -141,6 +141,14 @@
     <ul class="current">
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">SpriteRenderer</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../svg-renderer/">SvgRenderer</a>
@@ -1237,40 +1245,82 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="spriterenderer">SpriteRenderer</h1>
-<p>World-space textured quad: billboards, pickups, decals, 2D characters inside 3D scenes, sprite-based VFX sheets.</p>
+                <h1 id="sprite-renderer">Sprite Renderer</h1>
+<blockquote>
+<p>Camera-facing quad: <code>SpriteRenderer</code> (<code>core/components/rendering/renderers/sprite_renderer.py</code>), drawn by <code>core/renderer/spr/</code>.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Single texture + RGBA tint; 3-element colors auto-gain alpha <code>1.0</code> (<code>sprite_renderer.py:38-47</code>). No lighting, no shadows.</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Field</th>
-<th>Default</th>
-<th>Meaning</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>texture_path</td>
-<td>—</td>
-<td>Sprite image</td>
+<td><code>texture_path</code></td>
+<td>resource path (png/jpg/jpeg)</td>
+<td><code>""</code></td>
+<td>Sprite image (<code>sprite_renderer.py:21,29</code>).</td>
 </tr>
 <tr>
-<td>color</td>
-<td>white <code>[1,1,1,1]</code></td>
-<td>Tint multiplier — white keeps source colors</td>
+<td><code>color</code></td>
+<td>color4</td>
+<td><code>[1, 1, 1, 1]</code></td>
+<td>Tint × texture (<code>sprite_renderer.py:22,30</code>).</td>
 </tr>
 <tr>
-<td>flip_x / flip_y</td>
-<td>off / off</td>
-<td>Horizontal / vertical mirroring</td>
+<td><code>flip_x</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Mirror horizontally (<code>sprite_renderer.py:23,31</code>).</td>
+</tr>
+<tr>
+<td><code>flip_y</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Mirror vertically (<code>sprite_renderer.py:24,32</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Add Component → Sprite Renderer, assign Texture, tint via Color. Use Flip for mirroring without duplicating assets.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Drawn through a dedicated sprite path with instancing support, so hundreds of pickups batch cheaply. Follows the entity Transform for position, rotation and scale; billboard-facing behavior comes from the internal <code>Sprite</code> shader path.</p>
-<p>Workflows: pickups — quad with texture, small emissive-leaning material, slow <code>Rotator</code> script for attention; foliage cards — crossed quads with alpha-tested materials and <code>_double_sided</code>; flip-book animation — swap <code>texture_path</code> on a timer from a script (or use the GIF flipbook importer upstream); decals — quads floated 1 cm off surfaces with transparent materials.</p>
-<p>Tint tricks: white keeps art intact; red tint for damage flash (animate back over 0.2 s); per-instance color variation across a crowd from spawner scripts.</p>
-<p>For full screen-space UI layouts use the GUI system (Image widget on GuiCanvas); SpriteRenderer is for diegetic content inside the world.</p>
-<p>Troubleshooting: pink quad → texture path broken, re-pick; mirrored art → flip flags; sorting artifacts between sprites → transparent bucket sorts by depth, separate layers in Z; blurry pixels → texture filter import setting, use nearest for pixel art.</p>
-<p>Related: SvgRenderer, TextRenderer, VideoRenderer, GUI Overview, Textures and Compression.</p>
+<pre><code class="language-python">sp = entity.get_component(SpriteRenderer)
+sp.texture_path = &quot;assets/textures/coin.png&quot;
+sp.color = [1.0, 0.9, 0.5, 1.0]
+sp.flip_x = True
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../svg-renderer/">SVG Renderer</a>, <a href="../text-renderer/">Text Renderer</a>, <a href="../video-renderer/">Video Renderer</a>, <a href="../materials/">Materials</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/renderers/sprite_renderer.py:17-67</code></li>
+<li><code>core/renderer/spr/sprites.py</code>, <code>core/renderer/spr/batch.py</code></li>
+</ul>
               
             </div>
           </div><footer>

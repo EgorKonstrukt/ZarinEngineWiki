@@ -984,6 +984,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Контролы: кнопки, метки, ввод, слайдеры</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api">Свойства / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Связанные</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../containers/">Контейнеры: панели, вкладки, списки, таблицы, деревья</a>
@@ -1236,16 +1246,164 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="_1">Контролы: кнопки, метки, ввод, слайдеры</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Контролы: кнопки, метки, ввод, слайдеры в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+                <h1 id="_1">Контролы</h1>
+<p>Только виджеты из <code>core/gui/wid/</code>: кнопки, текст, слайдеры, списки и вью. Каждая позиция — одна строка.</p>
+<h2 id="api">Свойства / API</h2>
+<table>
+<thead>
+<tr>
+<th>Виджет</th>
+<th>Файл</th>
+<th>База</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Button</code> — кнопка с <code>text</code>.</td>
+<td><code>core/gui/wid/buttons.py</code></td>
+<td><code>QPushButton</code></td>
+</tr>
+<tr>
+<td><code>Toggle</code> — чекбокс с <code>text</code>, <code>checked</code>.</td>
+<td><code>core/gui/wid/buttons.py</code></td>
+<td><code>QCheckBox</code></td>
+</tr>
+<tr>
+<td><code>RadioButton</code> — радио-опция с <code>text</code>, <code>checked</code>.</td>
+<td><code>core/gui/wid/buttons.py</code></td>
+<td><code>QRadioButton</code></td>
+</tr>
+<tr>
+<td><code>ToolButton</code> — малая тулбар-кнопка с <code>text</code>.</td>
+<td><code>core/gui/wid/buttons.py</code></td>
+<td><code>QToolButton</code></td>
+</tr>
+<tr>
+<td><code>Label</code> — статический текст <code>text</code>.</td>
+<td><code>core/gui/wid/text.py</code></td>
+<td><code>QLabel</code></td>
+</tr>
+<tr>
+<td><code>TextInput</code> — однострочный ввод <code>text</code>, <code>placeholder</code>.</td>
+<td><code>core/gui/wid/text.py</code></td>
+<td><code>QLineEdit</code></td>
+</tr>
+<tr>
+<td><code>PlainText</code> — многострочный plain-текст.</td>
+<td><code>core/gui/wid/text.py</code></td>
+<td><code>QPlainTextEdit</code></td>
+</tr>
+<tr>
+<td><code>TextEdit</code> — многострочный rich-текст.</td>
+<td><code>core/gui/wid/text.py</code></td>
+<td><code>QTextEdit</code></td>
+</tr>
+<tr>
+<td><code>Slider</code> — горизонтальный слайдер <code>min</code>, <code>max</code>, <code>value</code>.</td>
+<td><code>core/gui/wid/sliders.py</code></td>
+<td><code>QSlider</code></td>
+</tr>
+<tr>
+<td><code>ScrollBar</code> — скроллбар.</td>
+<td><code>core/gui/wid/sliders.py</code></td>
+<td><code>QScrollBar</code></td>
+</tr>
+<tr>
+<td><code>ProgressBar</code> — прогресс <code>min</code>, <code>max</code>, <code>value</code>.</td>
+<td><code>core/gui/wid/sliders.py</code></td>
+<td><code>QProgressBar</code></td>
+</tr>
+<tr>
+<td><code>Dial</code> — крутилка <code>min</code>, <code>max</code>, <code>value</code>.</td>
+<td><code>core/gui/wid/sliders.py</code></td>
+<td><code>QDial</code></td>
+</tr>
+<tr>
+<td><code>SpinBox</code> — int-счётчик.</td>
+<td><code>core/gui/wid/sliders.py</code></td>
+<td><code>QSpinBox</code></td>
+</tr>
+<tr>
+<td><code>DoubleSpinBox</code> — float-счётчик <code>decimals</code>.</td>
+<td><code>core/gui/wid/sliders.py</code></td>
+<td><code>QDoubleSpinBox</code></td>
+</tr>
+<tr>
+<td><code>ListWidget</code> — список строк <code>items</code>.</td>
+<td><code>core/gui/wid/lists.py</code></td>
+<td><code>QListWidget</code></td>
+</tr>
+<tr>
+<td><code>TreeWidget</code> — дерево с заголовком <code>Tree</code>.</td>
+<td><code>core/gui/wid/lists.py</code></td>
+<td><code>QTreeWidget</code></td>
+</tr>
+<tr>
+<td><code>TableWidget</code> — таблица <code>rows</code>, <code>cols</code>.</td>
+<td><code>core/gui/wid/lists.py</code></td>
+<td><code>QTableWidget</code></td>
+</tr>
+<tr>
+<td><code>Dropdown</code> — комбобокс <code>items</code>, <code>current</code>.</td>
+<td><code>core/gui/wid/lists.py</code></td>
+<td><code>QComboBox</code></td>
+</tr>
+<tr>
+<td><code>FontCombo</code> — выбор шрифта.</td>
+<td><code>core/gui/wid/lists.py</code></td>
+<td><code>QFontComboBox</code></td>
+</tr>
+<tr>
+<td><code>Image</code> — картинка <code>source</code>.</td>
+<td><code>core/gui/wid/views.py</code></td>
+<td><code>QWidget</code> + <code>QPixmap</code></td>
+</tr>
+<tr>
+<td><code>HtmlView</code> — HTML <code>html</code>.</td>
+<td><code>core/gui/wid/views.py</code></td>
+<td><code>QTextBrowser</code></td>
+</tr>
+<tr>
+<td><code>Calendar</code> — календарь.</td>
+<td><code>core/gui/wid/views.py</code></td>
+<td><code>QCalendarWidget</code></td>
+</tr>
+<tr>
+<td><code>LCDNumber</code> — LCD-индикатор.</td>
+<td><code>core/gui/wid/views.py</code></td>
+<td><code>QLCDNumber</code></td>
+</tr>
+<tr>
+<td><code>ChartPlotter</code> — хост графиков (<code>type: Chart</code>).</td>
+<td><code>core/gui/wid/views.py</code></td>
+<td><code>QWidget</code></td>
+</tr>
+</tbody>
+</table>
+<p>Общие поля: <code>x</code>, <code>y</code>, <code>w</code>, <code>h</code>, <code>anchor</code>, <code>z_index</code>, <code>tag</code>, <code>serialize()</code> / <code>deserialize()</code>.</p>
+<h2 id="_2">Использование в редакторе</h2>
+<ol>
+<li>Добавьте парный компонент (<code>ButtonComponent</code>, <code>LabelComponent</code>, <code>SliderComponent</code>, …).</li>
+<li>Правьте <code>text</code> / <code>value</code> / <code>items</code> / <code>source</code> в Inspector.</li>
+<li>Сигналы Qt (<code>clicked</code>, <code>valueChanged</code>, <code>currentIndexChanged</code>, <code>textChanged</code>); хелперы <code>GuiEvent</code> в <code>core/gui/events.py</code>.</li>
+</ol>
+<h2 id="_3">Использование в коде</h2>
+<pre><code class="language-python">from core.gui.api import GuiApi
+
+gui = GuiApi(name=&quot;default&quot;)
+btn = gui.button(x=10, y=10, w=120, h=40, text=&quot;Огонь&quot;)
+btn.clicked.connect(lambda: print(&quot;fire&quot;))
+sld = gui.slider(x=10, y=60, w=200, h=30, min_val=0, max_val=100)
+sld.valueChanged.connect(lambda v: print(v))
+</code></pre>
+<h2 id="_4">Связанные</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Обзор GUI, Канвас, Контейнеры, Раскладка и события</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_5">Проверено по</h2>
+<ul>
+<li><code>core/gui/wid/buttons.py</code>, <code>text.py</code>, <code>sliders.py</code>, <code>lists.py</code>, <code>views.py</code>, <code>events.py</code>, <code>api.py</code></li>
+</ul>
               
             </div>
           </div><footer>

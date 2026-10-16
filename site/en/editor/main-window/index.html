@@ -551,6 +551,18 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Main Window</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#screenshots">Screenshots</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../viewport/">Viewport, Camera, Gizmos</a>
@@ -1237,15 +1249,207 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="main-window">Main Window</h1>
-<p>TODO: Content pending. This page will document Main Window in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p><code>EditorMainWindow</code> (<code>editor/main_window/widgetp/frame.py</code>) — the <code>QMainWindow</code> shell of the editor: docks, toolbar, menus, status bar, session autosave.</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Signature</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EditorMainWindow</code></td>
+<td><code>(engine: Engine)</code></td>
+<td>Mixes <code>_ToolbarHostMixin</code>, <code>_StatusMixin</code>; re-exported by <code>editor/main_window.py</code></td>
+</tr>
+<tr>
+<td><code>_setup_engine_events</code></td>
+<td><code>(self)</code></td>
+<td>Wires engine signals into the window</td>
+</tr>
+<tr>
+<td><code>_schedule_session_autosave</code></td>
+<td><code>(delay_ms: int = 5000)</code></td>
+<td>Debounced session persist</td>
+</tr>
+<tr>
+<td><code>_flush_session_autosave</code></td>
+<td><code>(self)</code></td>
+<td>Writes the pending session snapshot</td>
+</tr>
+<tr>
+<td><code>closeEvent</code></td>
+<td><code>(event: QCloseEvent)</code></td>
+<td>Flush path on window close</td>
+</tr>
+<tr>
+<td><code>toggle_play_stop</code></td>
+<td><code>(mw)</code> in <code>main_window/handlersp/play.py</code></td>
+<td>Play/Stop button + <code>Shift+F10</code> action</td>
+</tr>
+<tr>
+<td><code>toggle_pause</code></td>
+<td><code>(mw)</code> in <code>main_window/handlersp/play.py</code></td>
+<td>Pause button</td>
+</tr>
+<tr>
+<td><code>launch_external_player</code></td>
+<td><code>(mw)</code> in <code>main_window/handlersp/play.py</code></td>
+<td>" Player" toolbar button</td>
+</tr>
+<tr>
+<td><code>on_open_prefab_editor</code></td>
+<td><code>(mw, path: str)</code> in <code>handlersp/prefab.py</code></td>
+<td>Opens prefab tab, starts autosave</td>
+</tr>
+<tr>
+<td><code>on_project_file_double_clicked</code></td>
+<td><code>(mw, path: str)</code> in <code>handlersp/prefab.py</code></td>
+<td>Double-click routing for project files</td>
+</tr>
+<tr>
+<td><code>on_entity_dropped</code></td>
+<td><code>(mw, path_or_type: str, world_pos, entity_under_cursor=None)</code> in <code>handlersp/drop_assets.py</code></td>
+<td>Viewport drop routing (material/image/audio/model)</td>
+</tr>
+<tr>
+<td><code>_StatusMixin._update_status</code></td>
+<td><code>(self)</code></td>
+<td>Status bar refresh incl. hardware monitor (<code>_HwMonitorWorker</code>: cpu/ram/gpu/vram)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Menu shortcuts verified in <code>main_window/menup/builder.py</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Shortcut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New Scene</td>
+<td><code>Ctrl+N</code></td>
+</tr>
+<tr>
+<td>Open Scene...</td>
+<td><code>Ctrl+O</code></td>
+</tr>
+<tr>
+<td>Save Scene</td>
+<td><code>Ctrl+S</code></td>
+</tr>
+<tr>
+<td>Save Scene As...</td>
+<td><code>Ctrl+Shift+S</code></td>
+</tr>
+<tr>
+<td>Save All Scenes</td>
+<td><code>Ctrl+Alt+S</code></td>
+</tr>
+<tr>
+<td>Create Empty (GameObject menu)</td>
+<td><code>Ctrl+Shift+N</code></td>
+</tr>
+<tr>
+<td>Play/Stop</td>
+<td><code>Shift+F10</code></td>
+</tr>
+<tr>
+<td>Exit</td>
+<td><code>Alt+F4</code></td>
+</tr>
+<tr>
+<td>Search Everywhere (command palette)</td>
+<td><code>Ctrl+F</code></td>
+</tr>
+</tbody>
+</table>
+<p>Additional verified shortcuts in the same file (same source, omitted from the short table — all from <code>menup/builder.py</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Shortcut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Launch in Player</td>
+<td><code>F10</code></td>
+</tr>
+<tr>
+<td>Go to Tab...</td>
+<td><code>Ctrl+P</code></td>
+</tr>
+<tr>
+<td>Next / Previous Tab</td>
+<td><code>Ctrl+Tab</code> / <code>Ctrl+Shift+Tab</code></td>
+</tr>
+<tr>
+<td>Plugin Manager</td>
+<td><code>Ctrl+Shift+P</code></td>
+</tr>
+<tr>
+<td>Python Packages...</td>
+<td><code>Ctrl+Shift+K</code></td>
+</tr>
+<tr>
+<td>Mesh Editor</td>
+<td><code>Ctrl+Shift+M</code></td>
+</tr>
+<tr>
+<td>Terrain Editor</td>
+<td><code>Ctrl+Shift+T</code></td>
+</tr>
+<tr>
+<td>GUI Editor</td>
+<td><code>Ctrl+Shift+G</code></td>
+</tr>
+<tr>
+<td>Build Settings...</td>
+<td><code>Ctrl+Shift+U</code></td>
+</tr>
+<tr>
+<td>Build Project...</td>
+<td><code>Ctrl+Shift+B</code></td>
+</tr>
+</tbody>
+</table>
+<p>Toolbar: Play/Stop (<code>toggle_play_stop</code>), Pause, <code>Player</code> button (tooltip "Launch in standalone Player"), search button (tooltip "Search Everywhere (Ctrl+F)"), fly/orbit nav-mode combo (tooltip documents WASD + RMB look, MMB pan, wheel dolly, Shift+RMB cursor place, Ctrl+MMB dolly).</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from editor.main_window.handlersp.play import toggle_play_stop, toggle_pause, launch_external_player
+
+toggle_play_stop(mw)      # same as Play button / Shift+F10
+toggle_pause(mw)          # same as Pause button
+launch_external_player(mw)  # standalone player for the current scene
+</code></pre>
+<h2 id="screenshots">Screenshots</h2>
+<p><img alt="ZarinEngine editor main window" src="../../../assets/screenshots/editor-main.png" /></p>
+<blockquote>
+<p><code>EditorMainWindow</code> with docks, toolbar, viewport, status bar.
+File: <code>assets/screenshots/editor-main.png</code> (verified copy of engine
+<code>zarin_screenshot.png</code>).</p>
+</blockquote>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Viewport (scene view hosted in the main window), Hierarchy, Inspector, Project Panel</li>
+<li>Build Dialog / Project Manager / Settings (dialogs opened from menus)</li>
+<li>Player and Nuitka Build (external player target)</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>editor/main_window.py</code>, <code>editor/main_window/widgetp/frame.py</code>, <code>editor/main_window/widgetp/status.py</code>, <code>editor/main_window/widgetp/toolbar_host.py</code></li>
+<li><code>editor/main_window/toolbar.py</code>, <code>editor/main_window/menup/builder.py</code>, <code>editor/main_window/statusbar.py</code>, <code>editor/main_window/connections.py</code>, <code>editor/main_window/postinit.py</code>, <code>editor/main_window/project.py</code></li>
+<li><code>editor/main_window/handlersp/play.py</code>, <code>editor/main_window/handlersp/prefab.py</code>, <code>editor/main_window/handlersp/drop_assets.py</code></li>
+</ul>
               
             </div>
           </div><footer>

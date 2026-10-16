@@ -169,6 +169,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Atmosphere</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1238,50 +1246,163 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="atmosphere">Atmosphere</h1>
-<p>Physical atmosphere scattering layered around the sun and horizon — blue noon, orange dusk, hazy distance.</p>
+<blockquote>
+<p>Physical sky LUT: <code>Atmosphere</code> (<code>core/components/rendering/environment/atmosp/component.py:11-163</code>), singleton-per-scene via <code>Atmosphere.for_scene(scene)</code>.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Computes a transmittance/multi-scatter LUT (<code>atmosp/compute.py</code>, <code>AtmosphereLutMixin</code>); <code>_resolution_scale</code> scales the LUT. Only the first enabled instance per scene is used (<code>for_scene</code>). All fields are underscore-prefixed in serialization.</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group / field</th>
-<th>Meaning</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Atmosphere: Enabled / Intensity</td>
-<td>Master switch and strength</td>
+<td><code>_intensity</code></td>
+<td>slider (1–60)</td>
+<td><code>20.0</code></td>
+<td>Sky gain (<code>component.py:20,42</code>).</td>
 </tr>
 <tr>
-<td>Sun / Sun Intensity</td>
-<td>Coupled sun source reference</td>
+<td><code>_sun_intensity</code></td>
+<td>slider (0–10)</td>
+<td><code>1.0</code></td>
+<td>Sun disk gain (<code>component.py:22,43</code>).</td>
 </tr>
 <tr>
-<td>LUT Resolution</td>
-<td>Scattering lookup density (quality vs cost)</td>
+<td><code>_resolution_scale</code></td>
+<td>slider (0.25–1)</td>
+<td><code>1.0</code></td>
+<td>LUT resolution (<code>component.py:23,44</code>).</td>
 </tr>
 <tr>
-<td>Ozone Factor / Aerosol Scale</td>
-<td>Air composition tint (blue vs smog)</td>
+<td><code>_ozone_factor</code></td>
+<td>slider (0–3)</td>
+<td><code>1.0</code></td>
+<td>Ozone absorption (<code>component.py:24,45</code>).</td>
 </tr>
 <tr>
-<td>Rayleigh Scale / Mie Anisotropy / Mie Albedo</td>
-<td>Sky-blue vs haze-forward balance</td>
+<td><code>_aerosol_scale</code></td>
+<td>slider (0–5)</td>
+<td><code>1.0</code></td>
+<td>Aerosols/Mie amount (<code>component.py:25,46</code>).</td>
 </tr>
 <tr>
-<td>Ground Albedo / Multiscatter</td>
-<td>Bounce-light approximation from below</td>
+<td><code>_rayleigh_scale</code></td>
+<td>slider (0–3)</td>
+<td><code>1.0</code></td>
+<td>Rayleigh amount (<code>component.py:26,47</code>).</td>
 </tr>
 <tr>
-<td>Horizon Haze</td>
-<td>Low-angle whitening amount</td>
+<td><code>_mie_anisotropy</code></td>
+<td>slider (0–0.95)</td>
+<td><code>0.76</code></td>
+<td>Mie g (<code>component.py:27,48</code>).</td>
+</tr>
+<tr>
+<td><code>_mie_albedo</code></td>
+<td>slider (0–1)</td>
+<td><code>0.9</code></td>
+<td>Mie albedo (<code>component.py:28,49</code>).</td>
+</tr>
+<tr>
+<td><code>_ground_albedo</code></td>
+<td>slider (0–1)</td>
+<td><code>0.3</code></td>
+<td>Ground bounce (<code>component.py:29,50</code>).</td>
+</tr>
+<tr>
+<td><code>_multiscatter_strength</code></td>
+<td>slider (0–2)</td>
+<td><code>1.0</code></td>
+<td>Multi-scatter gain (<code>component.py:30,51</code>).</td>
+</tr>
+<tr>
+<td><code>_horizon_haze</code></td>
+<td>slider (0–2)</td>
+<td><code>0.4</code></td>
+<td>Horizon haze (<code>component.py:31,52</code>).</td>
+</tr>
+<tr>
+<td><code>_planet_radius</code></td>
+<td>slider km (6000–6500)</td>
+<td><code>6360.0</code></td>
+<td>Planet radius (<code>component.py:32,53</code>).</td>
+</tr>
+<tr>
+<td><code>_atmosphere_height</code></td>
+<td>slider km (20–120)</td>
+<td><code>60.0</code></td>
+<td>Top height (<code>component.py:33,54</code>).</td>
+</tr>
+<tr>
+<td><code>_camera_height_m</code></td>
+<td>slider m (0–8000)</td>
+<td><code>20.0</code></td>
+<td>Reference eye height (<code>component.py:34,55</code>).</td>
+</tr>
+<tr>
+<td><code>_sun_angular_radius</code></td>
+<td>slider deg (0.05–1)</td>
+<td><code>0.27</code></td>
+<td>Sun size (<code>component.py:35,56</code>).</td>
+</tr>
+<tr>
+<td><code>_sun_limb_darkening</code></td>
+<td>slider (0–1)</td>
+<td><code>0.7</code></td>
+<td>Limb darkening (<code>component.py:36,57</code>).</td>
+</tr>
+<tr>
+<td><code>_sun_convergence</code></td>
+<td>slider (0–1)</td>
+<td><code>0.5</code></td>
+<td>Edge softness (<code>component.py:37,58</code>).</td>
+</tr>
+<tr>
+<td><code>_color_temperature</code></td>
+<td>slider K (2000–20000)</td>
+<td><code>5778.0</code></td>
+<td>Sun blackbody (<code>component.py:38,59</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Single Atmosphere per scene. Lower <code>_rayleigh_scale</code> for alien skies, raise <code>_aerosol_scale</code>/<code>_horizon_haze</code> for dusty sunsets.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Works on top of Procedural Sky; Skybox HDRI scenes usually leave it off to avoid double tinting (the photo already contains air).</p>
-<p>Workflows: alpine noon — high Rayleigh, low aerosol, crisp blue; desert dusk — high Mie anisotropy forward lobe, warm ground albedo; smog city — aerosol up, ozone shifted, horizon haze strong.</p>
-<p>LUT resolution is the cost knob: raise until banding leaves, then stop — beyond that only the profiler notices.</p>
-<p>Troubleshooting: purple sky → ozone/aerosol pushed past plausible, reset toward defaults; no visible effect → intensity zero or HDRI skybox dominating; white horizon wall → haze maxed, lower gradually.</p>
-<p>Related: Procedural Sky, Directional Light, Clouds, Fog.</p>
+<pre><code class="language-python">atmo = Atmosphere.for_scene(scene)
+atmo._sun_intensity = 1.4
+atmo._rayleigh_scale = 0.8
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../procedural-sky/">Procedural Sky</a>, <a href="../skybox/">Skybox</a>, <a href="../directional-light/">Directional Light</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/environment/atmosp/component.py:16-60,84-163</code></li>
+</ul>
               
             </div>
           </div><footer>

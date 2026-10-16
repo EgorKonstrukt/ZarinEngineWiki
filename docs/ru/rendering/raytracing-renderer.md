@@ -1,21 +1,30 @@
-# Raytracing Renderer
-
-Экспериментальный рейтрейс-компонент для исследований конвейера и референсных рендеров — не продакшн-путь (движок целится в OpenGL 4.6, без Vulkan/DX12).
-
-| Поле | Смысл |
-|---|---|
-| Enabled | Мастер-выключатель |
-| Compute Shader | Точка входа ядра рейтрейса |
-| Resolution Scale | Множитель разрешения (0.25 черновики, 1.0 финалы) |
-| Max Bounces | Глубина пути на луч |
-| Samples Per Pixel | Качество против шума на кадр |
-| Accumulate Frames | Временная сходимость по кадрам (нужна статичная камера) |
-| Show Overlay / Heatmap (+ Mode / Scale) | Визуализация цены для исследований |
-
-Применение: изучение света (сравнение с растровым кадром), валидация материалов, маркетинговые stills. Игры шипайте на стандартном меш-конвейере.
-
-Аккумуляция сходится только при статичных камере и сцене — любое движение перезапускает сходимость, это поведение, а не баг.
-
-Диагностика: шум не уходит — движение или выкл аккумуляция; чёрное — упал compute-шейдер, смотрите консоль; тормоза редактора — scale 1.0 с высоким SPP, опустите до черновых.
-
-Связанное: Gaussian Splat Renderer, камеры, профайлер.
+# Рейтрейсинг-рендерер
+> Compute path-tracer оверлей: `RaytraceComponent` (`core/components/rendering/renderers/raytrace/component.py:23-161`), шейдер по умолчанию `core/shaders/compute/Raytracing.compute`.
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+Лимиты: `_MAX_INSTANCES = 256`, `_MAX_LIGHTS = 8`, `_MAT_STRIDE = 20`, `_MAX_ALBEDO_LAYERS = 32`, `_INST_STRIDE = 46` (`component.py:13-17`). Опциональная Cython-упаковка через `core._raytracing_data.prepare_raytrace_data`. Буферы (BVH/verts/idx/mats/instances/lights + albedo array) освобождаются при disable/destroy (`component.py:123-161`).
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `enabled` | bool | `True` | Мастер-тумблер (`component.py:29`). |
+| `_compute_shader_path` | путь (*.compute) | `core/shaders/compute/Raytracing.compute` | Compute-шейдер (`component.py:30,42`). |
+| `_resolution_scale` | float (0.1–1) | `0.5` | Разрешение трейса (`component.py:31,43`). |
+| `_max_bounces` | int (1–16) | `1` | Отскоки (`component.py:32,44`). |
+| `_samples_per_pixel` | int (1–16) | `1` | SPP (`component.py:33,45`). |
+| `_accumulate` | bool | `False` | Накопление кадров (`component.py:34,46`). |
+| `_show_overlay` | bool | `True` | Композит оверлея (`component.py:35,47`). |
+| `_heatmap_mode` | int (0–2) | `0` | Режим хитмапа (`component.py:37,48`). |
+| `_heatmap_scale` | float (1–256) | `40.0` | Масштаб хитмапа (`component.py:38,49`). |
+## Usage in Editor
+Компонент на превью-сущность, Resolution Scale 0.25–0.5 для интерактива, Accumulate для сошедшихся still-кадров.
+## Usage in Code
+```python
+rt._resolution_scale = 0.5
+rt._samples_per_pixel = 2
+rt._accumulate = True
+```
+## Related pages
+- [Pipeline](./pipeline.md), [Materials](./materials.md), [Shaders](./shaders.md)
+## Verified against
+- `core/components/rendering/renderers/raytrace/component.py:13-50,91-122`
+- `core/shaders/compute/Raytracing.compute`

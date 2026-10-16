@@ -1,21 +1,27 @@
 # Skinned Mesh Renderer
-
-Draws skeletal-animated meshes with GPU skinning: characters, creatures, animated props.
-
-| Inspector group / field | Meaning |
-|---|---|
-| Mesh: Mesh | Animated mesh source with bone weights |
-| Mesh: Source | Bind source selector |
-| Skinned Mesh Renderer: Materials | Material slots, one per submesh |
-| Cast Shadows / Receive Shadows | Shadow toggles |
-| Update When Offscreen | Keep skinning culled meshes (correct shadows and probes) |
-
-Bone weights arrive with the mesh from Assimp (positions, normals, UVs, tangents, colors, weights in one import). The animation system (clips, Animator, controllers) writes bone poses into the Armature every frame; the skinned pass uploads bone matrices once per mesh and skins all vertices on the GPU, so CPU cost stays flat regardless of vertex count.
-
-Workflow: import the rigged FBX, add Armature (bone names must match), add SkinnedMeshRenderer with materials, attach the Animator with its controller, verify in Play — then enable Update When Offscreen only for shadow-casting crowds.
-
-Blend Shapes layer morph targets over the skeleton for faces (see Blend Shapes page).
-
-Troubleshooting: rigid T-pose → armature mismatch or animator missing; exploding vertices → weight/normalization import issue, reimport with tangents; shadows frozen → Update When Offscreen off on a culled caster.
-
-Related: Armature, Blend Shapes, Animation Clips and Animator, MeshRenderer (static), PhysBone (physical secondary motion).
+> Animated mesh: `SkinnedMeshRenderer` (`core/components/rendering/renderers/skinned_mesh_renderer.py`) with embedded mesh reference, GPU skinning in `core/renderer/gpu_skinning.py` + `skinned_pass.py`.
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+Unlike static meshes, the mesh reference lives on this component (no `MeshFilter` needed). Bone matrices upload to `u_bone_matrices`; see [Armature](./armature.md). `update_when_offscreen` keeps skinning when culled (for shadows/reflections).
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `mesh_name` | string | `""` | Mesh asset name (`skinned_mesh_renderer.py:24,38`). |
+| `mesh_path` | resource path (obj/fbx/glb/gltf) | `""` | Source model (`skinned_mesh_renderer.py:25,37`). |
+| `materials` | list of `{path: *.mat}` | `[{"path": ""}]` | Per-submesh materials (`skinned_mesh_renderer.py:27-29,39`). |
+| `cast_shadows` | bool | `True` | Shadow caster (`skinned_mesh_renderer.py:30,40`). |
+| `receive_shadows` | bool | `True` | Shadow receiver (`skinned_mesh_renderer.py:31,41`). |
+| `update_when_offscreen` | bool | `True` | Update skinning offscreen (`skinned_mesh_renderer.py:32,42`). |
+## Usage in Editor
+Import an FBX/GLB with a skeleton, set Source, assign materials, add [Armature](./armature.md) + [Blend Shapes](./blend-shapes.md) as needed.
+## Usage in Code
+```python
+smr = entity.get_component(SkinnedMeshRenderer)
+smr.mesh_path = "assets/models/hero.fbx"
+smr.materials = [{"path": "assets/materials/Hero.mat"}]
+```
+## Related pages
+- [Armature](./armature.md), [Blend Shapes](./blend-shapes.md), [Mesh Renderer](./mesh-renderer.md)
+## Verified against
+- `core/components/rendering/renderers/skinned_mesh_renderer.py:20-80`
+- `core/renderer/gpu_skinning.py`, `core/renderer/skinned_pass.py`

@@ -718,6 +718,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Блендшейпы Blend Shapes</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,27 +1245,63 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="blend-shapes">Блендшейпы Blend Shapes</h1>
-<p>Морф-деформация для лиц и мягкого реквизита поверх скелетной анимации: улыбки, моргания, вмятины урона, дыхание.</p>
+                <h1 id="-">Бленд-шейпы</h1>
+<blockquote>
+<p>Морф-таргеты: <code>BlendShapes</code> (<code>core/components/rendering/deform/blendshapes.py</code>), <code>shapes[i] = {name, weight}</code> в порядке <code>blendshape_names</code> меша.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Веса клампятся (NaN/inf → <code>0.0</code>, <code>_clamp_weight</code>). <code>get_weight/set_weight</code> принимают имя или индекс; неизвестные имена добавляются (<code>blendshapes.py:56-87</code>). <code>sync_with_mesh(mesh)</code> перестраивает список из <code>mesh.blendshape_names</code> с сохранением весов; <code>weights_vector(mesh)</code> отдаёт float-ы в порядке GPU (<code>blendshapes.py:99-128</code>).</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Группа инспектора</th>
-<th>Что покрывает</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Blend Shapes</td>
-<td>Слайдеры весов на таргет, диапазон в стиле 0–100</td>
+<td><code>shapes</code></td>
+<td>list <code>{name: string, weight: float 0–1}</code></td>
+<td><code>[]</code></td>
+<td>Список морфов (<code>blendshapes.py:34-37,42</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Add Component → Blend Shapes на сущность меша, Sync with mesh, затем веса 0–1 по шейпам.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Веса приезжают с импортом меша и анимируются клипами или скриптами (вес улыбки от событий диалогов). Путь покрыт smoke-тестом — регрессии ловятся в CI до художников.</p>
-<p>Применение: мимика, состояния повреждений, циклы дыхания; тяжёлые полнотелые морфы — в скелет: морфы линейно интерполируют вершины и не умеют вращать суставы.</p>
-<p>Процесс: скульпт таргетов в DCC с идентичным порядком вершин → импорт → проверка слайдеров по регионам → привязка ключевых выражений к кривым анимации или float скриптов.</p>
-<p>Диагностика: рваный меш — mismatch порядка вершин базы и таргета, чистый реэкспорт; нет движения — нулевые веса или непривязанный клип; разъезжающиеся швы — в таргете не хватает сварных вершин, чинить в DCC.</p>
-<p>Связанное: Skinned Mesh Renderer, клипы анимации, арматура.</p>
+<pre><code class="language-python">bs = entity.get_component(BlendShapes)
+bs.sync_with_mesh(mesh)
+bs.set_weight(&quot;Smile&quot;, 0.75)
+bs.weights_vector(mesh)
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../skinned-mesh-renderer/">Skinned Mesh Renderer</a>, <a href="../armature/">Armature</a>, <a href="../mesh-renderer/">Mesh Renderer</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/deform/blendshapes.py:30-173</code></li>
+</ul>
               
             </div>
           </div><footer>

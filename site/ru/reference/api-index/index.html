@@ -1200,6 +1200,12 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Указатель API</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_1">Скриптинг</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Сцены, префабы, ассеты</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#-add-component">Рантайм-компоненты (все имена — из Add Component)</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../glossary-faq/">Глоссарий</a>
@@ -1237,15 +1243,38 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="api">Указатель API</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Указатель API в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<p>Точные пути импорта. В пользовательских скриптах <code>Input</code>, <code>KeyCode</code>, <code>Vec2/3/4</code>, <code>Curve</code>, <code>Range</code>, <code>Logger</code> уже подставлены, так что импорты ниже нужны лишь коду редактора/тулинга — объекты те же.</p>
+<h2 id="_1">Скриптинг</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li><code>from core.ecs import Entity, Component, ComponentRegistry, Scene</code> — сущности, базовый класс, регистрация, сцена.</li>
+<li><code>from core.maths.math3d import Vec2, Vec3, Vec4, Quat, Mat4</code> — векторы/кватернион (<code>float64</code>, Cython) и матрицы (numpy).</li>
+<li><code>from core.input.inpsys import Input, KeyCode</code> — <code>GetKey/GetKeyDown/GetKeyUp</code>, <code>GetMouseButton*/GetButton*</code>, <code>GetAxis/GetAxisRaw</code>, <code>mousePosition</code>, <code>deltaTime</code>, <code>cursorLocked/cursorVisible</code>.</li>
+<li><code>from core.foundation.curve import Curve</code> — ключевые кривые (<code>to_dict</code> / <code>from_dict</code> для персистентности).</li>
+<li><code>from core.components.scripting.scriptc import ScriptComponent</code> — <code>script_path</code>, <code>hot_reload</code>, значения полей в <code>script_fields</code>.</li>
+<li><code>from core.components.scripting.scriptc.fields import Range</code> — метаданные слайдера <code>Range(min_value, max_value, step)</code>.</li>
+<li><code>from core.foundation.logger import Logger</code> — <code>Logger.info/warning/error</code>, кольцевой буфер на 2000 записей со слушателями.</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<p>Разделы: Обзор · Колбэки жизненного цикла · Поля инспектора и Range · API ввода и математики · Горячая перезагрузка · Cython в скриптах · ScriptComponent · Примеры скриптов.</p>
+<h2 id="_2">Сцены, префабы, ассеты</h2>
+<ul>
+<li>Ввод-вывод сцен движка: <code>Engine.save_scene(path)</code> / <code>load_scene(path)</code> — JSON <code>.zpes</code> с релятивизованными путями и <code>embedded_resources</code>.</li>
+<li>Префабы: файлы-поддеревья <code>.zpep</code>; инстансы несут <code>prefab_guid</code> / <code>prefab_source_id</code> и оверрайды; реестр системных префабов — <code>core/prefabs/registry.py</code>.</li>
+<li>Материалы: <code>core.assets.matp.materials.Material</code> — JSON <code>.zpem</code>/<code>.mat</code> вида <code>{"name", "shader_path", "properties"}</code>.</li>
+<li>Шейдеры: <code>Shader "Name" { Properties { } SubShader { Tags { } Pass { GLSLPROGRAM ... } } }</code> в <code>core/shaders/</code> (<code>internal/</code>, <code>materials/</code>).</li>
+<li>Настройки импорта: сайдкары <code>&lt;ассет&gt;.import</code> в JSON (фильтр/врап/компрессия текстур, масштаб/нормали/сглаживание мешей).</li>
+</ul>
+<p>Разделы: Обзор уроков · Rotator и Mover · Физическая сцена · GUI/префаб/аудио/сборка · Обзор форматов файлов.</p>
+<h2 id="-add-component">Рантайм-компоненты (все имена — из <code>Add Component</code>)</h2>
+<ul>
+<li>Transform: <code>Transform</code> — <code>translate(Vec3)</code>, <code>rotate(Vec3 в градусах)</code>, позиция/вращение/масштаб, цепочка родителей.</li>
+<li>Физика 3D: <code>Rigidbody</code> (<code>mass</code>, <code>use_gravity</code>, <code>is_kinematic</code>, <code>add_force</code>, <code>add_torque</code>, <code>add_impulse</code>, <code>velocity</code>), <code>BoxCollider</code> (<code>center</code>, <code>size</code>, <code>is_trigger</code>), <code>SphereCollider</code>, <code>CapsuleCollider</code>, <code>MeshCollider</code>, <code>CharacterController</code>, <code>Joint</code>.</li>
+<li>Физика 2D: <code>Rigidbody2D</code>, <code>BoxCollider2D</code>, <code>CircleCollider2D</code>.</li>
+<li>Рендеринг: <code>MeshRenderer</code>, <code>SpriteRenderer</code>, <code>Camera</code> (перспектива/ортография, FOV, near/far), <code>DirectionalLight</code>/<code>Point</code>/<code>Spot</code>, система частиц.</li>
+<li>Аудио: <code>AudioSource</code> (<code>clip_path</code>, <code>volume</code>, <code>pitch</code>, <code>loop</code>, <code>play_on_awake</code>, <code>spatial_blend</code>, <code>play()/stop()/is_playing</code>), <code>AudioListener</code>, <code>ReverbZone</code>.</li>
+<li>GUI: <code>ButtonComponent</code> / <code>LabelComponent</code> (<code>widget_text</code>), слайдеры, вводы, дропдауны и ещё 25+, рисует оверлей <code>GuiCanvas</code>.</li>
+<li>Сеть: <code>NetworkIdentity</code>, <code>CollabServer</code>/<code>CollabClient</code> (TCP + msgpack), <code>PluginBase</code> (<code>initialize</code>, <code>shutdown</code>, <code>step</code>, <code>on_play_start/stop</code>, <code>on_scene_loaded</code>).</li>
+</ul>
+<p>Точки входа: <code>python main.py</code> (редактор), <code>python player.py Scene.zpes</code> (игра), <code>python build_nuitka.py</code> (standalone-сборка, настройки в <code>BuildSettings.json</code>), <code>python setup.py</code> (сборка 34 Cython-расширений из <code>core/pyx/*.pyx</code>).</p>
               
             </div>
           </div><footer>

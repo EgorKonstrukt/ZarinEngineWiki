@@ -1202,6 +1202,10 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Глоссарий</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_1">Глоссарий</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#faq_1">FAQ</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../roadmap-changelog-license/">Планы, журнал изменений, лицензия</a>
@@ -1236,16 +1240,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="_1">Глоссарий</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Глоссарий в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+                <h1 id="faq">Глоссарий и FAQ</h1>
+<h2 id="_1">Глоссарий</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li><strong>Сущность (Entity)</strong> — объект сцены с UUID, именем, родителями/детьми, тегами, слоем, тумблером активности. Поведение — только от компонентов.</li>
+<li><strong>Компонент (Component)</strong> — данные + хуки жизненного цикла (<code>on_awake/on_start/on_update/on_fixed_update/on_destroy/on_enable/on_disable</code>), автопоиск через <code>ComponentRegistry</code>.</li>
+<li><strong>ScriptComponent</strong> — компонент-хост пользовательского <code>.py</code>-поведения: <code>script_path</code> + <code>script_fields</code> + <code>hot_reload</code>.</li>
+<li><strong>Класс поведения</strong> — первый класс файла скрипта, объявляющий член жизненного цикла/столкновений/гизмо или <code>_inspector_buttons</code>; без базового класса, конструируется без аргументов.</li>
+<li><strong>Поле инспектора</strong> — аннотированный атрибут класса, рисуемый виджетом; значения хранятся поинстансно в сцене.</li>
+<li><strong>Play</strong> — режим запуска: скрипты грузятся, стреляют <code>on_awake</code>/<code>on_start</code>, идут покадровые апдейты. Методы гизмо работают и вне Play.</li>
+<li><strong>Hot-reload</strong> — пересоздание инстанса по mtime во время Play с сохранением значений инспектора.</li>
+<li><strong>Fixed update</strong> — колбэк на часах физики со стабильным <code>dt</code> (по умолчанию <code>0.02</code>); рендерный <code>dt</code> уже умножен на time scale.</li>
+<li><strong>Префаб (<code>.zpep</code>)</strong> — сохранённое поддерево сущностей со стабильными GUID; инстансы перемаппливают GUID и хранят оверрайды.</li>
+<li><strong>Cython-компаньон</strong> — соседний <code>.pyx</code>, собираемый в <code>cache/cython</code> при первом импорте и пересобираемый при новизне.</li>
+<li><strong>Time scale</strong> — множитель рендерного <code>dt</code>; <code>dt</code> fixed-шага остаётся константой.</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="faq_1">FAQ</h2>
+<ul>
+<li><strong>Скрипт молчит в Play?</strong> Поле <code>Script</code> пусто или указывает на переехавший файл (<code>script_path</code> относительно корня проекта). Перевыберите; кнопка Check выдаёт ошибки <code>file:line</code>.</li>
+<li><strong>Нет <code>Vec3.rotate</code>?</strong> Так и должно быть — вращение живёт в <code>Transform.rotate(Vec3 в градусах)</code>. У <code>Vec3</code> есть <code>dot/cross/length/normalized/lerp</code>, но не <code>rotate</code>.</li>
+<li><strong>Не импортируется <code>core.math3d</code>?</strong> Импортируйте из <code>core.maths.math3d</code>. Кнопка Check подсказывает ровно это.</li>
+<li><strong>Правка в Play сбросила состояние?</strong> Так задумано: состояние <code>__init__</code> сбрасывается при reload; настраиваемое держите в полях инспектора, кэши пересоздавайте в <code>on_awake</code>/<code>on_start</code>.</li>
+<li><strong>Мяч проваливается сквозь пол?</strong> Нет коллайдера, включён <code>Is Trigger</code> без обработки контактов, либо <code>Is Kinematic</code> там, где нужно движение от солвера.</li>
+<li><strong>Нет звука?</strong> Пустой/неразрешимый <code>clip_path</code>, нет <code>AudioListener</code> на камере, либо <code>play()</code> вызван без <code>AudioSystem</code> в headless-окружении.</li>
+<li><strong>Первый Play с <code>.pyx</code> тормозит?</strong> Разовая нативная сборка в <code>cache/cython</code>; дальше переиспользуется. Кнопка Check валидирует <code>.pyx</code> без C-компилятора.</li>
+</ul>
               
             </div>
           </div><footer>

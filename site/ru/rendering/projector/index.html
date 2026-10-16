@@ -702,6 +702,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Проектор Projector</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../shadows/">Тени</a>
@@ -1237,69 +1245,124 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="projector">Проектор Projector</h1>
-<p>Проецирует текстуру из фрустума: слайд-проектор, фальшивый оконный свет, луч граффити, метатель логотипов.</p>
+                <h1 id="_1">Проектор</h1>
+<blockquote>
+<p>Проектор текстуры: компонент <code>Projector</code> (<code>core/components/lighting/projector.py</code>) бросает картинку вдоль forward сущности, как слайд-проектор.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Перспективный слайд задаётся <code>spot_angle</code>, <code>aspect_ratio</code>, <code>near_plane</code>/<code>far_plane</code>; <code>range</code> ограничивает дальность броска. Гизмо рисует фрустум + средний спрайт-квад (<code>projector.py:52-106</code>). Хук теней: <code>render_projector_shadows</code> (<code>core/renderer/shadows/projector.py:28</code>).</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Группа / поле инспектора</th>
-<th>Default</th>
-<th>Смысл</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Texture: texture_path</td>
-<td>—</td>
-<td>Проецируемое изображение (png/jpg/jpeg)</td>
+<td><code>texture_path</code></td>
+<td>путь (png/jpg/jpeg)</td>
+<td><code>""</code></td>
+<td>Слайд (<code>projector.py:22,40</code>).</td>
 </tr>
 <tr>
-<td>Texture: color</td>
-<td>белый</td>
-<td>Множитель оттенка</td>
+<td><code>color</code></td>
+<td>color3</td>
+<td><code>[1.0, 1.0, 1.0]</code></td>
+<td>Множитель-тинт (<code>projector.py:23,41</code>).</td>
 </tr>
 <tr>
-<td>Texture: intensity</td>
-<td>1.0</td>
-<td>Яркость, 0–1000</td>
+<td><code>intensity</code></td>
+<td>float (0–1000)</td>
+<td><code>1.0</code></td>
+<td>Яркость (<code>projector.py:24,42</code>).</td>
 </tr>
 <tr>
-<td>Projection: range</td>
-<td>10.0</td>
-<td>Дистанция броска</td>
+<td><code>range</code></td>
+<td>float (0–10000)</td>
+<td><code>10.0</code></td>
+<td>Дальность броска (<code>projector.py:26,43</code>).</td>
 </tr>
 <tr>
-<td>Projection: spot_angle</td>
-<td>30°</td>
-<td>Угол фрустума, 1–179</td>
+<td><code>spot_angle</code></td>
+<td>float (1–179)</td>
+<td><code>30.0</code></td>
+<td>Вертикальный FOV, град (<code>projector.py:27,44</code>).</td>
 </tr>
 <tr>
-<td>Projection: aspect_ratio</td>
-<td>1.0</td>
-<td>Ширина/высота фрустума</td>
+<td><code>aspect_ratio</code></td>
+<td>float (0.1–10)</td>
+<td><code>1.0</code></td>
+<td>Отношение сторон (<code>projector.py:28,45</code>).</td>
 </tr>
 <tr>
-<td>Projection: near_plane / far_plane</td>
-<td>0.1 / 100</td>
-<td>Срез глубины броска</td>
+<td><code>near_plane</code></td>
+<td>float (0.01–10)</td>
+<td><code>0.1</code></td>
+<td>Ближний клип (<code>projector.py:29,46</code>).</td>
 </tr>
 <tr>
-<td>Options: flip_x / flip_y</td>
-<td>выкл / вкл</td>
-<td>Зеркаляние картинки</td>
+<td><code>far_plane</code></td>
+<td>float (1–10000)</td>
+<td><code>100.0</code></td>
+<td>Дальний клип (<code>projector.py:30,47</code>).</td>
 </tr>
 <tr>
-<td>Options: cast_shadows</td>
-<td>вкл</td>
-<td>Окклюдеры блокируют проекцию</td>
+<td><code>flip_y</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Отразить по вертикали (<code>projector.py:32,48</code>).</td>
+</tr>
+<tr>
+<td><code>flip_x</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Отразить по горизонтали (<code>projector.py:33,49</code>).</td>
+</tr>
+<tr>
+<td><code>cast_shadows</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Теневая маска (<code>projector.py:34,50</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Add Component → Projector, назначить Texture, навести трансформом. Aspect держать равным исходнику; Flip Y включать для камерных слайдов.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Гизмо рисует конус с корректным прямоугольником основания — кадрируйте целевую поверхность визуально, затем точно подгоняйте угол и range. Наводится трансформом ровно как Spot Light; срез (near/far) обрезает бросок, и он не протекает сквозь задние стены.</p>
-<p>Процессы: кино — сущность проектора за зрителями в белый экран в духе VideoRenderer; фальшивые окна — яркий проектор с текстурой рамы плюс мягкий спот для spill; движущиеся декали — анимированного offset нет, меняйте <code>texture_path</code> из скрипта для слайд-шоу.</p>
-<p>Цена: один лишний набор фрустум-сэмплов на проектор; затенённые идут в проход projector shadows. Держите число малым (1–3) и range tight.</p>
-<p>Диагностика: зеркальная картинка — тоглы flip_x/flip_y; проекция сквозь стены — подтяните far_plane; выбелено — intensity спорит с ключевым, поднимите или приглушите сцену.</p>
-<p>Связанное: Spot Light, тени (проход projector shadows), VideoRenderer (поверхности экранов), TextRenderer (альтернатива статичных слайдов).</p>
+<pre><code class="language-python">pj.texture_path = &quot;assets/textures/logo.png&quot;
+pj.spot_angle = 40.0
+pj.aspect_ratio = 16.0 / 9.0
+pj.range = 20.0
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../spot-light/">Spot Light</a>, <a href="../shadows/">Shadows</a>, <a href="../materials/">Materials</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/lighting/projector.py:18-50,108-140</code></li>
+<li><code>core/renderer/shadows/projector.py:28</code></li>
+</ul>
               
             </div>
           </div><footer>

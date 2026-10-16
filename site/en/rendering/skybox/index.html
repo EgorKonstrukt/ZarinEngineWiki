@@ -161,6 +161,14 @@
     <ul class="current">
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Skybox</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../procedural-sky/">Procedural Sky</a>
@@ -1238,45 +1246,116 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="skybox">Skybox</h1>
-<p>Static HDRI environment background with image-based lighting contribution for PBR materials.</p>
+<blockquote>
+<p>HDRI background + IBL: <code>Skybox</code> (<code>core/components/rendering/environment/skybox.py:110-297</code>), shader <code>core/shaders/materials/Skybox.shader</code>.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Equirect float texture with mipmap + repeat (<code>skybox.py:57-88</code>); LDR files normalized when <code>max &gt; 1.0</code>. <code>affect_environment</code> builds IBL via <code>get_sky_ibl</code> (0.15 s cooldown); <code>show_background = False</code> keeps IBL only (<code>skybox.py:206-224</code>). Rendered as camera-centered cube, depth/cull off (<code>skybox.py:256-265</code>).</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group / field</th>
-<th>Meaning</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>HDRI Skybox: HDRI / EXR</td>
-<td>Environment image asset</td>
+<td><code>skybox_path</code></td>
+<td>resource path (hdr/exr)</td>
+<td><code>""</code></td>
+<td>Equirect image (<code>skybox.py:130,147</code>).</td>
 </tr>
 <tr>
-<td>HDRI Skybox: Show Background</td>
-<td>Draw the image as the visible sky</td>
+<td><code>show_background</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Draw sky cube (<code>skybox.py:131,148</code>).</td>
 </tr>
 <tr>
-<td>HDRI Skybox: Affect Environment (IBL)</td>
-<td>Light PBR materials from the image</td>
+<td><code>affect_environment</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Feed IBL (<code>skybox.py:132,149</code>).</td>
 </tr>
 <tr>
-<td>Image / Exposure (EV) / Intensity / Tint / Saturation</td>
-<td>Look controls</td>
+<td><code>exposure</code></td>
+<td>slider (−10…10)</td>
+<td><code>0.0</code></td>
+<td>EV offset (<code>skybox.py:134,150</code>).</td>
 </tr>
 <tr>
-<td>Background Blur</td>
-<td>Soften the visible sky (cheap depth-of-field feel)</td>
+<td><code>intensity</code></td>
+<td>slider (0–8)</td>
+<td><code>1.0</code></td>
+<td>Multiplier (<code>skybox.py:135,151</code>).</td>
 </tr>
 <tr>
-<td>Flip Y, Orientation, Rotation Yaw/Pitch/Roll (deg)</td>
-<td>Mapping controls</td>
+<td><code>tint</code></td>
+<td>color3</td>
+<td><code>[1.0, 1.0, 1.0]</code></td>
+<td>Tint (<code>skybox.py:136,152</code>).</td>
+</tr>
+<tr>
+<td><code>saturation</code></td>
+<td>slider (0–2)</td>
+<td><code>1.0</code></td>
+<td>Saturation (<code>skybox.py:137,153</code>).</td>
+</tr>
+<tr>
+<td><code>blur</code></td>
+<td>slider (0–8)</td>
+<td><code>0.0</code></td>
+<td>Background blur (<code>skybox.py:138,154</code>).</td>
+</tr>
+<tr>
+<td><code>flip_y</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Flip V (<code>skybox.py:139,155</code>).</td>
+</tr>
+<tr>
+<td><code>rotation</code></td>
+<td>vec3 deg</td>
+<td><code>[0, 0, 0]</code></td>
+<td>Yaw/pitch/roll (<code>skybox.py:141,156</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Assign HDRI/EXR, tune Exposure/Intensity, rotate with Rotation. Disable Show Background for IBL-only studio lighting.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Use Skybox for baked, art-directed environments (interiors, stylized scenes, photo plates) and Procedural Sky for dynamic day cycles. Match ambient values to the chosen sky or materials drift.</p>
-<p>Rotation yaw animates dusk-to-dawn illusions on static HDRIs; exposure rides the day curve alongside the directional intensity.</p>
-<p>Troubleshooting: black sky → image path broken or Show Background off; materials too dark under HDRI → Affect Environment off or exposure low; seam line → orientation/flip mismatch with the capture, toggle Flip Y.</p>
-<p>Related: Procedural Sky, Clouds, Atmosphere, Directional Light, Materials (IBL response).</p>
+<pre><code class="language-python">sky.skybox_path = &quot;assets/sky/studio.hdr&quot;
+sky.exposure = -0.5
+sky.rotation = Vec3(30.0, 0.0, 0.0)
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../procedural-sky/">Procedural Sky</a>, <a href="../atmosphere/">Atmosphere</a>, <a href="../materials/">Materials</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/environment/skybox.py:110-162,206-297</code></li>
+<li><code>core/shaders/materials/Skybox.shader</code></li>
+</ul>
               
             </div>
           </div><footer>

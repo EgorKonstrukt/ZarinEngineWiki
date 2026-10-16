@@ -433,6 +433,16 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Terrain</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties-api">Properties / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../vegetation-water-wind/">Trees, Water, Wind Zones, Sky</a>
@@ -1237,15 +1247,93 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="terrain">Terrain</h1>
-<p>TODO: Content pending. This page will document Terrain in ZarinEngine.</p>
-<p>Planned sections:</p>
+<p>GPU heightfield generation (compute shader) plus CPU mesh build with normals and UVs.</p>
+<h2 id="properties-api">Properties / API</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Source</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TerrainSettings.data</code></td>
+<td><code>core/terrain/terrain_generator.py</code></td>
+<td>Dict of keys below; <code>get/set/copy/to_dict/from_dict</code></td>
+</tr>
+<tr>
+<td><code>resolution / octaves / noiseSeed / flipY</code></td>
+<td><code>terrain_generator.py</code> (<code>_DEFAULTS</code>)</td>
+<td>512 / 9 / 1337.0 / 0; resolution clamped 16–2048, multiple of 16</td>
+</tr>
+<tr>
+<td><code>baseFrequency / lacunarity / persistence / heightScale</code></td>
+<td><code>_DEFAULTS</code></td>
+<td>0.010 / 2.03 / 0.5 / 120.0</td>
+</tr>
+<tr>
+<td><code>warpeness / warpFrequency / warpIterations</code></td>
+<td><code>_DEFAULTS</code></td>
+<td>0.6 / 0.018 / 3.0</td>
+</tr>
+<tr>
+<td><code>ridge / ridgePower / ridgeSharpness / billow</code></td>
+<td><code>_DEFAULTS</code></td>
+<td>0.55 / 4.0 / 1.0 / 0.0</td>
+</tr>
+<tr>
+<td><code>continentMask / continentScale / continentFalloff</code></td>
+<td><code>_DEFAULTS</code></td>
+<td>0.6 / 0.0025 / 1.4</td>
+</tr>
+<tr>
+<td><code>thermalErosion / hydraulicErosion / erosionIterations / talus</code></td>
+<td><code>_DEFAULTS</code></td>
+<td>0.35 / 0.5 / 16.0 / 0.04</td>
+</tr>
+<tr>
+<td><code>terrace / terraceSteps / dune / sharpen / heightBias</code></td>
+<td><code>_DEFAULTS</code></td>
+<td>0.0 / 8.0 / 0.0 / 0.0 / 0.0</td>
+</tr>
+<tr>
+<td><code>generate_heightfield(settings)</code></td>
+<td><code>TerrainGenerator</code></td>
+<td>Runs <code>terrain_gen.compute</code> via <code>moderngl</code> compute shader, returns <code>float32 res x res</code></td>
+</tr>
+<tr>
+<td><code>generate_mesh(settings, size)</code> / <code>mesh_from_heightfield(hf, size)</code></td>
+<td><code>TerrainGenerator</code></td>
+<td>Builds <code>vertices/normals/uvs/indices/heightfield/size/resolution</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<ol>
+<li>Tune terrain settings (resolution, frequency, heightScale, erosion) in the terrain tool.</li>
+<li>Generate; mesh entity stores <code>size</code> (default 1000.0) and resolution.</li>
+<li>Re-generate after seed/parameter changes; heightfield is recomputed on GPU.</li>
+</ol>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from core.terrain.terrain_generator import TerrainSettings, get_generator
+
+s = TerrainSettings()
+s.set(&quot;resolution&quot;, 512)
+s.set(&quot;heightScale&quot;, 120.0)
+s.set(&quot;noiseSeed&quot;, 1337.0)
+mesh = get_generator().generate_mesh(s, size=1000.0)
+print(mesh[&quot;resolution&quot;], len(mesh[&quot;vertices&quot;]))
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Vegetation, Water and Wind; Models via Assimp; NavAgent grid</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/terrain/terrain_generator.py</code>, <code>core/shaders/compute/terrain_gen.compute</code></li>
+</ul>
               
             </div>
           </div><footer>

@@ -782,13 +782,15 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Туман</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#_2">Как работает</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Параметры</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_3">Параметры</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Использование</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_4">Советы</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Шейдер</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_5">Цена</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Связанное</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_6">Проверено по коду</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1248,124 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Туман</h1>
-<p>Часть стека PostFX: выполняется после главной сцены в порядке компонентов. Построен на общей базе GraphicsEffect с тоглом и собственными полями инспектора.</p>
-<h2 id="_2">Как работает</h2>
-<p>Дистанционный и высотный туман в посте с плотностью, цветом и высотным контролем.</p>
-<h2 id="_3">Параметры</h2>
-<p>Плотность, цвет, начало/конец высоты.</p>
-<h2 id="_4">Советы</h2>
-<p>Глубинные подсказки на просторах, атмосфера пещер в паре с зоной реверберации, хоррор-коридоры.</p>
-<h2 id="_5">Цена</h2>
-<p>Дёшево-средне.</p>
-<p>Связанное: <a href="../">стек PostFX</a>, камеры (render scale), профайлер.</p>
+<blockquote>
+<p>Дистанционный + высотный туман с солнечным рассеянием и дымкой горизонта. Мировая позиция восстанавливается из depth-буфера; density/start — дистанция, height — приземный слой, sun tint/intensity — рассеяние к солнцу, sky fade/horizon — переход в небо. Класс <code>Fog</code> в <code>core/components/rendering/postfx/fog.py</code>. Выполняется в стеке PostFX в порядке компонентов; пропускается при <code>enabled == False</code> или неактивной сущности (ранний выход в <code>render()</code>).</p>
+</blockquote>
+<h2 id="_2">Параметры</h2>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Color</td>
+<td><code>_fog_color</code></td>
+<td>COLOR</td>
+<td>—</td>
+<td><code>(0.65, 0.72, 0.82)</code></td>
+</tr>
+<tr>
+<td>Density</td>
+<td><code>_density</code></td>
+<td>SLIDER</td>
+<td>0.0 – 0.2</td>
+<td><code>0.004</code></td>
+</tr>
+<tr>
+<td>Start Distance</td>
+<td><code>_start_distance</code></td>
+<td>FLOAT</td>
+<td>0.0 – 500.0</td>
+<td><code>0.0</code></td>
+</tr>
+<tr>
+<td>Height Density</td>
+<td><code>_height_density</code></td>
+<td>SLIDER</td>
+<td>0.0 – 2.0</td>
+<td><code>0.0</code></td>
+</tr>
+<tr>
+<td>Base Height</td>
+<td><code>_height</code></td>
+<td>FLOAT</td>
+<td>-100.0 – 500.0</td>
+<td><code>0.0</code></td>
+</tr>
+<tr>
+<td>Sun Tint</td>
+<td><code>_sun_color</code></td>
+<td>COLOR</td>
+<td>—</td>
+<td><code>(1.0, 0.9, 0.75)</code></td>
+</tr>
+<tr>
+<td>Sun Intensity</td>
+<td><code>_sun_intensity</code></td>
+<td>SLIDER</td>
+<td>0.0 – 2.0</td>
+<td><code>0.25</code></td>
+</tr>
+<tr>
+<td>Sun Light</td>
+<td><code>_sun_light_entity_id</code></td>
+<td>GAMEOBJECT entity id</td>
+<td>—</td>
+<td><code>""</code></td>
+</tr>
+<tr>
+<td>Fade To Sky</td>
+<td><code>_sky_fade</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>True</code></td>
+</tr>
+<tr>
+<td>Horizon Haze</td>
+<td><code>_sky_horizon</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>0.5</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">Использование</h2>
+<p>Редактор: выбрать PostFX-сущность, Add Component &gt; <code>Fog</code>, включить <code>enabled</code>, настроить поля выше. Порядок среди PostFX-компонентов задаёт порядок выполнения.</p>
+<p>Код:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.fog import Fog
+fx = Fog()
+entity.add_component(fx)
+fx._density = 0.01
+fx._sun_light_entity_id = sun_entity.id
+fx.enabled = True
+</code></pre>
+<h2 id="_4">Шейдер</h2>
+<p>Шейдер: <code>core/components/rendering/postfx/fog.py</code>.</p>
+<pre><code class="language-glsl">#version 330 core
+uniform sampler2D u_input_tex;
+uniform sampler2D u_depth_tex;
+uniform mat4 u_inv_proj;
+uniform mat4 u_inv_view;
+uniform vec3 u_camera_pos;
+// + u_density, u_start, u_height, u_height_density, u_fog_color, u_sun_color, u_sun_dir, u_sun_intensity, u_sky_fade, u_sky_horizon, u_far
+</code></pre>
+<h2 id="_5">Связанное</h2>
+<p>См. <a href="../">Стек PostFX</a>, <a href="../color-grading/">Цветокоррекция</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="_6">Проверено по коду</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/fog.py</code> — класс <code>Fog</code>, <code>_inspector_fields</code>, дефолты <code>__init__</code>, <code>Depth-reconstruction pass (u_depth_tex + u_inv_proj/u_inv_view + u_camera_pos)</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/graphics_effect.py</code> — базовый <code>GraphicsEffect</code> (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, сигнатура <code>render()</code>).</p>
+</li>
+</ul>
               
             </div>
           </div><footer>

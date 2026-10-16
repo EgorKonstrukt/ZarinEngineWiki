@@ -934,6 +934,18 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Circle Collider 2D</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_1">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#fixed-update">Заметки о fixed update</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Связанные</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Проверено по</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,42 +1249,80 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="circle-collider-2d">Circle Collider 2D</h1>
-<p>Диск в плоскости: мячи, колёса, монеты, радиальные триггеры и сенсоры близости.</p>
+<p>Диск в плоскости: мячи, колёса, монеты, радиальные триггеры.</p>
+<h2 id="_1">Свойства</h2>
 <table>
 <thead>
 <tr>
-<th>Группа / поле инспектора</th>
-<th>Смысл</th>
+<th>Поле</th>
+<th>По умолчанию</th>
+<th>Примечания</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Collision: Layer / Collision Mask</td>
+<td><code>layer</code> / <code>mask</code></td>
+<td><code>0</code> / <code>0xFFFF</code></td>
 <td>Фильтрация</td>
 </tr>
 <tr>
-<td>Shape: Offset</td>
-<td>Сдвиг в плоскости <code>[ox, oy]</code></td>
+<td><code>offset</code></td>
+<td><code>(0, 0)</code></td>
+<td><code>Vec2</code>; мировой центр <code>[ox*sx, oy*sy, 0]</code></td>
 </tr>
 <tr>
-<td>Shape: Radius</td>
-<td>Радиус диска</td>
+<td><code>radius</code></td>
+<td><code>0.5</code></td>
+<td><code>0.001–10000</code>; мир = <code>radius * max(sx, sy)</code></td>
 </tr>
 <tr>
-<td>Is Trigger</td>
-<td>События пересечения без контактного отклика</td>
+<td><code>is_trigger</code></td>
+<td><code>False</code></td>
+<td>Только пересечение</td>
 </tr>
 <tr>
-<td>Material: Physic Material</td>
-<td>Оверрайд ассетом <code>.zphysmat</code></td>
+<td><code>physic_material</code></td>
+<td><code>""</code></td>
+<td><code>.zphysmat</code></td>
+</tr>
+<tr>
+<td><code>material_friction</code> / <code>material_bounciness</code></td>
+<td><code>0.6</code> / <code>0.0</code></td>
+<td>Запасные</td>
 </tr>
 </tbody>
 </table>
-<p>Маппится на солвер как примитив сферы. Стабильно катится по земле Box Collider 2D на умеренном трении; триггер-диски — лучшие подборы (прощающее пересечение против точных прямоугольников).</p>
-<p>Паттерны: монеты — мелкие триггер-диски с анимацией вращения и скриптом подбора; колёса — динамические диски с Rigidbody2D, ничего не заморожено, умеренный angular drag; бамперы — высокопрыгучие диски плюс скрипт импульса на enter; зрение врагов — большой триггер-диск, ведущий состояние AI.</p>
-<p>Собирайте диски в стопки для капсулоподобных врагов (два диска + бокс) вместо мечты о 2D-капсуле — компаунд ведёт себя идентично.</p>
-<p>Диагностика: катится вечно — нулевые drag/трение; не катится — вкл freeze rotation; подборы мимо на скорости — туннелирование, увеличьте диск или кап скорости бегуна.</p>
-<p>Связанное: Rigidbody 2D, Box Collider 2D, Sphere-коллайдер (3D).</p>
+<h2 id="_2">Использование в редакторе</h2>
+<p><code>Radius</code>/<code>Offset</code>, слой + маска, <code>Is Trigger</code> для подборов.</p>
+<h2 id="_3">Использование в коде</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Coin&quot;)
+from core.components.physics2d.rigidbody2d import Rigidbody2D
+from core.components.physics2d.circle_collider2d import CircleCollider2D
+
+c = CircleCollider2D()
+c.radius = 0.3
+c.is_trigger = True
+entity.add_component(c)
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody2D)
+    if rb is not None:
+        rb.add_force(Vec2(5.0, 0.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+</code></pre>
+<h2 id="fixed-update">Заметки о fixed update</h2>
+<ul>
+<li>Вызов: <code>create_rigid_body(shape_type="sphere", shape_params={"radius", "center": [ox, oy, 0.0]})</code>; <code>dt = Engine._fixed_dt</code> (<code>0.02</code>).</li>
+</ul>
+<h2 id="_4">Связанные</h2>
+<p>Rigidbody 2D, Box 2D, Sphere (3D), слои.</p>
+<h2 id="_5">Проверено по</h2>
+<ul>
+<li><code>core/components/physics2d/circle_collider2d.py</code></li>
+<li><code>core/physics/shapep/shapes.py</code></li>
+</ul>
               
             </div>
           </div><footer>

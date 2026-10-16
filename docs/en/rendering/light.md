@@ -1,26 +1,25 @@
-# Light (Base)
-
-Base component for all lights. The concrete type is chosen by the subclass component on the same entity: Directional, Point, Spot or Area. Shared fields live here once.
-
-| Field | Default | Meaning |
-|---|---|---|
-| color | white | Light tint, multiplies every contribution |
-| intensity | 100000.0 | Physical units — lux, lumens or nits depending on subtype |
-| cast_shadows | on | Write into shadow maps; the main per-light cost switch |
-| range | 10.0 | Falloff distance for point/spot/area (directional ignores it) |
-| spot_angle / spot_inner_angle | 30 / 20 | Spot cone outer/inner, degrees |
-| area_type | RECT | RECT or DISK emitting shape for area lights |
-| area_width / area_height | 1×1 | Emitting surface size |
-| area_double_sided | off | Emit from both faces |
-| area_samples | 6 | Soft shadow sample count |
-| area_shadow_bias | 0.005 | Shadow acne offset |
-
-How it reaches the shader: the scene collector packs up to 8 lights into uniform arrays (type, position, direction, color, intensity, range, spot angles, area size) plus ambient. Over-limit lights are culled by priority — keep hero lights few and let the rest be non-shadowed fill.
-
-All lights render gizmo helpers (direction arrows, range spheres, cones, area quads) so lighting can be staged visually.
-
-Workflow: block the key light first (usually one shadowed directional), add fill points/spots without shadows, finish with a rim or area accent. Match intensities to the unit scale — a 100000-lux sun next to a 1.0-intensity point reads correctly; two suns at 100000 fight.
-
-Troubleshooting: scene too dark → ambient low and no fill; blown out → two hero lights overlapping, halve one; shadows missing → cast_shadows off, beyond shadow distance, or past the 4+4 shadow budget.
-
-Related: Directional/Point/Spot/Area pages, Projector, Shadows, Skybox and Atmosphere.
+# Light
+> Base light component `Light` (`core/components/lighting/lightp/light.py`): color, physical intensity and shadow toggle; concrete types set units and extra fields.
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+`LightType`: `directional / point / spot / area`; `LightAreaType`: `rect / disk` (`light.py:13-22`). Base `Light` is editor-hidden (`_editor_hidden = True`); add a concrete type instead. `Light.deserialize` dispatches on `light_type` to `DirectionalLight / PointLight / SpotLight / AreaLight` (`light.py:147-161`). Physical units: directional lux, point/spot lumens, area nits. Legacy scenes (`light_version < 2`) are rescaled by `LEGACY_DIRECTIONAL_MULT = 100000.0`, `LEGACY_POINT_MULT = 2000.0`, `LEGACY_AREA_MULT = 100.0` (`light.py:36-38`).
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `color` | color3 | `[1.0, 1.0, 1.0]` | Light color (`light.py:72,78`). |
+| `intensity` | float (0–200000) | `100000.0` | Base default; concrete types override units (`light.py:73,79`). |
+| `cast_shadows` | bool | `True` | Enable shadow-map contribution (`light.py:74,80`). |
+## Usage in Editor
+Add Directional/Point/Spot/Area Light (not base Light). White color + matching intensity presets from lux/lumen/nit references in code comments. Toggle `cast_shadows` off for fill lights.
+## Usage in Code
+```python
+from core.components.lighting.lightp.light import DirectionalLight
+sun = entity.get_component(DirectionalLight)
+sun.color = [1.0, 0.95, 0.9]
+sun.intensity = 100000.0
+sun.cast_shadows = True
+```
+## Related pages
+- [Directional Light](./directional-light.md), [Point Light](./point-light.md), [Spot Light](./spot-light.md), [Area Light](./area-light.md), [Shadows](./shadows.md), [Projector](./projector.md)
+## Verified against
+- `core/components/lighting/lightp/light.py:13-90,131-182`

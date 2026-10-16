@@ -311,6 +311,18 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">CharacterController</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#fixed-update-notes">Fixed update notes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../joints/">Joints</a>
@@ -1237,15 +1249,111 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="charactercontroller">CharacterController</h1>
-<p>Kinematic-style first/third-person body driven by the solver move function — slope sliding, step climbing and pushable props without full rigidbody chaos.</p>
-<p>Movement defaults: walk speed 260, run speed 440 (Shift), crouch speed 130, acceleration 10, air acceleration 10, friction 4, stop speed 80.</p>
-<p>Jump and gravity: jump power 300, jump buffer 0.1 s, coyote time 0.1 s. Jumping works while both timers are alive (<code>can_jump = buffer &gt; 0 and coyote &gt; 0</code>, then <code>velocity.y = jump_power</code>) — forgiving platforming without extra code.</p>
-<p>Shape: capsule radius 0.5, height 2.0 (total at least <code>radius * 2 + 0.1</code>), crouch height 1.2, step height 0.3, max slope 45°, push strength 30 against dynamic props.</p>
-<p>Per fixed step: check grounded state, accelerate with friction on ground, apply gravity in air, call solver <code>move_character</code> with the desired velocity, write the resulting position back to the Transform, apply yaw rotation. Rotation beyond yaw (pitch/roll) stays script-side on the camera, never on the body.</p>
-<p>Requirement: an in-process solver — the controller reads solver world state directly. In background-process modes the engine falls back to single-threaded physics with a console warning ("Use single-threaded physics mode"). Plan the mode before shipping character gameplay.</p>
-<p>Wiring input: read <code>Input.GetAxis</code>/keys in <code>on_update</code> into a wish direction, consume it in <code>on_fixed_update</code> for movement, jump on <code>GetKeyDown</code> buffered by the controller itself. Keep camera and body yaw synchronized through one sensitivity value.</p>
-<p>Troubleshooting: falls forever → no ground collider or mask excludes the player layer; sticks on stairs → step height below riser height, raise to 0.35+; slides on slopes → max slope above the slope angle or friction low; jitter on moving platforms → platform kinematic with matching velocity, parent instead of pushing.</p>
-<p>Related: Capsule Collider (matching shape), Rigidbody (dynamic alternative), Solver and Threading (mode requirement), Input API.</p>
+<p>Kinematic-style first/third-person body driven by the solver move function — slope sliding, step climbing, pushable props without full-rigidbody chaos.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Default</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>walk_speed</code> / <code>run_speed</code> (Shift) / <code>crouch_speed</code></td>
+<td><code>260.0</code> / <code>440.0</code> / <code>130.0</code></td>
+<td>Units/s</td>
+</tr>
+<tr>
+<td><code>acceleration</code> / <code>air_acceleration</code></td>
+<td><code>10.0</code> / <code>10.0</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>friction</code> / <code>stop_speed</code></td>
+<td><code>4.0</code> / <code>80.0</code></td>
+<td>Ground friction model</td>
+</tr>
+<tr>
+<td><code>jump_power</code></td>
+<td><code>300.0</code></td>
+<td>With <code>jump_buffer_time</code> / <code>coyote_time</code> <code>0.1</code> s each</td>
+</tr>
+<tr>
+<td><code>crouch_toggle</code> / <code>crouch_speed_mult</code> / <code>crouch_eye_offset</code></td>
+<td><code>True</code> / <code>0.5</code> / <code>0.6</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sensitivity</code> / <code>sensitivity_x/y</code></td>
+<td><code>5.0</code> / <code>5.0</code> / <code>5.0</code></td>
+<td><code>invert_x/y</code> <code>False</code>, <code>mouse_smoothing</code> <code>0.0</code>, <code>smoothing_strength</code> <code>18.0</code></td>
+</tr>
+<tr>
+<td><code>cursor_lock_on_start</code> / <code>unlock_key</code></td>
+<td><code>True</code> / <code>ESCAPE</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>camera_fov</code> / <code>near</code> / <code>far</code></td>
+<td><code>60.0</code> / <code>0.05</code> / <code>1000.0</code></td>
+<td><code>scroll_zoom</code> on, zoom <code>20–90</code>, aim <code>45</code> at speed <code>12</code></td>
+</tr>
+<tr>
+<td><code>gravity</code></td>
+<td><code>800.0</code></td>
+<td>Controller-local gravity (not world gravity)</td>
+</tr>
+<tr>
+<td><code>capsule_radius</code> / <code>capsule_height</code> / <code>crouch_height</code></td>
+<td><code>0.5</code> / <code>2.0</code> / <code>1.2</code></td>
+<td>Total height clamped to <code>≥ radius*2 + 0.1</code></td>
+</tr>
+<tr>
+<td><code>step_height</code> / <code>max_slope</code> / <code>push_strength</code></td>
+<td><code>0.3</code> / <code>45.0</code> / <code>30.0</code></td>
+<td>Passed to <code>solver.create_character</code></td>
+</tr>
+<tr>
+<td>Read-only</td>
+<td><code>velocity</code>, <code>is_grounded</code>, <code>is_crouching</code>, <code>fixed_update_count</code></td>
+<td><code>set_ai_drive(dir, speed)</code> / <code>ai_driving</code> for AI steering</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Add <code>CharacterController</code> (no <code>Rigidbody</code> needed), link <code>Camera</code>, tune speeds/gravity/capsule. WASD + mouse by default, Shift runs.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Player&quot;)
+from core.components.physics.character.jump_slope import CharacterController
+
+cc = CharacterController()
+cc.walk_speed = 260.0
+cc.jump_power = 300.0
+cc.capsule_radius = 0.5
+cc.capsule_height = 2.0
+entity.add_component(cc)
+
+# AI drive instead of keyboard:
+# cc.set_ai_drive(Vec3(0.0, 0.0, 1.0), 200.0)
+# grounded = cc.is_grounded
+</code></pre>
+<h2 id="fixed-update-notes">Fixed update notes</h2>
+<ul>
+<li>Movement integrates in <code>on_fixed_update(dt)</code> with <code>dt = Engine._fixed_dt</code> (<code>0.02</code> default); mouse look runs in <code>on_update</code>.</li>
+<li>Requires <code>single</code> simulation mode: <code>on_start</code> resolves the solver via <code>_resolve_solver()</code> and falls back to <code>plugin.ensure_single_mode()</code>; without <code>culverin</code> (<code>_HAS_CULVERIN</code>) it returns early with no character.</li>
+<li>Character handle: <code>solver.create_character(pos, height, radius, step_height, max_slope)</code> + <code>move_character</code> / <code>is_character_grounded</code> / <code>destroy_character</code> (<code>on_disable</code> destroys it).</li>
+</ul>
+<h2 id="related">Related</h2>
+<p>Rigidbody (kinematic alternative), Capsule Collider, Joints, Solver &amp; Threading (mode requirement), Collision Layers.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/physics/character/move.py</code> (defaults, <code>get_wish_dir</code>, <code>_accelerate</code>, <code>_apply_friction</code>)</li>
+<li><code>core/components/physics/character/jump_slope.py</code> (inspector, <code>create_character</code>, <code>on_start</code>, <code>on_fixed_update</code>)</li>
+<li><code>core/physics/physics_solver.py</code> (character API)</li>
+<li><code>plugins/physics_plug/plugin.py</code> (<code>ensure_single_mode</code>)</li>
+</ul>
               
             </div>
           </div><footer>

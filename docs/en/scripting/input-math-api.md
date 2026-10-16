@@ -6,7 +6,7 @@ Injected names: `Input`, `KeyCode`, `Vec2`, `Vec3`, `Vec4`, `Curve`, `Range`, `L
 
 Keyboard and mouse:
 
-- `Input.GetKey(code)` — held this frame; `Input.GetKeyDown(code)` — pressed this frame; `Input.GetKeyUp(code)` — released this frame. Codes come from `KeyCode` (`KeyCode.W`, `KeyCode.Space`, `KeyCode.Shift`, arrows, digits and more).
+- `Input.GetKey(code)` — held this frame; `Input.GetKeyDown(code)` — pressed this frame; `Input.GetKeyUp(code)` — released this frame. Codes come from `KeyCode` (`KeyCode.W`, `KeyCode.SPACE`, `KeyCode.LEFT_SHIFT` / `KeyCode.RIGHT_SHIFT`, arrows, digits and more).
 - `Input.GetMouseButton(i)`, `GetMouseButtonDown(i)`, `GetMouseButtonUp(i)` — button index state.
 - `Input.GetButton(name)`, `GetButtonDown(name)`, `GetButtonUp(name)` — named action buttons.
 - `Input.GetAxis(name)`, `Input.GetAxisRaw(name)` — smoothed vs raw axes such as `"Horizontal"`.
@@ -33,7 +33,7 @@ class Player:
             t.translate(Vec3(0.0, 0.0, step))
         if Input.GetKey(KeyCode.S):
             t.translate(Vec3(0.0, 0.0, -step))
-        if Input.GetKeyDown(KeyCode.Space):
+        if Input.GetKeyDown(KeyCode.SPACE):
             Logger.info("jump pressed")
 ```
 
@@ -49,3 +49,5 @@ class Looker:
 ```
 
 Cursor pattern for fly cameras: lock on right-mouse hold, release on up — drive `Input.cursorLocked` from the mouse-button callbacks in `on_update`.
+
+Axes such as `"Horizontal"` exist only after bindings are loaded (`Input.LoadProjectBindings` at startup) or an explicit `Input.DefineAxis("Horizontal", positive=[KeyCode.D], negative=[KeyCode.A])`. An undefined axis name makes `GetAxis` / `GetAxisRaw` return `0.0`, so the `Looker` above stays still until the axis is defined — define it in project setup before relying on it (see Input overview).

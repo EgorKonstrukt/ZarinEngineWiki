@@ -61,6 +61,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">FAQ</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#serialization">Serialization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,15 +1251,67 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="faq">FAQ</h1>
-<p>TODO: Content pending. This page will document FAQ in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p>Short answers to repeated setup and runtime questions. Each answer cites the code that defines the behavior.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="overview">Overview</h2>
+<p><strong>Q: How do I start the editor?</strong>
+A: <code>pip install -r requirements.txt</code>, then <code>python main.py</code> from the engine root (<code>README.md</code>, <code>main.py</code>).</p>
+<p><strong>Q: How do I run a scene without the editor?</strong>
+A: <code>python player.py &lt;scene.zpes&gt;</code>. Resolution order: CLI argument → first entry of <code>BuildSettings.json</code> <code>scenes</code> → <code>ProjectSettings.json</code> <code>project.default_scene</code> → <code>scenes/SampleScene.zpes</code> (<code>player.py:_resolve_startup_scene</code>).</p>
+<p><strong>Q: Which Python version?</strong>
+A: 3.13+ (<code>README.md</code>). Cython extensions rebuild automatically on editor start if stale.</p>
+<p><strong>Q: My script does nothing. Why?</strong>
+A: Scripts run only in Play mode. The engine uses the first class in the file that defines a lifecycle callback (<code>on_update</code>, <code>on_start</code>, …); short aliases (<code>update</code>, <code>start</code>) also work. Exceptions in callbacks are logged, never fatal (<code>docs/scripting.md</code>, <code>core/ecs/query.py</code>).</p>
+<p><strong>Q: Script edits during Play?</strong>
+A: Hot-reload recreates the instance on the next frame, keeps inspector values, re-runs <code>on_awake</code>/<code>on_start</code>. Disable with <code>hot_reload = False</code> on <code>ScriptComponent</code> (<code>docs/scripting.md</code>).</p>
+<p><strong>Q: Where are settings stored?</strong>
+A: Global: <code>~/.zarin/settings.json</code>. Per-project: <code>&lt;project&gt;/ProjectSettings.json</code> (<code>core/config/config.py</code>).</p>
+<p><strong>Q: Editor window is blank on Wayland?</strong>
+A: <code>main.py</code> forces <code>QT_QPA_PLATFORM=xcb</code> when a Wayland session is detected, for OpenGL compatibility.</p>
+<p><strong>Q: How do I ship a game?</strong>
+A: <code>python build_nuitka.py</code> (configuration in <code>BuildSettings.json</code>; <code>README.md</code>, <code>build_nuitka.py</code> → <code>tools.nuitka.build</code>).</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>support_channel</td>
+<td>file</td>
+<td><code>editor/bug_report.py</code></td>
+<td><code>main.py</code>/<code>player.py</code> install bug-report hooks at startup</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Not applicable.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<p>Not applicable.</p>
+<h2 id="serialization">Serialization</h2>
+<p>Not applicable.</p>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li><a href="../requirements/">Requirements</a></li>
+<li><a href="../installation/">Installation</a></li>
+<li><a href="../quick-start/">Quick Start</a></li>
+<li><a href="../../core/config/">Configuration</a></li>
+<li><a href="../../core/logging/">Logging</a></li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>README.md</code>, <code>main.py</code>, <code>player.py</code>, <code>build_nuitka.py</code></li>
+<li><code>docs/scripting.md</code> (contract, hot-reload, <code>Check</code> button)</li>
+<li><code>core/config/config.py</code> (settings paths)</li>
+<li><code>core/ecs/query.py</code> (callback error isolation)</li>
+</ul>
               
             </div>
           </div><footer>

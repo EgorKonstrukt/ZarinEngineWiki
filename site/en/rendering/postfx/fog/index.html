@@ -199,13 +199,15 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Fog</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    <li class="toctree-l4"><a class="reference internal" href="#shader-snippet">Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1248,124 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="fog">Fog</h1>
-<p>Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.</p>
-<h2 id="how-it-works">How it works</h2>
-<p>Distance and height fog applied in post with density, color and height controls.</p>
+<blockquote>
+<p>Distance + height fog with sun scattering and horizon haze. World position is reconstructed from the depth buffer; density/start control distance falloff, height/density control the ground layer, sun tint/intensity add in-scatter toward a sun entity, sky fade/horizon blend to sky. Class <code>Fog</code> in <code>core/components/rendering/postfx/fog.py</code>. Runs in the PostFX stack in component order; skipped when <code>enabled</code> is False or the entity is inactive (<code>render()</code> early-out).</p>
+</blockquote>
 <h2 id="parameters">Parameters</h2>
-<p>Density, color, height start/end.</p>
-<h2 id="tips">Tips</h2>
-<p>Depth cueing in open scenes, cave atmosphere with Reverb Zone twin, horror corridors.</p>
-<h2 id="cost">Cost</h2>
-<p>Cheap-medium.</p>
-<p>Related: <a href="../">PostFX Stack</a>, Cameras (render scale), Profiler.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Color</td>
+<td><code>_fog_color</code></td>
+<td>COLOR</td>
+<td>—</td>
+<td><code>(0.65, 0.72, 0.82)</code></td>
+</tr>
+<tr>
+<td>Density</td>
+<td><code>_density</code></td>
+<td>SLIDER</td>
+<td>0.0 – 0.2</td>
+<td><code>0.004</code></td>
+</tr>
+<tr>
+<td>Start Distance</td>
+<td><code>_start_distance</code></td>
+<td>FLOAT</td>
+<td>0.0 – 500.0</td>
+<td><code>0.0</code></td>
+</tr>
+<tr>
+<td>Height Density</td>
+<td><code>_height_density</code></td>
+<td>SLIDER</td>
+<td>0.0 – 2.0</td>
+<td><code>0.0</code></td>
+</tr>
+<tr>
+<td>Base Height</td>
+<td><code>_height</code></td>
+<td>FLOAT</td>
+<td>-100.0 – 500.0</td>
+<td><code>0.0</code></td>
+</tr>
+<tr>
+<td>Sun Tint</td>
+<td><code>_sun_color</code></td>
+<td>COLOR</td>
+<td>—</td>
+<td><code>(1.0, 0.9, 0.75)</code></td>
+</tr>
+<tr>
+<td>Sun Intensity</td>
+<td><code>_sun_intensity</code></td>
+<td>SLIDER</td>
+<td>0.0 – 2.0</td>
+<td><code>0.25</code></td>
+</tr>
+<tr>
+<td>Sun Light</td>
+<td><code>_sun_light_entity_id</code></td>
+<td>GAMEOBJECT entity id</td>
+<td>—</td>
+<td><code>""</code></td>
+</tr>
+<tr>
+<td>Fade To Sky</td>
+<td><code>_sky_fade</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>True</code></td>
+</tr>
+<tr>
+<td>Horizon Haze</td>
+<td><code>_sky_horizon</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>0.5</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">Usage</h2>
+<p>Editor: select the PostFX entity, Add Component &gt; <code>Fog</code>, tick <code>enabled</code>, tune fields above. Order among PostFX components defines execution order.</p>
+<p>Code:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.fog import Fog
+fx = Fog()
+entity.add_component(fx)
+fx._density = 0.01
+fx._sun_light_entity_id = sun_entity.id
+fx.enabled = True
+</code></pre>
+<h2 id="shader-snippet">Shader snippet</h2>
+<p>Shader: <code>core/components/rendering/postfx/fog.py</code>.</p>
+<pre><code class="language-glsl">#version 330 core
+uniform sampler2D u_input_tex;
+uniform sampler2D u_depth_tex;
+uniform mat4 u_inv_proj;
+uniform mat4 u_inv_view;
+uniform vec3 u_camera_pos;
+// + u_density, u_start, u_height, u_height_density, u_fog_color, u_sun_color, u_sun_dir, u_sun_intensity, u_sky_fade, u_sky_horizon, u_far
+</code></pre>
+<h2 id="related">Related</h2>
+<p>Related: <a href="../">PostFX Stack</a>, <a href="../color-grading/">Color Grading</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/fog.py</code> — class <code>Fog</code>, <code>_inspector_fields</code>, <code>__init__</code> defaults, <code>Depth-reconstruction pass (u_depth_tex + u_inv_proj/u_inv_view + u_camera_pos)</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/graphics_effect.py</code> — <code>GraphicsEffect</code> base (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, <code>render()</code> signature).</p>
+</li>
+</ul>
               
             </div>
           </div><footer>

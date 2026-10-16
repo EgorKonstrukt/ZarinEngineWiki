@@ -1247,10 +1247,10 @@
 </ol>
 <p>How it works inside:</p>
 <ul>
-<li>The engine finds the first class defined in the file that declares at least one lifecycle callback, collision callback, gizmo method, or <code>_inspector_buttons</code>. Inheritance is not required; the constructor must take no arguments.</li>
+<li>The engine finds the first class in alphabetical attribute order (<code>dir()</code> order, not definition order) that declares at least one lifecycle callback, collision callback, gizmo method, or <code>_inspector_buttons</code>. Inheritance is not required; the constructor must take no arguments.</li>
 <li>Short names are full aliases: <code>update</code> = <code>on_update</code>, <code>start</code> = <code>on_start</code>, and so on for awake, fixed_update, destroy, enable, disable. If both variants are defined, the <code>on_*</code> version wins.</li>
 <li>One entity can hold several <code>ScriptComponent</code> instances (<code>_allow_multiple = True</code>): movement, health and visuals as separate scripts on one object.</li>
-<li>An exception inside any callback never crashes the game: it is written to the console with the script and method name plus a traceback, and the frame continues with the next component.</li>
+<li>An exception inside any callback never crashes the game: it is written to the console with the script and method name, and the frame continues with the next component.</li>
 <li><code>script_path</code> is stored relative to the project root, so scenes and scripts move between machines cleanly.</li>
 </ul>
 <p>Execution context:</p>

@@ -15,10 +15,10 @@ Class resolution, in order:
 2. Import preparation: the script folder joins the module search so sibling `.py` and compiled Cython modules resolve.
 3. Error collection: syntax parse, `core.*` import checks, trial execution. On errors one consolidated `Script '...' has N error(s):` message is logged per file version, the old instance is dropped, and no fields render until the file is fixed.
 4. Module execution with the injected API (`Input`, `KeyCode`, `Vec2/3/4`, `Curve`, `Range`, `Logger`).
-5. Class pick: the first class defined in that file (alphabetical attribute order) declaring at least one lifecycle callback, collision callback, gizmo method, or `_inspector_buttons`. Instantiated with no arguments; `self._entity` is assigned before every call.
+5. Class pick: the first class in alphabetical attribute order (`dir()` order, not definition order) that declares at least one lifecycle callback, collision callback, gizmo method, or `_inspector_buttons`. Instantiated with no arguments; `self._entity` is assigned before every call.
 6. Method caching: bound methods per canonical name with fast flags for `on_update` / `on_fixed_update`; collision arities measured once via signature inspection; field hints cached until the file changes.
 
-Serialization: `script_path`, `hot_reload` and the `_field_values` dict persist in `.zpes`, so tuned instances survive reloads, prefabs and version control.
+Serialization: `script_path` and the `script_fields` dict persist in `.zpes`, so tuned instances survive reloads, prefabs and version control. `hot_reload` (default `True`) is a runtime-only flag and is not serialized.
 
 The `Check` action runs step 3 on demand and reports `file:line: message` rows — including the `core.maths.math3d` vs `core.math3d` hint and circular-import failures — so broken scripts are diagnosed without pressing Play.
 

@@ -728,6 +728,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">TextRenderer</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../video-renderer/">VideoRenderer</a>
@@ -1237,14 +1245,228 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="textrenderer">TextRenderer</h1>
-<p>Текст в мировом пространстве: плавающие подписи, вывески, табло, отладочные оверлеи, читаемые внутри 3D-вида.</p>
-<p>Рисуется со шрифтом, размером, цветом и выравниванием через внутренний шейдер <code>Text</code>. Следует за трансформом как любой рендерер — текстовые панели поворачиваются и масштабируются с креплениями: табло кренится со столбом, неймплейт трекает NPC.</p>
-<p>Процессы: неймплейты NPC — мелкий квад над головой с контрастным цветом, билбордится доворотом к камере из скрипта каждый кадр; вывески уровней — крупный статичный текст с unlit-подобным материалом для читаемости в любом свете; отладочные оверлеи — ридауты рядом с гизмо (позиции, состояния) под дебаг-флагом.</p>
-<p>Держите строки короткими, размеры щедрыми: текст в мире конкурирует с деталями текстур, мелкие глифы алиасят. Для абзацев и rich text — виджеты GUI Label/TextEdit в скринспейсе.</p>
-<p>Для экранного UI-текста используйте виджеты GUI; этот компонент — для диегетического текста в 3D-мире.</p>
-<p>Диагностика: нечитаемо под углом — доворачивайте к камере или растите размер; выбелено — цвет борется с ключевым светом, переходите на светлое-по-тёмному; нет глифов — покрытие шрифта, меняйте ассет.</p>
-<p>Связанное: SpriteRenderer, SvgRenderer, контролы GUI (Label, TextEdit), камеры.</p>
+                <h1 id="-">Текст-рендерер</h1>
+<blockquote>
+<p>Мировой/UI текст: <code>TextRenderer</code> (<code>core/components/rendering/renderers/text_renderer.py</code>) с SDF-атласом в <code>core/renderer/textr/</code>.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Энамы: <code>TextAlign left/center/right/justify</code>, <code>TextFilter nearest/linear/trilinear</code> (<code>text_renderer.py:15-25</code>). Rich-текст перепарсивается при смене текста/цвета/стиля. <code>font_world_space = True</code> — размер в мировых единицах; <code>billboard</code> — лицом к камере.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>text</code></td>
+<td>textarea</td>
+<td><code>"Text"</code></td>
+<td>Содержимое (<code>text_renderer.py:39,81</code>).</td>
+</tr>
+<tr>
+<td><code>font_path</code></td>
+<td>путь (ttf/otf)</td>
+<td>дефолтный шрифт движка</td>
+<td><code>get_default_font_path()</code> (<code>text_renderer.py:40,82</code>).</td>
+</tr>
+<tr>
+<td><code>font_size</code></td>
+<td>int (1–512)</td>
+<td><code>32</code></td>
+<td>Размер растра (<code>text_renderer.py:41,83</code>).</td>
+</tr>
+<tr>
+<td><code>color</code></td>
+<td>color4</td>
+<td><code>[1, 1, 1, 1]</code></td>
+<td>Базовый цвет (<code>text_renderer.py:42,84</code>).</td>
+</tr>
+<tr>
+<td><code>alignment</code></td>
+<td><code>TextAlign</code></td>
+<td><code>LEFT</code></td>
+<td>Выравнивание (<code>text_renderer.py:43,85</code>).</td>
+</tr>
+<tr>
+<td><code>line_spacing</code></td>
+<td>float (0.5–5)</td>
+<td><code>1.2</code></td>
+<td>Межстрочник (<code>text_renderer.py:44,86</code>).</td>
+</tr>
+<tr>
+<td><code>bold</code> / <code>italic</code> / <code>underline</code> / <code>strikethrough</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Стиль (<code>text_renderer.py:46-49</code>).</td>
+</tr>
+<tr>
+<td><code>shadow</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Тумблер тени (<code>text_renderer.py:51,91</code>).</td>
+</tr>
+<tr>
+<td><code>shadow_offset</code></td>
+<td>vec2</td>
+<td><code>[0.02, -0.02]</code></td>
+<td>Сдвиг тени (<code>text_renderer.py:52,92</code>).</td>
+</tr>
+<tr>
+<td><code>shadow_color</code></td>
+<td>color4</td>
+<td><code>[0, 0, 0, 0.5]</code></td>
+<td>Цвет тени (<code>text_renderer.py:53,93</code>).</td>
+</tr>
+<tr>
+<td><code>outline</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Тумблер контура (<code>text_renderer.py:55,94</code>).</td>
+</tr>
+<tr>
+<td><code>outline_color</code></td>
+<td>color4</td>
+<td><code>[0, 0, 0, 1]</code></td>
+<td>Цвет контура (<code>text_renderer.py:56,95</code>).</td>
+</tr>
+<tr>
+<td><code>outline_width</code></td>
+<td>float (0.001–0.1)</td>
+<td><code>0.02</code></td>
+<td>Ширина контура (<code>text_renderer.py:57,96</code>).</td>
+</tr>
+<tr>
+<td><code>glow</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Тумблер свечения (<code>text_renderer.py:59,97</code>).</td>
+</tr>
+<tr>
+<td><code>glow_color</code></td>
+<td>color4</td>
+<td><code>[0.3, 0.6, 1.0, 0.5]</code></td>
+<td>Цвет свечения (<code>text_renderer.py:60,98</code>).</td>
+</tr>
+<tr>
+<td><code>glow_size</code></td>
+<td>float (0.001–0.1)</td>
+<td><code>0.02</code></td>
+<td>Радиус (<code>text_renderer.py:61,99</code>).</td>
+</tr>
+<tr>
+<td><code>glow_intensity</code></td>
+<td>float (0–1)</td>
+<td><code>0.5</code></td>
+<td>Сила (<code>text_renderer.py:62,100</code>).</td>
+</tr>
+<tr>
+<td><code>use_3d</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Экструзия 3D (<code>text_renderer.py:64,101</code>).</td>
+</tr>
+<tr>
+<td><code>extrusion_depth</code></td>
+<td>float (0.001–1)</td>
+<td><code>0.05</code></td>
+<td>Глубина (<code>text_renderer.py:65,102</code>).</td>
+</tr>
+<tr>
+<td><code>extrusion_layers</code></td>
+<td>int (1–32)</td>
+<td><code>8</code></td>
+<td>Слои (<code>text_renderer.py:66,103</code>).</td>
+</tr>
+<tr>
+<td><code>extrusion_color</code></td>
+<td>color3</td>
+<td><code>[0.3, 0.3, 0.3]</code></td>
+<td>Цвет боков (<code>text_renderer.py:67,104</code>).</td>
+</tr>
+<tr>
+<td><code>atlas_resolution</code></td>
+<td>int (32–512)</td>
+<td><code>128</code></td>
+<td>Атлас глифов, px (<code>text_renderer.py:69,105</code>).</td>
+</tr>
+<tr>
+<td><code>font_world_space</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Мировой vs экранный размер (<code>text_renderer.py:70,106</code>).</td>
+</tr>
+<tr>
+<td><code>billboard</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Лицом к камере (<code>text_renderer.py:71,107</code>).</td>
+</tr>
+<tr>
+<td><code>use_rich_text</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Парсить rich-теги (<code>text_renderer.py:72,111</code>).</td>
+</tr>
+<tr>
+<td><code>filter_mode</code></td>
+<td><code>TextFilter</code></td>
+<td><code>LINEAR</code></td>
+<td>Фильтрация атласа (<code>text_renderer.py:73,108</code>).</td>
+</tr>
+<tr>
+<td><code>anisotropy</code></td>
+<td>float (0–16)</td>
+<td><code>4.0</code></td>
+<td>Анизотропия (<code>text_renderer.py:74,109</code>).</td>
+</tr>
+<tr>
+<td><code>shader</code></td>
+<td>путь (*.shader)</td>
+<td><code>"text"</code></td>
+<td>Шейдер текста (<code>text_renderer.py:76,110</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Шрифт + размер, выравнивание, затем тумблеры Style/Shadow/Outline/Glow. Rich Text для инлайн-тегов; Billboard для неймплейтов.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">tr = entity.get_component(TextRenderer)
+tr.text = &quot;HP: 100&quot;
+tr.font_size = 48
+tr.alignment = TextAlign.CENTER
+tr.outline = True
+tr.outline_width = 0.03
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../sprite-renderer/">Sprite Renderer</a>, <a href="../svg-renderer/">SVG Renderer</a>, <a href="../materials/">Materials</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/renderers/text_renderer.py:28-112,270-348</code></li>
+<li><code>core/renderer/textr/renderer.py</code>, <code>atlas.py</code>, <code>layout.py</code></li>
+</ul>
               
             </div>
           </div><footer>

@@ -744,6 +744,14 @@
     <ul class="current">
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Скайбокс Skybox</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../procedural-sky/">Процедурное небо</a>
@@ -1237,46 +1245,117 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="skybox">Скайбокс Skybox</h1>
-<p>Статичный HDRI-фон окружения с вкладом image-based освещения в PBR-материалы.</p>
+                <h1 id="_1">Скайбокс</h1>
+<blockquote>
+<p>HDRI-фон + IBL: <code>Skybox</code> (<code>core/components/rendering/environment/skybox.py:110-297</code>), шейдер <code>core/shaders/materials/Skybox.shader</code>.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Equirect float-текстура с мипмапами + repeat (<code>skybox.py:57-88</code>); LDR нормализуется при <code>max &gt; 1.0</code>. <code>affect_environment</code> строит IBL через <code>get_sky_ibl</code> (кулдаун 0.15 с); <code>show_background = False</code> оставляет только IBL (<code>skybox.py:206-224</code>). Рисуется кубом вокруг камеры, depth/cull выкл (<code>skybox.py:256-265</code>).</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Группа / поле инспектора</th>
-<th>Смысл</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>HDRI Skybox: HDRI / EXR</td>
-<td>Ассет изображения окружения</td>
+<td><code>skybox_path</code></td>
+<td>путь (hdr/exr)</td>
+<td><code>""</code></td>
+<td>Equirect-картинка (<code>skybox.py:130,147</code>).</td>
 </tr>
 <tr>
-<td>HDRI Skybox: Show Background</td>
-<td>Рисовать картинку как видимое небо</td>
+<td><code>show_background</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Рисовать куб неба (<code>skybox.py:131,148</code>).</td>
 </tr>
 <tr>
-<td>HDRI Skybox: Affect Environment (IBL)</td>
-<td>Освещать PBR-материалы картинкой</td>
+<td><code>affect_environment</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Питать IBL (<code>skybox.py:132,149</code>).</td>
 </tr>
 <tr>
-<td>Image / Exposure (EV) / Intensity / Tint / Saturation</td>
-<td>Контролы вида</td>
+<td><code>exposure</code></td>
+<td>слайдер (−10…10)</td>
+<td><code>0.0</code></td>
+<td>Сдвиг EV (<code>skybox.py:134,150</code>).</td>
 </tr>
 <tr>
-<td>Background Blur</td>
-<td>Смягчение видимого неба (дешёвое ощущение глубины)</td>
+<td><code>intensity</code></td>
+<td>слайдер (0–8)</td>
+<td><code>1.0</code></td>
+<td>Множитель (<code>skybox.py:135,151</code>).</td>
 </tr>
 <tr>
-<td>Flip Y, Orientation, Rotation Yaw/Pitch/Roll (deg)</td>
-<td>Контролы маппинга</td>
+<td><code>tint</code></td>
+<td>color3</td>
+<td><code>[1.0, 1.0, 1.0]</code></td>
+<td>Тинт (<code>skybox.py:136,152</code>).</td>
+</tr>
+<tr>
+<td><code>saturation</code></td>
+<td>слайдер (0–2)</td>
+<td><code>1.0</code></td>
+<td>Насыщенность (<code>skybox.py:137,153</code>).</td>
+</tr>
+<tr>
+<td><code>blur</code></td>
+<td>слайдер (0–8)</td>
+<td><code>0.0</code></td>
+<td>Блюр фона (<code>skybox.py:138,154</code>).</td>
+</tr>
+<tr>
+<td><code>flip_y</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Отразить V (<code>skybox.py:139,155</code>).</td>
+</tr>
+<tr>
+<td><code>rotation</code></td>
+<td>vec3 град</td>
+<td><code>[0, 0, 0]</code></td>
+<td>Yaw/pitch/roll (<code>skybox.py:141,156</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Назначить HDRI/EXR, подкрутить Exposure/Intensity, повернуть Rotation. Show Background выкл — студийное IBL-освещение без фона.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Skybox — для запечённых, арт-директед окружений (интерьеры, стилизация, фотоплаты), Procedural Sky — для динамических суток. Согласуйте ambient с небом, иначе материалы уплывут.</p>
-<p>Yaw-поворот анимирует иллюзию заката-рассвета на статичных HDRI; exposure едет по дневной кривой вместе с интенсивностью направленного.</p>
-<p>Диагностика: чёрное небо — бит путь картинки или выкл Show Background; материалы темны под HDRI — выкл Affect Environment или низкая exposure; шов — mismatch ориентации/флипа с каптом, тогглите Flip Y.</p>
-<p>Связанное: процедурное небо, облака, атмосфера, направленный свет, материалы (IBL-отклик).</p>
+<pre><code class="language-python">sky.skybox_path = &quot;assets/sky/studio.hdr&quot;
+sky.exposure = -0.5
+sky.rotation = Vec3(30.0, 0.0, 0.0)
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../procedural-sky/">Procedural Sky</a>, <a href="../atmosphere/">Atmosphere</a>, <a href="../materials/">Materials</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/environment/skybox.py:110-162,206-297</code></li>
+<li><code>core/shaders/materials/Skybox.shader</code></li>
+</ul>
               
             </div>
           </div><footer>

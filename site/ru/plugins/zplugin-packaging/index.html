@@ -1249,9 +1249,9 @@
 <p>Поток установки и верификации:</p>
 <ol>
 <li>Бросьте файл куда смотрит менеджер (или установите из панели пакетов).</li>
-<li><code>verify_zplugin_file</code> валидирует манифест, сообщает недостающие зависимости по именам, проверяет индекс записей.</li>
-<li>Подписи проверяются по <code>config/trusted_keys</code> (плюс опциональный каталог); недоверенные/неподписанные отказываются активироваться с явным логом.</li>
-<li><code>_zplugin_fingerprint</code> (sha256 + размер + mtime) спрашивает кэш распаковки — переустановки неизменных файлов бесплатны.</li>
+<li><code>verify_zplugin_file</code> (<code>core/foundation/plugins/discovery.py:80</code>) валидирует манифест, сообщает недостающие зависимости по именам, проверяет индекс записей; файлы payload перепроверяет <code>_verify_payload_files</code> (несовпадение хэша — <code>modified file</code>, неиндексированные <code>.pyd</code>/<code>.so</code>/<code>.dll</code> вне <code>_native/</code> отвергаются).</li>
+<li>Подписи (<code>verify_manifest_signature</code>) проверяются по <code>config/trusted_keys</code> <code>*.pub</code> (64-hex ed25519-ключи, плюс опциональный <code>trusted_keys_dir</code>); политика <code>allow_unsigned</code> (дефолт <code>warn</code>, <code>strict</code> блокирует): без ключей верификация отвечает <code>no trusted keys configured</code>, а не молча пропускает.</li>
+<li><code>_zplugin_fingerprint</code> (<code>core/foundation/plugins/ui_registry.py:130</code>, sha256 + размер + mtime) спрашивает кэш распаковки — переустановки неизменных файлов бесплатны.</li>
 <li>Активация резолвит зависимости, монтирует bundled libs, грузит вход.</li>
 </ol>
 <p>Обновления: поднимите версию манифеста, пересоберите, раздайте — отпечаток меняется, кэш распаковывается заново, зависимые перерезолвятся. Держите <code>NAME</code> стабильным между версиями, иначе сиротеют конфиги.</p>

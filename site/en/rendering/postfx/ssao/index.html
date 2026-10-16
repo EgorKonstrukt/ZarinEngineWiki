@@ -233,13 +233,17 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">SSAO</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    <li class="toctree-l4"><a class="reference internal" href="#shader-snippet">Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#performance-notes">Performance notes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1250,113 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="ssao">SSAO</h1>
-<p>Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.</p>
-<h2 id="how-it-works">How it works</h2>
-<p>Screen-space ambient occlusion darkening contact crevices the ambient term cannot see.</p>
+<blockquote>
+<p>Screen-space ambient occlusion from depth + projection. Hemisphere samples within radius are depth-compared (bias/power/intensity shape the darkening), then edge-aware bilateral blur smooths while preserving depth discontinuities. Class <code>SSAO</code> in <code>core/components/rendering/postfx/ssaop/component.py</code>. Runs in the PostFX stack in component order; skipped when <code>enabled</code> is False or the entity is inactive (<code>render()</code> early-out).</p>
+</blockquote>
 <h2 id="parameters">Parameters</h2>
-<p>Radius, intensity, sample feel.</p>
-<h2 id="tips">Tips</h2>
-<p>Grounding interiors and clutter; keep radius small or corners glow-halo.</p>
-<h2 id="cost">Cost</h2>
-<p>High. First candidate to cut on weak GPUs.</p>
-<p>Related: <a href="../">PostFX Stack</a>, Cameras (render scale), Profiler.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intensity</td>
+<td><code>_intensity</code></td>
+<td>SLIDER</td>
+<td>0.0 – 2.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Radius</td>
+<td><code>_radius</code></td>
+<td>SLIDER</td>
+<td>0.1 – 5.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Power</td>
+<td><code>_power</code></td>
+<td>SLIDER</td>
+<td>0.1 – 5.0</td>
+<td><code>2.0</code></td>
+</tr>
+<tr>
+<td>Bias</td>
+<td><code>_bias</code></td>
+<td>SLIDER</td>
+<td>0.0 – 0.1</td>
+<td><code>0.025</code></td>
+</tr>
+<tr>
+<td>Samples</td>
+<td><code>_kernel_size</code></td>
+<td>INT_SLIDER</td>
+<td>4 – 64</td>
+<td><code>32</code></td>
+</tr>
+<tr>
+<td>Resolution Scale</td>
+<td><code>_performance_scale</code></td>
+<td>SLIDER</td>
+<td>0.25 – 1.0</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Blur Radius</td>
+<td><code>_bilateral_radius</code></td>
+<td>SLIDER</td>
+<td>1.0 – 6.0</td>
+<td><code>3.0</code></td>
+</tr>
+<tr>
+<td>Edge Sensitivity</td>
+<td><code>_bilateral_sigma</code></td>
+<td>SLIDER</td>
+<td>1.0 – 200.0</td>
+<td><code>50.0</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">Usage</h2>
+<p>Editor: select the PostFX entity, Add Component &gt; <code>SSAO</code>, tick <code>enabled</code>, tune fields above. Order among PostFX components defines execution order.</p>
+<p>Code:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.ssaop.component import SSAO
+fx = SSAO()
+entity.add_component(fx)
+fx._radius = 1.5
+fx._kernel_size = 32
+fx._performance_scale = 0.5
+fx.enabled = True
+</code></pre>
+<h2 id="shader-snippet">Shader snippet</h2>
+<p>Shader: <code>core/components/rendering/postfx/ssaop/shaders.py</code>.</p>
+<pre><code class="language-glsl">// SSAO uniforms (exact names):
+// uniform sampler2D u_depth_tex; uniform mat4 u_proj; uniform mat4 u_inv_proj;
+// uniform vec2 u_pixel_size; uniform vec2 u_resolution;
+// uniform float u_radius; uniform float u_power; uniform float u_bias; uniform float u_intensity;
+// composite: uniform sampler2D u_ao_tex; uniform sampler2D u_input_tex; uniform sampler2D u_noise_tex;
+// uniform float u_bilateral_radius; uniform float u_bilateral_sigma;
+</code></pre>
+<h2 id="performance-notes">Performance notes</h2>
+<p>Cost scales with Samples (4–64) × (Resolution Scale)² (default 0.5 = quarter res) + bilateral blur radius (1–6).</p>
+<h2 id="related">Related</h2>
+<p>Related: <a href="../">PostFX Stack</a>, <a href="../color-grading/">Color Grading</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/ssaop/component.py</code> — class <code>SSAO</code>, <code>_inspector_fields</code>, <code>__init__</code> defaults, <code>Depth-only AO: hemisphere kernel gather + bilateral blur composite. Kernel generated with fixed seed (NP_RNG = RandomState(42)).</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/ssaop/shaders.py</code></p>
+</li>
+<li><code>core/components/rendering/postfx/graphics_effect.py</code> — <code>GraphicsEffect</code> base (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, <code>render()</code> signature).</li>
+</ul>
               
             </div>
           </div><footer>

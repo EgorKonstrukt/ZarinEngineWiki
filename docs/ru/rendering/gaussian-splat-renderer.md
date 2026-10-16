@@ -1,19 +1,26 @@
-# Gaussian Splat Renderer
-
-Рисует Gaussian-splat захваты — сцены в стиле фотограмметрии как сортированные точечные объёмы со сферико-гармоническим цветом.
-
-| Поле | Смысл |
-|---|---|
-| Splat Path | Файл захвата |
-| SH Degree | Уровень сферических гармоник (выше = богаче view-dependent цвет, больше памяти) |
-| Opacity Cutoff | Порог прозрачности, выкуливающий слабые сплаты |
-
-Сплаты сортируются каждый кадр выделенным быстрым путём (ускоренный модуль `_splat_sort`), разделяют видимость и статистику с мешами, но обходят часть PostFX — проверяйте градуированный вид в игровом окне, а не только в редакторе.
-
-Коллизии splat-объёмов — через GS Volume Collider (воксельная бокс-аппроксимация из того же захвата).
-
-Процессы: захваченный двор — splat-сущность для картинки плюс GS Volume Collider для ходьбы; гибридные сцены — сплаты для фоновых деталей, меши для интерактивного переднего плана; производительность — сначала ниже SH Degree, затем cutoff, затем плотность захвата.
-
-Диагностика: выбеленные цвета — низок SH Degree для вариации света; дыры — агрессивен cutoff; нет коллизий — нет коллайдера или груб voxel size.
-
-Связанное: GS Volume Collider, воксельный рендеринг, камеры, материалы.
+# Гауссов сплат-рендерер
+> Билборды 3DGS: компонент `GaussianSplatRenderer` (`core/components/rendering/renderers/gaussian_splat_renderer.py`) + GL-бэкенд (`core/renderer/splat/renderer.py`, `resources.py`, `sort.py`, `volume.py`).
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+Загрузка `.ply / .sog / .ssog` (фильтр, `gaussian_splat_renderer.py:23-24`; загрузчики `ply_loader.py:225`, `sog/loader.py:259`, `sog/async_ops.py`). Бэкенду нужен OpenGL 4.3+ (иначе ошибка, `splat/resources.py:343`). Сортировка CPU/Cython в `splat/sort.py` (расширение `_splat_sort`).
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `ply_path` | путь (ply/sog/ssog) | `""` | Файл сплата (`gaussian_splat_renderer.py:23,33`). |
+| `sh_degree` | int слайдер (0–3) | `3` | Степень сферических гармоник (`gaussian_splat_renderer.py:25,34`). |
+| `opacity_threshold` | float (0–1) | `0.005` | Отсечение по опасити (`gaussian_splat_renderer.py:27,35`). |
+## Usage in Editor
+Add Component → Gaussian Splat Renderer, назначить `.ply`, SH 3 для качества / 0–1 для скорости, cutoff выше — режет шум.
+## Usage in Code
+```python
+gs = entity.get_component(GaussianSplatRenderer)
+gs.ply_path = "assets/splats/garden.ply"
+gs.sh_degree = 2
+gs.opacity_threshold = 0.01
+```
+`render(path, model, view, proj, cam_pos, w, h, ...)` (`splat/renderer.py:362`).
+## Related pages
+- [Mesh Renderer](./mesh-renderer.md), [Pipeline](./pipeline.md)
+## Verified against
+- `core/components/rendering/renderers/gaussian_splat_renderer.py:19-53`
+- `core/renderer/splat/renderer.py:362`, `resources.py:343`, `sort.py`, `volume.py`

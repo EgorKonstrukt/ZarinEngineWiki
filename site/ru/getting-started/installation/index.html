@@ -636,6 +636,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Установка</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Обзор</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_6">Сериализация</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_7">Связанные страницы</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_8">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../quick-start/">Быстрый старт</a>
@@ -1237,15 +1251,80 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Установка</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Установка в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p>Установка ZarinEngine из исходников: установка Python-пакетов, запуск <code>python main.py</code>, однократная сборка нативных расширений.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="_2">Обзор</h2>
+<p>Инсталлятора нет. Движок работает из исходников: <code>main.py</code> — редактор, <code>player.py</code> — рантайм. Первый старт компилирует Cython-расширения inplace (<code>setup.py build_ext --inplace</code>); сплэш-скрин показывает прогресс по модулям.</p>
+<h2 id="_3">Свойства</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>install_cmd</td>
+<td>command</td>
+<td><code>pip install -r requirements.txt</code></td>
+<td>Установка всех Python-зависимостей</td>
+</tr>
+<tr>
+<td>editor_cmd</td>
+<td>command</td>
+<td><code>python main.py</code></td>
+<td>Старт редактора из корня движка</td>
+</tr>
+<tr>
+<td>scene_arg</td>
+<td>CLI arg</td>
+<td><code>main.py [file.zpes]</code></td>
+<td>Открыть <code>.zpes</code>-сцену при старте (или переслать запущенному инстансу через IPC); <code>.zterr</code>-графы террейна открываются в редакторе террейна</td>
+</tr>
+<tr>
+<td>global_settings</td>
+<td>path</td>
+<td><code>~/.zarin/settings.json</code></td>
+<td>Создаётся при первом запуске; хранит глобальный <code>Config</code></td>
+</tr>
+<tr>
+<td>ext_rebuild</td>
+<td>automatic</td>
+<td>on start if missing/stale</td>
+<td><code>main.py</code> сравнивает mtime <code>core/pyx/*.pyx</code> с собранными расширениями</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">Использование в редакторе</h2>
+<p>Неприменимо — эта страница приводит вас в редактор.</p>
+<h2 id="_5">Использование в коде</h2>
+<pre><code class="language-bash">pip install -r requirements.txt
+python main.py
+</code></pre>
+<pre><code class="language-bash"># Открыть сцену сразу (повторный запуск пересылает её запущенному редактору):
+python main.py scenes/SampleScene.zpes
+</code></pre>
+<h2 id="_6">Сериализация</h2>
+<p>Неприменимо.</p>
+<h2 id="_7">Связанные страницы</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li><a href="../requirements/">Системные требования</a></li>
+<li><a href="../quick-start/">Быстрый старт</a></li>
+<li><a href="../editor-tour/">Обзор редактора</a></li>
+<li><a href="../../core/config/">Конфигурация</a></li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_8">Проверено по</h2>
+<ul>
+<li><code>README.md</code> (раздел Quick start)</li>
+<li><code>main.py</code> (аргумент <code>file</code>, <code>IpcServer</code>, <code>_check_extensions_missing</code>)</li>
+<li><code>setup.py</code> (делегирует <code>core.build_cython.build</code>)</li>
+<li><code>core/config/config.py</code> (<code>get_global_config</code>, путь <code>~/.zarin/settings.json</code>)</li>
+</ul>
               
             </div>
           </div><footer>

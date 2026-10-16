@@ -1,19 +1,59 @@
 # CharacterController
 
-Kinematic-style first/third-person body driven by the solver move function — slope sliding, step climbing and pushable props without full rigidbody chaos.
+Kinematic-style first/third-person body driven by the solver move function — slope sliding, step climbing, pushable props without full-rigidbody chaos.
 
-Movement defaults: walk speed 260, run speed 440 (Shift), crouch speed 130, acceleration 10, air acceleration 10, friction 4, stop speed 80.
+## Properties
 
-Jump and gravity: jump power 300, jump buffer 0.1 s, coyote time 0.1 s. Jumping works while both timers are alive (`can_jump = buffer > 0 and coyote > 0`, then `velocity.y = jump_power`) — forgiving platforming without extra code.
+| Field | Default | Notes |
+|---|---|---|
+| `walk_speed` / `run_speed` (Shift) / `crouch_speed` | `260.0` / `440.0` / `130.0` | Units/s |
+| `acceleration` / `air_acceleration` | `10.0` / `10.0` | |
+| `friction` / `stop_speed` | `4.0` / `80.0` | Ground friction model |
+| `jump_power` | `300.0` | With `jump_buffer_time` / `coyote_time` `0.1` s each |
+| `crouch_toggle` / `crouch_speed_mult` / `crouch_eye_offset` | `True` / `0.5` / `0.6` | |
+| `sensitivity` / `sensitivity_x/y` | `5.0` / `5.0` / `5.0` | `invert_x/y` `False`, `mouse_smoothing` `0.0`, `smoothing_strength` `18.0` |
+| `cursor_lock_on_start` / `unlock_key` | `True` / `ESCAPE` | |
+| `camera_fov` / `near` / `far` | `60.0` / `0.05` / `1000.0` | `scroll_zoom` on, zoom `20–90`, aim `45` at speed `12` |
+| `gravity` | `800.0` | Controller-local gravity (not world gravity) |
+| `capsule_radius` / `capsule_height` / `crouch_height` | `0.5` / `2.0` / `1.2` | Total height clamped to `≥ radius*2 + 0.1` |
+| `step_height` / `max_slope` / `push_strength` | `0.3` / `45.0` / `30.0` | Passed to `solver.create_character` |
+| Read-only | `velocity`, `is_grounded`, `is_crouching`, `fixed_update_count` | `set_ai_drive(dir, speed)` / `ai_driving` for AI steering |
 
-Shape: capsule radius 0.5, height 2.0 (total at least `radius * 2 + 0.1`), crouch height 1.2, step height 0.3, max slope 45°, push strength 30 against dynamic props.
+## Usage in Editor
 
-Per fixed step: check grounded state, accelerate with friction on ground, apply gravity in air, call solver `move_character` with the desired velocity, write the resulting position back to the Transform, apply yaw rotation. Rotation beyond yaw (pitch/roll) stays script-side on the camera, never on the body.
+Add `CharacterController` (no `Rigidbody` needed), link `Camera`, tune speeds/gravity/capsule. WASD + mouse by default, Shift runs.
 
-Requirement: an in-process solver — the controller reads solver world state directly. In background-process modes the engine falls back to single-threaded physics with a console warning ("Use single-threaded physics mode"). Plan the mode before shipping character gameplay.
+## Usage in Code
 
-Wiring input: read `Input.GetAxis`/keys in `on_update` into a wish direction, consume it in `on_fixed_update` for movement, jump on `GetKeyDown` buffered by the controller itself. Keep camera and body yaw synchronized through one sensitivity value.
+```python
+entity = scene.create_entity("Player")
+from core.components.physics.character.jump_slope import CharacterController
 
-Troubleshooting: falls forever → no ground collider or mask excludes the player layer; sticks on stairs → step height below riser height, raise to 0.35+; slides on slopes → max slope above the slope angle or friction low; jitter on moving platforms → platform kinematic with matching velocity, parent instead of pushing.
+cc = CharacterController()
+cc.walk_speed = 260.0
+cc.jump_power = 300.0
+cc.capsule_radius = 0.5
+cc.capsule_height = 2.0
+entity.add_component(cc)
 
-Related: Capsule Collider (matching shape), Rigidbody (dynamic alternative), Solver and Threading (mode requirement), Input API.
+# AI drive instead of keyboard:
+# cc.set_ai_drive(Vec3(0.0, 0.0, 1.0), 200.0)
+# grounded = cc.is_grounded
+```
+
+## Fixed update notes
+
+- Movement integrates in `on_fixed_update(dt)` with `dt = Engine._fixed_dt` (`0.02` default); mouse look runs in `on_update`.
+- Requires `single` simulation mode: `on_start` resolves the solver via `_resolve_solver()` and falls back to `plugin.ensure_single_mode()`; without `culverin` (`_HAS_CULVERIN`) it returns early with no character.
+- Character handle: `solver.create_character(pos, height, radius, step_height, max_slope)` + `move_character` / `is_character_grounded` / `destroy_character` (`on_disable` destroys it).
+
+## Related
+
+Rigidbody (kinematic alternative), Capsule Collider, Joints, Solver & Threading (mode requirement), Collision Layers.
+
+## Verified against
+
+- `core/components/physics/character/move.py` (defaults, `get_wish_dir`, `_accelerate`, `_apply_friction`)
+- `core/components/physics/character/jump_slope.py` (inspector, `create_character`, `on_start`, `on_fixed_update`)
+- `core/physics/physics_solver.py` (character API)
+- `plugins/physics_plug/plugin.py` (`ensure_single_mode`)

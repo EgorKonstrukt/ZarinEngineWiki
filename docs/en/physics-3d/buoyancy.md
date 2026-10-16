@@ -1,26 +1,63 @@
 # Buoyancy
 
-Floating bodies for ponds, rivers and oceans: hulls displace water, waves rock them, currents push them.
+Floating bodies for ponds, rivers and oceans: hulls displace water, waves rock them, currents push them. CPU sampling in `on_fixed_update` — not a solver body.
 
-| Inspector group / field | Meaning |
-|---|---|
-| Buoyancy: Object Density | Hull density vs water — below water density floats |
-| Override Volume | Manual displaced volume, skips auto computation |
-| Water Density | Liquid density (fresh vs salt vs lava-thick) |
-| Hydro Drag / Hydro Angular Drag | Water damping on motion and spin |
-| Flow Influence | How much currents push the hull |
-| Options: Use Waves | Sample the wave surface for rocking |
-| Options: Use Flow | Sample currents for drift |
-| Sample Resolution | Probe density over the hull |
-| Max Accel (x g) | Stability clamp on water forces |
-| Debug Draw | Volume and probe visualization |
+## Properties
 
-Pair with a WaterVolume environment component marking the liquid region and a Water surface for visuals — the component alone floats nothing without a defined liquid.
+| Field | Default | Notes |
+|---|---|---|
+| `density` | `500.0` | Inspector `1–20000`; object density |
+| `volume` | `0.0` | Override; `0` = auto from collider (box `sx*sy*sz`, sphere `4/3πr³`, capsule `4/3πr³ + πr²h`) |
+| `water_density` | `1000.0` | Inspector `1–2000` |
+| `linear_drag` | `8.0` | Inspector `0–50` (deserialize fallback `1.5`) |
+| `angular_drag` | `6.0` | Inspector `0–50` (deserialize fallback `1.2`) |
+| `flow_influence` | `1.0` | Inspector `0–10` |
+| `use_waves` / `use_flow` | `True` / `True` | Sample `height_at` / `flow_at` from `WaterVolume` |
+| `sample_resolution` | `8` | Inspector `2–24` grid per axis |
+| `max_acceleration` | `8.0` | × g clamp on net acceleration |
+| `enable_debug` | `False` | Fills `gizmo_lines` with sample points |
+| Read-only | `submerged_fraction` | `0–1` displaced/total volume |
 
-Tuning order: density until the waterline sits right (deck awash = too dense), hydro drag until stopping feels weighty, waves on for rocking, flow for rivers. Light fast boats want low drag and high max accel; barges want the opposite.
+## Usage in Editor
 
-Sample resolution trades fidelity for cost: high for long hulls (probes along the length catch pitch), low for barrels. Debug Draw shows probes — if they miss the hull, the forces will too.
+Add `Rigidbody` (non-kinematic) + `Box`/`Sphere`/`CapsuleCollider` + `Buoyancy`, place a `WaterVolume` in the scene. Tune `density` vs `water_density`, `linear_drag` for hull feel.
 
-Troubleshooting: sinks → density above water or volume underestimated, check override; vibrates → max accel too high or resolution too low; ignores waves → Use Waves off or outside the WaterVolume; drifts sideways forever → flow influence with an unbalanced current field.
+## Usage in Code
 
-Related: Water, WaterVolume notes, Soft Body, Rigidbody (mass interplay).
+```python
+entity = scene.create_entity("Boat")
+from core.components.physics.rigidbody import Rigidbody
+from core.components.physics.box_collider import BoxCollider
+from core.components.physics.buoyancy import Buoyancy
+
+rb = Rigidbody()
+rb.mass = 500.0
+entity.add_component(rb)
+box = BoxCollider()
+entity.add_component(box)
+b = Buoyancy()
+b.density = 500.0
+b.linear_drag = 8.0
+b.sample_resolution = 8
+entity.add_component(b)
+
+def on_fixed_update(self, dt):
+    # Buoyancy.on_fixed_update runs itself: Archimedes + quadratic/viscous
+    # drag + flow-relative velocity, clamped to max_acceleration * 9.81.
+    frac = b.submerged_fraction
+```
+
+Requires a collider shape (build fails without one) and at least one `WaterVolume` entity, else `submerged_fraction` stays `0`.
+
+## Fixed update notes
+
+- Runs in component `on_fixed_update(dt)` with `dt = Engine._fixed_dt` (`0.02` default); force path is `rb.add_force` / `rb.add_torque`, applied on the next physics push. Skipped when kinematic or Transform-less.
+- Gravity magnitude used internally: `_GRAVITY_MAG = 9.81`.
+
+## Related
+
+Rigidbody, Box/Sphere/Capsule colliders, WaterVolume (environment), Solver & Threading.
+
+## Verified against
+
+- `core/components/physics/buoyancy.py`

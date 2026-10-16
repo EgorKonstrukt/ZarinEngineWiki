@@ -79,6 +79,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Time and Fixed Update</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#serialization">Serialization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../config/">Configuration</a>
@@ -1237,15 +1251,100 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="time-and-fixed-update">Time and Fixed Update</h1>
-<p>TODO: Content pending. This page will document Time and Fixed Update in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p>Frame time flows through <code>Engine.tick()</code>: accumulator + fixed steps (<code>fixed_dt</code>, default <code>0.02</code>, max 5 steps) then one variable-<code>dt</code> update scaled by <code>time_scale</code>.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="overview">Overview</h2>
+<p><code>Engine.tick()</code> is a no-op unless <code>play_mode</code> is <code>True</code>. <code>tick_begin()</code> flushes dirty transforms, measures raw <code>dt</code> with <code>perf_counter</code>, multiplies by <code>time_scale</code>, and accumulates into <code>_fixed_accum</code> (clamped to <code>5 * fixed_dt</code>). Then up to <code>MAX_FIXED_STEPS = 5</code> calls to <code>tick_fixed_step()</code> run <code>Scene.fixed_update(fd)</code> plus system-plugin <code>pre_step</code>/<code>step</code>, each consuming one <code>fixed_dt</code>. <code>tick_update(dt)</code> runs <code>Scene.update(dt)</code> once and updates FPS/TPS counters from unscaled time (0.5 s window). <code>Engine.initialize()</code> reads <code>engine.time_scale</code> (default <code>1.0</code>) and <code>engine.fixed_update_dt</code> (default <code>0.02</code>, minimum <code>0.001</code>) from the global config.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>time_scale</td>
+<td>float</td>
+<td><code>1.0</code></td>
+<td>Setter clamps to <code>&gt;= 0.0</code>; scales <code>dt</code></td>
+</tr>
+<tr>
+<td>fixed_dt</td>
+<td>float</td>
+<td><code>0.02</code></td>
+<td>Setter clamps to <code>&gt;= 0.001</code></td>
+</tr>
+<tr>
+<td>MAX_FIXED_STEPS</td>
+<td>int</td>
+<td><code>5</code></td>
+<td>Cap per <code>tick()</code> (local in <code>loop.py</code>, mirrored in <code>core/config/constants.py</code>)</td>
+</tr>
+<tr>
+<td>fps / tps</td>
+<td>float</td>
+<td><code>0.0</code></td>
+<td>Measured counters, 0.5 s window</td>
+</tr>
+<tr>
+<td>frame_count</td>
+<td>int</td>
+<td><code>0</code></td>
+<td>Incremented per <code>tick_update</code></td>
+</tr>
+<tr>
+<td>tick()</td>
+<td>method</td>
+<td>—</td>
+<td>No-op when not in play mode</td>
+</tr>
+<tr>
+<td>on(event, cb) / off(event, cb)</td>
+<td>methods</td>
+<td>—</td>
+<td>Event bus (<code>EngineEventsMixin</code>)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Play button → <code>start_play()</code> (resets accumulator, <code>Scene.start()</code>, starts <code>GameWorker</code> with <code>rendering.tick_rate</code> 120 Hz / <code>rendering.fixed_tick_rate</code> 60 Hz). Stop → <code>stop_play()</code> (stops worker and all audio). <code>time_scale</code> is editable in settings; <code>0</code> pauses logic time while frames continue.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">engine.time_scale = 0.5   # slow motion: dt halved
+engine.fixed_dt = 1.0 / 60.0
+
+def on_play(data):
+    print(&quot;play started&quot;)
+
+engine.on(&quot;play_start&quot;, on_play)
+engine.off(&quot;play_start&quot;, on_play)
+</code></pre>
+<pre><code class="language-python">class PhysicsReader:
+    def on_fixed_update(self, dt: float):
+        assert dt == engine.fixed_dt  # constant step
+</code></pre>
+<h2 id="serialization">Serialization</h2>
+<p>Not applicable. <code>time_scale</code> / <code>fixed_update_dt</code> persist in <code>~/.zarin/settings.json</code> via <code>Config</code>.</p>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li><a href="../ecs-overview/">ECS Overview</a></li>
+<li><a href="../components-lifecycle/">Components and Lifecycle</a></li>
+<li><a href="../config/">Configuration</a></li>
+<li><a href="../profiler/">Profiler</a></li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/engine/eng/engine.py</code> (<code>__init__</code> defaults, <code>initialize</code>, <code>start_play</code>, <code>stop_play</code>, <code>time_scale</code>/<code>fixed_dt</code> in loop mixin)</li>
+<li><code>core/engine/eng/loop.py</code> (<code>tick</code>, <code>tick_begin</code>, <code>tick_fixed_step</code>, <code>tick_update</code>, FPS/TPS)</li>
+<li><code>core/engine/eng/events.py</code> (<code>on</code>, <code>off</code>, <code>_emit_event</code>)</li>
+<li><code>core/config/constants.py</code> (<code>MAX_FIXED_STEPS = 5</code>)</li>
+<li><code>core/config/config.py</code> (<code>engine.time_scale</code>, <code>engine.fixed_update_dt</code>, <code>rendering.tick_rate</code>, <code>rendering.fixed_tick_rate</code>)</li>
+</ul>
               
             </div>
           </div><footer>

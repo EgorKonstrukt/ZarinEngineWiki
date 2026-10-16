@@ -1,5 +1,13 @@
 # Terrain and Environment
 
-TODO: Section index pending. This page lists all articles in Terrain and Environment.
+Section index for terrain and environment.
 
-Use the left navigation tree to open placeholder pages.
+## Pages
+
+- Terrain — `TerrainSettings`, GPU heightfield, mesh build.
+- Vegetation, Water and Wind — `Tree`, `WaterVolume`, `WindZone`.
+
+## Verified against
+
+- `core/terrain/terrain_generator.py`
+- `core/components/environment/water_volume.py`, `wind_zone.py`, `treep/component.py`

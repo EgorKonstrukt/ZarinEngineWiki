@@ -1168,6 +1168,16 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Плеер и сборка Nuitka</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../tools-profiling/">Инструменты и скрипты профилирования</a>
@@ -1237,15 +1247,88 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="nuitka">Плеер и сборка Nuitka</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Плеер и сборка Nuitka в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p>Путь поставки: <code>player.py</code> (точка входа standalone-рантайма) + <code>build_nuitka.py</code> (тонкая обёртка над <code>tools/nuitka/</code>, все CLI-флаги — в <code>config.py</code>).</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Член</th>
+<th>Сигнатура</th>
+<th>Примечания</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>player.main</code></td>
+<td><code>main()</code> в <code>player.py</code></td>
+<td>Создаёт <code>QApplication</code>, резолвит сцену, поднимает движок без редактора</td>
+</tr>
+<tr>
+<td>Резолвинг сцены</td>
+<td><code>_resolve_startup_scene(project_root: str) -&gt; str</code>, <code>_deduce_project_root(scene_path, fallback)</code></td>
+<td>Путь сцены из <code>sys.argv[1]</code> либо дефолт проекта</td>
+</tr>
+<tr>
+<td>Стейджинг плагинов</td>
+<td><code>_collect_plugin_jobs()</code>, <code>_split_deferred(jobs)</code>, <code>_load_deferred(engine, modules, viewport)</code></td>
+<td>Отложенная загрузка плагинов в плеер</td>
+</tr>
+<tr>
+<td>Стейджинг физики</td>
+<td><code>_start_physics_load(engine)</code></td>
+<td>Фоновый прогрев физсолвера</td>
+</tr>
+<tr>
+<td>Поверхность крашей</td>
+<td><code>excepthook(...)</code>, <code>_log(msg)</code></td>
+<td>Лог в <code>player_diag.txt</code> / <code>crash_logs/</code> в корне репо</td>
+</tr>
+<tr>
+<td>Внешний запуск</td>
+<td><code>launch_external_player(mw)</code>, <code>_resolve_player_command(scene_path)</code>, <code>_write_player_preview(mw, project_root)</code> в <code>editor/main_window/handlersp/play.py</code></td>
+<td>Путь кнопки « Player» редактора</td>
+</tr>
+<tr>
+<td>CLI сборки</td>
+<td><code>python build_nuitka.py [--editor] [--output-dir DIR] [--no-console] [--onefile] [--strip-unused \| --no-strip-unused] [--no-winrt] [--compiler auto\|mingw\|msvc] [--physics culverin\|pybullet\|physx]</code></td>
+<td>Флаги в <code>tools/nuitka/config.py</code></td>
+</tr>
+<tr>
+<td>Константы сборки</td>
+<td><code>ENTRY</code> (<code>player.py</code>, либо <code>main.py</code> с <code>--editor</code>), <code>OUTPUT_DIR</code> (дефолт <code>build_output/</code>), <code>BUILD_EDITOR</code>, <code>NO_CONSOLE</code>, <code>ONEFILE</code>, <code>COMPILER_CHOICE</code>, <code>PHYSICS_CHOICE</code></td>
+<td><code>tools/nuitka/config.py</code></td>
+</tr>
+<tr>
+<td>Шаги сборки</td>
+<td><code>_resolve_physics_solver()</code>, <code>_setup_compiler()</code>, <code>_load_build_settings()</code>, <code>_get_included_scenes(bs)</code> в <code>config.py</code>; <code>build()</code> в <code>tools/nuitka/build.py</code> (+ <code>_minify_pil</code>/<code>_restore_pil</code> вокруг прогона)</td>
+<td>Конфиг → компиляция</td>
+</tr>
+<tr>
+<td>Бандлинг ассетов</td>
+<td><code>_scan_scene_assets(scene)</code>, <code>_resolve_one/_resolve_assets</code>, <code>_collect_asset_dirs</code>, <code>_plugin_include_options(names)</code>, <code>_rmtree_robust(path)</code> в <code>tools/nuitka/assets.py</code></td>
+<td>При strip едут только сцены/плагины/ассеты по ссылкам</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Кнопка <code>Player</code> тулбара (или <code>launch_external_player</code>) пишет preview-файл рядом с проектом и спавнит плеер на текущей сцене. <code>BuildDialog</code> собирает те же флаги, что принимает CLI (цель, компилятор, физика, onefile, консоль, strip, WinRT, выходной каталог), и выполняет сборку с окном лога.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-bash">python player.py path/to/scene.zpes
+python build_nuitka.py --onefile --no-console --physics physx
+python build_nuitka.py --editor --output-dir build_output
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Диалог сборки / менеджер проектов / настройки, Инструменты и профилирование, Менеджер плагинов (плагины в сборке)</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>player.py</code>, <code>build_nuitka.py</code>, <code>tools/nuitka/config.py</code>, <code>tools/nuitka/build.py</code>, <code>tools/nuitka/assets.py</code>, <code>tools/nuitka/__init__.py</code></li>
+<li><code>editor/main_window/handlersp/play.py</code>, <code>_build_BuildSettings.json</code></li>
+<li>Примечание: <code>build_profiles.json</code> в репозитории нет — дефолты сборки живут в <code>tools/nuitka/config.py</code>, постоянные настройки проекта — в состоянии диалога Build Settings.</li>
+</ul>
               
             </div>
           </div><footer>

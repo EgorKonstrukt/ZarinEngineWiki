@@ -253,13 +253,15 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Frost</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    <li class="toctree-l4"><a class="reference internal" href="#shader-snippet">Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1248,102 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="frost">Frost</h1>
-<p>Per-object effect through the ObjectFx pass (unlike PostFX, which processes the whole frame). Built on the shared ObjectEffect base; scripts drive it by animating progress/intensity floats.</p>
-<h2 id="how-it-works">How it works</h2>
-<p>Icy rim and crystal growth creeping from edges with a progress control.</p>
+<blockquote>
+<p>Directional ice coverage. Freeze gradient along direction mixes ice color by coverage × amount; crack pattern scale sets fracture frequency; sparkle adds view glints; rim_power shapes the fresnel rim. Optional animate flag. Class <code>FrostEffect</code> in <code>core/components/rendering/effects/frost_effect.py</code>. ObjectFx pass, same collection/bind path as Dissolve.</p>
+</blockquote>
 <h2 id="parameters">Parameters</h2>
-<p>Progress, crystal density, tint.</p>
-<h2 id="tips">Tips</h2>
-<p>Freeze spells, cryo chambers, winter curse spreading. Reverses cleanly 1→0.</p>
-<h2 id="cost">Cost</h2>
-<p>Cheap.</p>
-<p>Related: <a href="../">Object Effects</a>, Materials, Script Examples.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Amount</td>
+<td><code>amount</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Ice Color</td>
+<td><code>color</code></td>
+<td>COLOR</td>
+<td>—</td>
+<td><code>[0.8, 0.92, 1.0]</code></td>
+</tr>
+<tr>
+<td>Coverage</td>
+<td><code>coverage</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>0.7</code></td>
+</tr>
+<tr>
+<td>Crack Scale</td>
+<td><code>crack_scale</code></td>
+<td>FLOAT</td>
+<td>0.1 – 20.0</td>
+<td><code>3.0</code></td>
+</tr>
+<tr>
+<td>Sparkle</td>
+<td><code>sparkle</code></td>
+<td>SLIDER</td>
+<td>0.0 – 2.0</td>
+<td><code>0.6</code></td>
+</tr>
+<tr>
+<td>Rim Power</td>
+<td><code>rim_power</code></td>
+<td>FLOAT</td>
+<td>0.5 – 8.0</td>
+<td><code>3.0</code></td>
+</tr>
+<tr>
+<td>Freeze Direction</td>
+<td><code>direction</code></td>
+<td>VEC3</td>
+<td>-1.0 – 1.0</td>
+<td><code>(0.0, 1.0, 0.0)</code></td>
+</tr>
+<tr>
+<td>Animate</td>
+<td><code>animate</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">Usage</h2>
+<p>Editor: select the mesh entity, Add Component &gt; <code>FrostEffect</code>, tick <code>enabled</code>, animate the amount fields from a script.</p>
+<p>Code:</p>
+<pre><code class="language-python">from core.components.rendering.effects.frost_effect import FrostEffect
+fx = FrostEffect()
+entity.add_component(fx)
+fx.amount = 0.8
+fx.coverage = 0.9
+fx.enabled = True
+# per-frame: fx.amount = min(1.0, fx.amount + dt * 0.5)
+</code></pre>
+<h2 id="shader-snippet">Shader snippet</h2>
+<p>Shader: <code>core/shaders/internal/ObjectFx.shader (u_frost_* branch)</code>. Bound uniforms: <code>u_frost_amount</code>, <code>u_frost_coverage</code>, <code>u_frost_crack</code>, <code>u_frost_sparkle</code>, <code>u_frost_rim</code>, <code>u_frost_animate</code>, <code>u_time</code>.</p>
+<pre><code class="language-glsl">// _apply uniforms (exact): u_frost_amount, u_frost_coverage, u_frost_crack, u_frost_sparkle, u_frost_rim, u_frost_animate
+</code></pre>
+<h2 id="related">Related</h2>
+<p>Related: <a href="../">Object Effects</a>, ObjectFx pass (<code>core/renderer/object_fx_pass.py</code>), <code>core/shaders/internal/ObjectFx.shader</code>.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/effects/frost_effect.py</code> — class <code>FrostEffect</code>, <code>_inspector_fields</code>, <code>__init__</code> defaults, <code>_apply</code> uniforms.</li>
+<li><code>core/components/rendering/effects/object_effect.py</code> — <code>ObjectEffect</code> base (<code>bind</code> sets <code>u_time</code>, <code>_set</code>/<code>_set_vec</code> guards, <code>reset_all_defaults</code>).</li>
+<li><code>core/renderer/object_fx_pass.py</code> — <code>_find_object_effect</code>, <code>_render_object_effects</code>, <code>_get_fx_program</code>.</li>
+</ul>
               
             </div>
           </div><footer>

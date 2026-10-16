@@ -217,13 +217,17 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Motion Blur</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    <li class="toctree-l4"><a class="reference internal" href="#shader-snippet">Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#performance-notes">Performance notes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1250,77 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="motion-blur">Motion Blur</h1>
-<p>Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.</p>
-<h2 id="how-it-works">How it works</h2>
-<p>Smears fast-moving pixels along screen velocity for perceived smoothness.</p>
+<blockquote>
+<p>Camera/object motion gather. Each pixel is reprojected (velocity buffer or prev/inv view-proj + depth) and accumulated over N samples along the motion vector; pixels below threshold are left sharp. Class <code>MotionBlur</code> in <code>core/components/rendering/postfx/motion_blur.py</code>. Runs in the PostFX stack in component order; skipped when <code>enabled</code> is False or the entity is inactive (<code>render()</code> early-out).</p>
+</blockquote>
 <h2 id="parameters">Parameters</h2>
-<p>Shutter feel/strength, max samples.</p>
-<h2 id="tips">Tips</h2>
-<p>Racing, fast camera swings. Keep subtle or UI smears with it.</p>
-<h2 id="cost">Cost</h2>
-<p>Medium-high by sample count.</p>
-<p>Related: <a href="../">PostFX Stack</a>, Cameras (render scale), Profiler.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Samples</td>
+<td><code>_samples</code></td>
+<td>INT_SLIDER</td>
+<td>4 – 64</td>
+<td><code>16</code></td>
+</tr>
+<tr>
+<td>Strength</td>
+<td><code>_strength</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.5</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Threshold</td>
+<td><code>_threshold</code></td>
+<td>SLIDER</td>
+<td>0.0 – 0.01</td>
+<td><code>0.001</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">Usage</h2>
+<p>Editor: select the PostFX entity, Add Component &gt; <code>MotionBlur</code>, tick <code>enabled</code>, tune fields above. Order among PostFX components defines execution order.</p>
+<p>Code:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.motion_blur import MotionBlur
+fx = MotionBlur()
+entity.add_component(fx)
+fx._samples = 24
+fx._strength = 0.8
+fx.enabled = True
+</code></pre>
+<h2 id="shader-snippet">Shader snippet</h2>
+<p>Shader: <code>core/components/rendering/postfx/motion_blur.py</code>.</p>
+<pre><code class="language-glsl">#version 330 core
+uniform sampler2D u_input_tex;
+uniform sampler2D u_velocity_tex;
+uniform sampler2D u_depth_tex;
+uniform mat4 u_inv_view_proj;
+uniform mat4 u_prev_view_proj;
+// + u_samples, u_strength, u_threshold, u_use_velocity, u_use_velocity_tex
+</code></pre>
+<h2 id="performance-notes">Performance notes</h2>
+<p>Cost scales with Samples (4–64). Requires velocity or valid prev-frame matrices; falls back to depth reprojection.</p>
+<h2 id="related">Related</h2>
+<p>Related: <a href="../">PostFX Stack</a>, <a href="../color-grading/">Color Grading</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/motion_blur.py</code> — class <code>MotionBlur</code>, <code>_inspector_fields</code>, <code>__init__</code> defaults, <code>Velocity / view-projection reprojection gather. Uses u_velocity_tex when present, else reconstructs from u_prev_view_proj × u_inv_view_proj + depth.</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/graphics_effect.py</code> — <code>GraphicsEffect</code> base (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, <code>render()</code> signature).</p>
+</li>
+</ul>
               
             </div>
           </div><footer>

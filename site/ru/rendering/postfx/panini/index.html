@@ -802,13 +802,15 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Панини</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#_2">Как работает</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Параметры</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_3">Параметры</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Использование</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_4">Советы</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Шейдер</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_5">Цена</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Связанное</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_6">Проверено по коду</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1248,66 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Панини</h1>
-<p>Часть стека PostFX: выполняется после главной сцены в порядке компонентов. Построен на общей базе GraphicsEffect с тоглом и собственными полями инспектора.</p>
-<h2 id="_2">Как работает</h2>
-<p>Проекция Панини, выпрямляющая края при широком FOV вместо растягивания лиц.</p>
-<h2 id="_3">Параметры</h2>
-<p>Контролы смешивания/кропа.</p>
-<h2 id="_4">Советы</h2>
-<p>Широкоугольные шутеры (90+), где растяжение краёв мешает чтению прицела.</p>
-<h2 id="_5">Цена</h2>
-<p>Дёшево.</p>
-<p>Связанное: <a href="../">стек PostFX</a>, камеры (render scale), профайлер.</p>
+<blockquote>
+<p>Широкоугольная проекция Панини. Перемаппливает UV, уменьшая растяжение краёв на сверхшироких видах; distance — кривизна, crop_to_fit — баланс кропа и вписывания. Класс <code>PaniniProjection</code> в <code>core/components/rendering/postfx/panini.py</code>. Выполняется в стеке PostFX в порядке компонентов; пропускается при <code>enabled == False</code> или неактивной сущности (ранний выход в <code>render()</code>).</p>
+</blockquote>
+<h2 id="_2">Параметры</h2>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Distance</td>
+<td><code>_distance</code></td>
+<td>FLOAT</td>
+<td>0.0 – 1.0</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Crop to Fit</td>
+<td><code>_crop_to_fit</code></td>
+<td>FLOAT</td>
+<td>0.0 – 1.0</td>
+<td><code>1.0</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">Использование</h2>
+<p>Редактор: выбрать PostFX-сущность, Add Component &gt; <code>PaniniProjection</code>, включить <code>enabled</code>, настроить поля выше. Порядок среди PostFX-компонентов задаёт порядок выполнения.</p>
+<p>Код:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.panini import PaniniProjection
+fx = PaniniProjection()
+entity.add_component(fx)
+fx._distance = 0.6
+fx._crop_to_fit = 1.0
+fx.enabled = True
+</code></pre>
+<h2 id="_4">Шейдер</h2>
+<p>Шейдер: <code>core/components/rendering/postfx/panini.py</code>.</p>
+<pre><code class="language-glsl">#version 330 core
+uniform sampler2D u_input_tex;
+uniform vec2 u_view_extents;
+uniform float u_distance;
+uniform float u_crop_scale;
+</code></pre>
+<h2 id="_5">Связанное</h2>
+<p>См. <a href="../">Стек PostFX</a>, <a href="../color-grading/">Цветокоррекция</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="_6">Проверено по коду</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/panini.py</code> — класс <code>PaniniProjection</code>, <code>_inspector_fields</code>, дефолты <code>__init__</code>, <code>Fullscreen UV reprojection (u_view_extents)</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/graphics_effect.py</code> — базовый <code>GraphicsEffect</code> (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, сигнатура <code>render()</code>).</p>
+</li>
+</ul>
               
             </div>
           </div><footer>

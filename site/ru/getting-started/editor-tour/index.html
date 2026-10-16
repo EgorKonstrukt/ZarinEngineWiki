@@ -640,6 +640,22 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Обзор редактора</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Обзор</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_6">Сериализация</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_7">Скриншоты</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_8">Связанные страницы</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_9">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../first-scene/">Первая сцена</a>
@@ -1237,15 +1253,152 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Обзор редактора</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Обзор редактора в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p>Редактор Zarin — приложение PySide6 (<code>EditorMainWindow</code>): 3D-вьюпорт, Hierarchy, Inspector, панель Project, Console и кнопки Play.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="_2">Обзор</h2>
+<p><code>main.py</code> собирает редактор: OpenGL 4.6 Core <code>QSurfaceFormat</code>, имя приложения <code>Zarin</code>, стиль Fusion, сплэш-скрин на 8 шагов, <code>Engine.initialize()</code>, плагины из <code>plugins/</code> и <code>plugins/user/</code>, <code>CollaborationManager</code>, затем <code>EditorMainWindow</code> с вьюпортом, назначенным в <code>engine.viewport</code>. Повторный запуск <code>main.py</code> пересылает <code>.zpes</code>-пути запущенному инстансу через <code>IpcServer</code>.</p>
+<h2 id="_3">Свойства</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>window_class</td>
+<td>class</td>
+<td><code>EditorMainWindow</code></td>
+<td>Главное окно (<code>editor/main_window</code>)</td>
+</tr>
+<tr>
+<td>viewport</td>
+<td>widget</td>
+<td>ModernGL-based</td>
+<td>3D-вид реального времени; камера редактора с orbit, pan, fly</td>
+</tr>
+<tr>
+<td>hierarchy</td>
+<td>panel</td>
+<td><code>editor/panels/hierarchy</code></td>
+<td>Дерево сущностей; drag для репарента; контекстное меню по правому клику</td>
+</tr>
+<tr>
+<td>inspector</td>
+<td>panel</td>
+<td><code>editor/inspector</code></td>
+<td>Автогенерация полей по метаданным <code>InspectorField</code> (<code>float</code>, <code>int</code>, <code>bool</code>, <code>string</code>, <code>color</code>, <code>enum</code>, <code>Vec2/Vec3</code>, путь к ресурсу с picker, <code>curve</code>, list)</td>
+</tr>
+<tr>
+<td>project</td>
+<td>panel</td>
+<td><code>editor/panels/project</code></td>
+<td>Браузер ассетов; <code>Project → Create → Python Script</code>; даблклик по <code>.py</code> открывает редактор скриптов</td>
+</tr>
+<tr>
+<td>console</td>
+<td>panel</td>
+<td><code>editor/panels/console</code></td>
+<td>Вьюха лога поверх записей <code>Logger</code></td>
+</tr>
+<tr>
+<td>terminal</td>
+<td>panel</td>
+<td><code>editor/panels/terminal</code></td>
+<td>Встроенный терминал</td>
+</tr>
+<tr>
+<td>profiler_panel</td>
+<td>panel</td>
+<td><code>editor/panels/profiler</code></td>
+<td>Оверлей таймингов кадра поверх <code>engine.profiler_data</code></td>
+</tr>
+<tr>
+<td>undo_history</td>
+<td>panel</td>
+<td><code>editor/panels/undo_history_panel.py</code></td>
+<td>Вьюха поверх <code>CommandHistory</code> (<code>undo_text</code> / <code>redo_text</code>)</td>
+</tr>
+<tr>
+<td>timetravel</td>
+<td>panel</td>
+<td><code>editor/panels/timetravel</code></td>
+<td>Вьюха поверх кадров <code>SnapshotRecorder</code></td>
+</tr>
+<tr>
+<td>scripts_panel</td>
+<td>panel</td>
+<td><code>editor/panels/scripts_panel.py</code></td>
+<td>Шейдер-граф док (<code>ScriptsPanel</code>, заголовок <code>Shaders</code>)</td>
+</tr>
+<tr>
+<td>script_editor</td>
+<td>panel</td>
+<td><code>editor/panels/script_editor_panel</code></td>
+<td>Редактор скриптов с проверкой синтаксиса <code>Check</code> / <code>Check Script</code> (<code>_check_current</code>)</td>
+</tr>
+<tr>
+<td>splash_steps</td>
+<td>int</td>
+<td><code>8</code></td>
+<td><code>SplashScreen.set_total_steps(8)</code> в <code>main.py</code></td>
+</tr>
+<tr>
+<td>default_geometry</td>
+<td>size</td>
+<td><code>1920x1080</code></td>
+<td>Центрирование при первом старте</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">Использование в редакторе</h2>
+<ol>
+<li>Hierarchy: правый клик → создать сущность; drag сущностей для репарента (<code>Entity.set_parent</code> с сохранением мира).</li>
+<li>Inspector: <code>Add Component</code> перечисляет <code>ComponentRegistry.all()</code> по категориям; редактирование полей; тогл <code>enabled</code> у каждого компонента.</li>
+<li>Project: создание скриптов, материалов, сцен; файлы сцен — <code>.zpes</code>.</li>
+<li>Play: <code>Engine.start_play()</code>; повторное нажатие — стоп (<code>Engine.stop_play()</code> останавливает всё аудио через <code>AudioSourceManager.stop_all()</code>).</li>
+</ol>
+<h2 id="_5">Использование в коде</h2>
+<pre><code class="language-python">from core.engine.eng import Engine
+
+engine = Engine()
+engine.initialize()
+scene = engine.new_scene(&quot;MyScene&quot;)  # adds &quot;Shadow System&quot; entity, notifies plugins
+engine.start_play()
+# ... Engine.tick() is driven by GameWorker while in play mode ...
+engine.stop_play()
+</code></pre>
+<h2 id="_6">Сериализация</h2>
+<p>Неприменимо. Раскладка редактора не входит в формат сцены.</p>
+<h2 id="_7">Скриншоты</h2>
+<p><img alt="Главное окно редактора ZarinEngine" src="../../../assets/screenshots/editor-main.png" /></p>
+<blockquote>
+<p>Главное окно: вьюпорт, Hierarchy, Inspector, панель Project, Console.
+Файл: <code>assets/screenshots/editor-main.png</code> (проверенная копия
+<code>zarin_screenshot.png</code> из репозитория движка).</p>
+</blockquote>
+<h2 id="_8">Связанные страницы</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li><a href="../quick-start/">Быстрый старт</a></li>
+<li><a href="../first-scene/">Первая сцена</a></li>
+<li><a href="../../core/entity/">Сущность Entity</a></li>
+<li><a href="../../core/logging/">Логирование</a></li>
+<li><a href="../../core/profiler/">Профайлер</a></li>
+<li><a href="../../editor/main-window/">Главное окно</a></li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_9">Проверено по</h2>
+<ul>
+<li><code>main.py</code> (формат, имя приложения, шаги сплэша, папки плагинов, <code>EditorMainWindow</code>, <code>engine.viewport</code>, геометрия, <code>IpcServer</code>)</li>
+<li><code>README.md</code> (раздел Visual Editor)</li>
+<li><code>core/engine/eng/engine.py</code> (<code>new_scene</code>, <code>_add_default_scene_objects</code>, <code>start_play</code>, <code>stop_play</code>)</li>
+<li><code>editor/panels/</code> (листинги папок: hierarchy, project, console, terminal, profiler, timetravel, scripts_panel, script_editor_panel, undo_history_panel, collab, anim, terrain, prefab_editor_panel, plugin_manager_panel)</li>
+<li><code>core/foundation/logger.py</code>, <code>core/foundation/profiler.py</code>, <code>core/foundation/cmd/history.py</code> (источники данных панелей)</li>
+</ul>
               
             </div>
           </div><footer>

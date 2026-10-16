@@ -1280,11 +1280,12 @@
 </tr>
 </tbody>
 </table>
-<p>Lifecycle API: <code>host()</code>, <code>connect()</code>, <code>disconnect()</code> (зеркало плагина в скоупе сцены); <code>on_awake</code> готовит, <code>on_update</code> качает, <code>on_destroy</code> чисто отключается.</p>
-<p>Геймплейный API:</p>
+<p>Lifecycle API: <code>host()</code>, <code>connect()</code>, <code>disconnect()</code> (зеркало плагина в скоупе сцены через <code>NetworkManagerTransportMixin</code>); <code>on_awake</code> регистрирует инстанс и существующие identity, <code>on_update</code> опрашивает общую очередь <code>Transport</code> и диспатчит по <code>MessageType</code>, <code>on_destroy</code> лишь снимает синглтон (не отключается — вызывайте <code>disconnect()</code> явно).</p>
+<p>Геймплейный API (сверен в <code>netmgr/transport.py</code> + <code>netmgr/sync.py</code>):</p>
 <ul>
-<li><code>spawn_prefab(path_or_id)</code> / <code>despawn(entity)</code> / <code>despawn_entity(id)</code> — авторитетный контроль спавна; заспавненные несут NetworkIdentity с prefab id, и ремоуты инстанцируют тот же префаб.</li>
-<li><code>send_rpc(name, payload)</code> — удалённый вызов уровня компонентов всем пирам.</li>
+<li><code>spawn_prefab(prefab_path, pos=None, rot=None, owner_id=None)</code> / <code>spawn_entity(entity, owner_id=None)</code> — авторитетный контроль спавна; заспавненные несут NetworkIdentity с prefab id, и ремоуты инстанцируют тот же префаб.</li>
+<li><code>despawn(net_id: int)</code> / <code>despawn_entity(entity: Entity)</code> — авторитетный деспавн по net id (сервер рассылает <code>NET_DESPAWN</code>; запрос клиента идёт на сервер).</li>
+<li><code>send_rpc(net_id: int, method: str, args: dict | None = None, target: int | None = None)</code> — удалённый вызов уровня компонентов (<code>NET_RPC {"net_id", "method", "args", "target?"}</code>); сервер может unicast через <code>send_to(target)</code>, иначе broadcast.</li>
 </ul>
 <p>Установка: ровно один активный менеджер на сцену (два дерутся за транспорт). Tick rate меняет полосу на свежесть — 10–20 Гц лобби и стратегии, 30–60 шутеры; пороги sync-компонентов важнее сырых тиков.</p>
 <p>Диагностика: двойные спавны — два менеджера или автоспавн плюс ручной; mismatch деспавна — деспавните по id, никогда по локальной ссылке; RPC молчит — хендлер зарегистрирован после старта <code>poll</code> или опечатка имени.</p>

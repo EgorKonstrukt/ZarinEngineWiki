@@ -1249,7 +1249,7 @@
 <li>Native <code>.dll</code> / <code>.so</code> shared libraries with a Python entry shim.</li>
 <li><code>.zplugin</code> signed packages: manifest + code + native modules + bundled libs, verified against <code>config/trusted_keys</code>, extracted once and cached by sha256 fingerprint.</li>
 </ul>
-<p><code>PluginManager</code> (<code>core/foundation/plugin_manager.py</code>, ~1700 lines) owns discovery, <code>_load_order</code>, activation, dependency checks from manifests, security verification, config persistence per plugin, and teardown in reverse order.</p>
+<p><code>PluginManager</code> (<code>core/foundation/plugins/manager.py</code> ~203 lines, plus <code>base.py</code> / <code>discovery.py</code> / <code>loader.py</code> / <code>lifecycle.py</code> / <code>ui_registry.py</code>; re-exported by <code>core/foundation/plugins/__init__.py</code>) owns discovery, <code>_load_order</code>, activation, dependency checks from manifests, security verification, config persistence per plugin, and teardown in reverse order.</p>
 <p>Pages: PluginBase Lifecycle, Plugin Manager, Example Plugin walkthrough, User Plugins guide, .zplugin Packaging, System Plugins catalog, Network Plugin, VR Plugin, MCP Bridge, Music/Plotter/QtQuick extensions.</p>
 <p>Five-minute first plugin: copy <code>plugins/example_plugin.py</code> into <code>plugins/user/my_plugin.py</code>, rename the class and <code>NAME</code>, keep <code>get_plugin()</code> at the bottom, restart the editor — the menu item appears, the toolbar button appears, the run counter persists across sessions.</p>
               

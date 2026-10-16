@@ -1,5 +1,6 @@
 # Build and Tools
 
-TODO: Section index pending. This page lists all articles in Build and Tools.
+Shipping the engine and measuring it — read from `player.py`, `build_nuitka.py`, `tools/`.
 
-Use the left navigation tree to open placeholder pages.
+- Player and Nuitka Build — standalone runtime entry, build CLI flags, asset bundling.
+- Tools and Profiling Scripts — arch gate, disk benches, offline profilers, packagers.

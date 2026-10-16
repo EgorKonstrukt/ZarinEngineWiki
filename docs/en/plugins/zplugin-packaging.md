@@ -14,9 +14,9 @@ Build tools: `tools/build_plugin.py` assembles a plain plugin directory; `tools/
 Install and verification flow:
 
 1. Drop the file where the manager scans (or install from the plugin package panel).
-2. `verify_zplugin_file` validates the manifest, reports missing dependencies by name, and checks the entry index.
-3. Signatures verify against `config/trusted_keys` (plus optional configured dir); untrusted or unsigned packages refuse to activate with an explicit log.
-4. `_zplugin_fingerprint` (sha256 + size + mtime) consults the extraction cache — reinstalls of unchanged files cost nothing.
+2. `verify_zplugin_file` (`core/foundation/plugins/discovery.py:80`) validates the manifest, reports missing dependencies by name, and checks the entry index; payload files re-checked by `_verify_payload_files` (hash mismatch → `modified file`, unindexed `.pyd`/`.so`/`.dll` outside `_native/` rejected).
+3. Signatures (`verify_manifest_signature`) verify against `config/trusted_keys` `*.pub` files (64-hex ed25519 keys, plus optional `trusted_keys_dir`); policy `allow_unsigned` (`warn` default, `strict` blocks): with no keys configured verification reports `no trusted keys configured` instead of silently passing.
+4. `_zplugin_fingerprint` (`core/foundation/plugins/ui_registry.py:130`, sha256 + size + mtime) consults the extraction cache — reinstalls of unchanged files cost nothing.
 5. Activation resolves dependencies, mounts bundled libs, loads the entry.
 
 Updating: bump the manifest version, rebuild, redistribute — the fingerprint changes, the cache re-extracts, dependents re-resolve. Keep `NAME` stable across versions or configs orphan.

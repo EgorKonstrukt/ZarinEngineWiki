@@ -1018,6 +1018,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Деревья, вода, ветер, небо</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api">Свойства / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Связанные</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Проверено по</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1236,16 +1246,90 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="_1">Деревья, вода, ветер, небо</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Деревья, вода, ветер, небо в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+                <h1 id="_1">Деревья, вода, ветер</h1>
+<p>Процедурный <code>Tree</code>, <code>WaterVolume</code> (Box/Infinite) и сэмплеры <code>WindZone</code> для шейдеров и физики.</p>
+<h2 id="api">Свойства / API</h2>
+<table>
+<thead>
+<tr>
+<th>Компонент.поле</th>
+<th>Умолчание</th>
+<th>Смысл</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Tree</code></td>
+<td>—</td>
+<td>Процедурные ствол + кросс-квады листьев (<code>treep/</code>)</td>
+</tr>
+<tr>
+<td><code>WaterVolume.mode</code></td>
+<td>Infinite</td>
+<td><code>Infinite</code> или <code>Box</code> с <code>size</code></td>
+</tr>
+<tr>
+<td><code>WaterVolume.water_level / size / density</code></td>
+<td>0.0 / 100³ / 1000.0</td>
+<td>Высота, размер бокса, плотность</td>
+</tr>
+<tr>
+<td><code>WaterVolume.flow_strength / flow_direction</code></td>
+<td>0.0 / 0.0</td>
+<td>Течение и градусы</td>
+</tr>
+<tr>
+<td><code>WaterVolume.wave_*</code></td>
+<td>0.0 / 0.3 / 1.0 / 1.0</td>
+<td>Амплитуда/частота/скорость/chop; <code>height_at</code>, <code>flow_at</code>, <code>contains</code></td>
+</tr>
+<tr>
+<td><code>WindZone.mode</code></td>
+<td>Global</td>
+<td><code>Global</code> везде или <code>Local</code> в <code>radius</code> с <code>falloff</code></td>
+</tr>
+<tr>
+<td><code>WindZone.direction / speed</code></td>
+<td>45.0 / 8.0</td>
+<td>Градусы и м/с</td>
+</tr>
+<tr>
+<td><code>WindZone.turbulence / gust_* / micro_*</code></td>
+<td>0.4 / 0.5 / 0.15</td>
+<td>Шум, порывы FBM, микроджиттер</td>
+</tr>
+<tr>
+<td><code>WindZone.radius / falloff</code></td>
+<td>100.0 / 0.5</td>
+<td>Экстент локальной зоны</td>
+</tr>
+<tr>
+<td><code>sample(x,z,t)</code></td>
+<td>—</td>
+<td>Словарь <code>dir/speed/turbulence/gust/strength</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">Использование в редакторе</h2>
+<ol>
+<li><code>Tree</code> для растительности; <code>WaterVolume</code> для озёр/морей (<code>Box</code> — пруд, <code>Infinite</code> — уровень моря).</li>
+<li><code>WindZone</code> (<code>Global</code> — погода, <code>Local</code> — порывы во дворе); сначала direction/speed, затем turbulence/gusts.</li>
+<li><code>height_at</code> — плавучесть; <code>sample</code> — ткань/частицы/деревья.</li>
+</ol>
+<h2 id="_3">Использование в коде</h2>
+<pre><code class="language-python">water = entity.get_component_by_name(&quot;WaterVolume&quot;)
+h = water.height_at(x, z, t)
+wind = entity.get_component_by_name(&quot;WindZone&quot;)
+s = wind.sample(x, z, t)
+</code></pre>
+<h2 id="_4">Связанные</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Террейн, физика плавучести</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_5">Проверено по</h2>
+<ul>
+<li><code>core/components/environment/treep/component.py</code>, <code>water_volume.py</code>, <code>wind_zone.py</code></li>
+</ul>
               
             </div>
           </div><footer>

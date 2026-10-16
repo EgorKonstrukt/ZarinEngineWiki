@@ -475,6 +475,16 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Input System</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties-api">Properties / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,15 +1247,95 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="input-system">Input System</h1>
-<p>TODO: Content pending. This page will document Input System in ZarinEngine.</p>
-<p>Planned sections:</p>
+<p>Two layers: low-level <code>InputManager</code> (pynput + Qt feed, per-frame pressed/released) and gameplay <code>Input</code> facade (<code>GetKey</code>, axes, buttons, cursor).</p>
+<h2 id="properties-api">Properties / API</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Source</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>InputManager.start/stop/new_frame</code></td>
+<td><code>core/input/input_manager.py</code></td>
+<td>Listener lifecycle, per-frame clear</td>
+</tr>
+<tr>
+<td><code>feed_key(vk, pressed) / feed_mouse_button / feed_scroll / set_surface_size</code></td>
+<td><code>input_manager.py</code></td>
+<td>Qt/event injection</td>
+</tr>
+<tr>
+<td><code>is_key_pressed / key_just_pressed / key_just_released</code></td>
+<td><code>input_manager.py</code></td>
+<td><code>vk</code> polling</td>
+</tr>
+<tr>
+<td><code>is_mouse_pressed / mouse_just_pressed / mouse_just_released / get_mouse_pos / consume_scroll</code></td>
+<td><code>input_manager.py</code></td>
+<td>Mouse polling</td>
+</tr>
+<tr>
+<td><code>KeyCode</code></td>
+<td><code>core/input/inpsys/keys.py</code></td>
+<td>GLFW-like codes: <code>W</code> 87, <code>SPACE</code> 32, <code>ESCAPE</code> 256, <code>F1</code>–<code>F12</code> 290–301, <code>MOUSE_LEFT</code> 1000 …; <code>from_name(name)</code></td>
+</tr>
+<tr>
+<td><code>Input.GetKey/GetKeyDown/GetKeyUp</code></td>
+<td><code>core/input/inpsys/gamepad.py</code></td>
+<td>Key state by <code>KeyCode</code></td>
+</tr>
+<tr>
+<td><code>Input.GetMouseButton/Down/Up</code>, <code>mousePosition/mouseDelta/mouseScrollDelta</code></td>
+<td><code>gamepad.py</code></td>
+<td>Mouse state</td>
+</tr>
+<tr>
+<td><code>Input.DefineAxis/DefineButton/DefineMouseAxis</code>, <code>GetAxis/GetAxisRaw</code>, <code>GetButton/Down/Up</code></td>
+<td><code>gamepad.py</code></td>
+<td>Named mappings (<code>gravity</code> 3.0, <code>dead</code> 0.001, <code>sensitivity</code> 1.0, <code>snap</code>, <code>invert</code>)</td>
+</tr>
+<tr>
+<td><code>Input.OnEvent/OffEvent</code>, <code>anyKey/anyKeyDown</code></td>
+<td><code>gamepad.py</code></td>
+<td>Event hooks + any-key</td>
+</tr>
+<tr>
+<td><code>cursorLocked/cursorVisible</code>, <code>CursorLockMode</code>, <code>_Cursor</code></td>
+<td><code>gamepad.py</code></td>
+<td>Cursor state</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<ol>
+<li>Bind project axes/buttons (<code>Input.DefineAxis("Horizontal", …)</code>, <code>DefineButton("Jump", …)</code>) at startup or via project bindings <code>LoadProjectBindings</code>.</li>
+<li>Read them per frame; call <code>Input.begin_frame()</code> / <code>end_frame()</code> around updates (handled by the player loop).</li>
+<li>Lock/hide cursor for FPS mode via <code>set_cursor_locked</code> / <code>set_cursor_visible</code>.</li>
+</ol>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from core.input.inpsys.gamepad import Input
+from core.input.inpsys.keys import KeyCode
+
+Input.DefineAxis(&quot;Horizontal&quot;, positive=[KeyCode.D], negative=[KeyCode.A])
+Input.DefineButton(&quot;Jump&quot;, keys=[KeyCode.SPACE])
+
+def on_update(self, dt):
+    x = Input.GetAxis(&quot;Horizontal&quot;)
+    if Input.GetButtonDown(&quot;Jump&quot;) or Input.GetKeyDown(KeyCode.SPACE):
+        self.jump()
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Math (dead zones), GUI events, Player loop</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/input/input_manager.py</code>, <code>core/input/inpsys/gamepad.py</code>, <code>manager.py</code>, <code>keys.py</code>, <code>constants.py</code></li>
+</ul>
               
             </div>
           </div><footer>

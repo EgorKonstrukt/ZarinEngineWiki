@@ -1192,6 +1192,14 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">GUI-меню, префабы, аудио, сборка</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#gui-button-label">А. GUI-меню (Button + Label)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#zpep">Б. Префабы (переиспользование .zpep)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#audiosource">В. Аудио (AudioSource + слушатель)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_1">Г. Запуск и поставка</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,15 +1245,63 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="gui-">GUI-меню, префабы, аудио, сборка</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел GUI-меню, префабы, аудио, сборка в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<p>Четыре независимых мини-урока на одной сцене. Каждый самодостаточен.</p>
+<h2 id="gui-button-label">А. GUI-меню (Button + Label)</h2>
+<p>GUI-виджеты — ECS-компоненты, рисуемые оверлеем <code>GuiCanvas</code>; события виджетов расходятся как Python-сигналы, виджеты работают и в редакторе, и в рантайме.</p>
+<ol>
+<li>Создаём сущность <code>Menu</code>. <code>Add Component</code> → <code>ButtonComponent</code>: в инспекторе <code>widget_text</code> (по умолчанию <code>"Button"</code>); ставим <code>"Start"</code>.</li>
+<li>Создаём сущность <code>Score</code>. <code>Add Component</code> → <code>LabelComponent</code>: <code>widget_text</code> (по умолчанию <code>"Label"</code>) плюс <code>H Align</code> (<code>left</code>/<code>center</code>/<code>right</code>); ставим текст <code>"Score: 0"</code>.</li>
+<li>Вешаем скрипт на <code>Score</code> (<code>Project → Create → Python Script</code> → <code>score.py</code>, <code>Add Component → Scripts</code>):</li>
+</ol>
+<pre><code class="language-python">class Score:
+    points: int = 0
+
+    def on_awake(self):
+        self.label = self._entity.get_component_by_name(&quot;LabelComponent&quot;)
+
+    def on_update(self, dt):
+        if Input.GetKeyDown(KeyCode.SPACE):
+            self.points = self.points + 1
+            if self.label:
+                self.label.widget_text = f&quot;Score: {self.points}&quot;
+</code></pre>
+<ol>
+<li>Жмём <code>Play</code>, бьём по <code>Space</code>: метка обновляется в оверлее. Паттерн общий — скриптом рулится любое поле компонента, доступное через <code>get_component_by_name</code>.</li>
+</ol>
+<h2 id="zpep">Б. Префабы (переиспользование <code>.zpep</code>)</h2>
+<ol>
+<li>Выбираем готовое поддерево сущностей (например, <code>Ball</code> с <code>Rigidbody</code> + <code>SphereCollider</code> + скриптом). Сохраняем как <code>.zpep</code> (Zarin Prefab) — файл хранит поддерево со стабильными GUID.</li>
+<li>Инстанцируем <code>.zpep</code> в любую сцену: движок перемаппивает GUID под каждый инстанс, внутренние ссылки поддерева остаются целы.</li>
+<li>Правки конкретного инстанса (значения инспектора после инстанцирования) сериализуются как оверрайды рядом с GUID префаба — сам файл префаба не трогается.</li>
+<li>Сущности на префабах несут в JSON сцены <code>prefab_guid</code> / <code>prefab_source_id</code>; удаление этих ключей превращает инстанс в обычную локальную копию.</li>
+</ol>
+<h2 id="audiosource">В. Аудио (AudioSource + слушатель)</h2>
+<ol>
+<li>Создаём сущность <code>Music</code>. <code>Add Component</code> → <code>AudioSource</code>. Настоящие поля инспектора: <code>Clip</code> (<code>clip_path</code>, фильтр <code>*.wav *.mp3 *.ogg *.flac</code>), <code>Volume</code> 0–1, <code>Pitch</code> −3–3, <code>Loop</code>, <code>Play On Awake</code>, <code>Spatial Blend</code> 0–1, <code>Zone Shape</code> (sphere/box), <code>Min/Max Distance</code>, внутренний/внешний размеры бокса, кривая <code>Volume Rolloff</code>, <code>Offset</code>, времена fade in/out.</li>
+<li>Указываем <code>Clip</code> на аудиофайл проекта, включаем <code>Loop</code> и <code>Play On Awake</code> — либо триггерим из скрипта:</li>
+</ol>
+<pre><code class="language-python">class Dj:
+    def on_awake(self):
+        self.src = self._entity.get_component_by_name(&quot;AudioSource&quot;)
+
+    def on_update(self, dt):
+        if Input.GetKeyDown(KeyCode.M):
+            if self.src:
+                if self.src.is_playing:
+                    self.src.stop()
+                else:
+                    self.src.play()
+</code></pre>
+<ol>
+<li>Позиционному звуку нужны уши: добавьте компонент <code>AudioListener</code> на сущность камеры. Рантайм-API: <code>play()</code> / <code>stop()</code> / <code>is_playing</code>; <code>stop()</code> при заданном <code>Fade Out Time</code> гасит плавно. Edge case: <code>AudioSource.on_enable</code> сам стартует воспроизведение, когда задан <code>clip_path</code>, — даже без <code>Play On Awake</code>, — так что повторное включение сущности перезапускает клип.</li>
+<li>Жмём <code>Play</code>: с <code>Play On Awake</code> клип стартует сразу; <code>M</code> переключает. Затухание в 3D идёт по <code>Min/Max Distance</code> и кривой rolloff.</li>
+</ol>
+<h2 id="_1">Г. Запуск и поставка</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Запуск сцены без редактора: <code>python player.py SampleScene.zpes</code> (подходит любой путь <code>.zpes</code>; константа сцены по умолчанию — <code>"SampleScene.zpes"</code>).</li>
+<li>Standalone-билд: <code>python build_nuitka.py</code> (на базе Nuitka; настройки сборки — в <code>BuildSettings.json</code>). Плеер пишет диагностику в <code>player_diag.txt</code>, краш-репорты — в <code>crash_logs/</code>.</li>
+<li>Файлы сцен переносимы: <code>script_path</code> и ссылки на материалы/текстуры хранятся относительно корня проекта.</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
               
             </div>
           </div><footer>

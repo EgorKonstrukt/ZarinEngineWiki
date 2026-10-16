@@ -888,6 +888,18 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Terrain-коллайдер</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#_1">Свойства</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Использование в коде</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#fixed-update">Заметки о fixed update</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Связанные</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../gs-volume-collider/">GS Volume Collider</a>
@@ -1238,50 +1250,98 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="terrain-">Terrain-коллайдер</h1>
-<p>Heightfield-коллизия по данным террейна: единственный sane способ сталкиваться с ландшафтами — гладкий высотный сэмплинг вместо миллионов треугольников.</p>
+<p>Heightfield-коллизия по данным террейна: гладкий высотный сэмплинг вместо миллионов треугольников.</p>
+<h2 id="_1">Свойства</h2>
 <table>
 <thead>
 <tr>
-<th>Группа / поле инспектора</th>
-<th>Смысл</th>
+<th>Поле</th>
+<th>По умолчанию</th>
+<th>Примечания</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Collision: Layer / Collision Mask</td>
+<td><code>layer</code> / <code>mask</code></td>
+<td><code>0</code> / <code>0xFFFF</code></td>
 <td>Фильтрация</td>
 </tr>
 <tr>
-<td>Terrain: World Size</td>
-<td>XZ-протяжённость heightfield в юнитах</td>
+<td><code>size</code></td>
+<td><code>(1000.0, 60.0, 1000.0)</code></td>
+<td>Мировой размер <code>(x, y, z)</code></td>
 </tr>
 <tr>
-<td>Terrain: Height Scale</td>
-<td>Множитель вертикального преувеличения</td>
+<td><code>height_scale</code></td>
+<td><code>60.0</code></td>
+<td>Вертикальный масштаб</td>
 </tr>
 <tr>
-<td>Terrain: Resolution</td>
-<td>Плотность высотных сэмплов (точность против памяти)</td>
+<td><code>resolution</code></td>
+<td><code>256</code></td>
+<td>Сэмплов на сторону; <code>set_height_data</code> обновляет из формы массива</td>
 </tr>
 <tr>
-<td>Terrain: Center</td>
-<td>Локальный сдвиг</td>
+<td><code>center</code></td>
+<td><code>(0, 0, 0)</code></td>
+<td>Смещение</td>
 </tr>
 <tr>
-<td>Is Trigger</td>
-<td>События пересечения без контактного отклика</td>
+<td><code>is_trigger</code></td>
+<td><code>False</code></td>
+<td>Только пересечение</td>
 </tr>
 <tr>
-<td>Material: Physic Material</td>
-<td>Оверрайд ассетом <code>.zphysmat</code></td>
+<td><code>physic_material</code></td>
+<td><code>""</code></td>
+<td><code>.zphysmat</code></td>
+</tr>
+<tr>
+<td><code>material_friction</code></td>
+<td><code>0.9</code></td>
+<td>Выше, чем у остальных коллайдеров</td>
+</tr>
+<tr>
+<td><code>material_bounciness</code></td>
+<td><code>0.0</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>height_data</code></td>
+<td><code>None</code></td>
+<td>2D <code>np.ndarray</code> высот</td>
 </tr>
 </tbody>
 </table>
-<p>Коллайдер обязан совпадать с визуальным террейном: тот же world size, тот же height scale, то же семейство resolution. Перегенерируйте после каждого скульпта — классический баг невидимых стен / парящего игрока это несвежий heightfield против отредактированного меша.</p>
-<p>Гид разрешения: геймплейной точности нужны сэмплы плотнее мельчайшей трогаемой фичи (бордюры, колеи); дальние горы остаются грубыми. Избыточное разрешение жжёт память и время готовки за нулевой геймплейный выигрыш.</p>
-<p>Персонажи идут по heightfield гладко, где меш-коллайдеры стучали бы на рёбрах треугольников — ещё причина всегда pair террейн с этим коллайдером, никогда с меш-.</p>
-<p>Диагностика: тонет по колени — mismatch height scale; парит — несвежее поле, перегенерируйте; обрывы по краям — world size меньше визуала, расширьте; долгая загрузка — перебор resolution, делите пополам.</p>
-<p>Связанное: террейн (раздел рендеринга), Rigidbody, Mesh-коллайдер, CharacterController (перекличка max slope).</p>
+<h2 id="_2">Использование в редакторе</h2>
+<p><code>World Size</code>, <code>Height Scale</code>, <code>Resolution</code>, высоты из системы террейна (<code>set_height_data</code>), слой/маска.</p>
+<h2 id="_3">Использование в коде</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Ground&quot;)
+from core.components.physics.terrain_collider import TerrainCollider
+import numpy as np
+
+tc = TerrainCollider()
+tc.size = Vec3(1000.0, 60.0, 1000.0)
+tc.height_scale = 60.0
+tc.set_height_data(np.zeros((256, 256), dtype=np.float32))
+entity.add_component(tc)  # статика: без Rigidbody
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+</code></pre>
+<p><code>cell_size()</code> = <code>(size.x/(res-1), size.z/(res-1))</code>.</p>
+<h2 id="fixed-update">Заметки о fixed update</h2>
+<ul>
+<li>Вызов: <code>create_rigid_body(shape_type="heightfield", ...)</code>; Culverin децимирует сетки выше <code>8000</code> вершин, без данных — варнинг. <code>heightfield</code>-довески всегда статичны. <code>dt</code> — <code>Engine._fixed_dt</code> (<code>0.02</code>).</li>
+</ul>
+<h2 id="_4">Связанные</h2>
+<p>Rigidbody, Mesh, материалы, слои.</p>
+<h2 id="_5">Проверено по</h2>
+<ul>
+<li><code>core/components/physics/terrain_collider.py</code></li>
+<li><code>core/physics/shapep/shapes.py</code></li>
+<li><code>physics_solvers/culverin_solver/solverp/solver.py</code></li>
+</ul>
               
             </div>
           </div><footer>

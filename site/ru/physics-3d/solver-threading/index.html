@@ -906,6 +906,18 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Солвер и многопоточность</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#fixed-update">Заметки о fixed update</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Связанные</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_6">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" >Продвинутые тела</a>
@@ -1237,27 +1249,112 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Солвер и многопоточность</h1>
-<p>Где реально работает симуляция и как данные пересекают границу потоков/процессов, никогда не блокируя геймплейный код.</p>
-<p>Режимы выполнения:</p>
+<p>Где реально работает симуляция и как данные пересекают границу потоков/процессов, не блокируя геймплейный код.</p>
+<h2 id="_2">Свойства</h2>
+<table>
+<thead>
+<tr>
+<th>Настройка</th>
+<th>По умолчанию</th>
+<th>Где</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>simulation_mode</code></td>
+<td><code>multi_threaded</code></td>
+<td><code>single</code> / <code>multi_threaded</code> / <code>per_layer_process</code></td>
+</tr>
+<tr>
+<td><code>solver</code></td>
+<td><code>culverin</code></td>
+<td><code>culverin</code> (Jolt) / <code>pybullet</code> / <code>physx</code></td>
+</tr>
+<tr>
+<td><code>fixed_time_step</code></td>
+<td><code>0.02</code></td>
+<td>Шаг <code>dt</code></td>
+</tr>
+<tr>
+<td><code>num_sub_steps</code></td>
+<td><code>2</code></td>
+<td>Конфиг (собственный дефолт PyBullet-солвера <code>1</code>; Culverin/Jolt игнорирует)</td>
+</tr>
+<tr>
+<td><code>solver_iterations</code></td>
+<td><code>10</code></td>
+<td>Конфиг (собственный дефолт PyBullet <code>50</code>; Culverin/Jolt игнорирует)</td>
+</tr>
+<tr>
+<td><code>erp</code> / <code>contact_erp</code> / <code>friction_erp</code></td>
+<td><code>0.2</code> / <code>0.2</code> / <code>0.0</code></td>
+<td>Конфиг (собственные дефолты PyBullet <code>erp</code>/<code>contact_erp</code> — <code>0.4</code>; Culverin/Jolt игнорирует)</td>
+</tr>
+<tr>
+<td><code>culverin_max_bodies</code> / <code>max_pairs</code> / <code>max_contact_constraints</code></td>
+<td><code>65536</code></td>
+<td>Капы Jolt-мира</td>
+</tr>
+<tr>
+<td><code>culverin_temp_allocator_size</code></td>
+<td><code>16777216</code></td>
+<td>16 МБ</td>
+</tr>
+<tr>
+<td><code>culverin_num_threads</code> / <code>max_jobs</code> / <code>max_barriers</code></td>
+<td><code>0</code> / <code>0</code> / <code>0</code></td>
+<td><code>0</code> = однопоточный Jolt</td>
+</tr>
+<tr>
+<td><code>culverin_penetration_slop</code></td>
+<td><code>0.02</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>culverin_enable_ccd</code> / <code>enable_sleeping</code></td>
+<td><code>False</code> / <code>True</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Флаги shared-памяти</td>
+<td><code>1</code> active, <code>2</code> dirty, <code>4</code> kinematic/teleport, <code>8</code> 2D</td>
+<td><code>SharedPhysicsBuffer</code></td>
+</tr>
+<tr>
+<td>Лимиты</td>
+<td><code>65536</code> сущностей, <code>16</code> soft-тел × <code>32768</code> вершин</td>
+<td>Буферы</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">Использование в редакторе</h2>
+<p>Прототип — дефолтный <code>multi_threaded</code>. Для <code>CharacterController</code>/<code>Motor</code> и отладки — <code>single</code>; для изолированных арен — <code>per_layer_process</code>.</p>
+<h2 id="_4">Использование в коде</h2>
+<pre><code class="language-python"># Рантайм API солвера (IPhysicsSolver):
+solver.set_gravity((0.0, -9.81, 0.0))
+solver.step_simulation(0.02)
+solver.apply_force(body_id, (0.0, 10.0, 0.0))
+solver.apply_torque(body_id, (0.0, 1.0, 0.0))
+solver.apply_impulse(body_id, (0.0, 5.0, 0.0))
+hit = solver.ray_cast((0.0, 5.0, 0.0), (0.0, -1.0, 0.0), 100.0)
+</code></pre>
+<p>Порядок фонового шага: склейка <code>step</code>-команд в один <code>dt</code> → телепорты/силы из shared-памяти → <code>step_simulation(dt)</code> → обнуление внеплоскостных скоростей 2D → запись назад с bump версии (+ soft-буферы) → маппинг id тел в id сущностей для событий. In-process путь зеркалит без сериализации: регистрация → проверка форм (каждые 60 шагов) → ECS→физика → разделение soft-тел (только при <code>≥2</code>) → шаг → 2D-ограничение → физика→ECS → soft-синхронизация → события.</p>
+<h2 id="fixed-update">Заметки о fixed update</h2>
 <ul>
-<li><code>single</code> — <code>PhysicsScene</code> + солвер в процессе игры. Минимальная задержка, простейшая отладка, требуется CharacterController (читает состояние мира напрямую).</li>
-<li><code>multi_threaded</code> (по умолчанию) — демон-<code>multiprocessing.Process</code> владеет солвером; очереди команд/результатов плюс <code>SharedPhysicsBuffer</code> / <code>SoftSharedBuffer</code> несут трансформы, скорости, силы и события.</li>
-<li><code>per_layer_process</code> — процессы солвера по требованию на слой для изолированных суб-симуляций.</li>
+<li><code>Engine.tick_fixed_step</code>: накопление по <code>_fixed_dt</code> (<code>0.02</code>), потолок <code>5 * _fixed_dt</code>, макс. <code>5</code> шагов/тик, затем <code>scene.fixed_update(fd)</code> (компонентный <code>on_fixed_update</code>) и наконец <code>step(fd)</code> системных плагинов.</li>
+<li><code>PhysicsWorker</code>: демон <code>threading.Thread</code>, опрос очереди <code>0.004</code> с. <code>SceneThreadPool</code>: <code>max_workers = 2</code>, <code>ThreadPoolExecutor</code> <code>phys-scene</code>.</li>
+<li>ECS→физика — только по грязному трансформу или накопленной силе; физика→ECS пропускает кинематику/грязные; аккумуляторы сил очищаются каждый пуш — <code>add_force</code> вызывать каждый шаг.</li>
 </ul>
-<p>Фоновый шаг по порядку:</p>
-<ol>
-<li>Висящие команды <code>step</code> сливаются в один <code>dt</code> — фризы никогда не уходят в спираль догона.</li>
-<li>Воркер применяет телепорты (<code>set_body_transform</code>) или скорости/силы/моменты из общей памяти в тела.</li>
-<li><code>solver.step_simulation(dt)</code> интегрирует; 2D-тела сразу получают обнуление внеплоскостных скоростей.</li>
-<li>Позиции, повороты и скорости пишутся назад с bump версии; вершины soft-body, центры масс и скорости — в soft-буфер.</li>
-<li>События маппят id тел на id сущностей и уходят в очередь результатов для диспатча в скрипты с силами удара.</li>
-</ol>
-<p>Флаги тел в общей памяти: 1 = активно, 2 = грязная скорость, 4 = телепорт, 8 = 2D-тело. Внутрипроцессный путь повторяет порядок без сериализации: регистрация → ECS-в-физику → шаг → ограничение 2D → физика-в-ECS → soft-синк → события.</p>
-<p>Детали синка, которые важны: ECS-в-физику пушит только при грязном трансформе или накопленных силах — нетронутые спящие тела бесплатны; физика-в-ECS пропускает kinematic и грязные тела (ведомы трансформом, не перезаписываются); аккумуляторы сил сбрасываются после каждого пуша — <code>add_force</code> для постоянной тяги дёргайте каждый fixed-шаг.</p>
-<p>Обвязка: <code>Engine.tick_fixed_step</code> копит реальное время относительно <code>_fixed_dt = 0.02</code>, выполняет <code>pre_step</code> плагинов, <code>scene.fixed_update</code>, затем шаг физики. Фризы рендера не меняют физический <code>dt</code> — детерминизм держится.</p>
-<p>Выбор режима: прототип на дефолтном multi-threaded; single при CharacterController или отладке солвера; per-layer для арен миниигр без взаимодействий.</p>
-<p>Диагностика: ватный отклик — фоновый процесс голодает, смотрите CPU или переходите на single; телепорт проигнорирован — тело спит или гонка флага, будите записью скорости; несвежие чтения в скриптах — читаете между шагами, так задумано: действуйте в <code>on_fixed_update</code>.</p>
-<p>Связанное: обзор физики, Rigidbody, слои коллизий, CharacterController, профайлер (physics_ms).</p>
+<h2 id="_5">Связанные</h2>
+<p>Обзор физики, Rigidbody, слои, CharacterController, Motor.</p>
+<h2 id="_6">Проверено по</h2>
+<ul>
+<li><code>core/physics/proc/process.py</code>, <code>proc/sync.py</code></li>
+<li><code>core/physics/physics_worker.py</code>, <code>scene/scene.py</code>, <code>scene/threadpool.py</code></li>
+<li><code>core/physics/shared_buffer.py</code>, <code>soft_shared_buffer.py</code></li>
+<li><code>core/config/config.py</code>, <code>core/engine/eng/loop.py</code>, <code>plugins/physics_plug/plugin.py</code></li>
+<li><code>physics_solvers/registry.py</code>, <code>culverin_solver/solverp/solver.py</code></li>
+</ul>
               
             </div>
           </div><footer>

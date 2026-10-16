@@ -1,17 +1,38 @@
-# Материалы (.zpem)
+# Материалы
+> Ассет материала: `.mat` JSON (`core/assets/matp/materials.py:14-169`), резолвит/кэширует `MaterialManager` (`core/renderer/mats/manager.py:54-80`).
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+`Material { name, shader_path, properties }`. `shader_path = "default"` — встроенный PBR; иначе поиск от корня проекта, затем `core/shaders/` движка (`materials.py:26-46`). Отсутствующие файлы варнят один раз и откатываются на дефолт (`manager.py:63-71`). `MeshRenderer.materials[i].path` указывает на `.mat`.
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `name` | string | `""` | Имя материала (`materials.py:14-24`). |
+| `shader_path` | string | `"default"` | Путь `.shader` или `default` (`materials.py:48-52,110-118`). |
+| `properties` | object | `{}` | Юниформы: `_BaseColor`, `_Metallic`, `_Smoothness` (`manager.py:89-96`). |
+## Usage in Editor
+Создать `.mat` в Assets, выбрать Shader, править открытые свойства. Назначать в слоты [Mesh Renderer](./mesh-renderer.md).
+## Usage in Code
+```python
+from core.assets.matp import Material
+m = Material.load("assets/materials/Brick.mat", project_root)
+```
+## Material/Shader snippet
+`assets/materials/ProBuilderPrototype.mat` (дословно):
+```json
+{"name": "ProBuilderPrototype", "properties": {"_BaseColor": [1.0, 1.0, 1.0, 1.0], "_EmissionColor": [0.0, 0.0, 0.0, 0.0], "_EmissionIntensity": 0.0, "_Metallic": 0.0, "_Smoothness": 0.5, "albedo_texture": "../textures/prototype_texture.png"}, "shader_path": "default"}
+```
+## Скриншоты
 
-Ассеты материалов — `.zpem` (и легаси `.mat`), оба JSON-документы `{name, shader_path, properties}`. Пустой `shader_path` откатывается на шейдер по умолчанию. Недостающие свойства добиваются из блока `Properties` шейдера при загрузке — рукописные файлы несут только оверрайды.
+![Прототипная текстура (WALL, 1x1 метр, 1024x1024)](../../assets/screenshots/prototype-texture.png)
 
-Маппинг текстурных uniform (выдержка): `albedo_texture → u_albedo_tex`, `normal → u_normal_tex`, `roughness → u_roughness_tex`, плюс прямые `_BaseMap`, `_NormalMap`, `_OcclusionMap`. Алиасы значений: `_BaseColor → u_albedo_color`, `_Metallic → u_metallic`, `_Smoothness → u_smoothness`, `_EmissionColor → u_emission`.
+> `prototype_texture.png`, используемая в `assets/materials/ProBuilderPrototype.mat`
+> как `albedo_texture`. Файл: `assets/screenshots/prototype-texture.png`
+> (проверенная копия `prototype_texture.png` из репозитория движка; идентична
+> `assets/textures/prototype_texture.png`).
 
-Дефолты при отрисовке: albedo белый `[1,1,1,1]`, metallic 0, smoothness 0.5, emission 0, белая 1×1 на юните 0, реальные текстуры с юнита 1 с флагами `*_Active` / `u_use_*` на каждую карту.
-
-Правило прозрачности: поверхность прозрачна, когда альфа ниже `0.999` или забинденная albedo-текстура содержит альфа-канал (определяется инспекцией) — ручной blend-флаг забывать негде.
-
-Процесс: создание мастером материалов (выбор шейдера, скелет дефолтов), превью в миниатюре, назначение в слоты MeshRenderer, живая настройка в инспекторе — рантайм-правки применяются без реимпорта. Материалы сериализуются путём — переименование файла рвёт слоты до перепейка; переименовывайте действием панели Project.
-
-Быстрый гид PBR (свойства `PBR.shader`): `_BaseColor`/`_BaseMap` для albedo, `_Metallic` 0 диэлектрик / 1 металл, `_Smoothness` для глянца, `_NormalMap` для деталей, `_OcclusionMap` для щелей, `_EmissionColor` × `_EmissionIntensity` для свечения, `_Cutoff` для alpha-tested выреза, `_Transmission`/`_IOR` для стеклоподобной трансмиссии, `_double_sided` для листвы и карточек.
-
-Диагностика: чёрная поверхность — упал шейдер и у дефолта нет света, смотрите консоль; неверные цвета — mismatch sRGB/linear или пропущенный флаг `u_use_*`; невидимая прозрачность — альфа ровно 1 при альфа-текстуре или сортировка глубины против другой прозрачности; потери правок — правили копию превью, примените назад в ассет.
-
-Связанное: шейдеры, MeshRenderer, мастер материалов и превью (руководство по редактору), текстуры и сжатие.
+## Related pages
+- [Shaders](./shaders.md), [Mesh Renderer](./mesh-renderer.md), [Pipeline](./pipeline.md)
+## Verified against
+- `core/assets/matp/materials.py:14-169`
+- `core/renderer/mats/manager.py:54-100`
+- `assets/materials/ProBuilderPrototype.mat`

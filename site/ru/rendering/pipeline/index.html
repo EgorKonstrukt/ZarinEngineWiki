@@ -680,6 +680,14 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Конвейер ModernGL и Scene Renderer</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" >Камеры</a>
@@ -1236,26 +1244,77 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="moderngl-scene-renderer">Конвейер ModernGL и Scene Renderer</h1>
-<p>Контексты:</p>
+                <h1 id="_1">Конвейер</h1>
+<blockquote>
+<p>Прямой конвейер в <code>SceneRendererMixin.render_scene</code>: сбор снапшота → карты теней → фаза opaque → фаза transparent → окружение (небо/вода/облака) → редакторные оверлеи.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p><code>render_scene(scene, view_mat, proj_mat, cam_pos, viewport_w, viewport_h, ...)</code> (<code>core/renderer/scenev/mixin.py:24</code>) применяет <code>_render_scale</code>, собирает <code>_RenderSnapshot</code> (свет, <code>dir_light</code>, компоненты неба/облаков/воды, рисуемые записи), рисует тени через <code>ShadowRenderer</code>, затем вызывает <code>_scenev_render_forward_phases(opaque, transparent, ...)</code> (<code>core/renderer/scenev/forward.py:19</code>). Transparent-фаза включает блендинг <code>SRC_ALPHA, ONE_MINUS_SRC_ALPHA</code> с <code>depth_mask = False</code>. Отдельные проходы: <code>WaterPassMixin</code>, <code>VoxelPassMixin</code>, <code>SkinnedPassMixin</code>, cubemap для динамических отражений, <code>GizmoPassMixin</code>/<code>IconPassMixin</code>/<code>OutlinePassMixin</code> для редактора.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_render_scale</code></td>
+<td>float</td>
+<td><code>1.0</code></td>
+<td>Глобальный множитель размера (<code>core/renderer/scenev/mixin.py:27</code>).</td>
+</tr>
+<tr>
+<td><code>_shadow_resolution</code></td>
+<td>int</td>
+<td>по типу света</td>
+<td>Размер карты теней; см. <a href="../shadows/">Shadows</a>.</td>
+</tr>
+<tr>
+<td><code>_scene_fbo</code></td>
+<td>moderngl.Framebuffer</td>
+<td><code>None</code> до init</td>
+<td>Цель color+depth (<code>core/renderer/renderer.py:83-86</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Размер вьюпорта приходит из Qt-вьюпорта; <code>render_scale</code> / custom resolution камеры дополнительно масштабируют (см. <a href="../camera/">Camera</a>). Оверлей статистики читает <code>_draw_calls</code>, <code>_opaque_draws</code>, <code>_trans_draws</code>, <code>_triangles_drawn</code>.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">renderer.render_scene(scene, cam.get_view_matrix(),
+                      cam.get_projection_matrix(aspect),
+                      cam_pos, 1280, 720)
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Игровые и редакторные вьюпорты создают контекст через <code>moderngl.create_context(standalone=False)</code> — общий контекст 4.6 core внутри Qt-поверхности, редактор и игра делят текстуры и программы.</li>
-<li>Офскрин-задачи (превью материалов/моделей, воркеры террейна, compute) используют <code>moderngl.create_standalone_context(require=430)</code> без видимой поверхности.</li>
-<li>Шейдеры пишутся как <code>#version 430 core</code>. При ошибке компиляции загрузчик повторяет как <code>#version 330 core</code>, вырезая <code>layout(std430)</code>-буферы и отключая инстансинг/скиннинг — фолбэк совместимости, а не второй путь поддержки.</li>
+<li><a href="../overview/">Overview</a>, <a href="../camera/">Camera</a>, <a href="../shadows/">Shadows</a>, <a href="../water/">Water</a>, <a href="../gizmos/">Gizmos</a></li>
 </ul>
-<p>Класс <code>Renderer</code> собран из миксинов по ответственности: программы, uniform, фреймбуферы, сбор сцены, кэш геометрии, главный проход, тени, кубмапы, скиннинг, вода/воксели/эффекты объектов, пост-проход, гизмо/иконки/контуры, куллинг и статистика. Стадия читается по своему миксину в <code>core/renderer</code> (<code>shadows.py</code>, <code>scene_renderer.py</code>, <code>materials.py</code>, <code>framebuffers.py</code> и соседи).</p>
-<p>Кадр идёт по стадиям:</p>
-<ol>
-<li>Сбор видимых элементов: фрустум-куллинг по плоскостям камеры, фильтрация масок слоёв, сортировка в бакеты opaque / transparent / overlay.</li>
-<li>Рендер карт теней (каскадные направленные, точечные кубы, спотовые перспективы) в глубинные цели; сюда же тени проекторов.</li>
-<li>Рендер главной сцены с забинденными материалами, до 8 светов по умолчанию плюс ambient, с обработкой прозрачности на материал.</li>
-<li>Проходы воды, вокселей и эффектов объектов в свои цели.</li>
-<li>Цепочка PostFX в порядке компонентов.</li>
-<li>Редакторные оверлеи (сетка, гизмо, иконки, контуры, выделение) — только вьюпорты редактора.</li>
-</ol>
-<p>Ключевые дефолты: <code>_max_lights = 8</code> с uniform типа/позиции/направления/цвета/интенсивности/range/спота/area на свет; <code>_ambient = [0.26, 0.28, 0.34]</code>; тени 2048, дистанция 50, 4 каскада; очистка тёмно-серым <code>[0.18, 0.18, 0.18]</code>; ширина линий отладки 0.6667. Режимы: <code>SHADED</code>, <code>SHADED_WIREFRAME</code>, <code>FLAT</code>.</p>
-<p>Диагностика: чёрный вьюпорт — не создался контекст (проверьте OpenGL 4.6) или выкулены все света; розовые/пустые материалы — упала компиляция шейдера и промахнулся fallback (смотрите консоль и страницу шейдеров); z-fighting — отодвиньте <code>near</code> или подтяните <code>far</code> камеры; нет теней — выкл <code>cast_shadows</code> или вне дистанции теней.</p>
-<p>Связанное: камеры, свет и тени, материалы, шейдеры, профайлер (тайминги стадий), гизмо и иконки.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/renderer/scenev/mixin.py:24-80</code></li>
+<li><code>core/renderer/scenev/forward.py:19-57</code></li>
+<li><code>core/renderer/renderer.py:56-120</code></li>
+<li><code>core/renderer/framebuffers.py</code>, <code>core/renderer/shadows/passes.py:183</code></li>
+</ul>
               
             </div>
           </div><footer>

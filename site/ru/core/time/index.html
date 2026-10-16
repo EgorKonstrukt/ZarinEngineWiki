@@ -662,6 +662,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Время и Fixed Update</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_1">Обзор</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Сериализация</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_6">Связанные страницы</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_7">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../config/">Конфигурация</a>
@@ -1237,15 +1251,100 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="fixed-update">Время и Fixed Update</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Время и Fixed Update в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p>Время кадра течёт через <code>Engine.tick()</code>: аккумулятор + фиксированные шаги (<code>fixed_dt</code>, дефолт <code>0.02</code>, максимум 5 шагов), затем один variable-<code>dt</code> апдейт, масштабированный <code>time_scale</code>.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="_1">Обзор</h2>
+<p><code>Engine.tick()</code> — no-op, пока <code>play_mode</code> не равен <code>True</code>. <code>tick_begin()</code> флашит dirty-трансформы, меряет сырой <code>dt</code> через <code>perf_counter</code>, умножает на <code>time_scale</code> и копит в <code>_fixed_accum</code> (кламп к <code>5 * fixed_dt</code>). Затем до <code>MAX_FIXED_STEPS = 5</code> вызовов <code>tick_fixed_step()</code> выполняют <code>Scene.fixed_update(fd)</code> плюс системные <code>pre_step</code>/<code>step</code> плагинов, каждый съедает один <code>fixed_dt</code>. <code>tick_update(dt)</code> один раз выполняет <code>Scene.update(dt)</code> и обновляет счётчики FPS/TPS по немасштабированному времени (окно 0.5 с). <code>Engine.initialize()</code> читает <code>engine.time_scale</code> (дефолт <code>1.0</code>) и <code>engine.fixed_update_dt</code> (дефолт <code>0.02</code>, минимум <code>0.001</code>) из глобального конфига.</p>
+<h2 id="_2">Свойства</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>time_scale</td>
+<td>float</td>
+<td><code>1.0</code></td>
+<td>Сеттер клампит к <code>&gt;= 0.0</code>; масштабирует <code>dt</code></td>
+</tr>
+<tr>
+<td>fixed_dt</td>
+<td>float</td>
+<td><code>0.02</code></td>
+<td>Сеттер клампит к <code>&gt;= 0.001</code></td>
+</tr>
+<tr>
+<td>MAX_FIXED_STEPS</td>
+<td>int</td>
+<td><code>5</code></td>
+<td>Кап на <code>tick()</code> (локальная константа в <code>loop.py</code>, зеркало в <code>core/config/constants.py</code>)</td>
+</tr>
+<tr>
+<td>fps / tps</td>
+<td>float</td>
+<td><code>0.0</code></td>
+<td>Измеряемые счётчики, окно 0.5 с</td>
+</tr>
+<tr>
+<td>frame_count</td>
+<td>int</td>
+<td><code>0</code></td>
+<td>Инкремент за <code>tick_update</code></td>
+</tr>
+<tr>
+<td>tick()</td>
+<td>method</td>
+<td>—</td>
+<td>No-op вне play-режима</td>
+</tr>
+<tr>
+<td>on(event, cb) / off(event, cb)</td>
+<td>methods</td>
+<td>—</td>
+<td>Шина событий (<code>EngineEventsMixin</code>)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">Использование в редакторе</h2>
+<p>Кнопка Play → <code>start_play()</code> (сброс аккумулятора, <code>Scene.start()</code>, старт <code>GameWorker</code> с <code>rendering.tick_rate</code> 120 Гц / <code>rendering.fixed_tick_rate</code> 60 Гц). Стоп → <code>stop_play()</code> (стоп воркера и всего аудио). <code>time_scale</code> правится в настройках; <code>0</code> ставит на паузу логическое время, кадры идут.</p>
+<h2 id="_4">Использование в коде</h2>
+<pre><code class="language-python">engine.time_scale = 0.5   # slow motion: dt halved
+engine.fixed_dt = 1.0 / 60.0
+
+def on_play(data):
+    print(&quot;play started&quot;)
+
+engine.on(&quot;play_start&quot;, on_play)
+engine.off(&quot;play_start&quot;, on_play)
+</code></pre>
+<pre><code class="language-python">class PhysicsReader:
+    def on_fixed_update(self, dt: float):
+        assert dt == engine.fixed_dt  # constant step
+</code></pre>
+<h2 id="_5">Сериализация</h2>
+<p>Неприменимо. <code>time_scale</code> / <code>fixed_update_dt</code> хранятся в <code>~/.zarin/settings.json</code> через <code>Config</code>.</p>
+<h2 id="_6">Связанные страницы</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li><a href="../ecs-overview/">Обзор ECS</a></li>
+<li><a href="../components-lifecycle/">Компоненты и жизненный цикл</a></li>
+<li><a href="../config/">Конфигурация</a></li>
+<li><a href="../profiler/">Профайлер</a></li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_7">Проверено по</h2>
+<ul>
+<li><code>core/engine/eng/engine.py</code> (дефолты <code>__init__</code>, <code>initialize</code>, <code>start_play</code>, <code>stop_play</code>, <code>time_scale</code>/<code>fixed_dt</code> в loop-миксине)</li>
+<li><code>core/engine/eng/loop.py</code> (<code>tick</code>, <code>tick_begin</code>, <code>tick_fixed_step</code>, <code>tick_update</code>, FPS/TPS)</li>
+<li><code>core/engine/eng/events.py</code> (<code>on</code>, <code>off</code>, <code>_emit_event</code>)</li>
+<li><code>core/config/constants.py</code> (<code>MAX_FIXED_STEPS = 5</code>)</li>
+<li><code>core/config/config.py</code> (<code>engine.time_scale</code>, <code>engine.fixed_update_dt</code>, <code>rendering.tick_rate</code>, <code>rendering.fixed_tick_rate</code>)</li>
+</ul>
               
             </div>
           </div><footer>

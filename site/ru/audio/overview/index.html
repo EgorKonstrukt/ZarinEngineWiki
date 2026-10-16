@@ -1246,7 +1246,7 @@
 <li><code>AudioSystem</code> владеет ресурсами: загрузка и кэширование клипов, асинхронные загрузки, состояние слушателя, доплер и скорость звука.</li>
 <li>Компоненты <code>ReverbZone</code> кормят цепочку OpenAL EFX (<code>audio_efx</code>, под guard <code>EFXError</code> без расширения).</li>
 </ol>
-<p>Форматы клипов: <code>.wav</code>, <code>.mp3</code>, <code>.ogg</code>, <code>.flac</code> (а также <code>.aiff</code> / <code>.m4a</code> через фильтр ресурсов скриптов). Декодирование — бэкендом miniaudio в буферы <code>DecodedAudio</code>.</p>
+<p>Форматы клипов (декодер): <code>.wav</code>, <code>.wave</code>, <code>.mp3</code>, <code>.ogg</code>, <code>.vorbis</code>, <code>.flac</code> (<code>AUDIO_EXTENSIONS</code> в <code>core/audio/miniaudio_decoder.py</code>). Фильтр файлов в инспекторе AudioSource уже — <code>Audio (*.wav *.mp3 *.ogg *.flac)</code> (<code>core/components/audio/source/component.py</code>). Декодирование — бэкендом miniaudio в буферы <code>DecodedAudio</code> (<code>decode_audio</code> / <code>decode_audio_stereo</code> / <code>decode_audio_channels</code>); <code>.wav</code>/<code>.wave</code> также разбираются через stdlib <code>wave</code>, если miniaudio нет (<code>core/audio/sys/clip.py</code>).</p>
 <p>Страницы: AudioSource, AudioListener, зона реверберации, аудиосистема (менеджер, декодеры, анализатор, EFX).</p>
 <p>Минимум для слышимого звука: одна сущность с AudioListener (обычно камера), одна с AudioSource на клип, нажать Play. Если <code>play_on_awake</code> выкл — запускайте из скрипта или включайте компонент в рантайме: включение перезапускает клип с начала.</p>
               

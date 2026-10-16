@@ -668,6 +668,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Профайлер</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Обзор</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_6">Сериализация</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_7">Связанные страницы</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_8">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../foundation/">Foundation: Curve, команды, Time Travel</a>
@@ -1237,15 +1251,117 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Профайлер</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Профайлер в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p><code>Profiler</code> (<code>core/foundation/profiler.py</code>) пишет вложенные тайминг-секции в плоские покадровые данные плюс опциональный кольцевой буфер на 300 кадров. По умолчанию выключен; тогл — <code>profiler.enabled</code> или <code>engine.profiler_enabled</code>.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="_2">Обзор</h2>
+<p>Пока <code>enabled</code> равен <code>False</code>, все методы — no-op. <code>start(key)</code> пушит <code>(key, perf_counter)</code>; <code>stop(key)</code> снимает совпавшую запись (nesting-safe: ищет по стеку при несовпадении вершины) и аккумулирует миллисекунды в <code>_flat_data</code>. <code>scope(key)</code> — форма контекстного менеджера. <code>set_value(key, ms)</code> пишет абсолютное значение (используется для <code>scene_serialize</code>). <code>capture_frame()</code> запечатывает текущий кадр (время кадра, сэмплы с глубиной + цветом из <code>_PROFILER_COLORS</code>) в <code>deque(maxlen=300)</code>. <code>Engine</code> выставляет <code>profiler</code>, <code>profiler_data</code>, <code>get_profiler_data(key, default)</code>, <code>set_profiler_data</code>, <code>capture_profiler_frame()</code>, <code>reset_profiler()</code> и свойство <code>profiler_enabled</code>. Ключи движка: <code>tick</code>, <code>fixed_update</code>, <code>update</code>, <code>scene_update</code>, <code>scene_fixed_update</code>, <code>scene_start</code>, <code>scene_serialize</code>, плюс секции <code>NAME</code> плагинов и ключи подсистем (<code>physics_ms</code>, <code>render_scene</code>, <code>audio_ms</code>, <code>ui_ms</code>, <code>particle_ms</code>, <code>animation_ms</code>, <code>gizmo_lines</code>, <code>frame_overhead</code>, …).</p>
+<h2 id="_3">Свойства</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>enabled</td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Мастер-выключатель; переключение сбрасывает стек/состояние кадра</td>
+</tr>
+<tr>
+<td>capture_frames</td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>При <code>True</code> покадровые сэмплы сохраняются</td>
+</tr>
+<tr>
+<td>max_frames</td>
+<td>int</td>
+<td><code>300</code></td>
+<td>Аргумент конструктора <code>deque(maxlen=...)</code></td>
+</tr>
+<tr>
+<td>start(key) / stop(key)</td>
+<td>methods</td>
+<td>—</td>
+<td><code>stop</code> возвращает длительность в мс или <code>None</code></td>
+</tr>
+<tr>
+<td>scope(key)</td>
+<td>context manager</td>
+<td>—</td>
+<td><code>with profiler.scope("my_sys"):</code></td>
+</tr>
+<tr>
+<td>set_value(key, ms)</td>
+<td>method</td>
+<td>—</td>
+<td>Абсолютная запись (не аккумуляция)</td>
+</tr>
+<tr>
+<td>capture_frame</td>
+<td>method</td>
+<td>—</td>
+<td>Запечатать кадр в кольцевой буфер</td>
+</tr>
+<tr>
+<td>reset</td>
+<td>method</td>
+<td>—</td>
+<td>Чистит кадры, стек, плоские данные, счётчики</td>
+</tr>
+<tr>
+<td>data</td>
+<td>dict[str, float]</td>
+<td><code>{}</code> copy</td>
+<td>Плоские накопленные тайминги (мс)</td>
+</tr>
+<tr>
+<td>frames</td>
+<td>list[FrameProfile]</td>
+<td>copy</td>
+<td>Запечатанные кадры с <code>samples</code>, <code>frame_time_ms</code>, <code>flat_data</code></td>
+</tr>
+<tr>
+<td>engine surface</td>
+<td>properties</td>
+<td>—</td>
+<td><code>engine.profiler</code>, <code>engine.profiler_data</code>, <code>engine.profiler_enabled</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">Использование в редакторе</h2>
+<p>Панель профайлера читает <code>engine.profiler_data</code> с периодом <code>profiler.refresh_interval</code> (дефолт 500 мс) и буфер кадров для графиков. Включается через глобальный конфиг <code>profiler.enabled</code> или в рантайме.</p>
+<h2 id="_5">Использование в коде</h2>
+<pre><code class="language-python">engine.profiler_enabled = True
+with engine.profiler.scope(&quot;my_system&quot;):
+    step_simulation(dt)
+engine.set_profiler_data(&quot;my_metric&quot;, 1.25)
+print(engine.get_profiler_data(&quot;tick&quot;, 0.0))
+engine.capture_profiler_frame()
+</code></pre>
+<h2 id="_6">Сериализация</h2>
+<p>Неприменимо. Данные профайлера только рантайм.</p>
+<h2 id="_7">Связанные страницы</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li><a href="../time/">Время и Fixed Update</a></li>
+<li><a href="../logging/">Логирование</a></li>
+<li><a href="../config/">Конфигурация</a></li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_8">Проверено по</h2>
+<ul>
+<li><code>core/foundation/profiler.py</code> (<code>Profiler</code>, <code>ProfileSample</code>, <code>FrameProfile</code>, <code>_PROFILER_COLORS</code>, <code>max_frames=300</code>)</li>
+<li><code>core/engine/eng/loop.py</code> (методы <code>tick_begin</code>/<code>tick_fixed_step</code>/<code>tick_update</code>; ключи <code>tick</code>/<code>fixed_update</code>/<code>update</code>, поверхность свойств <code>profiler</code>)</li>
+<li><code>core/config/config.py</code> (<code>profiler.enabled</code>, <code>profiler.refresh_interval</code>)</li>
+<li><code>core/ecs/query.py</code> (скоупы <code>scene_update</code>, <code>scene_fixed_update</code>, <code>scene_start</code>)</li>
+<li><code>core/ecs/scene_serialize.py</code> (<code>profiler.set_value("scene_serialize", 0)</code>)</li>
+</ul>
               
             </div>
           </div><footer>

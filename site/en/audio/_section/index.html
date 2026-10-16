@@ -371,6 +371,10 @@
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">Section Index (audio)</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#pages">Pages</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" >Scripting</a>
@@ -1236,8 +1240,20 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="audio">Audio</h1>
-<p>TODO: Section index pending. This page lists all articles in Audio.</p>
-<p>Use the left navigation tree to open placeholder pages.</p>
+<p>Section index for audio.</p>
+<h2 id="pages">Pages</h2>
+<ul>
+<li>Overview — OpenAL path: listener, sources, manager, system, EFX.</li>
+<li>AudioSource — clip, volume/pitch/loop, spatial blend, rolloff, fades.</li>
+<li>AudioListener — doppler factor, speed of sound, per-frame push.</li>
+<li>Reverb Zone — EFX presets, room/decay/reflections, zone radii.</li>
+<li>System — <code>AudioSystem</code>, <code>AudioSourceManager</code>, miniaudio decoder, analyzer, EFX.</li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/audio/sys/system.py</code>, <code>sys/sources.py</code>, <code>sys/clip.py</code>, <code>miniaudio_decoder.py</code></li>
+<li><code>core/components/audio/source/component.py</code>, <code>audio_listener.py</code>, <code>reverb/component.py</code></li>
+</ul>
               
             </div>
           </div><footer>

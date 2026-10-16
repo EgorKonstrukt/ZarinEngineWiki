@@ -145,6 +145,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">TextRenderer</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../video-renderer/">VideoRenderer</a>
@@ -1237,14 +1245,228 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="textrenderer">TextRenderer</h1>
-<p>World-space text runs: floating labels, signage, scoreboards, debug overlays readable inside the 3D view.</p>
-<p>Rendered with font, size, color and alignment through the internal <code>Text</code> shader. Follows the entity Transform like any renderer, so text panels rotate and scale with their mounts — a scoreboard tilts with its pole, a nameplate tracks its NPC.</p>
-<p>Workflows: NPC nameplates — small quad above the head with high-contrast color, billboarded by facing the camera each frame from a script; level signage — large static text with an unlit-style material for readability in any light; debug overlays — gizmo-adjacent readouts (positions, states) toggled by a debug flag.</p>
-<p>Keep strings short and sizes generous: world-space text competes with texture detail, and tiny glyphs alias. For paragraphs and rich text use GUI Label/TextEdit widgets on screen space instead.</p>
-<p>For screen-space UI text prefer GUI Label and related widgets; this component is for diegetic text inside the 3D world.</p>
-<p>Troubleshooting: unreadable at angle → face the camera or raise size; washed out → text color fights the key light, switch to bright-on-dark; missing glyphs → font coverage, swap the font asset.</p>
-<p>Related: SpriteRenderer, SvgRenderer, GUI Controls (Label, TextEdit), Cameras.</p>
+                <h1 id="text-renderer">Text Renderer</h1>
+<blockquote>
+<p>World/UI text: <code>TextRenderer</code> (<code>core/components/rendering/renderers/text_renderer.py</code>) with SDF atlas in <code>core/renderer/textr/</code>.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Enums: <code>TextAlign left/center/right/justify</code>, <code>TextFilter nearest/linear/trilinear</code> (<code>text_renderer.py:15-25</code>). Rich text (<code>&lt;b&gt;/&lt;i&gt;/&lt;color&gt;</code> etc. via <code>rich_text_parser</code>) re-parses on text/color/style change. <code>font_world_space = True</code> draws in world units; <code>billboard</code> faces the camera.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>text</code></td>
+<td>textarea</td>
+<td><code>"Text"</code></td>
+<td>Content (<code>text_renderer.py:39,81</code>).</td>
+</tr>
+<tr>
+<td><code>font_path</code></td>
+<td>resource path (ttf/otf)</td>
+<td>engine default font</td>
+<td><code>get_default_font_path()</code> (<code>text_renderer.py:40,82</code>).</td>
+</tr>
+<tr>
+<td><code>font_size</code></td>
+<td>int (1–512)</td>
+<td><code>32</code></td>
+<td>Raster size (<code>text_renderer.py:41,83</code>).</td>
+</tr>
+<tr>
+<td><code>color</code></td>
+<td>color4</td>
+<td><code>[1, 1, 1, 1]</code></td>
+<td>Base color (<code>text_renderer.py:42,84</code>).</td>
+</tr>
+<tr>
+<td><code>alignment</code></td>
+<td><code>TextAlign</code></td>
+<td><code>LEFT</code></td>
+<td>Line alignment (<code>text_renderer.py:43,85</code>).</td>
+</tr>
+<tr>
+<td><code>line_spacing</code></td>
+<td>float (0.5–5)</td>
+<td><code>1.2</code></td>
+<td>Line multiplier (<code>text_renderer.py:44,86</code>).</td>
+</tr>
+<tr>
+<td><code>bold</code> / <code>italic</code> / <code>underline</code> / <code>strikethrough</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Style flags (<code>text_renderer.py:46-49</code>).</td>
+</tr>
+<tr>
+<td><code>shadow</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Drop shadow toggle (<code>text_renderer.py:51,91</code>).</td>
+</tr>
+<tr>
+<td><code>shadow_offset</code></td>
+<td>vec2</td>
+<td><code>[0.02, -0.02]</code></td>
+<td>Shadow offset (<code>text_renderer.py:52,92</code>).</td>
+</tr>
+<tr>
+<td><code>shadow_color</code></td>
+<td>color4</td>
+<td><code>[0, 0, 0, 0.5]</code></td>
+<td>Shadow color (<code>text_renderer.py:53,93</code>).</td>
+</tr>
+<tr>
+<td><code>outline</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Outline toggle (<code>text_renderer.py:55,94</code>).</td>
+</tr>
+<tr>
+<td><code>outline_color</code></td>
+<td>color4</td>
+<td><code>[0, 0, 0, 1]</code></td>
+<td>Outline color (<code>text_renderer.py:56,95</code>).</td>
+</tr>
+<tr>
+<td><code>outline_width</code></td>
+<td>float (0.001–0.1)</td>
+<td><code>0.02</code></td>
+<td>Outline width (<code>text_renderer.py:57,96</code>).</td>
+</tr>
+<tr>
+<td><code>glow</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Glow toggle (<code>text_renderer.py:59,97</code>).</td>
+</tr>
+<tr>
+<td><code>glow_color</code></td>
+<td>color4</td>
+<td><code>[0.3, 0.6, 1.0, 0.5]</code></td>
+<td>Glow color (<code>text_renderer.py:60,98</code>).</td>
+</tr>
+<tr>
+<td><code>glow_size</code></td>
+<td>float (0.001–0.1)</td>
+<td><code>0.02</code></td>
+<td>Glow radius (<code>text_renderer.py:61,99</code>).</td>
+</tr>
+<tr>
+<td><code>glow_intensity</code></td>
+<td>float (0–1)</td>
+<td><code>0.5</code></td>
+<td>Glow strength (<code>text_renderer.py:62,100</code>).</td>
+</tr>
+<tr>
+<td><code>use_3d</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Extruded 3D text (<code>text_renderer.py:64,101</code>).</td>
+</tr>
+<tr>
+<td><code>extrusion_depth</code></td>
+<td>float (0.001–1)</td>
+<td><code>0.05</code></td>
+<td>Depth (<code>text_renderer.py:65,102</code>).</td>
+</tr>
+<tr>
+<td><code>extrusion_layers</code></td>
+<td>int (1–32)</td>
+<td><code>8</code></td>
+<td>Layers (<code>text_renderer.py:66,103</code>).</td>
+</tr>
+<tr>
+<td><code>extrusion_color</code></td>
+<td>color3</td>
+<td><code>[0.3, 0.3, 0.3]</code></td>
+<td>Side color (<code>text_renderer.py:67,104</code>).</td>
+</tr>
+<tr>
+<td><code>atlas_resolution</code></td>
+<td>int (32–512)</td>
+<td><code>128</code></td>
+<td>Glyph atlas px (<code>text_renderer.py:69,105</code>).</td>
+</tr>
+<tr>
+<td><code>font_world_space</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>World vs screen sizing (<code>text_renderer.py:70,106</code>).</td>
+</tr>
+<tr>
+<td><code>billboard</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Face camera (<code>text_renderer.py:71,107</code>).</td>
+</tr>
+<tr>
+<td><code>use_rich_text</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Parse rich tags (<code>text_renderer.py:72,111</code>).</td>
+</tr>
+<tr>
+<td><code>filter_mode</code></td>
+<td><code>TextFilter</code></td>
+<td><code>LINEAR</code></td>
+<td>Atlas filtering (<code>text_renderer.py:73,108</code>).</td>
+</tr>
+<tr>
+<td><code>anisotropy</code></td>
+<td>float (0–16)</td>
+<td><code>4.0</code></td>
+<td>Aniso filtering (<code>text_renderer.py:74,109</code>).</td>
+</tr>
+<tr>
+<td><code>shader</code></td>
+<td>resource path (*.shader)</td>
+<td><code>"text"</code></td>
+<td>Text shader (<code>text_renderer.py:76,110</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Set Font + Size, Alignment, then Style/Shadow/Outline/Glow toggles. Enable Rich Text for inline tags; enable Billboard for nameplates.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">tr = entity.get_component(TextRenderer)
+tr.text = &quot;HP: 100&quot;
+tr.font_size = 48
+tr.alignment = TextAlign.CENTER
+tr.outline = True
+tr.outline_width = 0.03
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../sprite-renderer/">Sprite Renderer</a>, <a href="../svg-renderer/">SVG Renderer</a>, <a href="../materials/">Materials</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/renderers/text_renderer.py:28-112,270-348</code></li>
+<li><code>core/renderer/textr/renderer.py</code>, <code>atlas.py</code>, <code>layout.py</code></li>
+</ul>
               
             </div>
           </div><footer>

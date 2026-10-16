@@ -13,7 +13,7 @@
 - Нативные `.dll` / `.so` с Python-шимом входа.
 - Подписанные пакеты `.zplugin`: манифест + код + нативные модули + bundled-библиотеки, проверка по `config/trusted_keys`, распаковка один раз с кэшем по sha256-отпечатку.
 
-`PluginManager` (`core/foundation/plugin_manager.py`, ~1700 строк) владеет discovery, `_load_order`, активацией, проверкой зависимостей из манифестов, security-верификацией, персистентностью конфигов и разборкой в обратном порядке.
+`PluginManager` (`core/foundation/plugins/manager.py` ~203 строки, плюс `base.py` / `discovery.py` / `loader.py` / `lifecycle.py` / `ui_registry.py`; реэкспорт в `core/foundation/plugins/__init__.py`) владеет discovery, `_load_order`, активацией, проверкой зависимостей из манифестов, security-верификацией, персистентностью конфигов и разборкой в обратном порядке.
 
 Страницы: жизненный цикл PluginBase, менеджер плагинов, разбор example-плагина, гид пользовательских, упаковка .zplugin, каталог системных, сетевой плагин, VR-плагин, MCP-мост, расширения музыка/плоттер/QtQuick.
 

@@ -1,5 +1,13 @@
 # Анимация
 
-TODO: Указатель раздела в подготовке. Здесь будет список всех статей раздела Анимация.
+Указатель раздела анимации.
 
-Используйте дерево навигации слева для открытия страниц-заглушек.
+## Страницы
+
+- Обзор — `Animation` vs `Animator`, IK, блендшейпы.
+- Клипы и Animator — кривые/события, плеер, состояния/переходы.
+- IK и блендшейпы — `TwoBoneIK`, `FABRIKChain`, дельты `aiAnimMesh`.
+
+## Проверено по
+
+- `core/components/animation/animation_clip.py`, `animator_component.py`, `animator_controller.py`, `ikp/`

@@ -13,7 +13,7 @@ Three formats, one manager:
 - Native `.dll` / `.so` shared libraries with a Python entry shim.
 - `.zplugin` signed packages: manifest + code + native modules + bundled libs, verified against `config/trusted_keys`, extracted once and cached by sha256 fingerprint.
 
-`PluginManager` (`core/foundation/plugin_manager.py`, ~1700 lines) owns discovery, `_load_order`, activation, dependency checks from manifests, security verification, config persistence per plugin, and teardown in reverse order.
+`PluginManager` (`core/foundation/plugins/manager.py` ~203 lines, plus `base.py` / `discovery.py` / `loader.py` / `lifecycle.py` / `ui_registry.py`; re-exported by `core/foundation/plugins/__init__.py`) owns discovery, `_load_order`, activation, dependency checks from manifests, security verification, config persistence per plugin, and teardown in reverse order.
 
 Pages: PluginBase Lifecycle, Plugin Manager, Example Plugin walkthrough, User Plugins guide, .zplugin Packaging, System Plugins catalog, Network Plugin, VR Plugin, MCP Bridge, Music/Plotter/QtQuick extensions.
 

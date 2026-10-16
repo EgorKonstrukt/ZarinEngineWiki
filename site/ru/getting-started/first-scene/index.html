@@ -642,6 +642,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Первая сцена</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Обзор</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_6">Сериализация</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_7">Связанные страницы</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_8">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../faq/">Частые вопросы</a>
@@ -1237,15 +1251,108 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Первая сцена</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Первая сцена в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p>Создайте сцену в коде или в редакторе: сущности с <code>Transform</code>, свет, камера, затем <code>save_scene_async</code> в <code>.zpes</code>.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="_2">Обзор</h2>
+<p><code>Engine.new_scene(name)</code> создаёт пустую <code>Scene</code> плюс locked-системную сущность <code>Shadow System</code> (держит <code>DirectionalShadow</code>, <code>PointShadow</code>, <code>SpotShadow</code>, <code>AreaShadow</code>). Каждая добавленная сущность получает <code>id</code> (UUID), <code>name</code>, <code>active=True</code>, <code>tags=set()</code>, <code>layer=0</code>. Сохранение — <code>save_scene_async(path)</code>; загрузка — <code>load_scene_async(path)</code> (оба в <code>EngineScenesMixin</code>; для скриптов есть синхронные <code>save_scene(path)</code> / <code>load_scene(path)</code>). Сохранения ротируют два бэкапа (<code>.bak</code>, <code>.bak2</code>).</p>
+<h2 id="_3">Свойства</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>new_scene</td>
+<td>method</td>
+<td><code>Engine.new_scene(name="NewScene")</code></td>
+<td>Создаёт сцену, дефолтные объекты, emit <code>scene_loaded</code></td>
+</tr>
+<tr>
+<td>create_entity</td>
+<td>method</td>
+<td><code>Scene.create_entity(name="Entity")</code></td>
+<td>Сущность, привязанная к сцене, помечена dirty</td>
+</tr>
+<tr>
+<td>save</td>
+<td>method</td>
+<td><code>Engine.save_scene_async(path)</code></td>
+<td>Асинхронное сохранение; emit <code>scene_saved</code>; <code>.bak</code>-бэкапы</td>
+</tr>
+<tr>
+<td>load</td>
+<td>method</td>
+<td><code>Engine.load_scene_async(path)</code></td>
+<td>Асинхронная загрузка с прогресс-таской <code>scene:load</code></td>
+</tr>
+<tr>
+<td>scene_file</td>
+<td>format</td>
+<td><code>.zpes</code> JSON</td>
+<td><code>{"name": ..., "entities": {id: entity-dict}}</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">Использование в редакторе</h2>
+<ol>
+<li><code>File → New Scene</code> (или старт с <code>new_scene</code>).</li>
+<li>Добавьте сущности в Hierarchy; двигайте гизмо вьюпорта (пишет <code>Transform.local_position</code> / <code>local_euler_angles</code> / <code>local_scale</code>).</li>
+<li>Добавьте камеру и свет через <code>Add Component → Rendering / Lighting</code>.</li>
+<li>Сохраните сцену как <code>.zpes</code>. Запустите headless через <code>python player.py MyScene.zpes</code>.</li>
+</ol>
+<h2 id="_5">Использование в коде</h2>
+<pre><code class="language-python">from core.engine.eng import Engine
+from core.components.transform.tr import Transform
+from core.maths.math3d import Vec3
+
+engine = Engine()
+engine.initialize()
+scene = engine.new_scene(&quot;FirstScene&quot;)
+
+player = scene.create_entity(&quot;Player&quot;)
+tr = player.add_component(Transform())
+tr.local_position = Vec3(0.0, 1.0, 0.0)
+
+engine.save_scene_async(&quot;scenes/FirstScene.zpes&quot;)
+</code></pre>
+<h2 id="_6">Сериализация</h2>
+<p>Минимальный фрагмент <code>.zpes</code>:</p>
+<pre><code class="language-json">{ &quot;name&quot;: &quot;FirstScene&quot;,
+  &quot;entities&quot;: {
+    &quot;c0ffee00-0000-4000-8000-000000000001&quot;: {
+      &quot;id&quot;: &quot;c0ffee00-0000-4000-8000-000000000001&quot;,
+      &quot;name&quot;: &quot;Player&quot;, &quot;active&quot;: true, &quot;tags&quot;: [], &quot;layer&quot;: 0, &quot;parent&quot;: null,
+      &quot;components&quot;: [
+        { &quot;type&quot;: &quot;Transform&quot;, &quot;enabled&quot;: true, &quot;_key&quot;: &quot;Transform&quot;,
+          &quot;local_position&quot;: [0.0, 1.0, 0.0],
+          &quot;local_rotation&quot;: [0.0, 0.0, 0.0, 1.0],
+          &quot;local_scale&quot;: [1.0, 1.0, 1.0] }
+      ]
+    }
+  } }
+</code></pre>
+<h2 id="_7">Связанные страницы</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li><a href="../quick-start/">Быстрый старт</a></li>
+<li><a href="../../core/entity/">Сущность Entity</a></li>
+<li><a href="../../core/transform/">Трансформ</a></li>
+<li><a href="../../core/registry-serialization/">Реестр и сериализация</a></li>
+<li><a href="../../scenes-prefabs/scenes/">Сцены</a></li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_8">Проверено по</h2>
+<ul>
+<li><code>core/engine/eng/engine.py</code> (<code>new_scene</code>, <code>_ensure_shadow_system</code>, <code>_add_default_scene_objects</code>)</li>
+<li><code>core/engine/eng/scenes.py</code> (<code>save_scene_async</code>, <code>load_scene_async</code>, <code>_rotate_scene_backups</code>, <code>_SCENE_BACKUP_KEEP = 2</code>)</li>
+<li><code>core/ecs/entity.py</code> (<code>Entity.__init__</code> defaults, <code>serialize</code>)</li>
+<li><code>core/components/transform/tr/serialize.py</code> (ключи Transform)</li>
+</ul>
               
             </div>
           </div><footer>

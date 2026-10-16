@@ -790,13 +790,17 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Божественные лучи</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#_2">Как работает</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Параметры</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_3">Параметры</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Использование</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_4">Советы</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Шейдер</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_5">Цена</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Производительность</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_6">Связанное</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_7">Проверено по коду</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1250,82 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Божественные лучи</h1>
-<p>Часть стека PostFX: выполняется после главной сцены в порядке компонентов. Построен на общей базе GraphicsEffect с тоглом и собственными полями инспектора.</p>
-<h2 id="_2">Как работает</h2>
-<p>Радиальные световые столбы от ярких источников с окклюзией по глубине.</p>
-<h2 id="_3">Параметры</h2>
-<p>Плотность, затухание, ощущение экспозиции, порог источника.</p>
-<h2 id="_4">Советы</h2>
-<p>Лесные солнечные столбы, соборные окна, пыльные залы. Нужен яркий источник в кадре.</p>
-<h2 id="_5">Цена</h2>
-<p>Средне-высоко: радиальные сэмплы. Сначала коротите столбы, потом режьте эффект.</p>
-<p>Связанное: <a href="../">стек PostFX</a>, камеры (render scale), профайлер.</p>
+<blockquote>
+<p>Реймарш световых столбов. Яркий проход выше порога рассеивается к экранной позиции света за N сэмплов, масштаб — exposure × intensity. Класс <code>GodRays</code> в <code>core/components/rendering/postfx/godrays/component.py</code>. Выполняется в стеке PostFX в порядке компонентов; пропускается при <code>enabled == False</code> или неактивной сущности (ранний выход в <code>render()</code>).</p>
+</blockquote>
+<h2 id="_2">Параметры</h2>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intensity</td>
+<td><code>_intensity</code></td>
+<td>FLOAT</td>
+<td>0.0 – 5.0</td>
+<td><code>0.8</code></td>
+</tr>
+<tr>
+<td>Exposure</td>
+<td><code>_exposure</code></td>
+<td>FLOAT</td>
+<td>0.0 – 0.5</td>
+<td><code>0.01</code></td>
+</tr>
+<tr>
+<td>Threshold</td>
+<td><code>_threshold</code></td>
+<td>SLIDER</td>
+<td>0.05 – 0.5</td>
+<td><code>0.25</code></td>
+</tr>
+<tr>
+<td>Samples</td>
+<td><code>_num_samples</code></td>
+<td>INT</td>
+<td>8 – 256</td>
+<td><code>64</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">Использование</h2>
+<p>Редактор: выбрать PostFX-сущность, Add Component &gt; <code>GodRays</code>, включить <code>enabled</code>, настроить поля выше. Порядок среди PostFX-компонентов задаёт порядок выполнения.</p>
+<p>Код:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.godrays.component import GodRays
+fx = GodRays()
+entity.add_component(fx)
+fx._intensity = 1.2
+fx._num_samples = 96
+fx.enabled = True
+</code></pre>
+<h2 id="_4">Шейдер</h2>
+<p>Шейдер: <code>core/components/rendering/postfx/godrays/shaders.py</code>.</p>
+<pre><code class="language-glsl">// GOD_RAYS frag uniforms (exact names):
+// uniform sampler2D u_scene_color; uniform sampler2D u_depth_tex;
+// uniform vec2 u_light_uv; uniform vec3 u_light_color; uniform float u_light_intensity;
+// uniform float u_threshold; uniform float u_intensity; uniform float u_exposure; uniform int u_num_samples;
+</code></pre>
+<h2 id="_5">Производительность</h2>
+<p>Cost scales linearly with Samples (8–256, default 64). Uses scratch color/depth targets (<code>_scratch_color</code>, <code>_scratch_depth</code>).</p>
+<h2 id="_6">Связанное</h2>
+<p>См. <a href="../">Стек PostFX</a>, <a href="../color-grading/">Цветокоррекция</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="_7">Проверено по коду</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/godrays/component.py</code> — класс <code>GodRays</code>, <code>_inspector_fields</code>, дефолты <code>__init__</code>, <code>Radial raymarch from light UV; occluded by depth (u_depth_tex)</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/godrays/shaders.py</code></p>
+</li>
+<li><code>core/components/rendering/postfx/graphics_effect.py</code> — базовый <code>GraphicsEffect</code> (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, сигнатура <code>render()</code>).</li>
+</ul>
               
             </div>
           </div><footer>

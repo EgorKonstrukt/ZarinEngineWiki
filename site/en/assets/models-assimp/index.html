@@ -463,6 +463,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Model Import via Assimp</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties-api">Properties / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../textures/">Textures and Compression</a>
@@ -1237,15 +1247,68 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="model-import-via-assimp">Model Import via Assimp</h1>
-<p>TODO: Content pending. This page will document Model Import via Assimp in ZarinEngine.</p>
-<p>Planned sections:</p>
+<p>Native Assimp (<code>assimp-vc143-mt.dll</code> / <code>libassimp.so.6.0.5</code>) reads nodes, meshes, bones and <code>aiAnimMesh</code> blendshapes into <code>MeshImportData</code>.</p>
+<h2 id="properties-api">Properties / API</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Source</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Library</td>
+<td><code>core/assets/importer/assimp.py</code></td>
+<td><code>_ASSIMP_LIB_NAME</code> per OS, <code>_get_dll()</code>, node/world <code>_node_world_zup</code></td>
+</tr>
+<tr>
+<td>Types</td>
+<td><code>core/assets/importer/ctypes_types.py</code></td>
+<td><code>aiScene/aiNode/aiMesh/aiMeshFull/aiBone/aiAnimMesh/aiFace</code>, <code>MeshImportData{arzt}</code>: <code>bone_weights</code>, <code>blendshape_names/indices/positions/normals</code></td>
+</tr>
+<tr>
+<td>Skeleton</td>
+<td><code>core/assets/importer/anim.py</code></td>
+<td><code>_collect_meshes</code>, <code>_read_bones</code>, <code>_align_skeleton_to_mesh</code>, <code>_finalize_blendshapes</code></td>
+</tr>
+<tr>
+<td>OBJ fast/slow</td>
+<td><code>core/assets/importer/mesh.py</code>, <code>ctypes_types.py</code></td>
+<td><code>_obj_load_fast</code> (chunked, threads) vs <code>_obj_load_slow</code>; <code>_cy_parse_obj_chunk</code> when Cython present</td>
+</tr>
+<tr>
+<td>Materials</td>
+<td><code>core/assets/importer/material.py</code></td>
+<td><code>_read_material_name</code>, GIF flipbook helpers</td>
+</tr>
+<tr>
+<td><code>.import</code> keys</td>
+<td><code>core/assets/importer/settings.py</code></td>
+<td><code>scale</code>, <code>center_pivot</code>, <code>flip_uvs</code>, <code>smooth_angle</code>, <code>gen_normals</code>, <code>gen_uvs</code>, <code>blendshapes</code>, <code>materials[]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<ol>
+<li>Drop the model file into <code>assets/</code>; create <code>&lt;model&gt;.import</code> JSON to override scale/pivot/UV/normals/blendshapes.</li>
+<li>Reimport on change; skeleton and blendshape arrays flow to the skinned renderer and <code>AnimationClip</code> bone curves.</li>
+</ol>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python"># assets/models/orc.fbx.import
+{&quot;scale&quot;: 1.0, &quot;center_pivot&quot;: false, &quot;flip_uvs&quot;: true,
+ &quot;smooth_angle&quot;: 30.0, &quot;gen_normals&quot;: true, &quot;gen_uvs&quot;: true,
+ &quot;blendshapes&quot;: true, &quot;materials&quot;: [&quot;body&quot;, &quot;eyes&quot;]}
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Assets Overview, Textures, Animation Clip, Skinned renderer</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/assets/importer/assimp.py</code>, <code>anim.py</code>, <code>mesh.py</code>, <code>settings.py</code>, <code>ctypes_types.py</code>, <code>material.py</code></li>
+</ul>
               
             </div>
           </div><footer>

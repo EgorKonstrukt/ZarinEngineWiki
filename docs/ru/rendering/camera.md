@@ -1,28 +1,35 @@
-# Камера Camera
-
-Рисует сцену из точки сущности. Одна на вид: главная игровая, камера UI-плоскости, камеры катсцен, стены мониторов охраны.
-
-| Группа / поле инспектора | Смысл |
-|---|---|
-| Projection: FOV | Перспективный угол, 1–179°, по умолчанию 60 |
-| Projection: Near / Far | Плоскости отсечения, по умолчанию 0.01 / 1000 |
-| Projection: Ortho Size | Ортографическая вертикальная полувысота, по умолчанию 5 |
-| Rendering: Depth | Приоритет порядка, −100…100; выше рисуется позже (поверх) |
-| Render Resolution: Resolution Mode | Native (за вьюпортом) или Custom |
-| Render Resolution: Viewport Width / Height | Кастомный размер, например 1920×1080 |
-| render_scale | Множитель разрешения 0.1–1.0 |
-
-Математика: вид — `look_at(позиция, позиция + вперёд, вверх)`; проекция — `perspective(fov, aspect, near, far)` или `orthographic(-half_w, half_w, -ortho_size, ortho_size, near, far)`, где `half_w = ortho_size * aspect`. Гизмо рисует фрустум во вьюпорте.
-
-Процессы:
-
-- Главная камера: перспектива, FOV 55–70, near 0.1, far под уровень (500 интерьеры, 2000+ поля), depth 0.
-- Камера UI-плоскости: ортография, ortho size под дизайн-юниты, depth выше главной, чтобы HUD рисовался последним.
-- Катсцены: несколько камер с лесенкой depth, кросс-фейд анимацией depth или поочерёдным включением из скрипта.
-- Пиксельный вид: render_scale 0.25–0.5 с выкл FXAA и пост-эффектом Pixelate.
-
-Точность глубины: решает near. Near 0.001 при far 10000 гарантирует мерцание; держите near максимально большим (0.1 улица, 0.01 интерьеры), far — минимальным.
-
-Диагностика: ничего не рисуется — камера выключена, depth похоронен под чистящей всё камерой, маска куллинга исключила все слои; растянутая картинка — aspect от вьюпорта, проверьте кастомное разрешение; дрожание вдали — сцена float64 против слишком tight near/far, расширьте отношение.
-
-Связанное: камера редактора, свет и тени, режимы разрешения, PostFX (Pixelate, Panini для широкого FOV).
+# Камера
+> Сценовая камера: компонент `Camera` (`core/components/rendering/cameras/camera.py`) с перспективной/ортографической проекцией, порядком depth и нативным/custom разрешением.
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+Матрица вида `Mat4.look_at(position, position + forward, up)`; проекция `Mat4.perspective(fov, aspect, near, far)` либо орто с `half_w = ortho_size * aspect` (`camera.py:56-69`). Гизмо рисует фрустум по углам near/far (`camera.py:100-143`). Кламы и логика размера — в `CameraBase` (`camera_base.py`).
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `fov` | float (1.0–179.0) | `60.0` | Угол обзора (`camera.py:36`, `camera_base.py:19`). |
+| `near` | float (≥0.001) | `0.01` | Ближняя плоскость (`camera.py:37`, `camera_base.py:20`). |
+| `far` | float (≥0.1) | `1000.0` | Дальняя плоскость (`camera.py:38`, `camera_base.py:21`). |
+| `projection` | `CameraProjection` | `PERSPECTIVE` | `perspective` / `orthographic` (`camera.py:39,52`). |
+| `ortho_size` | float (≥0.001) | `5.0` | Полусразмер орто (`camera.py:40`, `camera_base.py:23`). |
+| `depth` | int (−100…100) | `0` | Приоритет порядка (`camera.py:42,54`). |
+| `render_scale` | float (0.1–1.0) | `1.0` | Множитель разрешения (`camera.py:43`, `camera_base.py:24`). |
+| `resolution_mode` | `CameraResolutionMode` | `native` | `native` — за вьюпортом, `custom` — w/h (`camera.py:44`). |
+| `resolution_w` | int (1–16384) | `1920` | Custom ширина (`camera.py:45`). |
+| `resolution_h` | int (1–16384) | `1080` | Custom высота (`camera.py:46`). |
+| `clear_color` | color4 (только код) | `[0.15, 0.15, 0.15, 1.0]` | Цвет очистки, сериализуется, не в инспекторе (`camera.py:53,74`). |
+## Usage in Editor
+Add Component → Camera. Выбор Projection; для орто — Ortho Size. Depth упорядочивает несколько камер. Resolution Mode `custom` + Width/Height для фиксированных захватов, иначе `render_scale` для дешёвых превью.
+## Usage in Code
+```python
+cam = entity.get_component(Camera)
+cam.fov = 55.0
+cam.projection = CameraProjection.ORTHOGRAPHIC
+cam.ortho_size = 8.0
+view = cam.get_view_matrix()
+proj = cam.get_projection_matrix(aspect=16.0 / 9.0)
+```
+## Related pages
+- [Editor Camera](./editor-camera.md), [Pipeline](./pipeline.md), [Shadows](./shadows.md)
+## Verified against
+- `core/components/rendering/cameras/camera.py:32-98`
+- `core/components/rendering/cameras/camera_base.py:12-111`

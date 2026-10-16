@@ -147,6 +147,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">VideoRenderer</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,13 +1245,112 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="videorenderer">VideoRenderer</h1>
-<p>Plays video clips onto a mesh surface: in-world screens, briefing walls, cutscene planes, animated billboards and fake windows.</p>
-<p>Playback runs through the internal <code>Video</code> shader backed by the engine video decoder — the surface is a normal mesh, so lighting, shadows and post apply consistently with the scene. Position and orient with the entity Transform; pair with a Projector throwing matching light for cinema feel.</p>
-<p>Workflows: briefing room — quad wall with the clip, dim the room lights, one spot on the audience; CCTV wall — grid of small quads each with its own clip; animated signage — looping clip instead of a shader scroll; cutscene plane — fullscreen-quad camera-facing video with letterbox bars from GUI panels.</p>
-<p>For readable screens in dark scenes, bias the surface material toward emissive so the image survives low ambient. Mind VRAM: several HD clips decode concurrently — keep counts low or resolutions modest.</p>
-<p>Troubleshooting: black screen → clip path broken or decoder missing the codec, re-encode to a supported container; stutter → decode-bound, lower resolution; tearing against audio → the component is video-only, sync narration via AudioSource timelines.</p>
-<p>Related: SpriteRenderer, Materials, Projector (cinema pairing), AudioSource (companion sound).</p>
+                <h1 id="video-renderer">Video Renderer</h1>
+<blockquote>
+<p>In-world video quad: <code>VideoRenderer</code> (<code>core/components/rendering/renderers/video_renderer.py</code>), decoded by <code>core/renderer/videor/player.py</code>, drawn by <code>renderer_gl.py</code>.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p><code>_updates = True</code> (per-frame decode). Optional <code>audio_source_entity_id</code> links an audio source entity. Player shells to ffmpeg with <code>-vsync drop</code> (<code>videor/player.py:207</code>).</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>video_path</code></td>
+<td>resource path (mp4/avi/mov/mkv/webm)</td>
+<td><code>""</code></td>
+<td>Clip file (<code>video_renderer.py:22,36</code>).</td>
+</tr>
+<tr>
+<td><code>audio_source_entity_id</code></td>
+<td>gameobject id</td>
+<td><code>""</code></td>
+<td>Linked audio source (<code>video_renderer.py:23,37</code>).</td>
+</tr>
+<tr>
+<td><code>color</code></td>
+<td>color4</td>
+<td><code>[1, 1, 1, 1]</code></td>
+<td>Tint (<code>video_renderer.py:24,38</code>).</td>
+</tr>
+<tr>
+<td><code>flip_x</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Mirror horizontally (<code>video_renderer.py:26,39</code>).</td>
+</tr>
+<tr>
+<td><code>flip_y</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Mirror vertically (<code>video_renderer.py:27,40</code>).</td>
+</tr>
+<tr>
+<td><code>play_on_start</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Autoplay (<code>video_renderer.py:28,41</code>).</td>
+</tr>
+<tr>
+<td><code>loop</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Loop (<code>video_renderer.py:29,42</code>).</td>
+</tr>
+<tr>
+<td><code>volume</code></td>
+<td>float (0–1)</td>
+<td><code>1.0</code></td>
+<td>Volume (<code>video_renderer.py:30,43</code>).</td>
+</tr>
+<tr>
+<td><code>offset</code></td>
+<td>float ≥0</td>
+<td><code>0.0</code></td>
+<td>Start offset, s (<code>video_renderer.py:31,44</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Assign Video, enable Play on Start + Loop for ambient screens. Link an Audio Source entity for sound; set Offset to skip intros.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">vr = entity.get_component(VideoRenderer)
+vr.video_path = &quot;assets/videos/intro.mp4&quot;
+vr.loop = False
+vr.volume = 0.8
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../sprite-renderer/">Sprite Renderer</a>, <a href="../text-renderer/">Text Renderer</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/renderers/video_renderer.py:18-89</code></li>
+<li><code>core/renderer/videor/player.py:207</code>, <code>core/renderer/videor/renderer_gl.py:73-136</code></li>
+</ul>
               
             </div>
           </div><footer>

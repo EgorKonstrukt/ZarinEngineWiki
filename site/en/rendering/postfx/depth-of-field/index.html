@@ -189,13 +189,17 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Depth of Field</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    <li class="toctree-l4"><a class="reference internal" href="#shader-snippet">Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#performance-notes">Performance notes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1250,142 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="depth-of-field">Depth of Field</h1>
-<p>Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.</p>
-<h2 id="how-it-works">How it works</h2>
-<p>Separates a focus plane from fore/background blur using the depth buffer and a focus distance.</p>
+<blockquote>
+<p>Depth-based focus blur. Circle-of-confusion from focal distance/range, aperture and blur size; Gaussian gather or polygonal Bokeh (blade count / curvature / rotation). Sky (depth &gt;= 1.0) is treated as fully blurred background. Class <code>DepthOfField</code> in <code>core/components/rendering/postfx/depth_of_field.py</code>. Runs in the PostFX stack in component order; skipped when <code>enabled</code> is False or the entity is inactive (<code>render()</code> early-out).</p>
+</blockquote>
 <h2 id="parameters">Parameters</h2>
-<p>Focus distance, aperture/f-stop feel, max blur radius.</p>
-<h2 id="tips">Tips</h2>
-<p>Cutscenes, dialogue close-ups, weapon inspection. Drive focus distance from a script to the aimed target.</p>
-<h2 id="cost">Cost</h2>
-<p>High: gather taps over depth. Narrow the max radius before blaming the GPU.</p>
-<p>Related: <a href="../">PostFX Stack</a>, Cameras (render scale), Profiler.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mode</td>
+<td><code>_mode</code></td>
+<td>ENUM DoFMode {Gaussian, Bokeh}</td>
+<td>—</td>
+<td><code>Gaussian</code></td>
+</tr>
+<tr>
+<td>Focal Distance</td>
+<td><code>_focal_distance</code></td>
+<td>SLIDER</td>
+<td>0.1 – 200.0</td>
+<td><code>10.0</code></td>
+</tr>
+<tr>
+<td>Focal Range</td>
+<td><code>_focal_range</code></td>
+<td>SLIDER</td>
+<td>0.001 – 100.0</td>
+<td><code>8.0</code></td>
+</tr>
+<tr>
+<td>Aperture</td>
+<td><code>_aperture</code></td>
+<td>SLIDER</td>
+<td>0.0 – 5.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Max Blur Size</td>
+<td><code>_max_blur_size</code></td>
+<td>SLIDER</td>
+<td>1.0 – 50.0</td>
+<td><code>12.0</code></td>
+</tr>
+<tr>
+<td>Bokeh Highlight Boost</td>
+<td><code>_bokeh_boost</code></td>
+<td>SLIDER</td>
+<td>0.0 – 3.0</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Foreground Blur Scale</td>
+<td><code>_foreground_scale</code></td>
+<td>SLIDER</td>
+<td>1.0 – 5.0</td>
+<td><code>2.0</code></td>
+</tr>
+<tr>
+<td>Rings</td>
+<td><code>_ring_count</code></td>
+<td>INT_SLIDER</td>
+<td>1 – 5</td>
+<td><code>3</code></td>
+</tr>
+<tr>
+<td>Blade Count</td>
+<td><code>_blade_count</code></td>
+<td>INT_SLIDER</td>
+<td>3 – 9</td>
+<td><code>6</code></td>
+</tr>
+<tr>
+<td>Curvature</td>
+<td><code>_blade_curvature</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Rotation</td>
+<td><code>_blade_rotation</code></td>
+<td>SLIDER</td>
+<td>0.0 – 360.0</td>
+<td><code>0.0</code></td>
+</tr>
+<tr>
+<td>Visualize CoC</td>
+<td><code>_visualize_coc</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">Usage</h2>
+<p>Editor: select the PostFX entity, Add Component &gt; <code>DepthOfField</code>, tick <code>enabled</code>, tune fields above. Order among PostFX components defines execution order.</p>
+<p>Code:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.depth_of_field import DepthOfField, DoFMode
+fx = DepthOfField()
+entity.add_component(fx)
+fx._mode = DoFMode.BOKEH
+fx._focal_distance = 12.0
+fx._aperture = 1.5
+fx.enabled = True
+</code></pre>
+<h2 id="shader-snippet">Shader snippet</h2>
+<p>Shader: <code>core/components/rendering/postfx/depth_of_field.py (DOF_FRAG)</code>.</p>
+<pre><code class="language-glsl">#version 330 core
+uniform sampler2D u_input_tex;
+uniform sampler2D u_depth_tex;
+uniform mat4 u_inv_proj;
+uniform float u_focal_distance;
+uniform float u_focal_range;
+uniform float u_aperture;
+uniform int u_mode;  // 0 Gaussian, 1 Bokeh
+</code></pre>
+<h2 id="performance-notes">Performance notes</h2>
+<p>Cost scales with Rings (1–5, inner loop r*8 taps, up to 64 per ring) × Max Blur Size. Pixels with |CoC| &lt; 0.5 early-out.</p>
+<h2 id="related">Related</h2>
+<p>Related: <a href="../">PostFX Stack</a>, <a href="../color-grading/">Color Grading</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/depth_of_field.py</code> — class <code>DepthOfField</code>, <code>_inspector_fields</code>, <code>__init__</code> defaults, <code>render_type = "screen", _skip_rate = 0</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/graphics_effect.py</code> — <code>GraphicsEffect</code> base (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, <code>render()</code> signature).</p>
+</li>
+</ul>
               
             </div>
           </div><footer>

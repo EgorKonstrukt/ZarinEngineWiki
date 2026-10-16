@@ -1,23 +1,34 @@
-# MeshRenderer
-
-Answers *how* to draw the `MeshFilter` mesh: material slots, shadow participation, UV transforms.
-
-| Field | Default | Meaning |
-|---|---|---|
-| materials | — | Material slots (`{path}` each, e.g. `.zpem`), one per submesh in order |
-| cast_shadows | on | Write into shadow maps |
-| receive_shadows | on | Sample shadow maps in the main pass |
-| uv_scale / uv_offset | (1,1) / (0,0) | Tiling and offset applied by the shader UV override |
-| uv_scale_by_transform | off | Derive tiling from the Transform scale (floors, walls) |
-| sprite_texture | — | Optional billboard texture override |
-| dynamic_reflections | off | Refresh environment reflections per frame instead of on demand |
-
-Draw order and cost: one draw call per visible submesh after frustum culling; transparent materials sort into the transparent bucket by depth. Casters render into every covering shadow map, so a high-poly hero with cast_shadows on multiplies shadow cost — disable casting for small props that never readably shadow.
-
-UV workflow: tiling brick/concrete via uv_scale (4,4) instead of duplicating geometry; scrolling effects by animating uv_offset from a script (conveyors, water slides); world-aligned trim via uv_scale_by_transform on architecture.
-
-For animated meshes use SkinnedMeshRenderer; for in-editor blockout use the ProBuilder-style `probuilder_mesh` component; for collision use MeshCollider on the same filter path.
-
-Troubleshooting: invisible mesh → filter path broken or all materials missing; wrong submesh material → slot order mismatch, reorder the list; shadows absent → cast on but light beyond distance, or receive off on the ground; shimmering UVs → non-uniform negative scale, fix the Transform.
-
-Related: MeshFilter, Materials, Shaders (UV override uniforms), Shadows, SkinnedMeshRenderer.
+# Mesh Renderer
+> Material + flags for a `MeshFilter` mesh: `MeshRenderer` (`core/components/rendering/renderers/mesh_renderer.py`).
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+`materials[i].path` maps to sub-mesh `i`; `get_material_path(i)` falls back to the last entry (`mesh_renderer.py:47-52`). UV transform (`uv_scale/uv_offset`, optional `uv_scale_by_transform`) is pushed to `u_uv_scale/u_uv_offset` uniforms. `dynamic_reflections` opts into the cubemap pass.
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `materials` | list of `{path: *.mat}` | `[{"path": "assets/materials/ProBuilderPrototype.mat"}]` | Per-submesh materials (`mesh_renderer.py:22-24,38`). |
+| `sprite_texture` | resource path (png/jpg/jpeg/bmp/tga) | `""` | Extra sprite texture slot (`mesh_renderer.py:25,39`). |
+| `uv_scale` | vec2 | `[1, 1]` | UV tiling (`mesh_renderer.py:27,40`). |
+| `uv_offset` | vec2 | `[0, 0]` | UV offset (`mesh_renderer.py:28,41`). |
+| `uv_scale_by_transform` | bool | `False` | Derive UV scale from transform (`mesh_renderer.py:29,42`). |
+| `cast_shadows` | bool | `True` | Write to shadow maps (`mesh_renderer.py:31,43`). |
+| `receive_shadows` | bool | `True` | Sample shadow maps (`mesh_renderer.py:32,44`). |
+| `dynamic_reflections` | bool | `False` | Cubemap reflection capture (`mesh_renderer.py:33,45`). |
+## Usage in Editor
+Material list length should match sub-mesh count. Uncheck Cast Shadows for glass/decal helpers; uncheck Receive for emissive props.
+## Usage in Code
+```python
+mr = entity.get_component(MeshRenderer)
+mr.materials = [{"path": "assets/materials/Brick.mat"}]
+mr.uv_scale = Vec2(2.0, 2.0)
+mr.cast_shadows = True
+```
+## Material/Shader snippet
+`.mat` (see [Materials](./materials.md)):
+```json
+{"name": "Brick", "shader_path": "default", "properties": {"_BaseColor": [1, 1, 1, 1]}}
+```
+## Related pages
+- [Mesh Filter](./mesh-filter.md), [Materials](./materials.md), [Shaders](./shaders.md), [Shadows](./shadows.md)
+## Verified against
+- `core/components/rendering/renderers/mesh_renderer.py:18-83`

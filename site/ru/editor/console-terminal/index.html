@@ -1144,6 +1144,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Консоль и терминал</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../profiler-undo/">Панель профайлера и история Undo</a>
@@ -1237,15 +1247,87 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Консоль и терминал</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Консоль и терминал в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p>Две поверхности логов: <code>ConsolePanel</code> (<code>editor/panels/console/</code>) — структурированный вид лога движка с фильтрами уровней; <code>TerminalPanel</code> (<code>editor/panels/terminal/</code>) — вкладки Python REPL + PowerShell.</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Член</th>
+<th>Сигнатура</th>
+<th>Примечания</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ConsolePanel</code></td>
+<td><code>(parent=None)</code> + <code>load_config(config)</code></td>
+<td>Док <code>console/panel.py</code></td>
+</tr>
+<tr>
+<td>Конвейер <code>ConsolePanel</code></td>
+<td><code>_on_log_entry/_flush_pending/_add_entry/_should_show/_update_list</code></td>
+<td>Группированный фильтруемый список</td>
+</tr>
+<tr>
+<td>Действия <code>ConsolePanel</code></td>
+<td><code>_clear/_collapse_all/_on_filter_changed/_rebuild/_update_counts/_render_detail/_deselect</code></td>
+<td>Тулбар + панель деталей</td>
+</tr>
+<tr>
+<td><code>ConsoleGroup</code></td>
+<td><code>(entry: LogEntry)</code> + <code>matches(entry)</code>, <code>display_text()</code></td>
+<td>Группа-дедупликация в <code>console/model.py</code></td>
+</tr>
+<tr>
+<td><code>TerminalPanel</code></td>
+<td><code>(parent=None)</code> + <code>load_config/save_config</code></td>
+<td>Док <code>terminal/panel.py</code></td>
+</tr>
+<tr>
+<td><code>TerminalPanel._add_tab</code> / <code>_open_powershell</code> / <code>_close_tab</code></td>
+<td><code>()</code> / <code>(index: int)</code></td>
+<td>Управление вкладками</td>
+</tr>
+<tr>
+<td><code>TerminalPanel.execute_python</code></td>
+<td><code>(code: str)</code></td>
+<td>Выполнение кода в неймспейсе активного REPL</td>
+</tr>
+<tr>
+<td><code>TerminalPanel._init_namespace</code> / <code>_reset_namespace</code></td>
+<td><code>()</code></td>
+<td>Жизненный цикл неймспейса REPL; <code>_on_scene_loaded</code> перепривязывает сцену</td>
+</tr>
+<tr>
+<td><code>TerminalTab</code></td>
+<td><code>(namespace: dict, font_family="", font_size=0, ...)</code> + <code>set_namespace(ns)</code>, <code>_execute(code)</code></td>
+<td>Вкладка Python в <code>terminal/repl.py</code> с историей (<code>_history_up/_history_down</code>)</td>
+</tr>
+<tr>
+<td><code>PowershellTab</code></td>
+<td><code>(assets_path: str, ...)</code> + <code>_send_command(cmd)</code>, <code>terminate()</code></td>
+<td><code>terminal/powershell.py</code>; поток <code>PsReader</code> качает stdout</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Консоль: фильтр уровня + текстовый фильтр сужают список; записи схлопываются в строки <code>ConsoleGroup</code>; выбор строки показывает полные детали (со стектрейсом, если есть); Clear и Collapse-all сбрасывают вид. Терминал: <code>+</code> открывает вкладку Python REPL с неймспейсом, содержащим хендлы движка/сцены; кнопка PowerShell открывает шелл с корнем в папке ассетов. В REPL <code>Up</code>/<code>Down</code> ходят по истории; вывод разделён по цветам (stdout vs traceback).</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">terminal.execute_python(&quot;print([e.name for e in scene.get_all_entities()])&quot;)
+terminal._reset_namespace()
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Ядро логирования (производители LogEntry/LogLevel), Профайлер (кадровые данные), Статус-бар</li>
+<li><code>editor/console_terminal.py</code> (легаси-прокладка — каноничны панели выше)</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>editor/panels/console/panel.py</code>, <code>editor/panels/console/model.py</code></li>
+<li><code>editor/panels/terminal/panel.py</code>, <code>editor/panels/terminal/repl.py</code>, <code>editor/panels/terminal/powershell.py</code></li>
+</ul>
               
             </div>
           </div><footer>

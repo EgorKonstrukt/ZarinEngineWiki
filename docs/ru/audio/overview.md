@@ -10,7 +10,7 @@
 4. `AudioSystem` владеет ресурсами: загрузка и кэширование клипов, асинхронные загрузки, состояние слушателя, доплер и скорость звука.
 5. Компоненты `ReverbZone` кормят цепочку OpenAL EFX (`audio_efx`, под guard `EFXError` без расширения).
 
-Форматы клипов: `.wav`, `.mp3`, `.ogg`, `.flac` (а также `.aiff` / `.m4a` через фильтр ресурсов скриптов). Декодирование — бэкендом miniaudio в буферы `DecodedAudio`.
+Форматы клипов (декодер): `.wav`, `.wave`, `.mp3`, `.ogg`, `.vorbis`, `.flac` (`AUDIO_EXTENSIONS` в `core/audio/miniaudio_decoder.py`). Фильтр файлов в инспекторе AudioSource уже — `Audio (*.wav *.mp3 *.ogg *.flac)` (`core/components/audio/source/component.py`). Декодирование — бэкендом miniaudio в буферы `DecodedAudio` (`decode_audio` / `decode_audio_stereo` / `decode_audio_channels`); `.wav`/`.wave` также разбираются через stdlib `wave`, если miniaudio нет (`core/audio/sys/clip.py`).
 
 Страницы: AudioSource, AudioListener, зона реверберации, аудиосистема (менеджер, декодеры, анализатор, EFX).
 

@@ -1236,8 +1236,22 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="networking">Networking</h1>
-<p>TODO: Section index pending. This page lists all articles in Networking.</p>
-<p>Use the left navigation tree to open placeholder pages.</p>
+<p>Two real subsystems on one TCP/msgpack transport (<code>core/network</code>): gameplay netcode and editor collaboration. Gameplay transport is implemented — <code>GameServer</code>/<code>GameClient</code> over TCP with <code>NET_*</code> message dispatch — not a stub (see fact note in the overview page).</p>
+<ul>
+<li>Networking Overview — the two subsystems, honest status, first-session recipe.</li>
+<li>Transport and Protocol — <code>Transport</code> singleton, <code>MessageType</code> framing, RPC module.</li>
+<li>Network Plugin — <code>NetworkPlugin</code> host/connect/send/broadcast/poll wiring.</li>
+<li>NetworkManager — session component, spawn tables, per-type dispatch.</li>
+<li>NetworkIdentity — net ids, ownership, authority modes.</li>
+<li>NetworkTransform — threshold send, interpolation, teleport.</li>
+<li>NetworkRigidbody — velocity sync, fixed-update path.</li>
+<li>NetworkAnimator — state/parameter sync, triggers.</li>
+<li>NetworkVariables — custom var replication.</li>
+<li>NetworkSpawn — prefab spawn API.</li>
+<li>NetworkPlayer — per-peer data (ready/score/team/name).</li>
+<li>Collaboration — <code>CollaborationManager</code> editor sessions.</li>
+<li>RemoteCollaborator — remote peer representation component.</li>
+</ul>
               
             </div>
           </div><footer>

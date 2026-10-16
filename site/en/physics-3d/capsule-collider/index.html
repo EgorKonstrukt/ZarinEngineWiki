@@ -301,6 +301,18 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Capsule Collider</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#fixed-update-notes">Fixed update notes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../mesh-collider/">Mesh Collider</a>
@@ -1238,58 +1250,107 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="capsule-collider">Capsule Collider</h1>
-<p>Character bodies and pills: a cylinder with spherical caps that never snags on floor seams the way boxes do, and stays stable under rotation unlike raw cylinders.</p>
+<p>Character bodies and pills: cylinder with spherical caps that never snags on floor seams like boxes do.</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group / field</th>
+<th>Field</th>
 <th>Default</th>
-<th>Meaning</th>
+<th>Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Collision: Layer / Collision Mask</td>
-<td>0 / 0xFFFF</td>
-<td>Filtering</td>
+<td><code>layer</code></td>
+<td><code>0</code></td>
+<td><code>0–15</code></td>
 </tr>
 <tr>
-<td>Shape: Center</td>
-<td>origin</td>
-<td>Local offset</td>
+<td><code>mask</code></td>
+<td><code>0xFFFF</code></td>
+<td>Collide-with bitmask</td>
 </tr>
 <tr>
-<td>Shape: Radius</td>
-<td>0.5</td>
-<td>Scaled by the largest axis</td>
+<td><code>center</code></td>
+<td><code>(0, 0, 0)</code></td>
+<td><code>scaled_center</code> multiplies by Transform scale</td>
 </tr>
 <tr>
-<td>Shape: Height</td>
-<td>2.0</td>
-<td>Total height, scaled along the direction axis</td>
+<td><code>radius</code></td>
+<td><code>0.5</code></td>
+<td>Inspector <code>0.001–10000</code>; world = <code>radius * max(scale)</code></td>
 </tr>
 <tr>
-<td>Shape: Direction</td>
-<td>1 (Y)</td>
-<td>0 = X, 1 = Y, 2 = Z</td>
+<td><code>height</code></td>
+<td><code>2.0</code></td>
+<td>Inspector <code>0.001–10000</code>; world = <code>height * axis_scale</code> (<code>scaled_height</code>)</td>
 </tr>
 <tr>
-<td>Is Trigger</td>
-<td>off</td>
-<td>Overlap events without contact response</td>
+<td><code>direction</code></td>
+<td><code>1</code></td>
+<td><code>0</code> = X, <code>1</code> = Y, <code>2</code> = Z</td>
 </tr>
 <tr>
-<td>Material: Physic Material</td>
-<td>—</td>
-<td><code>.zphysmat</code> asset override</td>
+<td><code>is_trigger</code></td>
+<td><code>False</code></td>
+<td>Overlap only</td>
+</tr>
+<tr>
+<td><code>physic_material</code></td>
+<td><code>""</code></td>
+<td><code>.zphysmat</code> path</td>
+</tr>
+<tr>
+<td><code>material_friction</code></td>
+<td><code>0.6</code></td>
+<td>Fallback</td>
+</tr>
+<tr>
+<td><code>material_bounciness</code></td>
+<td><code>0.0</code></td>
+<td>Fallback</td>
 </tr>
 </tbody>
 </table>
-<p>Matches the CharacterController capsule (radius 0.5, height 2.0) when defaults are kept — use the same numbers for AI bodies so players and bots collide identically.</p>
-<p>Orientation guide: Y for standing characters, X/Z for lying or rolling bodies (logs, barrels on their side). Height includes the caps; a height below <code>radius * 2</code> degenerates toward a sphere — the solver clamps, but the gizmo shows the truth.</p>
-<p>Enemies with lunges and dashes stay upright by freezing rotation axes on the Rigidbody while keeping the capsule — tips without toppling.</p>
-<p>Troubleshooting: catches on steps → radius too large for the tread depth or step height (controller) too low; floats above ground → center offset lifting the caps; spins like a log → freeze rotation axes.</p>
-<p>Related: CharacterController, Sphere Collider, Rigidbody.</p>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Set <code>Radius</code>/<code>Height</code>, axis via <code>direction</code> (code/serialized; Inspector exposes radius/height/trigger/material). Use Y (<code>1</code>) for upright characters.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Pill&quot;)
+from core.components.physics.rigidbody import Rigidbody
+from core.components.physics.capsule_collider import CapsuleCollider
+
+rb = Rigidbody()
+rb.mass = 80.0
+rb.freeze_rot_x = True
+rb.freeze_rot_z = True
+entity.add_component(rb)
+cap = CapsuleCollider()
+cap.radius = 0.4
+cap.height = 1.8
+cap.direction = 1
+entity.add_component(cap)
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody)
+    if rb is not None:
+        rb.add_force(Vec3(0.0, 0.0, 50.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+</code></pre>
+<h2 id="fixed-update-notes">Fixed update notes</h2>
+<ul>
+<li>Solver call: <code>create_rigid_body(shape_type="capsule", shape_params={"radius", "height", "center", "direction"})</code>.</li>
+<li><code>dt</code> is <code>Engine._fixed_dt</code> (<code>0.02</code> default); shape re-check every 60 steps.</li>
+</ul>
+<h2 id="related">Related</h2>
+<p>Rigidbody, CharacterController, Box/Sphere colliders, Physics Materials, Collision Layers.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/physics/capsule_collider.py</code></li>
+<li><code>core/physics/shapep/shapes.py</code></li>
+</ul>
               
             </div>
           </div><footer>

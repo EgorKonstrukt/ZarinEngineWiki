@@ -59,6 +59,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">First Scene</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#serialization">Serialization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../faq/">FAQ</a>
@@ -1237,15 +1251,108 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="first-scene">First Scene</h1>
-<p>TODO: Content pending. This page will document First Scene in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p>Create a scene in code or in the editor: entities with <code>Transform</code>, a light, a camera, then <code>save_scene_async</code> to <code>.zpes</code>.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="overview">Overview</h2>
+<p><code>Engine.new_scene(name)</code> creates an empty <code>Scene</code> plus a locked system entity <code>Shadow System</code> (holds <code>DirectionalShadow</code>, <code>PointShadow</code>, <code>SpotShadow</code>, <code>AreaShadow</code>). Every entity you add gets an <code>id</code> (UUID), <code>name</code>, <code>active=True</code>, <code>tags=set()</code>, <code>layer=0</code>. Save with <code>save_scene_async(path)</code>; load with <code>load_scene_async(path)</code> (both in <code>EngineScenesMixin</code>; synchronous <code>save_scene(path)</code> / <code>load_scene(path)</code> variants exist for scripts). Saves rotate two backups (<code>.bak</code>, <code>.bak2</code>).</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>new_scene</td>
+<td>method</td>
+<td><code>Engine.new_scene(name="NewScene")</code></td>
+<td>Creates scene, default objects, emits <code>scene_loaded</code></td>
+</tr>
+<tr>
+<td>create_entity</td>
+<td>method</td>
+<td><code>Scene.create_entity(name="Entity")</code></td>
+<td>Entity bound to the scene, marked dirty</td>
+</tr>
+<tr>
+<td>save</td>
+<td>method</td>
+<td><code>Engine.save_scene_async(path)</code></td>
+<td>Async save; emits <code>scene_saved</code>; keeps <code>.bak</code> backups</td>
+</tr>
+<tr>
+<td>load</td>
+<td>method</td>
+<td><code>Engine.load_scene_async(path)</code></td>
+<td>Async load with progress task <code>scene:load</code></td>
+</tr>
+<tr>
+<td>scene_file</td>
+<td>format</td>
+<td><code>.zpes</code> JSON</td>
+<td><code>{"name": ..., "entities": {id: entity-dict}}</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<ol>
+<li><code>File → New Scene</code> (or start from <code>new_scene</code>).</li>
+<li>Add entities in the Hierarchy; move them with the viewport gizmo (writes <code>Transform.local_position</code> / <code>local_euler_angles</code> / <code>local_scale</code>).</li>
+<li>Add a camera and a light via <code>Add Component → Rendering / Lighting</code>.</li>
+<li>Save the scene as <code>.zpes</code>. Run it headless with <code>python player.py MyScene.zpes</code>.</li>
+</ol>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from core.engine.eng import Engine
+from core.components.transform.tr import Transform
+from core.maths.math3d import Vec3
+
+engine = Engine()
+engine.initialize()
+scene = engine.new_scene(&quot;FirstScene&quot;)
+
+player = scene.create_entity(&quot;Player&quot;)
+tr = player.add_component(Transform())
+tr.local_position = Vec3(0.0, 1.0, 0.0)
+
+engine.save_scene_async(&quot;scenes/FirstScene.zpes&quot;)
+</code></pre>
+<h2 id="serialization">Serialization</h2>
+<p>Minimal <code>.zpes</code> fragment:</p>
+<pre><code class="language-json">{ &quot;name&quot;: &quot;FirstScene&quot;,
+  &quot;entities&quot;: {
+    &quot;c0ffee00-0000-4000-8000-000000000001&quot;: {
+      &quot;id&quot;: &quot;c0ffee00-0000-4000-8000-000000000001&quot;,
+      &quot;name&quot;: &quot;Player&quot;, &quot;active&quot;: true, &quot;tags&quot;: [], &quot;layer&quot;: 0, &quot;parent&quot;: null,
+      &quot;components&quot;: [
+        { &quot;type&quot;: &quot;Transform&quot;, &quot;enabled&quot;: true, &quot;_key&quot;: &quot;Transform&quot;,
+          &quot;local_position&quot;: [0.0, 1.0, 0.0],
+          &quot;local_rotation&quot;: [0.0, 0.0, 0.0, 1.0],
+          &quot;local_scale&quot;: [1.0, 1.0, 1.0] }
+      ]
+    }
+  } }
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li><a href="../quick-start/">Quick Start</a></li>
+<li><a href="../../core/entity/">Entity</a></li>
+<li><a href="../../core/transform/">Transform</a></li>
+<li><a href="../../core/registry-serialization/">Registry and Serialization</a></li>
+<li><a href="../../scenes-prefabs/scenes/">Scenes</a></li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/engine/eng/engine.py</code> (<code>new_scene</code>, <code>_ensure_shadow_system</code>, <code>_add_default_scene_objects</code>)</li>
+<li><code>core/engine/eng/scenes.py</code> (<code>save_scene_async</code>, <code>load_scene_async</code>, <code>_rotate_scene_backups</code>, <code>_SCENE_BACKUP_KEEP = 2</code>)</li>
+<li><code>core/ecs/entity.py</code> (<code>Entity.__init__</code> defaults, <code>serialize</code>)</li>
+<li><code>core/components/transform/tr/serialize.py</code> (Transform keys)</li>
+</ul>
               
             </div>
           </div><footer>

@@ -1154,6 +1154,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Граф террейна и NodeGraphQt</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../build-project-settings/">Диалог сборки, менеджер проектов, настройки</a>
@@ -1237,15 +1247,105 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="nodegraphqt">Граф террейна и NodeGraphQt</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Граф террейна и NodeGraphQt в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p>Процедурные высоты (<code>editor/terrain_graph/</code> + <code>editor/panels/terrain/</code>): узлы шума/масок/фильтров считаются на GPU, запекаются в heightmap через <code>generate_shader</code>, превью на каждый узел.</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Член</th>
+<th>Сигнатура</th>
+<th>Примечания</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>generate_shader</code></td>
+<td><code>(graph, resolution: int) -&gt; Tuple[str, dict, float]</code></td>
+<td><code>terrain_graph/code_generator.py</code>; возвращает исходник GLSL, юниформы, время запекания</td>
+</tr>
+<tr>
+<td><code>run_shader</code> / <code>run_preview_shader</code></td>
+<td><code>(source: str, resolution: int, uniforms: Optional[Dict[str, float]] = None) -&gt; Optional[np.ndarray]</code></td>
+<td><code>terrain_graph/gpu_runner.py</code>; <code>_ensure_ctx()</code> сторожит контекст</td>
+</tr>
+<tr>
+<td><code>release</code> / <code>clear_cache</code></td>
+<td><code>()</code></td>
+<td>Разборка <code>gpu_runner.py</code></td>
+</tr>
+<tr>
+<td><code>save_graph</code> / <code>load_graph</code></td>
+<td><code>(graph, path: str) -&gt; bool</code></td>
+<td><code>terrain_graph/graph_serializer.py</code></td>
+</tr>
+<tr>
+<td><code>compute_node_preview</code></td>
+<td><code>(target_node, graph, resolution: int = 64) -&gt; Optional[np.ndarray]</code></td>
+<td><code>terrain_graph/node_preview.py</code> — запекание только подграфа предков</td>
+</tr>
+<tr>
+<td><code>update_all_previews</code> / <code>clear_preview_cache</code></td>
+<td><code>(graph, resolution=64)</code> / <code>()</code></td>
+<td>Пакетное обновление / сброс</td>
+</tr>
+<tr>
+<td><code>NodePreviewWidget</code></td>
+<td><code>preview_widget.py</code>, наследник <code>NodeBaseWidget</code></td>
+<td>Миниатюра heightmap внутри узла</td>
+</tr>
+<tr>
+<td><code>TerrainGraphCollabBridge</code></td>
+<td><code>QObject</code> в <code>terrain_graph/collab_bridge.py</code></td>
+<td>Пересылает правки графа в коллаб-сессию</td>
+</tr>
+<tr>
+<td>Генераторы</td>
+<td><code>PerlinNoiseNode</code>, <code>RidgedNoiseNode</code>, <code>BillowNoiseNode</code>, <code>VoronoiNode</code>, <code>ConstantNode</code>, <code>ContinentMaskNode</code>, <code>DuneNode</code> (<code>nodesp/generators.py</code>)</td>
+<td>Источники высот</td>
+</tr>
+<tr>
+<td>Фильтры</td>
+<td><code>DomainWarpNode</code>, <code>ErosionNode</code>, <code>TerraceNode</code>, <code>PlateauNode</code>, <code>SlopeMaskNode</code>, <code>StrataNode</code>, <code>SharpenNode</code>, <code>SmoothNode</code>, <code>NormalizeNode</code>, <code>InvertNode</code>, <code>HeightBiasNode</code>, <code>RiverNode</code>, <code>ClampNode</code>, <code>RemapNode</code> (<code>nodesp/filters.py</code>)</td>
+<td>Формующие проходы</td>
+</tr>
+<tr>
+<td>Комбинатор + сток</td>
+<td><code>AddNode</code>, <code>SubtractNode</code>, <code>MultiplyNode</code>, <code>BlendNode</code>, <code>MaxNode</code>, <code>MinNode</code>, <code>HeightOutputNode</code> (<code>nodesp/output.py</code>)</td>
+<td>Миксеры и сток графа</td>
+</tr>
+<tr>
+<td>Панель</td>
+<td><code>editor/panels/terrain/panel.py</code> + <code>graph_widget.py</code></td>
+<td>Док с канвой</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Док террейна: узлы-генераторы (Perlin/Ridged/Voronoi...), формовка фильтрами (Erosion/Terrace/DomainWarp...), сведение миксеров в <code>HeightOutputNode</code>; каждый узел показывает живое превью <code>NodePreviewWidget</code> (по умолчанию 64 px), посчитанное только по его предкам. Запекание выполняет <code>generate_shader</code> в целевом разрешении и пишет heightmap в компонент террейна. Файлы графов сохраняются/грузятся через сериализатор; правки уходят коллабораторам через мост.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from editor.terrain_graph.code_generator import generate_shader
+from editor.terrain_graph.gpu_runner import run_shader
+from editor.terrain_graph.graph_serializer import save_graph, load_graph
+from editor.terrain_graph.node_preview import compute_node_preview
+
+source, uniforms, bake_time = generate_shader(graph, resolution=512)
+height = run_shader(source, resolution=512, uniforms=uniforms)
+save_graph(graph, &quot;assets/terrain/island.zterrain&quot;)
+thumb = compute_node_preview(node, graph, resolution=64)
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Граф шейдеров (соседняя нодовая система), компонент Terrain, Коллаборация (мост графа)</li>
+<li>GPU-журнал: <code>tools/gpuj/</code></li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>editor/terrain_graph/code_generator.py</code>, <code>editor/terrain_graph/gpu_runner.py</code>, <code>editor/terrain_graph/graph_serializer.py</code>, <code>editor/terrain_graph/node_preview.py</code>, <code>editor/terrain_graph/preview_widget.py</code>, <code>editor/terrain_graph/collab_bridge.py</code>, <code>editor/terrain_graph/glsl_chunks.py</code></li>
+<li><code>editor/terrain_graph/nodesp/base.py</code>, <code>editor/terrain_graph/nodesp/generators.py</code>, <code>editor/terrain_graph/nodesp/filters.py</code>, <code>editor/terrain_graph/nodesp/output.py</code></li>
+<li><code>editor/panels/terrain/panel.py</code>, <code>editor/panels/terrain/graph_widget.py</code></li>
+</ul>
               
             </div>
           </div><footer>

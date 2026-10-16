@@ -83,6 +83,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Logging</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#serialization">Serialization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../profiler/">Profiler</a>
@@ -1237,15 +1251,105 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="logging">Logging</h1>
-<p>TODO: Content pending. This page will document Logging in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p><code>Logger</code> is a static level-filtered log with an in-memory ring buffer (2000 entries) and listener callbacks that feed the editor Console panel.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="overview">Overview</h2>
+<p>Levels are <code>LogLevel.DEBUG = 0, INFO = 1, WARNING = 2, ERROR = 3</code>; <code>_min_level</code> defaults to <code>DEBUG</code> so everything is recorded (<code>debug</code>/<code>info</code>/<code>warning</code> are gated; <code>error()</code> always emits). <code>_emit</code> appends a <code>LogEntry(level, message, traceback_str)</code> (timestamped with <code>time.time()</code>), drops the oldest entry past <code>_max_entries = LOGGER_MAX_ENTRIES = 2000</code>, then calls listeners (listener exceptions are swallowed). <code>Logger.error(msg, exc)</code> captures <code>traceback.format_exc()</code> only when <code>exc</code> is passed. <code>main.py</code>/<code>player.py</code> route unhandled exceptions through <code>Logger.error</code> with a full traceback.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LogLevel</td>
+<td>IntEnum</td>
+<td><code>DEBUG/INFO/WARNING/ERROR = 0/1/2/3</code></td>
+<td>Severity ordering</td>
+</tr>
+<tr>
+<td>debug / info / warning</td>
+<td>methods</td>
+<td><code>Logger.info(msg)</code></td>
+<td>Level-gated by <code>_min_level</code></td>
+</tr>
+<tr>
+<td>error(msg, exc=None)</td>
+<td>method</td>
+<td><code>exc=None</code></td>
+<td>Appends <code>traceback.format_exc()</code> when <code>exc</code> given</td>
+</tr>
+<tr>
+<td>add_listener(fn) / remove_listener(fn)</td>
+<td>methods</td>
+<td>—</td>
+<td><code>fn(LogEntry)</code>; console panel subscribes here</td>
+</tr>
+<tr>
+<td>get_entries</td>
+<td>method</td>
+<td>copy of list</td>
+<td>Snapshot for UI rendering</td>
+</tr>
+<tr>
+<td>clear</td>
+<td>method</td>
+<td>—</td>
+<td>Drops all entries</td>
+</tr>
+<tr>
+<td>_max_entries</td>
+<td>int</td>
+<td><code>2000</code></td>
+<td><code>LOGGER_MAX_ENTRIES</code> (<code>core/config/constants.py</code>)</td>
+</tr>
+<tr>
+<td>LogEntry fields</td>
+<td>slots</td>
+<td>—</td>
+<td><code>level</code>, <code>message</code>, <code>timestamp</code>, <code>traceback_str</code>; helpers <code>formatted_time()</code> (<code>%H:%M:%S</code>), <code>level_str()</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Console panel renders <code>get_entries()</code> (font settings under global config <code>console.*</code>). Engine, plugin, and script errors appear here with entity/component context.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from core.foundation.logger import Logger
+
+Logger.info(&quot;Play mode started.&quot;)
+Logger.warning(&quot;Missing texture, using fallback.&quot;)
+try:
+    risky()
+except Exception as e:
+    Logger.error(f&quot;System failed: {e}&quot;, e)
+
+Logger.add_listener(lambda entry: print(entry.level_str(), entry.formatted_time(), entry.message))
+</code></pre>
+<pre><code class="language-python">print(len(Logger.get_entries()))  # ring buffer holds at most 2000 entries
+Logger.clear()  # drop all entries (runtime-only, never serialized)
+</code></pre>
+<h2 id="serialization">Serialization</h2>
+<p>Not applicable. Entries are runtime-only; <code>player.py</code> additionally mirrors startup diagnostics to <code>player_diag.txt</code>.</p>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li><a href="../config/">Configuration</a></li>
+<li><a href="../profiler/">Profiler</a></li>
+<li><a href="../ecs-overview/">ECS Overview</a></li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/foundation/logger.py</code> (levels, buffer, listeners, <code>error</code> traceback behavior)</li>
+<li><code>core/config/constants.py</code> (<code>LOGGER_MAX_ENTRIES = 2000</code>)</li>
+<li><code>main.py</code> (<code>excepthook</code> → <code>Logger.error</code>), <code>player.py</code> (<code>excepthook</code>, <code>player_diag.txt</code>)</li>
+<li><code>core/ecs/query.py</code> (per-component error logging format)</li>
+</ul>
               
             </div>
           </div><footer>

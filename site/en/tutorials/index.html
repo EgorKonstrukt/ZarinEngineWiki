@@ -1237,15 +1237,20 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="tutorials-overview">Tutorials Overview</h1>
-<p>TODO: Content pending. This page will document Tutorials Overview in ZarinEngine.</p>
-<p>Planned sections:</p>
+<p>Three hands-on guides. Read them in order; each builds on the previous one.</p>
+<p>Prerequisites (same for all tutorials):</p>
+<ol>
+<li>Install dependencies (<code>pip install -r requirements.txt</code>) and open the editor (<code>python main.py</code>). No project setup is required.</li>
+<li>Learn the four UI stops used everywhere: <code>Hierarchy</code> panel (scene tree) → <code>Inspector → Add Component</code> (the <code>Add Component</code> dialog) → <code>Inspector</code> field editing → <code>Play</code> to run.</li>
+<li>Scripts are created with <code>Project → Create → Python Script</code> (<code>.py</code>) and attached with <code>Inspector → Add Component → Scripts</code>, picking the file in the <code>Script</code> field. Values typed in the Inspector are stored in the scene (<code>.zpes</code>), not in the <code>.py</code> file.</li>
+</ol>
+<p>Guides:</p>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Rotator and Mover Scripts — spinning and WASD movement with <code>Transform.rotate</code> / <code>translate</code>, <code>Input</code>/<code>KeyCode</code>, Inspector-tuned <code>speed</code>. Start here.</li>
+<li>Physics Scene — <code>Rigidbody</code> + <code>BoxCollider</code> ground and ball, forces in <code>on_fixed_update</code>, <code>on_collision_enter</code> counting hits.</li>
+<li>GUI Menu, Prefabs, Audio, Build — <code>ButtonComponent</code>/<code>LabelComponent</code> menu, <code>.zpep</code> reuse, <code>AudioSource.play()</code> on keypress, running <code>python player.py Scene.zpes</code>, standalone build with <code>python build_nuitka.py</code>.</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<p>Conventions: <code>self._entity</code> is the owning entity (assigned by the engine before every call); <code>get_component_by_name("...")</code> fetches a sibling component by its registered name (<code>"Transform"</code>, <code>"Rigidbody"</code>, <code>"AudioSource"</code>, <code>"LabelComponent"</code>); rotation input is a <code>Vec3</code> of degrees applied by <code>Transform.rotate</code>, which is the only <code>rotate</code> in the scripting path — <code>Vec3</code> itself has no <code>rotate</code> method, only <code>dot</code>, <code>cross</code>, <code>length</code>, <code>normalized</code>, <code>lerp</code> and friends.</p>
               
             </div>
           </div><footer>

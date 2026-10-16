@@ -1248,38 +1248,43 @@
 <tbody>
 <tr>
 <td>Zone</td>
-<td>Min Distance, Max Distance — full-effect and falloff radii</td>
+<td>Min Distance (default 10.0), Max Distance (default 15.0) — full-effect and falloff radii</td>
 </tr>
 <tr>
 <td>Reverb Preset</td>
-<td>Named starting points for common spaces</td>
+<td>Named starting points for common spaces (default <code>Generic</code>; <code>Off</code> bypasses, <code>User</code> marks hand-tuned params)</td>
 </tr>
 <tr>
 <td>Room</td>
-<td>Room level, Room HF, Room LF — low/mid/high decay balance</td>
+<td>Room level (default −1000), Room HF (default −100), Room LF (default 0) — low/mid/high decay balance</td>
 </tr>
 <tr>
 <td>Decay</td>
-<td>Decay Time, Decay HFRatio — length and brightness of the tail</td>
+<td>Decay Time (default 1.49), Decay HFRatio (default 0.83) — length and brightness of the tail</td>
 </tr>
 <tr>
 <td>Reflections</td>
-<td>Reflections level, Reflections Delay — early echoes</td>
+<td>Reflections level (default −2602), Reflections Delay (default 0.007) — early echoes</td>
 </tr>
 <tr>
 <td>Reverb</td>
-<td>Reverb level, Reverb Delay — late diffuse field</td>
+<td>Reverb level (default 200), Reverb Delay (default 0.011) — late diffuse field</td>
 </tr>
 <tr>
 <td>Reference</td>
-<td>HFReference, LFReference — crossover frequencies</td>
+<td>HFReference (default 5000), LFReference (default 250) — crossover frequencies</td>
 </tr>
 <tr>
 <td>Rolloff</td>
-<td>Room Rolloff Factor — distance response of the effect</td>
+<td>Room Rolloff Factor (default 0.0) — distance response of the effect</td>
+</tr>
+<tr>
+<td>Mix</td>
+<td>Diffusion (default 100.0), Density (default 100.0) — echo density / modal richness</td>
 </tr>
 </tbody>
 </table>
+<p>Source: <code>core/components/audio/reverb/component.py</code> (<code>_inspector_fields</code>, <code>__init__</code> defaults, <code>serialize</code>/<code>deserialize</code> with legacy linear→mB migration).</p>
 <p>Workflow:</p>
 <ol>
 <li>Add the component to an empty entity marking the space center.</li>
@@ -1288,7 +1293,7 @@
 <li>Walk the listener through with a looping source to verify the transition in and out.</li>
 </ol>
 <p>The EFX path is guarded: without the extension the engine raises <code>EFXError</code> internally and continues dry — check the console if a zone sounds flat on some machines.</p>
-<p>Related: AudioSource (spatial blend feeds the send), Audio System (EFX module), Fog (visual twin for caves).</p>
+<p>Related: AudioSource (spatial blend feeds the send), AudioListener (listener position drives zone routing), Audio System (EFX module), Fog (visual twin for caves).</p>
               
             </div>
           </div><footer>

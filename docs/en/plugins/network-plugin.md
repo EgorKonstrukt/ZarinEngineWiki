@@ -1,6 +1,6 @@
 # Network Plugin (Plugin Page)
 
-System plugin (`network_plugin.py`, `SYSTEM = True`, `DESCRIPTION` "Multiplayer transport using GameServer/GameClient over TCP") bridging gameplay code and the transport singleton.
+System plugin (`network_plugin.py`, `NAME = "NetworkPlugin"`, `VERSION = "1.0.0"`, `SYSTEM = True`, `DESCRIPTION` "Multiplayer transport using GameServer/GameClient over TCP") bridging gameplay code and the transport singleton.
 
 Plugin-side facts:
 

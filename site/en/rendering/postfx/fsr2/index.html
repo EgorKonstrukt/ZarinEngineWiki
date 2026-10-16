@@ -201,13 +201,17 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">FSR2</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    <li class="toctree-l4"><a class="reference internal" href="#shader-snippet">Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#performance-notes">Performance notes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1250,91 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="fsr2">FSR2</h1>
-<p>Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.</p>
-<h2 id="how-it-works">How it works</h2>
-<p>FidelityFX Super Resolution 2 temporal upscaling: render small, reconstruct sharp.</p>
+<blockquote>
+<p>Temporal upscaler chain. EASU upscales, the temporal pass reprojects with velocity/depth and variance clipping, RCAS sharpens. Stability/disocclusion control history reuse. Class <code>FidelityFXSuperResolution2</code> in <code>core/components/rendering/postfx/fsr2p/effect.py</code>. Runs in the PostFX stack in component order; skipped when <code>enabled</code> is False or the entity is inactive (<code>render()</code> early-out).</p>
+</blockquote>
 <h2 id="parameters">Parameters</h2>
-<p>Quality preset, sharpness.</p>
-<h2 id="tips">Tips</h2>
-<p>Performance mode on weak GPUs; render_scale 0.5–0.67 with FSR2 beats native blur.</p>
-<h2 id="cost">Cost</h2>
-<p>Medium, but buys back more than it costs.</p>
-<p>Related: <a href="../">PostFX Stack</a>, Cameras (render scale), Profiler.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Temporal Stability</td>
+<td><code>_stability</code></td>
+<td>FLOAT</td>
+<td>0.0 – 0.99</td>
+<td><code>0.9</code></td>
+</tr>
+<tr>
+<td>RCAS Attenuation</td>
+<td><code>_rcas_sharpness</code></td>
+<td>FLOAT</td>
+<td>0.0 – 1.0</td>
+<td><code>0.2</code></td>
+</tr>
+<tr>
+<td>Disocclusion Depth</td>
+<td><code>_disocclusion</code></td>
+<td>FLOAT</td>
+<td>0.0 – 1.0</td>
+<td><code>0.15</code></td>
+</tr>
+<tr>
+<td>Variance Clip Gamma</td>
+<td><code>_variance_gamma</code></td>
+<td>FLOAT</td>
+<td>0.5 – 4.0</td>
+<td><code>1.25</code></td>
+</tr>
+<tr>
+<td>EASU Edge Sharpness</td>
+<td><code>_easu_sharpness</code></td>
+<td>FLOAT</td>
+<td>0.0 – 1.0</td>
+<td><code>0.35</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">Usage</h2>
+<p>Editor: select the PostFX entity, Add Component &gt; <code>FidelityFXSuperResolution2</code>, tick <code>enabled</code>, tune fields above. Order among PostFX components defines execution order.</p>
+<p>Code:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.fsr2p.effect import FidelityFXSuperResolution2
+fx = FidelityFXSuperResolution2()
+entity.add_component(fx)
+fx._stability = 0.9
+fx._rcas_sharpness = 0.2
+fx.enabled = True
+</code></pre>
+<h2 id="shader-snippet">Shader snippet</h2>
+<p>Shader: <code>core/components/rendering/postfx/fsr2p/easu.py (EASU_FRAG), temporal.py (TEMPORAL_FRAG), rcas.py (RCAS_FRAG)</code>.</p>
+<pre><code class="language-glsl">// EASU: uniform sampler2D u_src; uniform vec2 u_src_size; uniform vec2 u_src_pixel; uniform float u_sharpness;
+// TEMPORAL: uniform sampler2D u_current; uniform sampler2D u_history; uniform sampler2D u_velocity; uniform float u_stability; uniform float u_variance_gamma;
+// RCAS: uniform sampler2D u_rcas_input; uniform vec2 u_rcas_size; uniform vec2 u_rcas_con;
+</code></pre>
+<h2 id="performance-notes">Performance notes</h2>
+<p>Three fullscreen passes + 2-frame history buffers. Internal <code>_history_valid</code> / <code>_cur_index</code> ping-pong; history invalidated on resize.</p>
+<h2 id="related">Related</h2>
+<p>Related: <a href="../">PostFX Stack</a>, <a href="../color-grading/">Color Grading</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/fsr2p/effect.py</code> — class <code>FidelityFXSuperResolution2</code>, <code>_inspector_fields</code>, <code>__init__</code> defaults, <code>Multi-pass chain: EASU (edge-adaptive upscale) → TEMPORAL (reprojection + variance clip) → RCAS (sharpen). Keeps 2-frame history (u_history) + variance gamma clip.</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/fsr2p/easu.py</code></p>
+</li>
+<li><code>core/components/rendering/postfx/fsr2p/rcas.py</code></li>
+<li><code>core/components/rendering/postfx/fsr2p/temporal.py</code></li>
+<li><code>core/components/rendering/postfx/fsr2p/vert.py</code></li>
+<li><code>core/components/rendering/postfx/graphics_effect.py</code> — <code>GraphicsEffect</code> base (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, <code>render()</code> signature).</li>
+</ul>
               
             </div>
           </div><footer>

@@ -1,6 +1,6 @@
 # Сетевой плагин (страница плагина)
 
-Системный плагин (`network_plugin.py`, `SYSTEM = True`, `DESCRIPTION` "Multiplayer transport using GameServer/GameClient over TCP") — мост геймплейного кода и синглтона транспорта.
+Системный плагин (`network_plugin.py`, `NAME = "NetworkPlugin"`, `VERSION = "1.0.0"`, `SYSTEM = True`, `DESCRIPTION` "Multiplayer transport using GameServer/GameClient over TCP") — мост геймплейного кода и синглтона транспорта.
 
 Факты стороны плагина:
 

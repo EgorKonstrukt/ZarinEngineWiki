@@ -1204,6 +1204,14 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Планы, журнал изменений, лицензия</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Лицензия</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#readmemd">Требования (из README.md)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Точки входа и тесты</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Журнал изменений и планы</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,15 +1245,27 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Планы, журнал изменений, лицензия</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Планы, журнал изменений, лицензия в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<p>Только факты — всё ниже прочитано напрямую из репозитория.</p>
+<h2 id="_2">Лицензия</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Mozilla Public License 2.0. Copyright (c) 2026 Zarrakun. Полный текст — <code>LICENSE</code> в корне репозитория.</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="readmemd">Требования (из <code>README.md</code>)</h2>
+<ul>
+<li>Python 3.13+, PySide6 ≥ 6.6.0, ModernGL ≥ 5.10.0, NumPy ≥ 1.26.0, системный OpenAL для аудио, bundled Assimp DLL/SO для импорта мешей. Полный список — <code>requirements.txt</code>.</li>
+<li>OpenGL 4.6 Core Profile. Вся математика движка — <code>numpy.float64</code>; конвертация в <code>float32</code> только при загрузке на GPU.</li>
+</ul>
+<h2 id="_3">Точки входа и тесты</h2>
+<ul>
+<li><code>python main.py</code> — редактор. <code>python player.py Scene.zpes</code> — запуск сцены (дефолт <code>"SampleScene.zpes"</code>). <code>python build_nuitka.py</code> — standalone-сборка на Nuitka (настройки в <code>BuildSettings.json</code>).</li>
+<li><code>python setup.py</code> — сборка 34 движковых Cython-расширений из <code>core/pyx/*.pyx</code>: <code>_convex_hull</code>, <code>_bvh_build</code>, <code>_raytracing_data</code>, <code>math_helpers</code>, <code>_math_vec</code>, <code>_culling</code>, <code>_transform_batch</code>, <code>_render_utils</code>, <code>_physics_utils</code>, <code>_core_batch</code>, <code>_types</code>, <code>_ecs_batch</code>, <code>_render_batch</code>, <code>_octree_batch</code>, <code>_constraint_batch</code>, <code>_curve_batch</code>, <code>_constraint_update</code>, <code>_physics_sync</code>, <code>_mesh_import</code>, <code>_skinning</code>, <code>_ik</code>, <code>_physbone</code>, <code>_audio_dsp</code>, <code>_raycast</code>, <code>_shadow_batch</code>, <code>_scene_query</code>, <code>_render_collect</code>, <code>_math_mat4</code>, <code>_vr_batch</code>, <code>_nav_batch</code>, <code>_splat_sort</code>, <code>_gs_volume</code>, <code>_sky_astro</code> (плюс исходники <code>_shader_parse</code>). Дефолтный тулчейн Windows — автодоставленный компактный MinGW-w64.</li>
+<li>Smoke-тесты в <code>tests/smoke/</code>: <code>test_scripting</code>, <code>test_script_inspector</code>, <code>test_script_cython</code>, <code>test_engine_embed</code>, <code>test_relpaths</code>, <code>test_import_materials</code>, <code>test_mesh_import_persist</code>, <code>test_ik_numeric</code>, <code>test_blendshapes</code>, <code>test_compression_async</code>, <code>test_digest_dedup</code>, <code>test_duplicate_skinned</code>, <code>test_embed2</code>, <code>test_embed_outside</code>, <code>test_prop_picker</code>, <code>test_soft_remote</code>, плюс <code>tests/libs/test_library_packs.py</code>.</li>
+</ul>
+<h2 id="_4">Журнал изменений и планы</h2>
+<ul>
+<li><code>CHANGELOG.md</code> в репозитории нет: записью изменений служит история git. Источник правды по контракту скриптинга — <code>docs/scripting.md</code> в репозитории движка.</li>
+<li>Проверяемое направление из кода (не обещания): геймплейная сеть — стабы (<code>host</code>/<code>connect</code>/<code>send</code>/<code>broadcast</code>/<code>poll</code> ждут транспорт; <code>NetworkIdentity</code> — заглушка), а ECS, редактор, рендеринг, физика, аудио, GUI, префабы, hot-reload скриптов и пользовательские Cython-модули реализованы и покрыты перечисленными smoke-тестами.</li>
+</ul>
               
             </div>
           </div><footer>

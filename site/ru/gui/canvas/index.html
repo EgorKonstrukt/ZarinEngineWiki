@@ -982,6 +982,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Канвас GuiCanvas</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api">Свойства / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_1">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Связанные</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../controls/">Контролы: кнопки, метки, ввод, слайдеры</a>
@@ -1237,15 +1247,88 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="guicanvas">Канвас GuiCanvas</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Канвас GuiCanvas в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<p><code>GuiCanvas</code> (<code>QWidget</code>) держит все виджеты детьми корневой <code>Panel</code> на stretch-all, с drag в edit-mode, якорями, z-порядком и сохранением в JSON.</p>
+<h2 id="api">Свойства / API</h2>
+<table>
+<thead>
+<tr>
+<th>Член</th>
+<th>Источник</th>
+<th>Смысл</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>root: Panel</code></td>
+<td><code>core/gui/canvasp/canvas.py</code></td>
+<td>Фоновая панель stretch-all, родитель всех виджетов</td>
+</tr>
+<tr>
+<td><code>screen_width / screen_height</code></td>
+<td><code>canvas.py</code></td>
+<td>Виртуальное разрешение, мин. 320x240</td>
+</tr>
+<tr>
+<td><code>zoom</code></td>
+<td><code>canvas.py</code></td>
+<td>0.1–10.0, сигнал <code>zoom_changed</code></td>
+</tr>
+<tr>
+<td><code>edit_mode</code></td>
+<td><code>canvas.py</code></td>
+<td>Вкл — дети отключены для drag/resize</td>
+</tr>
+<tr>
+<td><code>snap_to_grid / grid_size / auto_align</code></td>
+<td><code>canvas.py</code></td>
+<td>Снап к сетке (по умолч. 8) и гайды</td>
+</tr>
+<tr>
+<td><code>add_widget / remove_widget / clear / get_all_widgets</code></td>
+<td><code>canvas.py</code></td>
+<td>Управление детьми</td>
+</tr>
+<tr>
+<td><code>serialize / deserialize / save_to_file / load_from_file</code></td>
+<td><code>canvas.py</code></td>
+<td>JSON <code>canvas_w</code>, <code>canvas_h</code>, <code>children</code> (<code>type</code>, <code>id</code>, <code>children</code>)</td>
+</tr>
+<tr>
+<td><code>NATIVE_WIDGET_TYPES</code></td>
+<td><code>canvas.py</code></td>
+<td>30 имён: Button, Label, Slider, TextInput, Toggle, ProgressBar, Dropdown, ScrollPanel, Image, Panel, RadioButton, ListWidget, TableWidget, TreeWidget, TabWidget, GroupBox, SpinBox, DoubleSpinBox, TextEdit, Dial, HtmlView, Splitter, StackedWidget, ToolBox, Calendar, LCDNumber, PlainText, ScrollBar, ToolButton, FontCombo (плюс MdiArea/MdiSubWindow/Chart через <code>WIDGET_REGISTRY</code>: 34 ключа — 33 типа с алиасом <code>Chart</code> → <code>ChartPlotter</code>)</td>
+</tr>
+<tr>
+<td>Сигналы</td>
+<td><code>canvas.py</code></td>
+<td><code>widget_selected</code>, <code>widget_changed</code>, <code>scene_modified</code>, <code>copy_requested</code>, <code>paste_requested</code>, <code>zoom_changed</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_1">Использование в редакторе</h2>
+<ol>
+<li>Вьюпорт канваса показывает дерево виджетов; выбор, drag, resize хэндлами.</li>
+<li>Задайте <code>screen_width</code>/<code>screen_height</code> для превью разрешений; якоря пересчитываются через <code>update_anchor</code>.</li>
+<li><code>save_to_file</code> хранит JSON раскладки; <code>load_from_file</code> восстанавливает по <code>WIDGET_REGISTRY</code>.</li>
+</ol>
+<h2 id="_2">Использование в коде</h2>
+<pre><code class="language-python">from core.gui.canvasp import GuiCanvas
+from core.gui.wid import Button
+
+canvas = GuiCanvas()
+btn = Button(x=20, y=20, w=120, h=40, text=&quot;OK&quot;)
+canvas.add_widget(btn)
+canvas.save_to_file(&quot;ui/hud.json&quot;)
+canvas.load_from_file(&quot;ui/hud.json&quot;)
+</code></pre>
+<h2 id="_3">Связанные</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Обзор GUI, Контролы, Контейнеры, Раскладка и события</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_4">Проверено по</h2>
+<ul>
+<li><code>core/gui/canvasp/canvas.py</code>, <code>core/gui/wid/__init__.py</code></li>
+</ul>
               
             </div>
           </div><footer>

@@ -323,6 +323,18 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Solver and Threading</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#fixed-update-notes">Fixed update notes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" >Advanced Bodies</a>
@@ -1236,28 +1248,114 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="solver-and-threading">Solver and Threading</h1>
+                <h1 id="solver-threading">Solver &amp; Threading</h1>
 <p>Where simulation actually runs, and how data crosses the thread/process boundary without gameplay code ever blocking.</p>
-<p>Execution modes:</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>simulation_mode</code></td>
+<td><code>multi_threaded</code></td>
+<td><code>single</code> / <code>multi_threaded</code> / <code>per_layer_process</code></td>
+</tr>
+<tr>
+<td><code>solver</code></td>
+<td><code>culverin</code></td>
+<td><code>culverin</code> (Jolt) / <code>pybullet</code> (Bullet) / <code>physx</code> (NVIDIA)</td>
+</tr>
+<tr>
+<td><code>fixed_time_step</code></td>
+<td><code>0.02</code></td>
+<td>Step <code>dt</code></td>
+</tr>
+<tr>
+<td><code>num_sub_steps</code></td>
+<td><code>2</code></td>
+<td>Project config (PyBullet standalone default <code>1</code>; Culverin/Jolt ignores it)</td>
+</tr>
+<tr>
+<td><code>solver_iterations</code></td>
+<td><code>10</code></td>
+<td>Project config (PyBullet standalone default <code>50</code>; Culverin/Jolt ignores it)</td>
+</tr>
+<tr>
+<td><code>erp</code> / <code>contact_erp</code> / <code>friction_erp</code></td>
+<td><code>0.2</code> / <code>0.2</code> / <code>0.0</code></td>
+<td>Project config (PyBullet standalone <code>erp</code>/<code>contact_erp</code> default <code>0.4</code>; Culverin/Jolt ignores them)</td>
+</tr>
+<tr>
+<td><code>culverin_max_bodies</code> / <code>max_pairs</code> / <code>max_contact_constraints</code></td>
+<td><code>65536</code> each</td>
+<td>Jolt world caps</td>
+</tr>
+<tr>
+<td><code>culverin_temp_allocator_size</code></td>
+<td><code>16777216</code></td>
+<td>16 MB</td>
+</tr>
+<tr>
+<td><code>culverin_num_threads</code> / <code>max_jobs</code> / <code>max_barriers</code></td>
+<td><code>0</code> / <code>0</code> / <code>0</code></td>
+<td><code>0</code> = Jolt single-threaded</td>
+</tr>
+<tr>
+<td><code>culverin_penetration_slop</code></td>
+<td><code>0.02</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>culverin_enable_ccd</code> / <code>enable_sleeping</code></td>
+<td><code>False</code> / <code>True</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Shared flags</td>
+<td><code>1</code> active, <code>2</code> dirty, <code>4</code> kinematic/teleport, <code>8</code> 2D</td>
+<td><code>SharedPhysicsBuffer</code></td>
+</tr>
+<tr>
+<td>Limits</td>
+<td><code>65536</code> entities, <code>16</code> soft bodies × <code>32768</code> verts</td>
+<td><code>shared_buffer.py</code>, <code>soft_shared_buffer.py</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Prototype in default <code>multi_threaded</code>. Switch <code>simulation_mode</code> to <code>single</code> when using <code>CharacterController</code>/<code>Motor</code> or debugging solver behavior; <code>per_layer_process</code> for arenas that must never interact.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python"># Gravity at runtime (IPhysicsSolver API):
+solver.set_gravity((0.0, -9.81, 0.0))
+solver.step_simulation(0.02)
+solver.apply_force(body_id, (0.0, 10.0, 0.0))
+solver.apply_torque(body_id, (0.0, 1.0, 0.0))
+solver.apply_impulse(body_id, (0.0, 5.0, 0.0))
+hit = solver.ray_cast((0.0, 5.0, 0.0), (0.0, -1.0, 0.0), 100.0)
+</code></pre>
+<p>Background step order (verified): coalesce pending <code>step</code> commands into one <code>dt</code> → apply teleports/forces from shared memory → <code>step_simulation(dt)</code> → zero 2D out-of-plane velocity → write back with version bump (+ soft buffers) → map body ids to entity ids for collision events. In-process path mirrors it without serialization: register → shape-check (every 60 steps) → ECS→physics → soft separation (only when <code>≥2</code> soft bodies) → step → constrain 2D → physics→ECS → soft sync → events.</p>
+<h2 id="fixed-update-notes">Fixed update notes</h2>
 <ul>
-<li><code>single</code> — <code>PhysicsScene</code> + solver in the game process. Lowest latency, simplest debugging, required by <code>CharacterController</code> (it reads solver world state directly).</li>
-<li><code>multi_threaded</code> (default) — a daemon <code>multiprocessing.Process</code> owns the solver; command and result queues plus <code>SharedPhysicsBuffer</code> / <code>SoftSharedBuffer</code> carry transforms, velocities, forces and collision events.</li>
-<li><code>per_layer_process</code> — solver processes spawned on demand per collision layer for isolated sub-simulations.</li>
+<li><code>Engine.tick_fixed_step</code>: accumulate against <code>_fixed_dt</code> (<code>0.02</code>), cap backlog <code>5 * _fixed_dt</code>, max <code>5</code> steps/tick, then <code>scene.fixed_update(fd)</code> (component <code>on_fixed_update</code>) and finally system-plugin <code>step(fd)</code>.</li>
+<li><code>PhysicsWorker</code> (threaded fallback): daemon <code>threading.Thread</code>, command poll timeout <code>0.004</code> s. <code>SceneThreadPool</code>: <code>max_workers = 2</code>, <code>ThreadPoolExecutor</code> named <code>phys-scene</code>.</li>
+<li>ECS→physics pushes only on dirty Transform or accumulated force; physics→ECS skips kinematic/dirty bodies; force accumulators clear after every push — call <code>add_force</code> each fixed step.</li>
 </ul>
-<p>Background step, in order:</p>
-<ol>
-<li>Pending <code>step</code> commands coalesce into one <code>dt</code> — hitches never spiral into catch-up death.</li>
-<li>The worker applies teleports (<code>set_body_transform</code>) or velocities/forces/torques from shared memory into bodies.</li>
-<li><code>solver.step_simulation(dt)</code> integrates; 2D-flagged bodies get out-of-plane velocity zeroed right after.</li>
-<li>Positions, rotations and velocities write back with a version bump; soft-body vertices, centers of mass and velocities go to the soft buffer.</li>
-<li>Collision events map solver body ids to entity ids and land in the result queue for script dispatch with impact forces.</li>
-</ol>
-<p>Per-body shared flags: 1 = active, 2 = velocity dirty, 4 = teleport, 8 = 2D body. The in-process path mirrors the same order without serialization: register → ECS-to-physics → step → constrain 2D → physics-to-ECS → soft sync → events.</p>
-<p>Sync details that matter: ECS→physics pushes only when the Transform is dirty or forces accumulated — untouched sleeping bodies cost nothing; physics→ECS skips kinematic and dirty bodies (Transform-driven, never overwritten); force accumulators clear after every push, so <code>add_force</code> must be called each fixed step for continuous thrust.</p>
-<p>Fixed-step plumbing: <code>Engine.tick_fixed_step</code> accumulates real time against <code>_fixed_dt = 0.02</code>, runs plugin <code>pre_step</code>, <code>scene.fixed_update</code>, then the physics step. Render hitches do not change physics <code>dt</code> — determinism holds.</p>
-<p>Choosing a mode: prototype in default multi-threaded; switch to single when using CharacterController or debugging solver behavior; per-layer for minigame arenas that must never interact.</p>
-<p>Troubleshooting: laggy response → background process starved, check CPU or switch single; teleport ignored → body asleep or flag race, wake via velocity write; stale reads in scripts → you are reading between steps, which is by design — act in <code>on_fixed_update</code>.</p>
-<p>Related: Physics Overview, Rigidbody, Collision Layers, CharacterController, Profiler (physics_ms).</p>
+<h2 id="related">Related</h2>
+<p>Physics Overview, Rigidbody, Collision Layers, CharacterController, Motor.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/physics/proc/process.py</code> + <code>proc/sync.py</code> (<code>_process_step_shared</code>)</li>
+<li><code>core/physics/physics_worker.py</code></li>
+<li><code>core/physics/scene/scene.py</code> + <code>scene/threadpool.py</code></li>
+<li><code>core/physics/shared_buffer.py</code>, <code>soft_shared_buffer.py</code></li>
+<li><code>core/config/config.py</code>, <code>core/engine/eng/loop.py</code>, <code>plugins/physics_plug/plugin.py</code></li>
+<li><code>physics_solvers/registry.py</code>, <code>culverin_solver/solverp/solver.py</code>, <code>pybullet_solver/solverp/solver.py</code></li>
+</ul>
               
             </div>
           </div><footer>

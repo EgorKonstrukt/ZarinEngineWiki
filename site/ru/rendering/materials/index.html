@@ -756,6 +756,18 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Материалы (.zpem)</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#materialshader-snippet">Material/Shader snippet</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Скриншоты</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../shaders/">Шейдеры (.shader)</a>
@@ -1236,15 +1248,87 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="zpem">Материалы (.zpem)</h1>
-<p>Ассеты материалов — <code>.zpem</code> (и легаси <code>.mat</code>), оба JSON-документы <code>{name, shader_path, properties}</code>. Пустой <code>shader_path</code> откатывается на шейдер по умолчанию. Недостающие свойства добиваются из блока <code>Properties</code> шейдера при загрузке — рукописные файлы несут только оверрайды.</p>
-<p>Маппинг текстурных uniform (выдержка): <code>albedo_texture → u_albedo_tex</code>, <code>normal → u_normal_tex</code>, <code>roughness → u_roughness_tex</code>, плюс прямые <code>_BaseMap</code>, <code>_NormalMap</code>, <code>_OcclusionMap</code>. Алиасы значений: <code>_BaseColor → u_albedo_color</code>, <code>_Metallic → u_metallic</code>, <code>_Smoothness → u_smoothness</code>, <code>_EmissionColor → u_emission</code>.</p>
-<p>Дефолты при отрисовке: albedo белый <code>[1,1,1,1]</code>, metallic 0, smoothness 0.5, emission 0, белая 1×1 на юните 0, реальные текстуры с юнита 1 с флагами <code>*_Active</code> / <code>u_use_*</code> на каждую карту.</p>
-<p>Правило прозрачности: поверхность прозрачна, когда альфа ниже <code>0.999</code> или забинденная albedo-текстура содержит альфа-канал (определяется инспекцией) — ручной blend-флаг забывать негде.</p>
-<p>Процесс: создание мастером материалов (выбор шейдера, скелет дефолтов), превью в миниатюре, назначение в слоты MeshRenderer, живая настройка в инспекторе — рантайм-правки применяются без реимпорта. Материалы сериализуются путём — переименование файла рвёт слоты до перепейка; переименовывайте действием панели Project.</p>
-<p>Быстрый гид PBR (свойства <code>PBR.shader</code>): <code>_BaseColor</code>/<code>_BaseMap</code> для albedo, <code>_Metallic</code> 0 диэлектрик / 1 металл, <code>_Smoothness</code> для глянца, <code>_NormalMap</code> для деталей, <code>_OcclusionMap</code> для щелей, <code>_EmissionColor</code> × <code>_EmissionIntensity</code> для свечения, <code>_Cutoff</code> для alpha-tested выреза, <code>_Transmission</code>/<code>_IOR</code> для стеклоподобной трансмиссии, <code>_double_sided</code> для листвы и карточек.</p>
-<p>Диагностика: чёрная поверхность — упал шейдер и у дефолта нет света, смотрите консоль; неверные цвета — mismatch sRGB/linear или пропущенный флаг <code>u_use_*</code>; невидимая прозрачность — альфа ровно 1 при альфа-текстуре или сортировка глубины против другой прозрачности; потери правок — правили копию превью, примените назад в ассет.</p>
-<p>Связанное: шейдеры, MeshRenderer, мастер материалов и превью (руководство по редактору), текстуры и сжатие.</p>
+                <h1 id="_1">Материалы</h1>
+<blockquote>
+<p>Ассет материала: <code>.mat</code> JSON (<code>core/assets/matp/materials.py:14-169</code>), резолвит/кэширует <code>MaterialManager</code> (<code>core/renderer/mats/manager.py:54-80</code>).
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p><code>Material { name, shader_path, properties }</code>. <code>shader_path = "default"</code> — встроенный PBR; иначе поиск от корня проекта, затем <code>core/shaders/</code> движка (<code>materials.py:26-46</code>). Отсутствующие файлы варнят один раз и откатываются на дефолт (<code>manager.py:63-71</code>). <code>MeshRenderer.materials[i].path</code> указывает на <code>.mat</code>.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td><code>""</code></td>
+<td>Имя материала (<code>materials.py:14-24</code>).</td>
+</tr>
+<tr>
+<td><code>shader_path</code></td>
+<td>string</td>
+<td><code>"default"</code></td>
+<td>Путь <code>.shader</code> или <code>default</code> (<code>materials.py:48-52,110-118</code>).</td>
+</tr>
+<tr>
+<td><code>properties</code></td>
+<td>object</td>
+<td><code>{}</code></td>
+<td>Юниформы: <code>_BaseColor</code>, <code>_Metallic</code>, <code>_Smoothness</code> (<code>manager.py:89-96</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Создать <code>.mat</code> в Assets, выбрать Shader, править открытые свойства. Назначать в слоты <a href="../mesh-renderer/">Mesh Renderer</a>.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">from core.assets.matp import Material
+m = Material.load(&quot;assets/materials/Brick.mat&quot;, project_root)
+</code></pre>
+<h2 id="materialshader-snippet">Material/Shader snippet</h2>
+<p><code>assets/materials/ProBuilderPrototype.mat</code> (дословно):</p>
+<pre><code class="language-json">{&quot;name&quot;: &quot;ProBuilderPrototype&quot;, &quot;properties&quot;: {&quot;_BaseColor&quot;: [1.0, 1.0, 1.0, 1.0], &quot;_EmissionColor&quot;: [0.0, 0.0, 0.0, 0.0], &quot;_EmissionIntensity&quot;: 0.0, &quot;_Metallic&quot;: 0.0, &quot;_Smoothness&quot;: 0.5, &quot;albedo_texture&quot;: &quot;../textures/prototype_texture.png&quot;}, &quot;shader_path&quot;: &quot;default&quot;}
+</code></pre>
+<h2 id="_2">Скриншоты</h2>
+<p><img alt="Прототипная текстура (WALL, 1x1 метр, 1024x1024)" src="../../../assets/screenshots/prototype-texture.png" /></p>
+<blockquote>
+<p><code>prototype_texture.png</code>, используемая в <code>assets/materials/ProBuilderPrototype.mat</code>
+как <code>albedo_texture</code>. Файл: <code>assets/screenshots/prototype-texture.png</code>
+(проверенная копия <code>prototype_texture.png</code> из репозитория движка; идентична
+<code>assets/textures/prototype_texture.png</code>).</p>
+</blockquote>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../shaders/">Shaders</a>, <a href="../mesh-renderer/">Mesh Renderer</a>, <a href="../pipeline/">Pipeline</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/assets/matp/materials.py:14-169</code></li>
+<li><code>core/renderer/mats/manager.py:54-100</code></li>
+<li><code>assets/materials/ProBuilderPrototype.mat</code></li>
+</ul>
               
             </div>
           </div><footer>

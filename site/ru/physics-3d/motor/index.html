@@ -918,6 +918,18 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Мотор Motor</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#_1">Свойства</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Использование в коде</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#fixed-update">Заметки о fixed update</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Связанные</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Проверено по</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1238,54 +1250,100 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="motor">Мотор Motor</h1>
-<p>Постоянный привод для конвейеров, колёс, вентиляторов, ловушек-вертушек, лифтов и серво-дверей — steady движение без скриптованной скорости каждый кадр.</p>
+<p>Постоянный привод для конвейеров, колёс, вентиляторов, ловушек, лифтов и серво-дверей — ровное движение без скриптовой скорости каждый кадр.</p>
+<h2 id="_1">Свойства</h2>
 <table>
 <thead>
 <tr>
-<th>Группа / поле инспектора</th>
-<th>Смысл</th>
+<th>Поле</th>
+<th>По умолчанию</th>
+<th>Примечания</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Connected Entity</td>
-<td>Ссылка на ведомое тело</td>
+<td><code>connected_entity_id</code></td>
+<td><code>""</code></td>
+<td>Другая сущность <strong>по id</strong> (у <code>Joint</code> — по имени)</td>
 </tr>
 <tr>
-<td>Motor Type</td>
-<td>Вращательный или поступательный привод</td>
+<td><code>motor_type</code></td>
+<td><code>hinge</code></td>
+<td><code>hinge</code> / <code>slider</code></td>
 </tr>
 <tr>
-<td>Mode</td>
-<td>Скоростной круиз или позиционный сервопривод</td>
+<td><code>mode</code></td>
+<td><code>position</code></td>
+<td><code>position</code> (серво к <code>target</code>) / <code>velocity</code> (интеграция <code>target_velocity</code>)</td>
 </tr>
 <tr>
-<td>Axis / Anchor</td>
-<td>Направление привода и пивот</td>
+<td><code>axis</code></td>
+<td><code>(0, 0, 1)</code></td>
+<td>Ось привода</td>
 </tr>
 <tr>
-<td>Drive: Target Velocity</td>
-<td>Крейсерская скорость</td>
+<td><code>anchor</code></td>
+<td><code>(0, 0, 0)</code></td>
+<td>Якорь связи</td>
 </tr>
 <tr>
-<td>Drive: Motor Force / Motor Torque</td>
-<td>Капы усилия (поведение stall)</td>
+<td><code>target</code></td>
+<td><code>0.0</code></td>
+<td>Целевая позиция (или сид бегущей скорости)</td>
 </tr>
 <tr>
-<td>Limits: Limit Low / Limit High</td>
-<td>Границы хода для серво-режима</td>
+<td><code>target_velocity</code></td>
+<td><code>0.0</code></td>
+<td><code>running += target_velocity * dt</code> в velocity-режиме</td>
 </tr>
 <tr>
-<td>Free Spin</td>
-<td>Полностью игнорировать лимиты</td>
+<td><code>motor_force</code> / <code>motor_torque</code></td>
+<td><code>500.0</code> / <code>500.0</code></td>
+<td>Уходят как <code>max_force</code>/<code>max_torque</code></td>
+</tr>
+<tr>
+<td><code>limit_low</code> / <code>limit_high</code></td>
+<td><code>-100000.0</code> / <code>100000.0</code></td>
+<td>По умолчанию широко открыты</td>
+</tr>
+<tr>
+<td><code>free_spin</code></td>
+<td><code>False</code></td>
+<td>Хранимый флаг (создание связи его не читает; <code>stiffness</code>/<code>damping</code> передаются как <code>0.0</code>)</td>
 </tr>
 </tbody>
 </table>
-<p>Гид режимов: скоростной с большой силой — конвейер или вентилятор (никогда не глохнет); позиционный с лимитами — серво-дверь или лифт (доезжает до границы и держит); free-spin колёса игнорируют лимиты и идут на целевой скорости.</p>
-<p>Капы силы определяют stall: кап ниже нагрузки глохнет под весом — верно для гаражных ворот с ящиками; бесконечный кап прёт сквозь всё — верно для давилок.</p>
-<p>Паттерны: конвейер — скоростной мотор по оси ленты на kinematic-теле; разводной мост — позиционный серво с лимитами 0…π/2; мельница — free-spin вращение со скромным моментом; давилка — поступательный серво с большой силой и медленной скоростью.</p>
-<p>Диагностика: не едет — потеряна connected entity или разорвана kinematic-цепь; проскакивает границы — велика сила для серво, опустите кап или поднимите демпфирование через джойнт; дрожь на границе — борьба лимита, расширьте мёртвую зону.</p>
-<p>Связанное: джойнты (пассивные связи), Rigidbody (ведомые тела), CharacterController (едущие платформы).</p>
+<h2 id="_2">Использование в редакторе</h2>
+<p>Обоим телам — <code>Rigidbody</code> + коллайдер; добавить <code>Motor</code>, связать <code>Connected Entity</code> (id), выбрать <code>hinge</code>/<code>slider</code> и <code>position</code>/<code>velocity</code>, задать силу/момент и лимиты.</p>
+<h2 id="_3">Использование в коде</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Wheel&quot;)
+from core.components.physics.motor import Motor, MotorType, MotorMode
+from core.maths.math3d import Vec3
+
+m = Motor()
+m.connected_entity_id = chassis_id
+m.motor_type = MotorType.HINGE
+m.mode = MotorMode.VELOCITY
+m.axis = Vec3(0.0, 0.0, 1.0)
+m.target_velocity = 5.0
+m.motor_force = 500.0
+entity.add_component(m)
+m.set_target(1.57)
+m.set_mode(MotorMode.POSITION)
+</code></pre>
+<p>Связь создаётся в <code>on_start</code>/<code>on_enable</code> через <code>solver.create_joint</code> + <code>enable_constraint</code>; удаляется в <code>on_disable</code>.</p>
+<h2 id="fixed-update">Заметки о fixed update</h2>
+<ul>
+<li><code>on_fixed_update(dt)</code> при <code>dt = Engine._fixed_dt</code> (<code>0.02</code>): velocity-режим пушит <code>set_motor_target(running)</code> каждый шаг; position — перепушивает <code>target</code>.</li>
+<li>Требует режим <code>single</code> (<code>_resolve_solver</code> → <code>plugin.ensure_single_mode()</code>), как <code>CharacterController</code>.</li>
+</ul>
+<h2 id="_4">Связанные</h2>
+<p>Joints, Rigidbody, солвер и потоки (требование режима), Constraints (Transform-последователи — отдельная система, не солверные джойнты).</p>
+<h2 id="_5">Проверено по</h2>
+<ul>
+<li><code>core/components/physics/motor.py</code></li>
+<li><code>core/physics/physics_solver.py</code></li>
+</ul>
               
             </div>
           </div><footer>

@@ -1188,6 +1188,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Скрипты Rotator и Mover</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#1">1. Создаём сущность</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2">2. Создаём и вешаем скрипт</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-rotator">3. Вставляем Rotator</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-play">4. Настраиваем и жмём Play</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#5-mover">5. Добавляем движение (Mover)</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../physics-scene/">Физическая сцена</a>
@@ -1237,15 +1247,59 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="rotator-mover">Скрипты Rotator и Mover</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Скрипты Rotator и Mover в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<p>Первый Play за пять шагов: одна сущность крутится от настраиваемого поля, вторая едет на WASD. Оба скрипта полные, копируйте целиком.</p>
+<h2 id="1">1. Создаём сущность</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>В панели <code>Hierarchy</code> жмём кнопку добавления (подсказка <code>Create Entity</code>). В дереве сцены появляется новая сущность.</li>
+<li>Выбираем её и переименовываем в <code>Spinner</code> (имя сущности — метка в дереве).</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="2">2. Создаём и вешаем скрипт</h2>
+<ul>
+<li>В панели <code>Project</code>: <code>Create → Python Script</code>, сохраняем <code>rotator.py</code> в папке проекта.</li>
+<li>Выбрав <code>Spinner</code>, жмём <code>Inspector → Add Component</code>, открываем категорию <code>Scripts</code>, затем указываем файл в поле <code>Script</code>.</li>
+<li>Аннотированные атрибуты класса сразу появляются в инспекторе; шапка <code>Script</code> показывает имя файла.</li>
+</ul>
+<h2 id="3-rotator">3. Вставляем Rotator</h2>
+<pre><code class="language-python">class Rotator:
+    speed: float = 90.0
+
+    def on_update(self, dt):
+        t = self._entity.get_component_by_name(&quot;Transform&quot;)
+        if t:
+            t.rotate(Vec3(0.0, self.speed * dt, 0.0))
+</code></pre>
+<p>Всё проверено по движку: <code>get_component_by_name</code> — метод <code>Entity</code>, резолвит по зарегистрированному имени компонента; <code>Transform.rotate</code> принимает <code>Vec3</code> эйлеровых градусов (здесь рысканье со скоростью <code>speed</code> градусов в секунду, кадронезависимость через <code>dt</code>); <code>Vec3</code>, <code>Input</code>, <code>KeyCode</code> импортировать не нужно — они подставляются в модуль скрипта. Когда скрипт разрастётся, кэшируйте лукап в <code>on_awake</code>; для первого урока поиск каждый кадр допустим.</p>
+<h2 id="4-play">4. Настраиваем и жмём Play</h2>
+<ul>
+<li>В инспекторе ставим <code>Speed = 45.0</code>. Значение ляжет в сцену (<code>.zpes</code>) в <code>script_fields</code>; дефолт <code>90.0</code> в <code>.py</code> останется для следующих инстансов.</li>
+<li>Жмём <code>Play</code>. Движок инстанцирует класс без аргументов, выставляет <code>self._entity</code>, вызывает <code>on_awake</code>, затем <code>on_start</code>, далее <code>on_update(dt)</code> каждый кадр.</li>
+<li>Правка <code>speed</code> или файла во время Play: hot-reload пересоздаст инстанс на следующем кадре, значения инспектора сохранятся, <code>on_awake</code>/<code>on_start</code> вызовутся заново. Сломанная правка пишется в консоль как <code>Script '...' has N error(s):</code>, при этом живёт последняя рабочая версия.</li>
+</ul>
+<h2 id="5-mover">5. Добавляем движение (Mover)</h2>
+<ul>
+<li>Вторая сущность <code>Player</code> тем же путём (добавление в <code>Hierarchy</code> → переименование), <code>mover.py</code> через <code>Project → Create → Python Script</code>, вешаем через <code>Add Component → Scripts</code>.</li>
+</ul>
+<pre><code class="language-python">class Mover:
+    speed: float = 5.0
+
+    def on_update(self, dt):
+        step = self.speed * dt
+        t = self._entity.get_component_by_name(&quot;Transform&quot;)
+        if not t:
+            return
+        if Input.GetKey(KeyCode.W):
+            t.translate(Vec3(0.0, 0.0, step))
+        if Input.GetKey(KeyCode.S):
+            t.translate(Vec3(0.0, 0.0, -step))
+        if Input.GetKey(KeyCode.A):
+            t.translate(Vec3(-step, 0.0, 0.0))
+        if Input.GetKey(KeyCode.D):
+            t.translate(Vec3(step, 0.0, 0.0))
+        if Input.GetKeyDown(KeyCode.SPACE):
+            Logger.info(&quot;hop&quot;)
+</code></pre>
+<p><code>Input.GetKey</code> — удерживается, <code>GetKeyDown</code> — только кадр нажатия; <code>KeyCode.W/A/S/D/SPACE</code> — коды клавиш движка. <code>Transform.translate</code> двигает по умолчанию в локальных координатах (<code>world_space=False</code>).</p>
+<p>Дальше: Физическая сцена — тот же цикл «сущность/скрипт/Play», но с силами <code>Rigidbody</code> и колбэками столкновений.</p>
               
             </div>
           </div><footer>

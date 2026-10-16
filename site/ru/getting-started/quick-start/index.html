@@ -638,6 +638,22 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Быстрый старт</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Обзор</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_6">Сериализация</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_7">Скриншоты / Медиа</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_8">Связанные страницы</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_9">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../editor-tour/">Обзор редактора</a>
@@ -1237,15 +1253,103 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Быстрый старт</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Быстрый старт в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p>Откройте редактор, нажмите Play, повесьте скрипт, запустите сцену в плеере. Пять минут от нуля до вращающегося объекта.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="_2">Обзор</h2>
+<p>Цикл: редактор (<code>main.py</code>) для авторства, Play-режим для проверки, <code>player.py</code> для запуска сцены без редактора. Скрипты — обычные <code>.py</code>-файлы; поведение сущности не требует базового класса.</p>
+<h2 id="_3">Свойства</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>editor</td>
+<td>command</td>
+<td><code>python main.py</code></td>
+<td>Среда авторства</td>
+</tr>
+<tr>
+<td>play</td>
+<td>editor button</td>
+<td>Play</td>
+<td><code>Engine.start_play()</code> → <code>Scene.start()</code> → покадровый <code>tick()</code></td>
+</tr>
+<tr>
+<td>player</td>
+<td>command</td>
+<td><code>python player.py &lt;scene.zpes&gt;</code></td>
+<td>Автономный запуск; выбор сцены: CLI-аргумент → <code>BuildSettings.json</code> scenes[0] → <code>ProjectSettings.json</code> <code>project.default_scene</code> → <code>scenes/SampleScene.zpes</code></td>
+</tr>
+<tr>
+<td>build</td>
+<td>command</td>
+<td><code>python build_nuitka.py</code></td>
+<td>Standalone-исполняемый файл (настройки в <code>BuildSettings.json</code>)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">Использование в редакторе</h2>
+<ol>
+<li><code>python main.py</code>.</li>
+<li>Создайте сущность в Hierarchy (контекстное меню Hierarchy само добавляет <code>Transform</code>; голый <code>Scene.create_entity()</code> в коде — нет).</li>
+<li><code>Project → Create → Python Script</code>, прикрепите через <code>Inspector → Add Component → Scripts</code>.</li>
+<li>Нажмите Play. Файл скрипта можно править во время Play: инстанс пересоздаётся на следующем кадре, значения инспектора сохраняются (<code>hot_reload</code>).</li>
+</ol>
+<h2 id="_5">Использование в коде</h2>
+<pre><code class="language-python">from core.maths.math3d import Vec3
+
+
+class Rotator:
+    speed: float = 90.0
+
+    def on_update(self, dt: float):
+        t = self._entity.get_component_by_name(&quot;Transform&quot;)
+        if t:
+            t.rotate(Vec3(0.0, self.speed * dt, 0.0))
+</code></pre>
+<pre><code class="language-python"># Headless equivalent of pressing Play on the current scene:
+engine.start_play()   # Engine.start_play(); Engine.stop_play() to exit
+</code></pre>
+<h2 id="_6">Сериализация</h2>
+<p>Значения полей скрипта хранятся в сцене. Пример записи компонента:</p>
+<pre><code class="language-json">{ &quot;type&quot;: &quot;ScriptComponent&quot;, &quot;enabled&quot;: true, &quot;script_path&quot;: &quot;assets/move.py&quot;,
+  &quot;script_fields&quot;: { &quot;speed&quot;: 90.0 } }
+</code></pre>
+<h2 id="_7">Скриншоты / Медиа</h2>
+<p><img alt="Главное окно редактора ZarinEngine" src="../../../assets/screenshots/editor-main.png" /></p>
+<blockquote>
+<p>Что вы увидите после <code>python main.py</code>: главное окно редактора.
+Файл: <code>assets/screenshots/editor-main.png</code> (проверенная копия
+<code>zarin_screenshot.png</code> из репозитория движка). Видеозаписи: <code>.gif</code>-файлов
+в репозитории движка пока нет — как записать см.
+<code>assets/gifs/README.md</code> (ScreenToGif/Peek/LICEcap, ширина 800 px, &lt; 5 МБ);
+готовые GIF класть в <code>assets/gifs/</code>.</p>
+</blockquote>
+<h2 id="_8">Связанные страницы</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li><a href="../first-scene/">Первая сцена</a></li>
+<li><a href="../editor-tour/">Обзор редактора</a></li>
+<li><a href="../../core/entity/">Сущность Entity</a></li>
+<li><a href="../../core/transform/">Трансформ</a></li>
+<li><a href="../../scripting/overview/">Скриптинг</a></li>
+<li><a href="../../build/player-nuitka/">Плеер и сборка Nuitka</a></li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_9">Проверено по</h2>
+<ul>
+<li><code>README.md</code> (Quick start, пример Scripting)</li>
+<li><code>player.py</code> (<code>_resolve_startup_scene</code>, <code>_deduce_project_root</code>, <code>DEFAULT_SCENE = "SampleScene.zpes"</code>)</li>
+<li><code>core/engine/eng/engine.py</code> (<code>start_play</code>, <code>stop_play</code>)</li>
+<li><code>docs/scripting.md</code> (контракт скрипта, hot-reload)</li>
+<li><code>core/components/scripting/scriptc/component.py</code> (<code>script_path</code>, <code>script_fields</code>)</li>
+</ul>
               
             </div>
           </div><footer>

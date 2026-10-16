@@ -1,27 +1,56 @@
 # Joints
 
-Connect two bodies with a constraint: doors, wheels, suspension, ragdoll limbs, breakable attachments, jelly mounts.
+Connect two bodies with a constraint: doors, wheels, suspension, ragdoll limbs, breakable attachments.
 
-| Field | Default | Meaning |
+## Properties
+
+| Field | Default | Notes |
 |---|---|---|
-| connected_entity_name | — | Name of the other entity (must carry Rigidbody + collider) |
-| anchor | origin | Pivot in local space |
-| axis | (0,0,1) | Hinge/spring axis |
-| joint_type | hinge | `HINGE`, `FIXED` or `SPRING` |
-| limit_low / limit_high | −π / +π | Angular travel, radians |
-| stiffness | 10.0 | Spring stiffness |
-| damping | 1.0 | Spring oscillation damping |
+| `connected_entity_name` | `""` | Other entity by **name** (resolved in `_create_entity_joints`) |
+| `anchor` | `(0, 0, 0)` | World-space anchor |
+| `axis` | `(0, 0, 1)` | Hinge/slider axis |
+| `joint_type` | `"hinge"` | Component enum: `hinge` / `fixed` / `spring` |
+| `limit_low` / `limit_high` | `-3.14159` / `3.14159` | Radians; Inspector clamps low `≤0`, high `≥0` |
+| `stiffness` / `damping` | `10.0` / `1.0` | Spring mounts |
 
-Type guide:
+## Usage in Editor
 
-- `HINGE` — rotation about one axis within limits: doors (limits 0…π/2), wheels (free spin, limits ±π), levers.
-- `FIXED` — rigid attachment that still routes through the solver: crates strapped to trucks, breakable by removing the component from a script at a force threshold.
-- `SPRING` — elastic link with stiffness/damping: suspension (stiff, damped), jelly mounts (soft, bouncy), trailer hitches.
+Add `Rigidbody` + collider to both entities, add `Joint` to one side, type the other entity's **name** into `Connected Entity`, set anchor/axis/limits.
 
-Setup rules: both bodies must exist and be registered before the joint resolves — create the pair before Play or in deterministic `on_awake` order. Anchor in local space of the joint owner; a misplaced anchor reads as a stretched, fighting constraint — visualize it via the joint gizmo (anchors and axes draw in the viewport).
+## Usage in Code
 
-Tuning: start limits wide, stiffness low; narrow and stiffen until motion looks right. Over-stiff springs with heavy masses jitter — raise damping first, then solver iterations, then reduce the mass ratio.
+```python
+entity = scene.create_entity("Door")
+from core.components.physics.joint import Joint
+from core.maths.math3d import Vec3
 
-Troubleshooting: bodies explode apart → anchor far from both centers or limits inverted (low > high); joint ignores → connected entity name typo or missing Rigidbody; wobble at rest → stiffness/damping mismatch, raise damping.
+j = Joint()
+j.connected_entity_name = "Frame"
+j.joint_type = "hinge"
+j.anchor = Vec3(0.0, 1.0, 0.0)
+j.axis = Vec3(0.0, 0.0, 1.0)
+j.limit_low = -1.57
+j.limit_high = 1.57
+entity.add_component(j)
 
-Related: Rigidbody, Motor (driven joints), PhysBone (chain alternative), CharacterController (player boarding).
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+```
+
+Solver mapping (verified): `fixed` → fixed, `point`/`point2point` → point, `hinge`/`revolute` → hinge, `slider`/`prismatic` → slider, `distance`/`spring` → distance, `cone`/`spherical` → cone. Helpers: `create_drag_constraint` (point2point + `change_constraint`), `create_fixed_constraint`, `create_hinge_constraint`, `remove_joint_constraint`.
+
+## Fixed update notes
+
+- Joints are created at scene load from `Joint` components; missing name or body logs a warning and skips creation.
+- `dt` is `Engine._fixed_dt` (`0.02` default); joint solving runs inside `solver.step_simulation(dt)`.
+
+## Related
+
+Rigidbody, Motor, Collision Layers (connected bodies must share a colliding pair), Solver & Threading, Constraints (Transform followers — a separate system, not solver joints).
+
+## Verified against
+
+- `core/components/physics/joint.py`
+- `core/physics/scene/joints.py`
+- `core/physics/physics_solver.py` (`create_joint`, `change_constraint`)
+- `physics_solvers/culverin_solver/solverp/broadphase.py` (`_JOINT_TYPE_MAP`)

@@ -249,13 +249,15 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Dissolve</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    <li class="toctree-l4"><a class="reference internal" href="#shader-snippet">Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1248,128 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="dissolve">Dissolve</h1>
-<p>Per-object effect through the ObjectFx pass (unlike PostFX, which processes the whole frame). Built on the shared ObjectEffect base; scripts drive it by animating progress/intensity floats.</p>
-<h2 id="how-it-works">How it works</h2>
-<p>Burns the surface away along animated noise: pixels past the threshold discard with an emissive rim at the edge.</p>
+<blockquote>
+<p>Noise-gradient burn-off. Fragments past amount (biased by directional gradient × noise_strength + noise field × noise_scale) are discarded; a band of width edge_width glows with edge_color × edge_emission. Optional time animation drives amount 0→1 (ping-pong or loop). Class <code>DissolveEffect</code> in <code>core/components/rendering/effects/dissolve_effect.py</code>. ObjectFx pass (<code>core/renderer/object_fx_pass.py</code>): enabled DissolveEffect components are collected per entity (<code>_find_object_effect</code>) and bound in the FX program before the mesh draw.</p>
+</blockquote>
 <h2 id="parameters">Parameters</h2>
-<p>Progress 0→1, edge width/color, noise scale.</p>
-<h2 id="tips">Tips</h2>
-<p>Spawns, deaths, portals, burns. Drive progress from a damage or timer script.</p>
-<h2 id="cost">Cost</h2>
-<p>Cheap: one noise sample plus discard.</p>
-<p>Related: <a href="../">Object Effects</a>, Materials, Script Examples.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Amount</td>
+<td><code>amount</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>0.0</code></td>
+</tr>
+<tr>
+<td>Noise Strength</td>
+<td><code>noise_strength</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Noise Scale</td>
+<td><code>noise_scale</code></td>
+<td>FLOAT</td>
+<td>0.1 – 20.0</td>
+<td><code>4.0</code></td>
+</tr>
+<tr>
+<td>Gradient Direction</td>
+<td><code>direction</code></td>
+<td>VEC3</td>
+<td>-1.0 – 1.0</td>
+<td><code>(0.0, 1.0, 0.0)</code></td>
+</tr>
+<tr>
+<td>Invert</td>
+<td><code>invert</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td>Edge Width</td>
+<td><code>edge_width</code></td>
+<td>SLIDER</td>
+<td>0.0 – 0.5</td>
+<td><code>0.05</code></td>
+</tr>
+<tr>
+<td>Edge Color</td>
+<td><code>edge_color</code></td>
+<td>COLOR</td>
+<td>—</td>
+<td><code>[1.0, 0.4, 0.05]</code></td>
+</tr>
+<tr>
+<td>Edge Emission</td>
+<td><code>edge_emission</code></td>
+<td>SLIDER</td>
+<td>0.0 – 5.0</td>
+<td><code>2.5</code></td>
+</tr>
+<tr>
+<td>Animate</td>
+<td><code>animate</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td>Speed</td>
+<td><code>speed</code></td>
+<td>FLOAT</td>
+<td>0.0 – 5.0</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Ping Pong</td>
+<td><code>ping_pong</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">Usage</h2>
+<p>Editor: select the mesh entity, Add Component &gt; <code>DissolveEffect</code>, tick <code>enabled</code>, animate the amount fields from a script.</p>
+<p>Code:</p>
+<pre><code class="language-python">from core.components.rendering.effects.dissolve_effect import DissolveEffect
+fx = DissolveEffect()
+entity.add_component(fx)
+fx.amount = 0.5
+fx.edge_width = 0.08
+fx.animate = True
+fx.enabled = True
+# per-frame: fx.amount = min(1.0, fx.amount + dt * 0.5)
+</code></pre>
+<h2 id="shader-snippet">Shader snippet</h2>
+<p>Shader: <code>core/shaders/internal/ObjectFx.shader (u_dissolve_* branch) + dissolve_effect.py::_apply</code>. Bound uniforms: <code>u_dissolve_amount</code>, <code>u_dissolve_edge</code>, <code>u_dissolve_color</code>, <code>u_dissolve_edge_emission</code>, <code>u_dissolve_noise_scale</code>, <code>u_dissolve_noise_strength</code>, <code>u_dissolve_dir</code>, <code>u_dissolve_invert</code>, <code>u_time</code>.</p>
+<pre><code class="language-glsl">// dissolve_effect.py::_apply (exact uniform names):
+// prog[&quot;u_dissolve_amount&quot;] = float(amount)
+// prog[&quot;u_dissolve_edge&quot;] = float(edge_width)
+// prog[&quot;u_dissolve_color&quot;] = vec3(edge_color)
+// prog[&quot;u_dissolve_edge_emission&quot;], prog[&quot;u_dissolve_noise_scale&quot;], prog[&quot;u_dissolve_noise_strength&quot;], prog[&quot;u_dissolve_dir&quot;], prog[&quot;u_dissolve_invert&quot;]
+</code></pre>
+<h2 id="related">Related</h2>
+<p>Related: <a href="../">Object Effects</a>, ObjectFx pass (<code>core/renderer/object_fx_pass.py</code>), <code>core/shaders/internal/ObjectFx.shader</code>.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/effects/dissolve_effect.py</code> — class <code>DissolveEffect</code>, <code>_inspector_fields</code>, <code>__init__</code> defaults, <code>_apply</code> uniforms.</li>
+<li><code>core/components/rendering/effects/object_effect.py</code> — <code>ObjectEffect</code> base (<code>bind</code> sets <code>u_time</code>, <code>_set</code>/<code>_set_vec</code> guards, <code>reset_all_defaults</code>).</li>
+<li><code>core/renderer/object_fx_pass.py</code> — <code>_find_object_effect</code>, <code>_render_object_effects</code>, <code>_get_fx_program</code>.</li>
+</ul>
               
             </div>
           </div><footer>

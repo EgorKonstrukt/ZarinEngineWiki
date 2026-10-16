@@ -405,6 +405,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Layout, Anchors, Styles, Events</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties-api">Properties / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,15 +1247,87 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="layout-anchors-styles-events">Layout, Anchors, Styles, Events</h1>
-<p>TODO: Content pending. This page will document Layout, Anchors, Styles, Events in ZarinEngine.</p>
-<p>Planned sections:</p>
+<p>Anchors position widgets on canvas resize; layouts arrange children; Fusion style skins them; events are Qt signals plus <code>GuiEvent</code> helpers.</p>
+<h2 id="properties-api">Properties / API</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Source</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Anchors 0–11</td>
+<td><code>core/gui/wid/base.py</code></td>
+<td><code>ANCHOR_TOP_LEFT</code> 0 … <code>ANCHOR_STRETCH_HEIGHT</code> 11; <code>_update_anchor</code> computes <code>x,y,w,h</code> from <code>canvas_w/h</code></td>
+</tr>
+<tr>
+<td><code>AnchorPresetSelector</code></td>
+<td><code>core/gui/wid/base.py</code></td>
+<td>3x4 picker widget, <code>anchor_changed</code> signal</td>
+</tr>
+<tr>
+<td><code>HorizontalLayoutComponent</code> / <code>VerticalLayoutComponent</code> / <code>GridLayoutComponent</code></td>
+<td><code>core/components/gui/layout/horizontal_layout_component.py</code></td>
+<td><code>QHBoxLayout</code> / <code>QVBoxLayout</code> / <code>QGridLayout</code> sync via <code>_sync_layout(canvas)</code></td>
+</tr>
+<tr>
+<td><code>LayoutElementComponent</code></td>
+<td><code>core/components/gui/layout/layout_element_component.py</code></td>
+<td>Per-child layout element, <code>_sync_layout_element(widget)</code></td>
+</tr>
+<tr>
+<td><code>GuiWidgetComponent</code></td>
+<td><code>core/components/gui/layout/gui_widget_component.py</code></td>
+<td>Base: <code>_widget_ref</code>, <code>_create_widget(canvas)</code>, <code>sync_to_widget()</code></td>
+</tr>
+<tr>
+<td><code>TooltipComponent</code></td>
+<td><code>core/components/gui/controls/tooltip_component.py</code></td>
+<td>Attaches <code>text</code> (+ <code>_duration</code> sec, <code>_rich_text</code>) to the sibling widget via <code>setToolTip</code> / <code>setToolTipDuration</code>; single-instance (<code>_allow_multiple = False</code>)</td>
+</tr>
+<tr>
+<td><code>GuiEvent</code> / <code>ClickEvent</code> / <code>ValueChangeEvent</code> / <code>HoverEvent</code> / <code>FocusEvent</code></td>
+<td><code>core/gui/events.py</code></td>
+<td><code>connect</code>, <code>disconnect</code>, <code>emit(sender, **kwargs)</code>, <code>once</code></td>
+</tr>
+<tr>
+<td><code>apply_fusion_style</code> / <code>get_widget_base_style</code></td>
+<td><code>core/gui/wid/base.py</code></td>
+<td>Object-name styles (<code>GuiButton</code>, <code>GuiLabel</code>, …)</td>
+</tr>
+<tr>
+<td>Canvas overlay/events mixins</td>
+<td><code>core/gui/canvasp/overlay.py</code>, <code>core/gui/canvasp/events.py</code></td>
+<td>Grid paint, drag/resize, selection box, pan/zoom</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<ol>
+<li>Set <code>anchor</code> on each widget (top-left default; stretch-all for background panels).</li>
+<li>Add <code>HorizontalLayoutComponent</code>, <code>VerticalLayoutComponent</code> or <code>GridLayoutComponent</code> to a container entity to auto-arrange children.</li>
+<li>Tune <code>LayoutElementComponent</code> on children for stretch/fill behavior.</li>
+<li>Pick style via Fusion stylesheet; object names (<code>GuiButton</code>, …) select rules.</li>
+</ol>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">btn = gui.button(x=10, y=10, w=120, h=40, text=&quot;OK&quot;)
+btn._anchor = 2  # ANCHOR_TOP_RIGHT
+btn.update_anchor(canvas.width(), canvas.height())
+btn.clicked.connect(lambda: print(&quot;ok&quot;))
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>GUI Overview, Canvas, Controls, Containers</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/gui/wid/base.py</code>, <code>core/gui/events.py</code></li>
+<li><code>core/gui/canvasp/events.py</code>, <code>core/gui/canvasp/overlay.py</code></li>
+<li><code>core/components/gui/layout/horizontal_layout_component.py</code></li>
+</ul>
               
             </div>
           </div><footer>

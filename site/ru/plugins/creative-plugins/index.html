@@ -1237,8 +1237,8 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="qtquick">Музыка, плоттер и QtQuick</h1>
-<p>Меньшие bundled-расширения для звука, данных и хостинга UI — тот же базовый класс, те же хуки, уже работы.</p>
-<p>Трекерная музыка (<code>plugins/tracker_music_plugin/</code>, движок <code>libs/nodmod</code>):</p>
+<p>Меньшие bundled-расширения для звука, данных и хостинга UI — тот же базовый класс, те же хуки, уже работы. Сверенные версии: <code>TrackerMusicPlugin</code> 1.0.0 <code>SYSTEM = False</code>, <code>PlotterPlugin</code> 1.2.0 <code>SYSTEM = False</code>, <code>QtQuickWorldPlugin</code> 1.0.0 <code>SYSTEM = True</code>.</p>
+<p>Трекерная музыка (<code>plugins/tracker_music_plugin/</code>, движок <code>rend/</code>: <code>engine.py</code>, <code>engine_seq.py</code>, <code>engine_mix.py</code>, <code>engine_fx.py</code>, <code>defs.py</code>):</p>
 <ul>
 <li>Проигрывание модулей в стиле ProTracker (паттерны, сэмплы, темп от BPM) для ретро-скоров и демосцен-вайба.</li>
 <li>Бросьте файл модуля, ведите play/stop из хуков или скриптов, миксуйте под позиционные AudioSources — музbed плюс 3D-эффекты и есть intended стек.</li>

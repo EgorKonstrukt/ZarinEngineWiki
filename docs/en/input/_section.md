@@ -1,5 +1,11 @@
 # Input
 
-TODO: Section index pending. This page lists all articles in Input.
+Section index for input.
 
-Use the left navigation tree to open placeholder pages.
+## Pages
+
+- Overview — `InputManager`, `Input` facade, `KeyCode`, axes/buttons/cursor.
+
+## Verified against
+
+- `core/input/input_manager.py`, `core/input/inpsys/gamepad.py`, `keys.py`

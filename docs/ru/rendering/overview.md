@@ -1,19 +1,27 @@
-# Обзор рендеринга
-
-ZarinEngine рисует через ModernGL в контексте OpenGL 4.6 core profile. Вся математика движка — в `numpy.float64`; понижение до `float32` только при загрузке вершин в GPU, что убирает дрожание координат в больших мирах — координаты точны на километрах декораций, а растеризатор получает нужные ему float.
-
-Строительные блоки снизу вверх:
-
-- Кастомные `.shader`-файлы с блоком `Properties { }` (стиль Unity ShaderLab) плюс GLSL вершин/фрагментов. Загрузчик компилирует, перебирает SubShader, инжектит инстансинг и UV-оверрайды, неудачные 430-шейдеры повторяет как 330.
-- Ассеты материалов (`.zpem` / `.mat`, JSON), связывающие шейдер с конкретными значениями, с живым редактированием в инспекторе и мастере материалов.
-- `MeshFilter` (какой меш) + `MeshRenderer` (как рисовать) на сущностях; `SkinnedMeshRenderer` + `Armature` для анимации; `MeshCollider` переиспользует тот же импорт для физики.
-- Камеры (перспектива/ортография, ordering по depth, render scale), свет (направленный/точечный/спот/area в физических единицах) с каскадными, кубическими и спотовыми картами теней.
-- Рендереры спрайтов, SVG, текста и видео для 2D в мире; GUI-система (`GuiCanvas` + 30+ виджетов) для экранного UI.
-- Системы частиц с видимыми в редакторе гизмо-формами, силовые поля, GPU-проигрывание для тяжёлых эффектов.
-- Набор окружения: процедурное небо в связке с солнцем, HDRI-скайбокс, облака, вода, рассеяние атмосферы.
-- Стек PostFX из 31 эффекта плюс 11 эффектов объектов, GPU-скиннинг, Gaussian-сплаты, экспериментальный рейтрейс-вид, воксельные пути.
-- Редакторные проходы гизмо, иконок, контуров и сетки, никогда не попадающие в сборки.
-
-Бюджет кадра: draw calls растут с видимыми субмешами, проходы теней перерисовывают сцену на каскад/грань, прозрачный overdraw и многотапные пост-эффекты доминируют в fill rate. Встроенный профайлер раскладывает каждую стадию (`render_scene`, тайминги теней, `postfx`, `gizmo_lines`) — профилируйте до слепой оптимизации.
-
-Подстраницы: конвейер и контексты, камеры, свет и тени, меш-рендеринг и скиннинг, спрайты и видео, частицы, окружение, материалы, шейдеры, PostFX, эффекты объектов, сплаты и воксели, гизмо.
+# Обзор
+> Прямой OpenGL-рендерер: фасад `Renderer` в `core/renderer/renderer.py` рисует сцену во вьюпорт-FBO в две фазы — opaque, затем transparent.
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+Рендерер построен на moderngl. Контекст создаётся в `main.py`: `QSurfaceFormat`, OpenGL 4.6 Core, depth 24, swap interval из `rendering.vsync` (`0` выкл / `1` вкл). `Renderer` собирает миксины: config, programs, voxel, object-fx, framebuffers, water, uniforms, skinned, collector, geometry cache, outline, gizmo, icon, cubemap, post, scene (`core/renderer/renderer.py:56`). Режимы `RenderMode.SHADED / SHADED_WIREFRAME / FLAT` (`core/renderer/types.py`). Лимиты по умолчанию: `_max_lights = 8`, ambient `[0.26, 0.28, 0.34]`, обводка выделения `[0.8, 0.5, 0.1, 1.0]` толщиной `0.03` (`core/renderer/renderer.py:90-114`).
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `rendering.vsync` | bool (глобальный конфиг) | `True` | Swap interval 1 вкл / 0 выкл (`main.py:212`). |
+| `rendering.max_lights` | int (глобальный конфиг) | `8` | Размер массива `u_lights[]` (`core/renderer/rconfig/config_state.py:20`). |
+| `rendering.ambient` | vec3 (глобальный конфиг) | `[0.26, 0.28, 0.34]` | Резервный ambient (`core/renderer/renderer.py:112`). |
+| `render_mode` | `RenderMode` | `SHADED` | Shaded / shaded+wireframe / flat (`core/renderer/types.py`). |
+## Usage in Editor
+Вьюпорт рисует активную сцену сценовой камерой; сетка, гизмо и обводка — только редакторные проходы. См. [Pipeline](./pipeline.md), [Camera](./camera.md), [Gizmos](./gizmos.md).
+## Usage in Code
+```python
+from core.renderer.renderer import Renderer
+renderer = Renderer(ctx)  # ctx: moderngl.Context
+renderer.render_scene(scene, view_mat, proj_mat, cam_pos, w, h)
+```
+## Related pages
+- [Pipeline](./pipeline.md), [Camera](./camera.md), [Materials](./materials.md), [Shaders](./shaders.md), [Gizmos](./gizmos.md)
+## Verified against
+- `main.py:206-213` (QSurfaceFormat 4.6 Core, depth 24, vsync)
+- `core/renderer/renderer.py:56-120`
+- `core/renderer/types.py`
+- `core/renderer/rconfig/config_state.py:12-50`

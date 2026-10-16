@@ -1,22 +1,57 @@
 # Sphere-коллайдер
 
-Идеальный шар: катание, прыжки, хитбоксы голов, радиальные триггеры и сенсоры близости.
+Идеальный шар: катание, прыжки, хитбоксы голов, радиальные триггеры.
 
-| Группа / поле инспектора | Default | Смысл |
+## Свойства
+
+| Поле | По умолчанию | Примечания |
 |---|---|---|
-| Collision: Layer / Collision Mask | 0 / 0xFFFF | Фильтрация |
-| Shape: Center | начало | Локальный сдвиг |
-| Shape: Radius | 0.5 | Масштабируется наибольшей осью трансформа |
-| Is Trigger | выкл | События пересечения без контактного отклика |
-| Material: Physic Material | — | Оверрайд ассетом `.zphysmat` |
-| Инлайн трение / упругость | 0.6 / 0.0 | Без ассета |
+| `layer` | `0` | `0–15` |
+| `mask` | `0xFFFF` | Маска столкновений |
+| `center` | `(0, 0, 0)` | `scaled_center` |
+| `radius` | `0.5` | Инспектор `0.001–10000`; мир = `radius * max(scale)` |
+| `is_trigger` | `False` | Только пересечение |
+| `physic_material` | `""` | `.zphysmat` |
+| `material_friction` | `0.6` | Запасное |
+| `material_bounciness` | `0.0` | Запасное |
 
-Катание требует трения: шарик с трением 0.05 скользит как лёд, с 0.6 цепляется и катится. Высота отскока из bounciness — 0 мёртвое падение, 0.8 живой мяч, никогда ровно 1 (прирост энергии дрожит в стопках).
+## Использование в редакторе
 
-Рецепты: прыгучий мяч — радиус 0.3, упругость 0.8, трение 0.2, свой слой с маской на мир + игрока; сенсор близости — большая триггер-сфера (радиус 5–10) со скриптом подсчёта входов/выходов; хитбокс головы — малая сфера на кости головы со скриптом урона.
+`Radius`/`Center`, слой + маска, `Is Trigger` для подборов. Несколько на сущность разрешены.
 
-Неоднородный скейл родителя берёт наибольшую ось под радиус — растянутый родитель даёт шар больше меша. Держите визуальных и коллизионных родителей однородно масштабированными.
+## Использование в коде
 
-Диагностика: катится вечно — нулевые angular drag и трение; не катится — заморожены оси поворота Rigidbody; триггер двоит — пары enter/exit на быстрых телах, дебаунс в скрипте.
+```python
+entity = scene.create_entity("Ball")
+from core.components.physics.rigidbody import Rigidbody
+from core.components.physics.sphere_collider import SphereCollider
 
-Связанное: Rigidbody, Capsule-коллайдер, физические материалы, Circle Collider 2D.
+rb = Rigidbody()
+rb.mass = 2.0
+entity.add_component(rb)
+s = SphereCollider()
+s.radius = 0.5
+entity.add_component(s)
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody)
+    if rb is not None:
+        rb.add_force(Vec3(0.0, 0.0, 10.0))
+        rb.add_torque(Vec3(1.0, 0.0, 0.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+```
+
+## Заметки о fixed update
+
+- Вызов: `create_rigid_body(shape_type="sphere", ...)`. Проверка формы каждые 60 шагов; `dt` — `Engine._fixed_dt` (`0.02`).
+
+## Связанные
+
+Rigidbody, Box/Capsule, материалы, слои.
+
+## Проверено по
+
+- `core/components/physics/sphere_collider.py`
+- `core/physics/shapep/shapes.py`

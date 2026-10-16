@@ -235,13 +235,17 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">SSR</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    <li class="toctree-l4"><a class="reference internal" href="#shader-snippet">Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#performance-notes">Performance notes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1250,119 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="ssr">SSR</h1>
-<p>Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.</p>
-<h2 id="how-it-works">How it works</h2>
-<p>Screen-space reflections on smooth surfaces, resolved from the rendered frame itself.</p>
+<blockquote>
+<p>Screen-space reflections. View-space raymarch (steps/thickness/max distance) with screen-edge and distance fade plus Fresnel weighting (power/strength); result composited over the frame by intensity. Class <code>SSR</code> in <code>core/components/rendering/postfx/ssr.py</code>. Runs in the PostFX stack in component order; skipped when <code>enabled</code> is False or the entity is inactive (<code>render()</code> early-out).</p>
+</blockquote>
 <h2 id="parameters">Parameters</h2>
-<p>Roughness cutoff, stride/steps feel.</p>
-<h2 id="tips">Tips</h2>
-<p>Wet floors, marble halls, puddles. Offscreen content cannot reflect — frame composition matters.</p>
-<h2 id="cost">Cost</h2>
-<p>High. Roughness cutoff trims the cost fastest.</p>
-<p>Related: <a href="../">PostFX Stack</a>, Cameras (render scale), Profiler.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intensity</td>
+<td><code>_intensity</code></td>
+<td>SLIDER</td>
+<td>0.0 – 2.0</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Steps</td>
+<td><code>_steps</code></td>
+<td>INT_SLIDER</td>
+<td>8 – 64</td>
+<td><code>32</code></td>
+</tr>
+<tr>
+<td>Thickness</td>
+<td><code>_thickness</code></td>
+<td>SLIDER</td>
+<td>0.05 – 4.0</td>
+<td><code>1.5</code></td>
+</tr>
+<tr>
+<td>Max Distance</td>
+<td><code>_max_distance</code></td>
+<td>SLIDER</td>
+<td>10.0 – 200.0</td>
+<td><code>60.0</code></td>
+</tr>
+<tr>
+<td>Edge Fade</td>
+<td><code>_edge_fade</code></td>
+<td>SLIDER</td>
+<td>0.02 – 0.3</td>
+<td><code>0.12</code></td>
+</tr>
+<tr>
+<td>Distance Fade</td>
+<td><code>_distance_fade</code></td>
+<td>SLIDER</td>
+<td>0.3 – 0.95</td>
+<td><code>0.6</code></td>
+</tr>
+<tr>
+<td>Fresnel Power</td>
+<td><code>_fresnel_power</code></td>
+<td>SLIDER</td>
+<td>1.0 – 8.0</td>
+<td><code>4.0</code></td>
+</tr>
+<tr>
+<td>Fresnel Strength</td>
+<td><code>_fresnel_strength</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>0.05</code></td>
+</tr>
+<tr>
+<td>Resolution Scale</td>
+<td><code>_performance_scale</code></td>
+<td>SLIDER</td>
+<td>0.25 – 1.0</td>
+<td><code>0.5</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">Usage</h2>
+<p>Editor: select the PostFX entity, Add Component &gt; <code>SSR</code>, tick <code>enabled</code>, tune fields above. Order among PostFX components defines execution order.</p>
+<p>Code:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.ssr import SSR
+fx = SSR()
+entity.add_component(fx)
+fx._steps = 48
+fx._max_distance = 80.0
+fx.enabled = True
+</code></pre>
+<h2 id="shader-snippet">Shader snippet</h2>
+<p>Shader: <code>core/components/rendering/postfx/ssr.py</code>.</p>
+<pre><code class="language-glsl">#version 330 core
+uniform sampler2D u_depth_tex;
+uniform sampler2D u_input_tex;
+uniform mat4 u_proj;
+uniform mat4 u_inv_proj;
+uniform vec2 u_pixel_size;
+// + u_steps, u_thickness, u_max_distance, u_edge_fade, u_distance_fade, u_fresnel_power, u_fresnel_strength, u_intensity
+</code></pre>
+<h2 id="performance-notes">Performance notes</h2>
+<p>Cost scales with Steps (8–64) × (Resolution Scale)² (default 0.5).</p>
+<h2 id="related">Related</h2>
+<p>Related: <a href="../">PostFX Stack</a>, <a href="../color-grading/">Color Grading</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/ssr.py</code> — class <code>SSR</code>, <code>_inspector_fields</code>, <code>__init__</code> defaults, <code>Depth raymarch + composite. Seeded kernel not used; uses proj/inv_proj + pixel size.</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/graphics_effect.py</code> — <code>GraphicsEffect</code> base (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, <code>render()</code> signature).</p>
+</li>
+</ul>
               
             </div>
           </div><footer>

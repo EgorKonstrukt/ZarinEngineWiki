@@ -1248,38 +1248,43 @@
 <tbody>
 <tr>
 <td>Zone</td>
-<td>Min Distance, Max Distance — радиусы полного эффекта и спада</td>
+<td>Min Distance (по умолч. 10.0), Max Distance (по умолч. 15.0) — радиусы полного эффекта и спада</td>
 </tr>
 <tr>
 <td>Reverb Preset</td>
-<td>Именованные стартовые точки для типовых пространств</td>
+<td>Именованные стартовые точки для типовых пространств (по умолч. <code>Generic</code>; <code>Off</code> — обход, <code>User</code> — ручные параметры)</td>
 </tr>
 <tr>
 <td>Room</td>
-<td>Room level, Room HF, Room LF — баланс затухания низ/середина/верх</td>
+<td>Room level (по умолч. −1000), Room HF (по умолч. −100), Room LF (по умолч. 0) — баланс затухания низ/середина/верх</td>
 </tr>
 <tr>
 <td>Decay</td>
-<td>Decay Time, Decay HFRatio — длина и яркость хвоста</td>
+<td>Decay Time (по умолч. 1.49), Decay HFRatio (по умолч. 0.83) — длина и яркость хвоста</td>
 </tr>
 <tr>
 <td>Reflections</td>
-<td>Уровень и задержка Reflections — ранние отражения</td>
+<td>Уровень (по умолч. −2602) и задержка Reflections (по умолч. 0.007) — ранние отражения</td>
 </tr>
 <tr>
 <td>Reverb</td>
-<td>Уровень и задержка Reverb — позднее диффузное поле</td>
+<td>Уровень (по умолч. 200) и задержка Reverb (по умолч. 0.011) — позднее диффузное поле</td>
 </tr>
 <tr>
 <td>Reference</td>
-<td>HFReference, LFReference — частоты кроссовера</td>
+<td>HFReference (по умолч. 5000), LFReference (по умолч. 250) — частоты кроссовера</td>
 </tr>
 <tr>
 <td>Rolloff</td>
-<td>Room Rolloff Factor — дистанционный отклик эффекта</td>
+<td>Room Rolloff Factor (по умолч. 0.0) — дистанционный отклик эффекта</td>
+</tr>
+<tr>
+<td>Mix</td>
+<td>Diffusion (по умолч. 100.0), Density (по умолч. 100.0) — плотность эха / модальная насыщенность</td>
 </tr>
 </tbody>
 </table>
+<p>Источник: <code>core/components/audio/reverb/component.py</code> (<code>_inspector_fields</code>, дефолты <code>__init__</code>, <code>serialize</code>/<code>deserialize</code> с миграцией legacy linear→мБ).</p>
 <p>Рабочий процесс:</p>
 <ol>
 <li>Добавьте компонент на пустую сущность в центре пространства.</li>
@@ -1288,7 +1293,7 @@
 <li>Пройдите слушателем с зацикленным источником, проверьте вход и выход.</li>
 </ol>
 <p>EFX-путь под guard: без расширения движок внутренне поднимает <code>EFXError</code> и продолжает сухо — смотрите консоль, если зона звучит плоско на отдельных машинах.</p>
-<p>Связанное: AudioSource (spatial blend кормит посыл), аудиосистема (модуль EFX), туман (визуальный близнец для пещер).</p>
+<p>Связанное: AudioSource (spatial blend кормит посыл), AudioListener (позиция слушателя рулит маршрутизацией зон), аудиосистема (модуль EFX), туман (визуальный близнец для пещер).</p>
               
             </div>
           </div><footer>

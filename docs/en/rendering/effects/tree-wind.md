@@ -1,21 +1,52 @@
 # Tree Wind
 
-Per-object effect through the ObjectFx pass (unlike PostFX, which processes the whole frame). Built on the shared ObjectEffect base; scripts drive it by animating progress/intensity floats.
-
-## How it works
-
-Canopy-grade vertex wind with trunk anchoring: crowns sway, trunks hold.
+> Vegetation wind for trees. Normalized wind_direction × wind_strength × wind_influence bends trunks/branches at wind_speed; leaves add high-frequency flutter (leaf_flutter_speed/amount); turbulence_scale/amount adds gust noise. Disabled fast-path writes _WindInfluence = 0. Class `TreeWindEffect` in `core/components/rendering/effects/tree_wind_effect.py`. ObjectFx pass but with Tree material path: fx_geometry_shader() loads Tree.gshader (core/renderer/meshd.read_shader); _Wind* uniforms target the Tree/vegetation shader, not ObjectFx.shader.
 
 ## Parameters
 
-Strength, gust frequency, anchor height.
+| Inspector | Field | Type | Range | Default |
+|---|---|---|---|---|
+| Wind Influence | `wind_influence` | SLIDER | 0.0 – 1.0 | `1.0` |
+| Wind Direction | `wind_direction` | VEC3 | -1.0 – 1.0 | `(1.0, 0.0, 0.5)` |
+| Wind Speed | `wind_speed` | FLOAT | 0.0 – 20.0 | `2.0` |
+| Wind Strength | `wind_strength` | FLOAT | 0.0 – 3.0 | `0.3` |
+| Leaf Flutter Speed | `leaf_flutter_speed` | FLOAT | 0.0 – 30.0 | `8.0` |
+| Leaf Flutter Amount | `leaf_flutter_amount` | FLOAT | 0.0 – 0.3 | `0.04` |
+| Turbulence Scale | `turbulence_scale` | FLOAT | 0.0 – 5.0 | `0.5` |
+| Turbulence Amount | `turbulence_amount` | SLIDER | 0.0 – 1.0 | `0.3` |
 
-## Tips
+## Usage
 
-Forests and parks. Anchor height at the trunk base or whole trees slide.
+Editor: select the mesh entity, Add Component > `TreeWindEffect`, tick `enabled`, animate the amount fields from a script.
 
-## Cost
+Code:
 
-Cheap vertex math.
+```python
+from core.components.rendering.effects.tree_wind_effect import TreeWindEffect
+fx = TreeWindEffect()
+entity.add_component(fx)
+fx.wind_strength = 0.5
+fx.wind_speed = 3.0
+fx.enabled = True
+# per-frame: fx.amount = min(1.0, fx.amount + dt * 0.5)
+```
 
-Related: [Object Effects](../effects.md), Materials, Script Examples.
+## Shader snippet
+
+Shader: `core/shaders/legacy/Tree.gshader via core/renderer/meshd.read_shader + core/shaders/materials/Tree.shader`. Bound uniforms: `_WindInfluence`, `_WindDir`, `_WindSpeed`, `_WindStrength`, `_LeafFlutterSpeed`, `_LeafFlutterAmount`, `_TurbulenceScale`, `_TurbulenceAmount`, `u_time`.
+
+```glsl
+// tree_wind_effect.py::_apply (exact names, note capital W):
+// prog["_WindInfluence"], prog["_WindDir"], prog["_WindSpeed"], prog["_WindStrength"],
+// prog["_LeafFlutterSpeed"], prog["_LeafFlutterAmount"], prog["_TurbulenceScale"], prog["_TurbulenceAmount"]
+```
+
+## Related
+
+Related: [Object Effects](../effects.md), ObjectFx pass (`core/renderer/object_fx_pass.py`), `core/shaders/internal/ObjectFx.shader`.
+
+## Verified against
+
+- `core/components/rendering/effects/tree_wind_effect.py` — class `TreeWindEffect`, `_inspector_fields`, `__init__` defaults, `_apply` uniforms.
+- `core/components/rendering/effects/object_effect.py` — `ObjectEffect` base (`bind` sets `u_time`, `_set`/`_set_vec` guards, `reset_all_defaults`).
+- `core/renderer/object_fx_pass.py` — `_find_object_effect`, `_render_object_effects`, `_get_fx_program`.

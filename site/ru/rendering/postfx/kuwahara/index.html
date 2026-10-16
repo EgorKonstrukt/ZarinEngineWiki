@@ -794,13 +794,17 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Кувахара</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#_2">Как работает</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Параметры</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_3">Параметры</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Использование</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_4">Советы</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Шейдер</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_5">Цена</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Производительность</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_6">Связанное</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_7">Проверено по коду</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1250,68 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Кувахара</h1>
-<p>Часть стека PostFX: выполняется после главной сцены в порядке компонентов. Построен на общей базе GraphicsEffect с тоглом и собственными полями инспектора.</p>
-<h2 id="_2">Как работает</h2>
-<p>Живописное уплощение областей в пятна масла с сохранением краёв.</p>
-<h2 id="_3">Параметры</h2>
-<p>Радиус патча, жёсткость.</p>
-<h2 id="_4">Советы</h2>
-<p>Стилизованные катсцены и живописные зоны исследования.</p>
-<h2 id="_5">Цена</h2>
-<p>Высоко по радиусу. Дозированно.</p>
-<p>Связанное: <a href="../">стек PostFX</a>, камеры (render scale), профайлер.</p>
+<blockquote>
+<p>Фильтр масляной живописи. Дисперсия по квадрантам выбирает среднее самого плоского региона; intensity подмешивает обратно к фото. Класс <code>Kuwahara</code> в <code>core/components/rendering/postfx/kuwahara.py</code>. Выполняется в стеке PostFX в порядке компонентов; пропускается при <code>enabled == False</code> или неактивной сущности (ранний выход в <code>render()</code>).</p>
+</blockquote>
+<h2 id="_2">Параметры</h2>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Radius</td>
+<td><code>_radius</code></td>
+<td>FLOAT</td>
+<td>1.0 – 4.0</td>
+<td><code>2.0</code></td>
+</tr>
+<tr>
+<td>Intensity</td>
+<td><code>_intensity</code></td>
+<td>FLOAT</td>
+<td>0.0 – 1.0</td>
+<td><code>1.0</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">Использование</h2>
+<p>Редактор: выбрать PostFX-сущность, Add Component &gt; <code>Kuwahara</code>, включить <code>enabled</code>, настроить поля выше. Порядок среди PostFX-компонентов задаёт порядок выполнения.</p>
+<p>Код:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.kuwahara import Kuwahara
+fx = Kuwahara()
+entity.add_component(fx)
+fx._radius = 3.0
+fx._intensity = 0.8
+fx.enabled = True
+</code></pre>
+<h2 id="_4">Шейдер</h2>
+<p>Шейдер: <code>core/components/rendering/postfx/kuwahara.py</code>.</p>
+<pre><code class="language-glsl">#version 330 core
+uniform sampler2D u_input_tex;
+uniform float u_radius;
+uniform float u_intensity;
+uniform vec2 u_pixel_size;
+</code></pre>
+<h2 id="_5">Производительность</h2>
+<p>Tap count grows with Radius² (1–4).</p>
+<h2 id="_6">Связанное</h2>
+<p>См. <a href="../">Стек PostFX</a>, <a href="../color-grading/">Цветокоррекция</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="_7">Проверено по коду</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/kuwahara.py</code> — класс <code>Kuwahara</code>, <code>_inspector_fields</code>, дефолты <code>__init__</code>, <code>Fullscreen anisotropic smoothing pass</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/graphics_effect.py</code> — базовый <code>GraphicsEffect</code> (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, сигнатура <code>render()</code>).</p>
+</li>
+</ul>
               
             </div>
           </div><footer>

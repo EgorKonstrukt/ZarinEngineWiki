@@ -291,6 +291,18 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Physics 3D Overview</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#fixed-update-notes">Fixed update notes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../rigidbody/">Rigidbody</a>
@@ -1237,21 +1249,98 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="physics-3d-overview">Physics 3D Overview</h1>
-<p>The built-in 3D solver runs off the main thread: simulation steps in a background worker while the ECS thread renders, runs scripts and syncs transforms each frame. Gameplay code never waits on the solver; it reads last-step results and writes wishes (forces, velocities, teleports) that apply on the next step.</p>
-<p>Pipeline per fixed step:</p>
+<p>3D rigid-body simulation in ZarinEngine: entities with a <code>Rigidbody</code> plus one or more colliders are stepped by a pluggable solver (<code>IPhysicsSolver</code>), everything else is static scenery.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Solver</td>
+<td><code>culverin</code> (Jolt via <code>culverin</code> package)</td>
+<td><code>physics_solvers/registry.py</code> <code>DEFAULT_SOLVER</code>, <code>ProjectSettings.json</code> <code>physics.solver</code></td>
+</tr>
+<tr>
+<td>Gravity</td>
+<td><code>(0.0, -9.81, 0.0)</code></td>
+<td><code>physics.gravity_x/y/z</code>, <code>CulverinSolver._gravity</code></td>
+</tr>
+<tr>
+<td>Fixed step</td>
+<td><code>0.02</code> s</td>
+<td><code>engine.fixed_update_dt</code>, <code>physics.fixed_time_step</code>, <code>Engine._fixed_dt</code></td>
+</tr>
+<tr>
+<td>Sub-steps</td>
+<td><code>2</code></td>
+<td><code>physics.num_sub_steps</code></td>
+</tr>
+<tr>
+<td>Solver iterations</td>
+<td><code>10</code></td>
+<td><code>physics.solver_iterations</code></td>
+</tr>
+<tr>
+<td>Simulation mode</td>
+<td><code>multi_threaded</code></td>
+<td><code>physics.simulation_mode</code> (<code>single</code> / <code>multi_threaded</code> / <code>per_layer_process</code>)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
 <ol>
-<li>Register new entities (create solver bodies for fresh Rigidbody + collider pairs) and re-check shapes periodically for changed meshes and scales.</li>
-<li>Sync ECS → physics: teleport dirty transforms straight into bodies, otherwise push accumulated forces/torques and dirty velocities.</li>
-<li>Step the solver with <code>dt</code> (default <code>0.02</code> from <code>Engine._fixed_dt</code>).</li>
-<li>Constrain 2D-flagged bodies (zero out-of-plane velocity so planar games never drift off-plane).</li>
-<li>Sync physics → ECS: positions, rotations, velocities back onto Transforms and Rigidbody state; kinematic and dirty bodies are skipped (they are Transform-driven).</li>
-<li>Dispatch collision events into <code>on_collision_enter/stay/exit</code> script callbacks with entity ids and impact forces.</li>
+<li>Static floor: add <code>BoxCollider</code> only (no <code>Rigidbody</code>).</li>
+<li>Dynamic crate: add <code>Rigidbody</code> (mass <code>1.0</code>) + <code>BoxCollider</code> (size <code>1,1,1</code>).</li>
+<li>Press Play. Kinematic movers: tick <code>is_kinematic</code> and move the Transform; triggers: tick <code>is_trigger</code> and read overlap callbacks.</li>
 </ol>
-<p>Solvers plug through <code>IPhysicsSolver</code>: <code>culverin</code> (Jolt-based) by default, <code>pybullet</code> and <code>physx</code> as alternatives registered in <code>physics_solvers/registry.py</code>. Execution modes: <code>single</code> (in-process, lowest latency, required by CharacterController), <code>multi_threaded</code> (default, daemon solver process with command/result queues and shared buffers), <code>per_layer_process</code> (solver processes spawned on demand per collision layer).</p>
-<p>Fixed-step plumbing: <code>Engine.tick_fixed_step</code> accumulates real time against <code>_fixed_dt</code>, runs plugin <code>pre_step</code>, <code>scene.fixed_update</code>, then the physics step — scripts always see a stable <code>dt</code> in <code>on_fixed_update</code> regardless of render framerate.</p>
-<p>Body taxonomy: dynamic (positive-mass non-kinematic Rigidbody + collider — fully simulated), kinematic (driven by Transform, pushes dynamics, never pushed), static (collider alone — immovable scenery), trigger (reports overlaps, no contact response), character (solver move function), soft (deforming mesh), compound (merged primitives).</p>
-<p>Subpages: Rigidbody, all six colliders, CharacterController, Joints, materials and layers, solver and threading internals, advanced bodies (buoyancy, soft body, PhysBone, motor).</p>
-<p>First-room recipe: static floor (box collider, no Rigidbody), a few dynamic crates (Rigidbody mass 1–5 + box colliders), one directional light — press Play and the crates settle. Then add a CharacterController player and collision layers before content grows.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Crate&quot;)
+from core.components.physics.rigidbody import Rigidbody
+from core.components.physics.box_collider import BoxCollider
+from core.maths.math3d import Vec3
+
+rb = Rigidbody()
+rb.mass = 1.0
+entity.add_component(rb)
+box = BoxCollider()
+box.size = Vec3(1.0, 1.0, 1.0)
+entity.add_component(box)
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody)
+    if rb is not None:
+        rb.add_force(Vec3(0.0, 10.0, 0.0))
+        rb.add_torque(Vec3(0.0, 1.0, 0.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass  # (other_entity_id, impact_force), also on_collision_stay/exit
+</code></pre>
+<p>Freeze axes: <code>rb.freeze_pos_x/y/z</code>, <code>rb.freeze_rot_x/y/z</code> (serialized as <code>freeze_pos</code> / <code>freeze_rot</code> triples).</p>
+<h2 id="fixed-update-notes">Fixed update notes</h2>
+<ul>
+<li><code>Engine.tick_fixed_step</code> (<code>core/engine/eng/loop.py</code>) accumulates real time against <code>_fixed_dt</code> (<code>0.02</code>), caps the backlog at <code>5 * _fixed_dt</code>, runs at most <code>5</code> steps per tick (<code>MAX_FIXED_STEPS</code>), then runs <code>scene.fixed_update(fd)</code> (component <code>on_fixed_update</code>: <code>Buoyancy</code>/<code>Motor</code>/<code>CharacterController</code> forces and drives) and finally system-plugin <code>step(fd)</code>.</li>
+<li><code>PhysicsScene.step</code> order: register new entities → shape-change check (every 60 steps) → ECS→physics sync → soft-body AABB separation (only when <code>≥2</code> soft bodies) → <code>solver.step_simulation(dt)</code> → 2D constrain → physics→ECS sync → soft sync → collision events.</li>
+<li>Solver-param scoping: <code>num_sub_steps</code> (<code>2</code>), <code>solver_iterations</code> (<code>10</code>), <code>erp</code> (<code>0.2</code>) are project-config defaults consumed by the PyBullet solver (whose standalone defaults are <code>1</code> / <code>50</code> / <code>0.4</code>); the default Culverin/Jolt solver ignores them and uses the <code>culverin_*</code> world caps instead.</li>
+<li>Collision callbacks: script methods accept <code>(other_id)</code> or <code>(other_id, force)</code> — arity auto-detected via <code>inspect.signature</code> (<code>ScriptComponent._py_collision_arity</code>); engine-component handlers always receive <code>(other_id, force)</code>.</li>
+<li>Threading: <code>multi_threaded</code> runs the solver in a daemon <code>multiprocessing.Process</code> (<code>PhysicsProcess</code>) over <code>SharedPhysicsBuffer</code> / <code>SoftSharedBuffer</code>; <code>single</code> runs <code>PhysicsScene</code> in-process (required by <code>CharacterController</code> / <code>Motor</code>); <code>per_layer_process</code> spawns processes on demand per layer.</li>
+</ul>
+<h2 id="related">Related</h2>
+<p>Rigidbody, Box/Sphere/Capsule/Mesh/Terrain/GSVolume colliders, CharacterController, Joints, Motor, Physics Materials, Collision Layers, Solver &amp; Threading, Buoyancy, Soft Body, PhysBone, Constraints (Transform followers — a separate system, not solver joints).</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/physics/scene/scene.py</code> (<code>step</code>, <code>_register_new_entities</code>, <code>_constrain_2d_bodies</code>)</li>
+<li><code>core/physics/scene/events.py</code> (<code>_process_collision_events</code>)</li>
+<li><code>core/engine/eng/loop.py</code> (<code>tick_fixed_step</code>, <code>MAX_FIXED_STEPS = 5</code>)</li>
+<li><code>core/engine/eng/engine.py</code> (<code>_fixed_dt = 0.02</code>)</li>
+<li><code>core/config/config.py</code> (<code>physics.*</code> defaults)</li>
+<li><code>physics_solvers/registry.py</code> (<code>DEFAULT_SOLVER = "culverin"</code>)</li>
+<li><code>plugins/physics_plug/plugin.py</code> (simulation modes)</li>
+</ul>
               
             </div>
           </div><footer>

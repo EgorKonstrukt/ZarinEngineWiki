@@ -69,6 +69,20 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">ECS Overview</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#serialization">Serialization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../entity/">Entity</a>
@@ -1237,15 +1251,85 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="ecs-overview">ECS Overview</h1>
-<p>TODO: Content pending. This page will document ECS Overview in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p>ZarinEngine is an Entity-Component-System engine: <code>Entity</code> objects hold data, <code>Component</code> objects add behavior, <code>Scene</code> owns entities and dispatches <code>update</code> / <code>fixed_update</code>.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="overview">Overview</h2>
+<p>Layer order (dependencies point down only): <code>main.py / player.py</code> → <code>editor/</code> → <code>plugins/</code> → <code>core/components/</code> → <code>core/renderer, physics, audio, network</code> → <code>core/ecs/</code> (<code>Entity</code>, <code>Component</code>, <code>Scene</code>, <code>ComponentRegistry</code>) → <code>core/foundation/</code> → <code>core/spatial, core/maths</code> (<code>ARCHITECTURE.md</code>). <code>core/</code> never imports <code>editor</code> or <code>plugins</code>; upward communication is <code>Engine.on</code> / <code>Engine.off</code> listeners plus <code>_emit_event</code> callbacks.</p>
+<p>Runtime dispatch: <code>Engine.tick()</code> (play mode only) runs up to 5 fixed steps (<code>Scene.fixed_update(fd)</code>) then one <code>Scene.update(dt)</code>. <code>Scene</code> keeps <code>_active_update_components</code> / <code>_active_fixed_components</code> sets plus cached lists; <code>on_update</code> is partitioned into constraints → others → IK. Exceptions in callbacks are logged with entity and component names and never stop the frame.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Entity</td>
+<td>class</td>
+<td><code>core/ecs/entity.py</code></td>
+<td>Identity + hierarchy + component storage</td>
+</tr>
+<tr>
+<td>Component</td>
+<td>class</td>
+<td><code>core/ecs/component.py</code></td>
+<td>Behavior/data unit with lifecycle hooks</td>
+</tr>
+<tr>
+<td>Scene</td>
+<td>class</td>
+<td><code>core/ecs/scene.py</code></td>
+<td>Entity owner, component index, update dispatch, Octree spatial index</td>
+</tr>
+<tr>
+<td>ComponentRegistry</td>
+<td>class</td>
+<td><code>core/ecs/registry.py</code></td>
+<td>Name → component class map, categories</td>
+</tr>
+<tr>
+<td>public_import</td>
+<td>statement</td>
+<td><code>from core.ecs import Component, Entity, Scene, ComponentRegistry</code></td>
+<td>Canonical import (<code>ARCHITECTURE.md</code>)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Entities are created in the Hierarchy panel; components are added via <code>Add Component</code> (registry categories: Transform, Rendering, Physics, Physics 2D, Lighting, Audio, Constraints, Network, Scripting). The Inspector edits fields; <code>enabled</code> toggles participation in updates.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from core.ecs import Component, Entity, Scene, ComponentRegistry
+from core.components.transform.tr import Transform
+
+scene = Scene(&quot;Demo&quot;)
+player = scene.create_entity(&quot;Player&quot;)
+player.add_component(Transform())
+scene.start()          # Scene.start() -&gt; on_start() on all components
+scene.update(0.016)    # on_update(dt) on active, enabled components
+scene.fixed_update(0.02)
+</code></pre>
+<h2 id="serialization">Serialization</h2>
+<p><code>Scene.serialize()</code> → <code>{"name": ..., "entities": {id: entity-dict}}</code>, optionally <code>embed_all</code>, <code>compress_resources</code>, <code>compress_level</code>. <code>Scene.deserialize(data, registry)</code> rebuilds entities and re-links parents. Thread-pool path above 64 entities.</p>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li><a href="../entity/">Entity</a></li>
+<li><a href="../components-lifecycle/">Components and Lifecycle</a></li>
+<li><a href="../registry-serialization/">Registry and Serialization</a></li>
+<li><a href="../transform/">Transform</a></li>
+<li><a href="../time/">Time and Fixed Update</a></li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>ARCHITECTURE.md</code> (layers, modules, component rules)</li>
+<li><code>core/ecs/__init__.py</code>, <code>core/ecs/entity.py</code>, <code>core/ecs/component.py</code>, <code>core/ecs/scene.py</code>, <code>core/ecs/registry.py</code>, <code>core/ecs/query.py</code>, <code>core/ecs/scene_serialize.py</code></li>
+<li><code>core/engine/eng/loop.py</code> (<code>tick</code>, <code>tick_begin</code>, <code>tick_fixed_step</code>, <code>tick_update</code>)</li>
+</ul>
               
             </div>
           </div><footer>

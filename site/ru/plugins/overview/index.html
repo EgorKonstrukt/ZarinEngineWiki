@@ -1249,7 +1249,7 @@
 <li>Нативные <code>.dll</code> / <code>.so</code> с Python-шимом входа.</li>
 <li>Подписанные пакеты <code>.zplugin</code>: манифест + код + нативные модули + bundled-библиотеки, проверка по <code>config/trusted_keys</code>, распаковка один раз с кэшем по sha256-отпечатку.</li>
 </ul>
-<p><code>PluginManager</code> (<code>core/foundation/plugin_manager.py</code>, ~1700 строк) владеет discovery, <code>_load_order</code>, активацией, проверкой зависимостей из манифестов, security-верификацией, персистентностью конфигов и разборкой в обратном порядке.</p>
+<p><code>PluginManager</code> (<code>core/foundation/plugins/manager.py</code> ~203 строки, плюс <code>base.py</code> / <code>discovery.py</code> / <code>loader.py</code> / <code>lifecycle.py</code> / <code>ui_registry.py</code>; реэкспорт в <code>core/foundation/plugins/__init__.py</code>) владеет discovery, <code>_load_order</code>, активацией, проверкой зависимостей из манифестов, security-верификацией, персистентностью конфигов и разборкой в обратном порядке.</p>
 <p>Страницы: жизненный цикл PluginBase, менеджер плагинов, разбор example-плагина, гид пользовательских, упаковка .zplugin, каталог системных, сетевой плагин, VR-плагин, MCP-мост, расширения музыка/плоттер/QtQuick.</p>
 <p>Первый плагин за пять минут: скопируйте <code>plugins/example_plugin.py</code> в <code>plugins/user/my_plugin.py</code>, переименуйте класс и <code>NAME</code>, оставьте <code>get_plugin()</code> внизу, перезапустите редактор — пункт меню появится, кнопка тулбара появится, счётчик запусков переживёт сессии.</p>
               

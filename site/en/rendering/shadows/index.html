@@ -121,6 +121,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Shadows</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1238,19 +1246,108 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="shadows">Shadows</h1>
-<p>Shadow-map subsystem behind every <code>cast_shadows</code> toggle — depth rendering from the light point of view, sampled back in the main pass.</p>
+<blockquote>
+<p>Shadow-map system: <code>ShadowRenderer</code> (<code>core/renderer/shadows/renderer.py</code>, <code>passes.py:183</code>) plus per-type quality owners <code>DirectionalShadow / PointShadow / SpotShadow / AreaShadow</code>.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p><code>render_shadow_pass(...)</code> renders <code>renderable_shadow</code> casters into per-light maps: CSM for directional (<code>shadows/csm.py</code>), cube/dual maps for point (<code>shadows/point_spot.py</code>), perspective for spot, multi-sample for area (<code>shadows/area.py</code>), cookies for <a href="../projector/">Projector</a> (<code>shadows/projector.py</code>). Without an active owner component of a type, that type's shadows are disabled (headers in <code>directional_shadow.py:7-9</code>, <code>point_shadow.py:7-9</code>, <code>spot_shadow.py:7-9</code>, <code>area_shadow.py:7-9</code>). Per-receiver flags: <code>MeshRenderer.cast_shadows / receive_shadows</code>.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DirectionalShadow._shadow_resolution</code></td>
+<td>int slider 256–4096</td>
+<td><code>4096</code></td>
+<td>Sun map size (<code>directional_shadow.py:33,45</code>).</td>
+</tr>
+<tr>
+<td><code>DirectionalShadow._shadow_distance</code></td>
+<td>float slider 1–500</td>
+<td><code>50.0</code></td>
+<td>CSM range (<code>directional_shadow.py:35,46</code>).</td>
+</tr>
+<tr>
+<td><code>DirectionalShadow._cascade_count</code></td>
+<td>int slider 1–4</td>
+<td><code>4</code></td>
+<td>Cascade count (<code>directional_shadow.py:37,58</code>).</td>
+</tr>
+<tr>
+<td><code>DirectionalShadow._cascade_splits</code></td>
+<td>split gradient</td>
+<td><code>[0.05, 0.13, 0.3]</code></td>
+<td>Cascade boundaries for 4 cascades (<code>directional_shadow.py:18,39,47</code>).</td>
+</tr>
+<tr>
+<td><code>PointShadow._shadow_resolution</code></td>
+<td>int slider 128–2048</td>
+<td><code>512</code></td>
+<td>Point map size (<code>point_shadow.py:31,37</code>).</td>
+</tr>
+<tr>
+<td><code>SpotShadow._shadow_resolution</code></td>
+<td>int slider 128–2048</td>
+<td><code>1024</code></td>
+<td>Spot map size (<code>spot_shadow.py:31,37</code>).</td>
+</tr>
+<tr>
+<td><code>AreaShadow._shadow_resolution</code></td>
+<td>int slider 128–2048</td>
+<td><code>512</code></td>
+<td>Area map size (<code>area_shadow.py:31,37</code>).</td>
+</tr>
+<tr>
+<td><code>Light.cast_shadows</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Per-light toggle (see light pages).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Add exactly one owner per type you use (e.g. Directional Shadow). Raise Resolution for crisp edges, shorten Shadow Distance to concentrate CSM texels, use 2–3 cascades for small scenes and 4 for open worlds.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">ds = entity.get_component(DirectionalShadow)
+ds._shadow_resolution = 2048
+ds._shadow_distance = 120.0
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Directional: cascaded map, default 4 cascades with resolutions 2048/1024/1024/512, distance 50. Cascades concentrate texels near the camera; distant ground gets coarser depth.</li>
-<li>Point: cube maps, 512 default, up to 4 simultaneous shadowed point lights.</li>
-<li>Spot: perspective maps, 1024 default, up to 4 simultaneous.</li>
-<li>Projector shadows render in their own pass (<code>render_projector_shadows</code>).</li>
-<li>Each cascade/face owns a depth texture plus framebuffer; the pass supports GPU instancing with a flat culling path, and a debug overlay exists (<code>ShadowDebug</code> shader).</li>
-<li>Bias controls: global settings plus per-light bias such as <code>area_shadow_bias</code> (0.005 default on area lights).</li>
+<li><a href="../light/">Light</a>, <a href="../directional-light/">Directional Light</a>, <a href="../point-light/">Point Light</a>, <a href="../spot-light/">Spot Light</a>, <a href="../area-light/">Area Light</a>, <a href="../mesh-renderer/">Mesh Renderer</a></li>
 </ul>
-<p>Tuning order, step by step: set shadow distance to cover the gameplay area and nothing more; pick the smallest acceptable resolution per type; nudge bias until acne leaves without peter-panning (detached shadows); finally cap simultaneous shadowed lights — extra ones should be non-shadowed fill.</p>
-<p>Cost model: the shadow pass redraws the scene per cascade and per shadowed face, so 4 cascades plus 2 shadowed spots means 6 extra scene draws. Profile it as its own stage before blaming the main pass.</p>
-<p>Troubleshooting: acne (striped self-shadow) → raise bias slightly; peter-panning (floating contact) → bias too high, lower it; flickering cascades → distance too large for the resolution, shrink distance or raise resolution; no shadows at all → light outside the 8-light pack, beyond distance, or toggle off.</p>
-<p>Related: Light (Base), Directional/Point/Spot/Area pages, Projector, Cameras (near/far affect depth precision too).</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/renderer/shadows/passes.py:59,183</code></li>
+<li><code>core/renderer/shadows/csm.py</code>, <code>point_spot.py</code>, <code>area.py</code>, <code>projector.py:28</code></li>
+<li><code>core/components/rendering/environment/directional_shadow.py:28-48</code></li>
+<li><code>core/components/rendering/environment/point_shadow.py:26-37</code></li>
+<li><code>core/components/rendering/environment/spot_shadow.py:26-37</code></li>
+<li><code>core/components/rendering/environment/area_shadow.py:26-37</code></li>
+</ul>
               
             </div>
           </div><footer>

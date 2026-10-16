@@ -1146,6 +1146,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Панель профайлера и история Undo</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../curve-gradient-editors/">Редакторы кривых, градиентов, цвета</a>
@@ -1237,15 +1247,114 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="undo">Панель профайлера и история Undo</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Панель профайлера и история Undo в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p>Поверхность производительности (<code>editor/panels/profiler/</code>) — <code>ProfilerPanel</code> с видами hierarchy/flame/timeline — плюс стек команд: <code>UndoStack</code> (<code>editor/undo_stack.py</code>), <code>UndoHistoryPanel</code>, <code>TracemallocPanel</code>.</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Член</th>
+<th>Сигнатура</th>
+<th>Примечания</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ProfilerPanel</code></td>
+<td><code>(engine, parent=None)</code> + <code>load_config(config)</code></td>
+<td><code>profiler/panel.py</code>; <code>showEvent/hideEvent</code> управляют семплированием</td>
+</tr>
+<tr>
+<td>Контролы <code>ProfilerPanel</code></td>
+<td><code>_on_toggle(checked)</code>, <code>_on_clear()</code>, <code>_refresh()</code>, <code>_select_frame(idx)</code>, <code>_get_fps()</code></td>
+<td>Переключатель захвата, очистка, выбор кадра</td>
+</tr>
+<tr>
+<td><code>HierarchyView.set_frame_data</code></td>
+<td><code>(samples: list, frame_time_ms: float, flat_data: dict \| None)</code></td>
+<td>Дерево агрегированных семплов</td>
+</tr>
+<tr>
+<td><code>FlameGraphWidget.set_data</code> / <code>clear_data</code></td>
+<td><code>(samples: list, frame_time_ms: float)</code></td>
+<td><code>profiler/flame.py</code></td>
+</tr>
+<tr>
+<td><code>TimelineWidget.add_frame</code> / <code>clear_data</code></td>
+<td><code>(flat_data: dict[str, float])</code></td>
+<td>Прокручиваемый график в <code>profiler/timeline.py</code></td>
+</tr>
+<tr>
+<td><code>TimelineOverview.add_frame</code></td>
+<td><code>(flat_data: dict, frame_time_ms: float)</code></td>
+<td>Мини-полоса; <code>_bar_color(total)</code> масштабирует цвет</td>
+</tr>
+<tr>
+<td><code>ProfilerHeader.update_stats</code></td>
+<td><code>(fps, frame_count, frame_time_ms, ...)</code></td>
+<td>Шапка-показания в <code>profiler/views.py</code></td>
+</tr>
+<tr>
+<td><code>UndoCommand</code></td>
+<td><code>redo()</code> / <code>undo()</code> (переопределить)</td>
+<td>База в <code>editor/undo_stack.py</code></td>
+</tr>
+<tr>
+<td><code>CallbackCommand</code></td>
+<td><code>(do_fn, undo_fn, description="")</code></td>
+<td>Команда на лямбдах</td>
+</tr>
+<tr>
+<td><code>MacroCommand</code></td>
+<td><code>(commands: list[UndoCommand], description="")</code></td>
+<td>Атомарная группа</td>
+</tr>
+<tr>
+<td><code>UndoStack</code></td>
+<td><code>push(cmd)</code>, <code>undo()</code>, <code>redo()</code>, <code>can_undo()</code>, <code>can_redo()</code>, <code>begin_macro(desc)</code>, <code>end_macro(desc)</code>, <code>clear()</code>, <code>undo_description()</code>, <code>redo_description()</code>, <code>index()</code></td>
+<td><code>QObject</code> с нотификацией (<code>_notify</code>)</td>
+</tr>
+<tr>
+<td><code>UndoHistoryPanel</code></td>
+<td><code>refresh()</code>, <code>_on_item_clicked(item)</code>, <code>_timed_refresh()</code></td>
+<td>История с прыжком по клику (<code>panels/undo_history_panel.py</code>)</td>
+</tr>
+<tr>
+<td><code>TracemallocPanelBase</code></td>
+<td><code>_build_short_report()</code>, <code>_build_full_report()</code>, <code>_on_copy_report()</code>, <code>_on_save_report()</code>, <code>_on_analyze()</code></td>
+<td><code>panels/tracemalloc/panel.py</code></td>
+</tr>
+<tr>
+<td><code>TracemallocPanel</code></td>
+<td><code>_refresh()</code>, <code>_kick_heavy(do_trace, do_objs)</code>, <code>_update_gc_stats()</code>, <code>_update_tracemalloc()</code>, <code>_format_size(n, show_sign=False)</code></td>
+<td><code>panels/tracemalloc/__init__.py</code>; тяжёлая работа вне UI-потока</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Док профайлера: переключатель захвата, выбор кадра для заморозки hierarchy/flame/timeline, Clear сбрасывает кадры; шапка показывает FPS/число кадров/время кадра. История Undo lists pushed-команды с описаниями — клик по записи откатывает/повторяет до неё. Док tracemalloc строит краткие/полные отчёты аллокаций, копируемые в буфер или сохраняемые на диск, рядом — статистика GC. Глобальные действия Undo/Redo живут в меню Edit главного окна.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from editor.undo_stack import UndoStack, CallbackCommand, MacroCommand
+
+stack = UndoStack()
+stack.push(CallbackCommand(do_fn=apply, undo_fn=revert, description=&quot;Move entity&quot;))
+stack.begin_macro(&quot;Drop asset&quot;)
+# ... несколько push ...
+stack.end_macro(&quot;Drop asset&quot;)
+stack.undo(); stack.redo()
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Главное окно (действия Edit → Undo/Redo), Иерархия/Инспектор (производители команд), Консоль (поверхность ошибок)</li>
+<li><code>tools/profile_flamegraph.bat</code>, <code>tools/profile_svg.bat</code>, <code>tools/profile_top.bat</code> (офлайн-профилирование)</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>editor/panels/profiler/panel.py</code>, <code>editor/panels/profiler/views.py</code>, <code>editor/panels/profiler/flame.py</code>, <code>editor/panels/profiler/timeline.py</code></li>
+<li><code>editor/undo_stack.py</code>, <code>editor/panels/undo_history_panel.py</code></li>
+<li><code>editor/panels/tracemalloc/panel.py</code>, <code>editor/panels/tracemalloc/__init__.py</code></li>
+</ul>
               
             </div>
           </div><footer>

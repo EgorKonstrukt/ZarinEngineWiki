@@ -51,6 +51,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Requirements</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#serialization">Serialization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../installation/">Installation</a>
@@ -1237,15 +1251,96 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="requirements">Requirements</h1>
-<p>TODO: Content pending. This page will document Requirements in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p>What ZarinEngine needs to run: Python 3.13+, PySide6, ModernGL, NumPy, OpenAL, Assimp, and OpenGL 4.6.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="overview">Overview</h2>
+<p>The engine is pure Python plus native libraries for windowing, rendering, audio, and mesh import. No C++ toolchain is needed for normal use (Cython extensions build automatically on first editor start via <code>setup.py build_ext --inplace</code>).</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>python</td>
+<td>version</td>
+<td><code>3.13+</code></td>
+<td>Interpreter version (<code>README.md</code>)</td>
+</tr>
+<tr>
+<td>PySide6</td>
+<td>package</td>
+<td><code>&gt;= 6.6.0</code></td>
+<td>Editor UI, viewport windowing</td>
+</tr>
+<tr>
+<td>ModernGL</td>
+<td>package</td>
+<td><code>&gt;= 5.10.0</code></td>
+<td>OpenGL rendering backend</td>
+</tr>
+<tr>
+<td>NumPy</td>
+<td>package</td>
+<td><code>&gt;= 1.26.0</code></td>
+<td>All math is <code>numpy.float64</code>; <code>float32</code> only on GPU upload</td>
+</tr>
+<tr>
+<td>OpenAL</td>
+<td>system library</td>
+<td>—</td>
+<td>3D positional audio (<code>pyopenal</code>, <code>miniaudio</code>)</td>
+</tr>
+<tr>
+<td>Assimp</td>
+<td>bundled binary</td>
+<td>—</td>
+<td><code>assimp-vc143-mt.dll</code> / <code>libassimp.so.6.0.5</code> for mesh import</td>
+</tr>
+<tr>
+<td>OpenGL</td>
+<td>driver feature</td>
+<td><code>4.6 Core Profile</code></td>
+<td>Requested in <code>main.py</code> via <code>QSurfaceFormat</code> (depth buffer 24)</td>
+</tr>
+<tr>
+<td>full list</td>
+<td>file</td>
+<td><code>requirements.txt</code></td>
+<td><code>PySide6, moderngl, numpy, pyopenal, miniaudio, pynput, msgpack, websockets, cython, setuptools, nuitka, pillow, imageio, qtawesome, xxhash, psutil, culverin, pyyaml</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Not applicable. Requirements are checked before the editor starts: if native extensions are missing or stale, <code>main.py</code> rebuilds them with a splash-screen progress bar.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python"># From the engine root:
+#   pip install -r requirements.txt
+#   python main.py
+</code></pre>
+<h2 id="serialization">Serialization</h2>
+<p>Not applicable.</p>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li><a href="../installation/">Installation</a></li>
+<li><a href="../quick-start/">Quick Start</a></li>
+<li><a href="../faq/">FAQ</a></li>
+<li><a href="../../core/config/">Configuration</a></li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>README.md</code> (Requirements section)</li>
+<li><code>requirements.txt</code> (full package list)</li>
+<li><code>main.py</code> (<code>QSurfaceFormat</code> 4.6 Core, <code>_check_extensions_missing</code>, <code>_build_extensions_with_splash</code>)</li>
+<li><code>core/maths/math3d.py</code> (<code>FLOAT_TYPE = np.float64</code>)</li>
+</ul>
               
             </div>
           </div><footer>

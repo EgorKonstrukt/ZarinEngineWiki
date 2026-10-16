@@ -81,6 +81,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Configuration</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#serialization">Serialization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../logging/">Logging</a>
@@ -1237,15 +1251,133 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="configuration">Configuration</h1>
-<p>TODO: Content pending. This page will document Configuration in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p><code>Config</code> is JSON-backed settings with dot-notation access (<code>config.get("physics.gravity_y")</code>), defaults preservation, and change listeners. Global file: <code>~/.zarin/settings.json</code>; per-project: <code>&lt;project&gt;/ProjectSettings.json</code>.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="overview">Overview</h2>
+<p><code>Config(path, defaults)</code> loads JSON over a defaults dict (deep merge). <code>get</code> returns the caller default when any path segment is missing; <code>set</code> creates intermediate dicts and notifies <code>on_changed</code> listeners unless <code>notify=False</code>. <code>reset(key)</code> restores one key from defaults (or the whole file when <code>key=None</code>). Keys that need a restart are flagged with <code>mark_restart</code> (<code>editor.theme</code>, <code>editor.font_size</code>, <code>editor.ui_scale</code>, <code>editor.language</code>, <code>engine.python_jit</code>, <code>engine.python_optimize</code>, <code>engine.python_unbuffered</code>, <code>engine.python_no_bytecode</code>). <code>main.py</code> reads <code>engine.python_jit / python_optimize / python_unbuffered / python_no_bytecode</code> before startup and re-execs the interpreter when they differ.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>get_global_config</td>
+<td>function</td>
+<td>singleton</td>
+<td>Defaults include <code>editor</code>, <code>camera</code>, <code>profiler</code>, <code>rendering</code>, <code>gizmo</code>, <code>console</code>, <code>terminal</code>, <code>viewport</code>, <code>collab</code>, <code>undo</code>, <code>engine</code>, <code>hierarchy</code>, <code>inspector</code>, <code>project</code>, <code>plugins</code>, <code>audio</code>, <code>file_assoc</code>, <code>mesh_preview</code></td>
+</tr>
+<tr>
+<td>get_project_config</td>
+<td>function</td>
+<td>per path</td>
+<td>Defaults: <code>project</code> (name, version, <code>default_scene=""</code>), <code>input</code>, <code>rendering</code>, <code>physics</code>, <code>audio</code></td>
+</tr>
+<tr>
+<td>engine.time_scale</td>
+<td>float</td>
+<td><code>1.0</code></td>
+<td>Logic time multiplier</td>
+</tr>
+<tr>
+<td>engine.fixed_update_dt</td>
+<td>float</td>
+<td><code>0.02</code></td>
+<td>Fixed step (<code>Engine</code> clamps to <code>&gt;= 0.001</code>)</td>
+</tr>
+<tr>
+<td>rendering.vsync</td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Swap interval in <code>main.py</code>/<code>player.py</code></td>
+</tr>
+<tr>
+<td>rendering.tick_rate</td>
+<td>float</td>
+<td><code>120.0</code></td>
+<td><code>GameWorker</code> update rate</td>
+</tr>
+<tr>
+<td>rendering.fixed_tick_rate</td>
+<td>float</td>
+<td><code>60.0</code></td>
+<td><code>GameWorker</code> fixed rate</td>
+</tr>
+<tr>
+<td>profiler.enabled</td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Enables <code>engine.profiler</code></td>
+</tr>
+<tr>
+<td>physics.gravity_y</td>
+<td>float</td>
+<td><code>-9.81</code></td>
+<td>Project default; <code>gravity_x/z = 0.0</code></td>
+</tr>
+<tr>
+<td>project.default_scene</td>
+<td>str</td>
+<td><code>""</code></td>
+<td>Player fallback #3</td>
+</tr>
+<tr>
+<td>get / set / has / reset / to_dict / update / save</td>
+<td>methods</td>
+<td>—</td>
+<td>Full <code>Config</code> API</td>
+</tr>
+<tr>
+<td>on_changed(callback)</td>
+<td>method</td>
+<td>—</td>
+<td><code>callback(key, value)</code> on every notified <code>set</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Settings dialog edits the global config and saves to <code>~/.zarin/settings.json</code>. Restart-marked keys (<code>theme</code>, <code>ui_scale</code>, <code>language</code>, <code>python_*</code>) apply on next launch. Project settings (<code>ProjectSettings.json</code>) hold name, version, default scene, input bindings, physics solver parameters.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from core.config.config import get_global_config, get_project_config
+
+cfg = get_global_config()
+dt = cfg.get(&quot;engine.fixed_update_dt&quot;, 0.02)
+cfg.set(&quot;engine.time_scale&quot;, 0.5)
+cfg.on_changed(lambda key, value: print(key, value))
+cfg.save()
+
+proj = get_project_config(&quot;/path/to/project&quot;)
+print(proj.get(&quot;project.default_scene&quot;, &quot;&quot;))
+</code></pre>
+<pre><code class="language-python">print(cfg.is_restart_key(&quot;editor.theme&quot;))  # True: applies on next launch
+cfg.reset(&quot;engine.time_scale&quot;)  # restore one key from defaults
+</code></pre>
+<h2 id="serialization">Serialization</h2>
+<p>The files are the format: pretty-printed JSON (<code>json.dump(..., indent=2)</code>). Example:</p>
+<pre><code class="language-json">{ &quot;engine&quot;: { &quot;time_scale&quot;: 1.0, &quot;fixed_update_dt&quot;: 0.02 },
+  &quot;rendering&quot;: { &quot;vsync&quot;: true, &quot;tick_rate&quot;: 120.0 } }
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li><a href="../time/">Time and Fixed Update</a></li>
+<li><a href="../logging/">Logging</a></li>
+<li><a href="../profiler/">Profiler</a></li>
+<li><a href="../../getting-started/first-scene/">First Scene</a></li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/config/config.py</code> (<code>Config</code> API, <code>get_global_config</code> defaults, <code>get_project_config</code> defaults, paths, restart keys)</li>
+<li><code>main.py</code> (<code>_apply_python_optimization</code>, <code>rendering.vsync</code>)</li>
+<li><code>player.py</code> (<code>rendering.vsync</code>)</li>
+<li><code>core/engine/eng/engine.py</code> (<code>initialize</code> reads <code>engine.time_scale</code>, <code>engine.fixed_update_dt</code>, <code>profiler.enabled</code>)</li>
+</ul>
               
             </div>
           </div><footer>

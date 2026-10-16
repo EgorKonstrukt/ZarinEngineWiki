@@ -772,13 +772,17 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Глубина резкости</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#_2">Как работает</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Параметры</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_3">Параметры</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Использование</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_4">Советы</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Шейдер</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_5">Цена</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Производительность</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_6">Связанное</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_7">Проверено по коду</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1250,142 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Глубина резкости</h1>
-<p>Часть стека PostFX: выполняется после главной сцены в порядке компонентов. Построен на общей базе GraphicsEffect с тоглом и собственными полями инспектора.</p>
-<h2 id="_2">Как работает</h2>
-<p>Отделяет фокальную плоскость от блюра переда/фона по буферу глубины и дистанции фокуса.</p>
-<h2 id="_3">Параметры</h2>
-<p>Дистанция фокуса, ощущение апертуры, максимальный радиус блюра.</p>
-<h2 id="_4">Советы</h2>
-<p>Катсцены, крупные планы диалогов, осмотр оружия. Ведите дистанцию фокуса скриптом к цели прицела.</p>
-<h2 id="_5">Цена</h2>
-<p>Высоко: gather-тапы по глубине. Сначала сужайте максимальный радиус, потом вините GPU.</p>
-<p>Связанное: <a href="../">стек PostFX</a>, камеры (render scale), профайлер.</p>
+<blockquote>
+<p>Размытие по глубине. Circle-of-confusion от focal distance/range, aperture и blur size; сборка Gaussian или полигональное Bokeh (blade count / curvature / rotation). Небо (depth &gt;= 1.0) считается полностью размытым фоном. Класс <code>DepthOfField</code> в <code>core/components/rendering/postfx/depth_of_field.py</code>. Выполняется в стеке PostFX в порядке компонентов; пропускается при <code>enabled == False</code> или неактивной сущности (ранний выход в <code>render()</code>).</p>
+</blockquote>
+<h2 id="_2">Параметры</h2>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mode</td>
+<td><code>_mode</code></td>
+<td>ENUM DoFMode {Gaussian, Bokeh}</td>
+<td>—</td>
+<td><code>Gaussian</code></td>
+</tr>
+<tr>
+<td>Focal Distance</td>
+<td><code>_focal_distance</code></td>
+<td>SLIDER</td>
+<td>0.1 – 200.0</td>
+<td><code>10.0</code></td>
+</tr>
+<tr>
+<td>Focal Range</td>
+<td><code>_focal_range</code></td>
+<td>SLIDER</td>
+<td>0.001 – 100.0</td>
+<td><code>8.0</code></td>
+</tr>
+<tr>
+<td>Aperture</td>
+<td><code>_aperture</code></td>
+<td>SLIDER</td>
+<td>0.0 – 5.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Max Blur Size</td>
+<td><code>_max_blur_size</code></td>
+<td>SLIDER</td>
+<td>1.0 – 50.0</td>
+<td><code>12.0</code></td>
+</tr>
+<tr>
+<td>Bokeh Highlight Boost</td>
+<td><code>_bokeh_boost</code></td>
+<td>SLIDER</td>
+<td>0.0 – 3.0</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Foreground Blur Scale</td>
+<td><code>_foreground_scale</code></td>
+<td>SLIDER</td>
+<td>1.0 – 5.0</td>
+<td><code>2.0</code></td>
+</tr>
+<tr>
+<td>Rings</td>
+<td><code>_ring_count</code></td>
+<td>INT_SLIDER</td>
+<td>1 – 5</td>
+<td><code>3</code></td>
+</tr>
+<tr>
+<td>Blade Count</td>
+<td><code>_blade_count</code></td>
+<td>INT_SLIDER</td>
+<td>3 – 9</td>
+<td><code>6</code></td>
+</tr>
+<tr>
+<td>Curvature</td>
+<td><code>_blade_curvature</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Rotation</td>
+<td><code>_blade_rotation</code></td>
+<td>SLIDER</td>
+<td>0.0 – 360.0</td>
+<td><code>0.0</code></td>
+</tr>
+<tr>
+<td>Visualize CoC</td>
+<td><code>_visualize_coc</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">Использование</h2>
+<p>Редактор: выбрать PostFX-сущность, Add Component &gt; <code>DepthOfField</code>, включить <code>enabled</code>, настроить поля выше. Порядок среди PostFX-компонентов задаёт порядок выполнения.</p>
+<p>Код:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.depth_of_field import DepthOfField, DoFMode
+fx = DepthOfField()
+entity.add_component(fx)
+fx._mode = DoFMode.BOKEH
+fx._focal_distance = 12.0
+fx._aperture = 1.5
+fx.enabled = True
+</code></pre>
+<h2 id="_4">Шейдер</h2>
+<p>Шейдер: <code>core/components/rendering/postfx/depth_of_field.py (DOF_FRAG)</code>.</p>
+<pre><code class="language-glsl">#version 330 core
+uniform sampler2D u_input_tex;
+uniform sampler2D u_depth_tex;
+uniform mat4 u_inv_proj;
+uniform float u_focal_distance;
+uniform float u_focal_range;
+uniform float u_aperture;
+uniform int u_mode;  // 0 Gaussian, 1 Bokeh
+</code></pre>
+<h2 id="_5">Производительность</h2>
+<p>Cost scales with Rings (1–5, inner loop r*8 taps, up to 64 per ring) × Max Blur Size. Pixels with |CoC| &lt; 0.5 early-out.</p>
+<h2 id="_6">Связанное</h2>
+<p>См. <a href="../">Стек PostFX</a>, <a href="../color-grading/">Цветокоррекция</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="_7">Проверено по коду</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/depth_of_field.py</code> — класс <code>DepthOfField</code>, <code>_inspector_fields</code>, дефолты <code>__init__</code>, <code>render_type = "screen", _skip_rate = 0</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/graphics_effect.py</code> — базовый <code>GraphicsEffect</code> (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, сигнатура <code>render()</code>).</p>
+</li>
+</ul>
               
             </div>
           </div><footer>

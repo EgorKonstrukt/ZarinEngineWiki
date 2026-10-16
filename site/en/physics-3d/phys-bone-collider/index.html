@@ -333,6 +333,18 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">PhysBoneCollider</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#fixed-update-notes">Fixed update notes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../motor/">Motor</a>
@@ -1238,42 +1250,86 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="physbonecollider">PhysBoneCollider</h1>
-<p>Deflectors that keep PhysBone chains out of bodies: hair out of heads, capes out of legs, tails out of walls.</p>
+<p>Deflectors that keep PhysBone chains out of bodies: hair out of heads, capes out of legs, tails out of walls. CPU-only, like PhysBone itself.</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group / field</th>
-<th>Meaning</th>
+<th>Field</th>
+<th>Default</th>
+<th>Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Shape: Shape Type</td>
-<td>Sphere, capsule or plane volume</td>
+<td><code>shape_type</code></td>
+<td><code>sphere</code></td>
+<td><code>sphere</code> / <code>capsule</code> / <code>plane</code></td>
 </tr>
 <tr>
-<td>Radius / Height / Center</td>
-<td>Shape dimensions in local space</td>
+<td><code>radius</code></td>
+<td><code>0.05</code></td>
+<td><code>0.001–10</code>; world = <code>radius * max(scale)</code>, min <code>0.001</code></td>
 </tr>
 <tr>
-<td>Direction / Plane Normal</td>
-<td>Orientation of capsules and planes</td>
+<td><code>height</code></td>
+<td><code>0.2</code></td>
+<td><code>0.001–10</code>; capsule full height along <code>direction</code></td>
 </tr>
 <tr>
-<td>Behavior: Inside Bounds</td>
-<td>How deep penetration resolves (push out vs slide)</td>
+<td><code>center</code></td>
+<td><code>(0, 0, 0)</code></td>
+<td>Rotated by world quat, added to Transform position</td>
 </tr>
 <tr>
-<td>Gizmos: Show Gizmo</td>
-<td>Volume visualization in the viewport</td>
+<td><code>direction</code></td>
+<td><code>y</code></td>
+<td><code>x</code> / <code>y</code> / <code>z</code> capsule axis</td>
+</tr>
+<tr>
+<td><code>plane_normal</code></td>
+<td><code>(0, 1, 0)</code></td>
+<td>Rotated into world for planes</td>
+</tr>
+<tr>
+<td><code>is_inside</code></td>
+<td><code>False</code></td>
+<td><code>True</code> = contain particles instead of pushing out</td>
+</tr>
+<tr>
+<td><code>show_gizmo</code></td>
+<td><code>True</code></td>
+<td>Gizmo + <code>gizmo_lines</code> (planes only)</td>
 </tr>
 </tbody>
 </table>
-<p>Attach to the body part the chain must avoid and size slightly larger than the visual mesh — chains simulate on bones, which sit inside the mesh, so skin-tight colliders still clip. The chain slides around the volume at runtime instead of passing through.</p>
-<p>Patterns: head sphere + torso capsule for long hair; thigh capsules for coats; plane for floors under crawling creatures; inside-bounds mode for earrings that must stay near the ear.</p>
-<p>Keep collider counts per chain low (1–3): every collider tests every chain particle every step.</p>
-<p>Troubleshooting: still clips → collider smaller than the bone offset, grow it; chain pushed away entirely → collider engulfs the root, move it down the chain; jitter on contact → inside-bounds mode fighting the limit, switch behavior.</p>
-<p>Related: PhysBone, Armature, Sphere/Capsule Collider (static-world equivalents).</p>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Add <code>PhysBoneCollider</code>, pick shape, size it, reference its entity from <code>PhysBone.collider_entity_ids</code>. Use <code>is_inside</code> for containment zones.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;HeadBlocker&quot;)
+from core.components.physics.pbcollider.collider import PhysBoneCollider
+from core.maths.math3d import Vec3
+
+c = PhysBoneCollider()
+c.radius = 0.15
+c.center = Vec3(0.0, 0.1, 0.0)
+entity.add_component(c)
+
+# pushed out of the sphere (particle radius accounted):
+# pos = c.collide(pos, particle_radius)
+</code></pre>
+<p><code>collide(pos, particle_radius)</code>: sphere/capsule project to <code>radius + pr</code> surface (or clamp inside when <code>is_inside</code>); planes push along <code>±normal</code> by penetration depth.</p>
+<h2 id="fixed-update-notes">Fixed update notes</h2>
+<ul>
+<li>No solver body, no <code>dt</code>: pure positional projection sampled during the PhysBone pass each frame.</li>
+</ul>
+<h2 id="related">Related</h2>
+<p>PhysBone, Sphere/Capsule colliders (rigid equivalents).</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/physics/pbcollider/collider.py</code> (<code>collide</code>)</li>
+<li><code>core/components/physics/pbcollider/base.py</code></li>
+</ul>
               
             </div>
           </div><footer>

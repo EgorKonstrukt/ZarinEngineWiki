@@ -11,10 +11,10 @@ End-to-end flow:
 
 How it works inside:
 
-- The engine finds the first class defined in the file that declares at least one lifecycle callback, collision callback, gizmo method, or `_inspector_buttons`. Inheritance is not required; the constructor must take no arguments.
+- The engine finds the first class in alphabetical attribute order (`dir()` order, not definition order) that declares at least one lifecycle callback, collision callback, gizmo method, or `_inspector_buttons`. Inheritance is not required; the constructor must take no arguments.
 - Short names are full aliases: `update` = `on_update`, `start` = `on_start`, and so on for awake, fixed_update, destroy, enable, disable. If both variants are defined, the `on_*` version wins.
 - One entity can hold several `ScriptComponent` instances (`_allow_multiple = True`): movement, health and visuals as separate scripts on one object.
-- An exception inside any callback never crashes the game: it is written to the console with the script and method name plus a traceback, and the frame continues with the next component.
+- An exception inside any callback never crashes the game: it is written to the console with the script and method name, and the frame continues with the next component.
 - `script_path` is stored relative to the project root, so scenes and scripts move between machines cleanly.
 
 Execution context:

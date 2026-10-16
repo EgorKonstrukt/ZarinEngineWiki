@@ -1237,8 +1237,8 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="pluginbase">Жизненный цикл PluginBase</h1>
-<p>Каждый плагин — подкласс <code>PluginBase</code> (<code>core/foundation/plugin_manager.py</code>), конструируется через фабрику <code>get_plugin()</code> уровня модуля. Сначала метаданные, затем поведение.</p>
-<pre><code class="language-python">from core.foundation.plugin_manager import PluginBase
+<p>Каждый плагин — подкласс <code>PluginBase</code> (<code>core/foundation/plugins/base.py</code>, реэкспорт в <code>core/foundation/plugins/__init__.py</code>), конструируется через фабрику <code>get_plugin()</code> уровня модуля. Сначала метаданные, затем поведение.</p>
+<pre><code class="language-python">from core.foundation.plugins import PluginBase
 from core.foundation.logger import Logger
 
 

@@ -1237,8 +1237,8 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="pluginbase-lifecycle">PluginBase Lifecycle</h1>
-<p>Every plugin subclasses <code>PluginBase</code> (<code>core/foundation/plugin_manager.py</code>) and is constructed through the module-level <code>get_plugin()</code> factory. Metadata first, behavior second.</p>
-<pre><code class="language-python">from core.foundation.plugin_manager import PluginBase
+<p>Every plugin subclasses <code>PluginBase</code> (<code>core/foundation/plugins/base.py</code>, re-exported by <code>core/foundation/plugins/__init__.py</code>) and is constructed through the module-level <code>get_plugin()</code> factory. Metadata first, behavior second.</p>
+<pre><code class="language-python">from core.foundation.plugins import PluginBase
 from core.foundation.logger import Logger
 
 

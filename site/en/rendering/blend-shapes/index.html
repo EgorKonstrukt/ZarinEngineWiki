@@ -135,6 +135,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Blend Shapes</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1238,26 +1246,62 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="blend-shapes">Blend Shapes</h1>
-<p>Morph-target deformation for faces and soft props, layered over skeletal animation: smiles, blinks, damage dents, breathing.</p>
+<blockquote>
+<p>Morph targets: <code>BlendShapes</code> (<code>core/components/rendering/deform/blendshapes.py</code>) with <code>shapes[i] = {name, weight}</code> driving mesh <code>blendshape_names</code> order.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Weights are clamped (NaN/inf → <code>0.0</code>, <code>_clamp_weight</code>). <code>get_weight/set_weight</code> accept name or index; unknown names are appended (<code>blendshapes.py:56-87</code>). <code>sync_with_mesh(mesh)</code> rebuilds the list from <code>mesh.blendshape_names</code> preserving weights; <code>weights_vector(mesh)</code> returns GPU-order floats (<code>blendshapes.py:99-128</code>).</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group</th>
-<th>Covers</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Blend Shapes</td>
-<td>Per-target weight sliders, 0–100 style range</td>
+<td><code>shapes</code></td>
+<td>list of <code>{name: string, weight: float 0–1}</code></td>
+<td><code>[]</code></td>
+<td>Morph list (<code>blendshapes.py:34-37,42</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Add Component → Blend Shapes on a skinned/static mesh entity, Sync with mesh, then paint weights per shape (0–1).</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Weights arrive with the mesh import and animate from clips or scripts (drive a smile weight from dialogue events). A smoke test covers the blendshape path, so regressions surface in CI before they reach artists.</p>
-<p>Use for facial expressions, damage states and breathing loops; heavy full-body morphs belong in the skeleton instead — morphs interpolate vertices linearly and cannot rotate joints.</p>
-<p>Workflow: sculpt targets in the DCC with identical vertex order → import → verify sliders move the right regions → wire key expressions to animation curves or script floats.</p>
-<p>Troubleshooting: distorted mesh → vertex order mismatch between base and target, re-export cleanly; no motion → weights zero or clip not bound; seams splitting → target missing welded vertices, fix in DCC.</p>
-<p>Related: Skinned Mesh Renderer, Animation Clips, Armature.</p>
+<pre><code class="language-python">bs = entity.get_component(BlendShapes)
+bs.sync_with_mesh(mesh)
+bs.set_weight(&quot;Smile&quot;, 0.75)
+bs.weights_vector(mesh)
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../skinned-mesh-renderer/">Skinned Mesh Renderer</a>, <a href="../armature/">Armature</a>, <a href="../mesh-renderer/">Mesh Renderer</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/deform/blendshapes.py:30-173</code></li>
+</ul>
               
             </div>
           </div><footer>

@@ -678,6 +678,14 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Обзор рендеринга</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../pipeline/">Конвейер ModernGL и Scene Renderer</a>
@@ -1236,22 +1244,83 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="_1">Обзор рендеринга</h1>
-<p>ZarinEngine рисует через ModernGL в контексте OpenGL 4.6 core profile. Вся математика движка — в <code>numpy.float64</code>; понижение до <code>float32</code> только при загрузке вершин в GPU, что убирает дрожание координат в больших мирах — координаты точны на километрах декораций, а растеризатор получает нужные ему float.</p>
-<p>Строительные блоки снизу вверх:</p>
+                <h1 id="_1">Обзор</h1>
+<blockquote>
+<p>Прямой OpenGL-рендерер: фасад <code>Renderer</code> в <code>core/renderer/renderer.py</code> рисует сцену во вьюпорт-FBO в две фазы — opaque, затем transparent.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Рендерер построен на moderngl. Контекст создаётся в <code>main.py</code>: <code>QSurfaceFormat</code>, OpenGL 4.6 Core, depth 24, swap interval из <code>rendering.vsync</code> (<code>0</code> выкл / <code>1</code> вкл). <code>Renderer</code> собирает миксины: config, programs, voxel, object-fx, framebuffers, water, uniforms, skinned, collector, geometry cache, outline, gizmo, icon, cubemap, post, scene (<code>core/renderer/renderer.py:56</code>). Режимы <code>RenderMode.SHADED / SHADED_WIREFRAME / FLAT</code> (<code>core/renderer/types.py</code>). Лимиты по умолчанию: <code>_max_lights = 8</code>, ambient <code>[0.26, 0.28, 0.34]</code>, обводка выделения <code>[0.8, 0.5, 0.1, 1.0]</code> толщиной <code>0.03</code> (<code>core/renderer/renderer.py:90-114</code>).</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rendering.vsync</code></td>
+<td>bool (глобальный конфиг)</td>
+<td><code>True</code></td>
+<td>Swap interval 1 вкл / 0 выкл (<code>main.py:212</code>).</td>
+</tr>
+<tr>
+<td><code>rendering.max_lights</code></td>
+<td>int (глобальный конфиг)</td>
+<td><code>8</code></td>
+<td>Размер массива <code>u_lights[]</code> (<code>core/renderer/rconfig/config_state.py:20</code>).</td>
+</tr>
+<tr>
+<td><code>rendering.ambient</code></td>
+<td>vec3 (глобальный конфиг)</td>
+<td><code>[0.26, 0.28, 0.34]</code></td>
+<td>Резервный ambient (<code>core/renderer/renderer.py:112</code>).</td>
+</tr>
+<tr>
+<td><code>render_mode</code></td>
+<td><code>RenderMode</code></td>
+<td><code>SHADED</code></td>
+<td>Shaded / shaded+wireframe / flat (<code>core/renderer/types.py</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Вьюпорт рисует активную сцену сценовой камерой; сетка, гизмо и обводка — только редакторные проходы. См. <a href="../pipeline/">Pipeline</a>, <a href="../camera/">Camera</a>, <a href="../gizmos/">Gizmos</a>.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">from core.renderer.renderer import Renderer
+renderer = Renderer(ctx)  # ctx: moderngl.Context
+renderer.render_scene(scene, view_mat, proj_mat, cam_pos, w, h)
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Кастомные <code>.shader</code>-файлы с блоком <code>Properties { }</code> (стиль Unity ShaderLab) плюс GLSL вершин/фрагментов. Загрузчик компилирует, перебирает SubShader, инжектит инстансинг и UV-оверрайды, неудачные 430-шейдеры повторяет как 330.</li>
-<li>Ассеты материалов (<code>.zpem</code> / <code>.mat</code>, JSON), связывающие шейдер с конкретными значениями, с живым редактированием в инспекторе и мастере материалов.</li>
-<li><code>MeshFilter</code> (какой меш) + <code>MeshRenderer</code> (как рисовать) на сущностях; <code>SkinnedMeshRenderer</code> + <code>Armature</code> для анимации; <code>MeshCollider</code> переиспользует тот же импорт для физики.</li>
-<li>Камеры (перспектива/ортография, ordering по depth, render scale), свет (направленный/точечный/спот/area в физических единицах) с каскадными, кубическими и спотовыми картами теней.</li>
-<li>Рендереры спрайтов, SVG, текста и видео для 2D в мире; GUI-система (<code>GuiCanvas</code> + 30+ виджетов) для экранного UI.</li>
-<li>Системы частиц с видимыми в редакторе гизмо-формами, силовые поля, GPU-проигрывание для тяжёлых эффектов.</li>
-<li>Набор окружения: процедурное небо в связке с солнцем, HDRI-скайбокс, облака, вода, рассеяние атмосферы.</li>
-<li>Стек PostFX из 31 эффекта плюс 11 эффектов объектов, GPU-скиннинг, Gaussian-сплаты, экспериментальный рейтрейс-вид, воксельные пути.</li>
-<li>Редакторные проходы гизмо, иконок, контуров и сетки, никогда не попадающие в сборки.</li>
+<li><a href="../pipeline/">Pipeline</a>, <a href="../camera/">Camera</a>, <a href="../materials/">Materials</a>, <a href="../shaders/">Shaders</a>, <a href="../gizmos/">Gizmos</a></li>
 </ul>
-<p>Бюджет кадра: draw calls растут с видимыми субмешами, проходы теней перерисовывают сцену на каскад/грань, прозрачный overdraw и многотапные пост-эффекты доминируют в fill rate. Встроенный профайлер раскладывает каждую стадию (<code>render_scene</code>, тайминги теней, <code>postfx</code>, <code>gizmo_lines</code>) — профилируйте до слепой оптимизации.</p>
-<p>Подстраницы: конвейер и контексты, камеры, свет и тени, меш-рендеринг и скиннинг, спрайты и видео, частицы, окружение, материалы, шейдеры, PostFX, эффекты объектов, сплаты и воксели, гизмо.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>main.py:206-213</code> (QSurfaceFormat 4.6 Core, depth 24, vsync)</li>
+<li><code>core/renderer/renderer.py:56-120</code></li>
+<li><code>core/renderer/types.py</code></li>
+<li><code>core/renderer/rconfig/config_state.py:12-50</code></li>
+</ul>
               
             </div>
           </div><footer>

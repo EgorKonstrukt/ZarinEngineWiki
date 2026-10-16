@@ -658,6 +658,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Реестр и сериализация</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Обзор</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_6">Сериализация</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_7">Связанные страницы</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_8">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../transform/">Трансформ</a>
@@ -1237,15 +1251,108 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Реестр и сериализация</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Реестр и сериализация в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p><code>ComponentRegistry</code> мапит имена типов на классы компонентов через декоратор <code>@ComponentRegistry.register</code>. Сцены сериализуются в <code>.zpes</code> JSON: <code>{"name", "entities": {id: entity-dict}}</code>.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="_2">Обзор</h2>
+<p>Регистрация обязательна: недекорированный класс компонента невидим для меню <code>Add Component</code> и для десериализации (<code>ARCHITECTURE.md</code>: это проверяет architecture gate). <code>ComponentRegistry.get(name)</code> резолвит класс с учётом <code>_aliases</code> (<code>{"Sky": "ProceduralSky"}</code>). Категории выводятся из пути модуля (<code>core.components.&lt;sub&gt;</code> → отображаемое имя через <code>_category_name_map</code>: transform→Transform, rendering→Rendering, physics→Physics, physics2d→Physics 2D, lighting→Lighting, audio→Audio, constraints→Constraints, network→Network, scripting→Scripting).</p>
+<p>Сериализация сцены (<code>core/ecs/scene_serialize.py</code>): <code>{"name", "entities": {id: entity-dict}}</code> плюс опциональные <code>embed_all</code>, <code>compress_resources</code>, <code>compress_level</code>. Десериализация пересобирает сущности, затем перелинковывает <code>parent</code>-id и перерегистрирует компоненты в индексе сцены. Больше 64 сущностей — обе стороны через thread pool. <code>duplicate_entity</code> / <code>paste_entities</code> выдают свежие UUID и перебиндивают <code>Armature.bone_entity_ids</code>.</p>
+<h2 id="_3">Свойства</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ComponentRegistry.register</td>
+<td>decorator</td>
+<td>required</td>
+<td><code>ComponentRegistry._registry[name] = cls</code>; бампает кэш подклассов</td>
+</tr>
+<tr>
+<td>ComponentRegistry.get</td>
+<td>method</td>
+<td><code>get(name)</code></td>
+<td>Класс или <code>None</code>; резолвит <code>Sky</code> → <code>ProceduralSky</code></td>
+</tr>
+<tr>
+<td>ComponentRegistry.all</td>
+<td>method</td>
+<td><code>all()</code></td>
+<td>Копия мапы имя → класс</td>
+</tr>
+<tr>
+<td>get_categories</td>
+<td>method</td>
+<td>per component</td>
+<td>напр. <code>["Transform"]</code> для <code>Transform</code></td>
+</tr>
+<tr>
+<td>Scene.serialize</td>
+<td>method</td>
+<td>dict</td>
+<td><code>name</code>, <code>entities</code>, опциональные embed/compress-флаги</td>
+</tr>
+<tr>
+<td>Scene.deserialize</td>
+<td>classmethod</td>
+<td><code>deserialize(data, registry)</code></td>
+<td>Пересборка + перелинковка родителей + синхронизация индекса</td>
+</tr>
+<tr>
+<td>PATH_FIELDS</td>
+<td>frozenset</td>
+<td><code>core/config/constants.py</code></td>
+<td><code>mesh_path, material_path, clip_path, script_path, texture_path, ply_path, shader_path, env_path, svg_path, font_path, video_path, graph_path, skybox_path</code> — резолвятся от <code>project_root</code> при загрузке, релятивизируются при сохранении</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">Использование в редакторе</h2>
+<p>Группы <code>Add Component</code> — из <code>get_categories</code>. Неизвестные типы компонентов в <code>.zpes</code>-файле молча пропускаются при загрузке (остальное у сущности сохраняется). Инстансы префабов несут <code>prefab_guid</code> / <code>prefab_source_id</code>; оверрайды сериализуются рядом с GUID.</p>
+<h2 id="_5">Использование в коде</h2>
+<pre><code class="language-python">from core.ecs import Component, ComponentRegistry
+
+@ComponentRegistry.register
+class Health(Component):
+    pass
+
+assert ComponentRegistry.get(&quot;Health&quot;) is Health
+print(ComponentRegistry.get_categories(&quot;Health&quot;))  # category by module path
+
+data = scene.serialize()
+scene2 = Scene.deserialize(data, ComponentRegistry)
+</code></pre>
+<h2 id="_6">Сериализация</h2>
+<p>Полный скелет <code>.zpes</code> (ключи сущности: <code>id</code>, <code>name</code>, <code>active</code>, <code>tags</code>, <code>layer</code>, <code>parent</code>, <code>components</code>):</p>
+<pre><code class="language-json">{ &quot;name&quot;: &quot;MyScene&quot;,
+  &quot;entities&quot;: {
+    &quot;&lt;uuid&gt;&quot;: { &quot;id&quot;: &quot;&lt;uuid&gt;&quot;, &quot;name&quot;: &quot;E&quot;, &quot;active&quot;: true, &quot;tags&quot;: [],
+                &quot;layer&quot;: 0, &quot;parent&quot;: null, &quot;components&quot;: [] }
+  } }
+</code></pre>
+<h2 id="_7">Связанные страницы</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li><a href="../ecs-overview/">Обзор ECS</a></li>
+<li><a href="../entity/">Сущность Entity</a></li>
+<li><a href="../components-lifecycle/">Компоненты и жизненный цикл</a></li>
+<li><a href="../../scenes-prefabs/scenes/">Сцены</a></li>
+<li><a href="../../scenes-prefabs/prefabs/">Префабы</a></li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_8">Проверено по</h2>
+<ul>
+<li><code>core/ecs/registry.py</code> (<code>register</code>, <code>get</code>, <code>all</code>, <code>_aliases</code>, <code>_category_name_map</code>, <code>_infer_category</code>)</li>
+<li><code>core/ecs/scene_serialize.py</code> (<code>_serialize_inner</code>, <code>_deserialize_inner</code>, <code>_duplicate_entity_inner</code>, <code>_rebind_armatures</code>)</li>
+<li><code>core/ecs/entity.py</code> (<code>serialize</code>/<code>deserialize</code>, пропуск неизвестных типов)</li>
+<li><code>core/config/constants.py</code> (<code>PATH_FIELDS</code>)</li>
+<li><code>core/engine/eng/engine.py</code> (<code>resolve_scene_paths</code>, <code>relativize_scene_paths</code>)</li>
+<li><code>ARCHITECTURE.md</code> (декоратор register обязателен)</li>
+</ul>
               
             </div>
           </div><footer>

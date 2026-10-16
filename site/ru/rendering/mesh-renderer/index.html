@@ -712,6 +712,16 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">MeshRenderer</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#materialshader-snippet">Material/Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../skinned-mesh-renderer/">Skinned Mesh Renderer</a>
@@ -1237,59 +1247,109 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="meshrenderer">MeshRenderer</h1>
-<p>Отвечает <em>как</em> рисовать меш из <code>MeshFilter</code>: слоты материалов, участие в тенях, UV-трансформы.</p>
+                <h1 id="mesh-renderer">Mesh Renderer</h1>
+<blockquote>
+<p>Материалы + флаги для меша <code>MeshFilter</code>: <code>MeshRenderer</code> (<code>core/components/rendering/renderers/mesh_renderer.py</code>).
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p><code>materials[i].path</code> маппится на подмеш <code>i</code>; <code>get_material_path(i)</code> откатывается на последнюю запись (<code>mesh_renderer.py:47-52</code>). UV-трансформ (<code>uv_scale/uv_offset</code>, опционально <code>uv_scale_by_transform</code>) уходит в юниформы <code>u_uv_scale/u_uv_offset</code>. <code>dynamic_reflections</code> включает cubemap-проход.</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Поле</th>
-<th>Default</th>
-<th>Смысл</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>materials</td>
-<td>—</td>
-<td>Слоты материалов (<code>{path}</code> каждый, например <code>.zpem</code>), по одному на субмеш по порядку</td>
+<td><code>materials</code></td>
+<td>list <code>{path: *.mat}</code></td>
+<td><code>[{"path": "assets/materials/ProBuilderPrototype.mat"}]</code></td>
+<td>Материалы подмешей (<code>mesh_renderer.py:22-24,38</code>).</td>
 </tr>
 <tr>
-<td>cast_shadows</td>
-<td>вкл</td>
-<td>Писать в карты теней</td>
+<td><code>sprite_texture</code></td>
+<td>путь (png/jpg/jpeg/bmp/tga)</td>
+<td><code>""</code></td>
+<td>Доп. слот текстуры (<code>mesh_renderer.py:25,39</code>).</td>
 </tr>
 <tr>
-<td>receive_shadows</td>
-<td>вкл</td>
-<td>Читать карты теней в главном проходе</td>
+<td><code>uv_scale</code></td>
+<td>vec2</td>
+<td><code>[1, 1]</code></td>
+<td>Тайлинг UV (<code>mesh_renderer.py:27,40</code>).</td>
 </tr>
 <tr>
-<td>uv_scale / uv_offset</td>
-<td>(1,1) / (0,0)</td>
-<td>Тайлинг и сдвиг через UV-оверрайд шейдера</td>
+<td><code>uv_offset</code></td>
+<td>vec2</td>
+<td><code>[0, 0]</code></td>
+<td>Сдвиг UV (<code>mesh_renderer.py:28,41</code>).</td>
 </tr>
 <tr>
-<td>uv_scale_by_transform</td>
-<td>выкл</td>
-<td>Выводить тайлинг из скейла трансформа (полы, стены)</td>
+<td><code>uv_scale_by_transform</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Масштаб UV из трансформа (<code>mesh_renderer.py:29,42</code>).</td>
 </tr>
 <tr>
-<td>sprite_texture</td>
-<td>—</td>
-<td>Опциональный оверрайд-билборд</td>
+<td><code>cast_shadows</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Писать в карты теней (<code>mesh_renderer.py:31,43</code>).</td>
 </tr>
 <tr>
-<td>dynamic_reflections</td>
-<td>выкл</td>
-<td>Обновлять отражения окружения каждый кадр вместо по требованию</td>
+<td><code>receive_shadows</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Читать карты теней (<code>mesh_renderer.py:32,44</code>).</td>
+</tr>
+<tr>
+<td><code>dynamic_reflections</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Захват cubemap (<code>mesh_renderer.py:33,45</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Длина списка материалов = числу подмешей. Cast Shadows снимать у стекла/декалей; Receive — у эмиссивов.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Порядок и цена: один draw call на видимый субмеш после фрустум-куллинга; прозрачные материалы сортируются в прозрачный бакет по глубине. Кастеры рисуются в каждую накрывающую карту теней — высокополигональный hero с вкл cast кратно удорожает тени: выключайте cast мелкому реквизиту без читаемых теней.</p>
-<p>UV-процесс: тайлинг кирпича/бетона через uv_scale (4,4) вместо дублирования геометрии; скролл анимацией uv_offset из скрипта (конвейеры, водные горки); world-aligned отделка через uv_scale_by_transform на архитектуре.</p>
-<p>Для анимированных — SkinnedMeshRenderer; для блокаута в редакторе — ProBuilder-компонент <code>probuilder_mesh</code>; для коллизий — MeshCollider на том же пути фильтра.</p>
-<p>Диагностика: меш невидим — бит путь фильтра или все материалы потеряны; не тот материал субмеша — рассинхрон порядка слотов, переупорядочьте; нет теней — cast вкл, но свет вне дистанции, или receive выкл на земле; мерцание UV — неоднородный отрицательный скейл, чините трансформ.</p>
-<p>Связанное: MeshFilter, материалы, шейдеры (UV-оверрайд uniforms), тени, SkinnedMeshRenderer.</p>
+<pre><code class="language-python">mr = entity.get_component(MeshRenderer)
+mr.materials = [{&quot;path&quot;: &quot;assets/materials/Brick.mat&quot;}]
+mr.uv_scale = Vec2(2.0, 2.0)
+mr.cast_shadows = True
+</code></pre>
+<h2 id="materialshader-snippet">Material/Shader snippet</h2>
+<p><code>.mat</code> (см. <a href="../materials/">Materials</a>):</p>
+<pre><code class="language-json">{&quot;name&quot;: &quot;Brick&quot;, &quot;shader_path&quot;: &quot;default&quot;, &quot;properties&quot;: {&quot;_BaseColor&quot;: [1, 1, 1, 1]}}
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../mesh-filter/">Mesh Filter</a>, <a href="../materials/">Materials</a>, <a href="../shaders/">Shaders</a>, <a href="../shadows/">Shadows</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/renderers/mesh_renderer.py:18-83</code></li>
+</ul>
               
             </div>
           </div><footer>

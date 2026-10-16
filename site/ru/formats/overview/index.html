@@ -1178,6 +1178,14 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Форматы файлов</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#zpes-entityserialize">Блок сущности .zpes (из Entity.serialize)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#assetsmaterialsprobuilderprototypemat">Материал (реальный файл assets/materials/ProBuilderPrototype.mat)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#coreshadersinternaldefaultshader">Блок шейдера (реальный файл core/shaders/internal/Default.shader, начало)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#assetstexturesprototype_texturepngimport">Настройки импорта (реальный файл assets/textures/prototype_texture.png.import)</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1236,16 +1244,97 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="_1">Форматы файлов</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Форматы файлов в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
-<ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
-</ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+                <h1 id="_1">Обзор форматов файлов</h1>
+<p>Все форматы — plain text (JSON или блочный формат в духе Unity ShaderLab). Пути внутри файлов хранятся относительно корня проекта, поэтому сцены переезжают между машинами.</p>
+<table>
+<thead>
+<tr>
+<th>Расширение</th>
+<th>Тип</th>
+<th>Реальная форма</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.zpes</code></td>
+<td>Сцена (JSON)</td>
+<td><code>{"entities": [{"id", "name", "active", "tags", "layer", "parent", "components", "prefab_guid"?}], ...}</code> — запись на сущность; словарь каждого компонента несёт <code>type</code> и <code>_key</code></td>
+</tr>
+<tr>
+<td><code>.zpep</code></td>
+<td>Префаб (поддерево JSON)</td>
+<td>Та же форма словарей сущностей, что в <code>.zpes</code>, со стабильными GUID; инстансы добавляют <code>prefab_guid</code> / <code>prefab_source_id</code> и поинстансные оверрайды</td>
+</tr>
+<tr>
+<td><code>.zpem</code> / <code>.mat</code></td>
+<td>Материал (JSON)</td>
+<td><code>{"name", "shader_path", "properties": {...}}</code></td>
+</tr>
+<tr>
+<td><code>.shader</code></td>
+<td>Шейдер (блочный формат)</td>
+<td><code>Shader "Name" { Properties { } SubShader { Tags { } Pass { GLSLPROGRAM ... } } }</code>, внутри GLSL вершинный/фрагментный код</td>
+</tr>
+<tr>
+<td><code>.import</code></td>
+<td>Настройки импорта ассета (JSON)</td>
+<td>Сайдкар текстуры/меша/аудио: <code>{filter_mode, wrap_mode, ...}</code> рядом с ассетом</td>
+</tr>
+<tr>
+<td><code>.zphysmat</code></td>
+<td>Физический материал (выбор ресурсом)</td>
+<td>На него ссылаются поля <code>physic_material</code> коллайдеров через пикер ассетов</td>
+</tr>
+<tr>
+<td><code>.animclip</code> / <code>.animcontroller</code></td>
+<td>Данные анимации (выбор ресурсом)</td>
+<td>На них ссылаются компоненты анимации через пикер ассетов</td>
+</tr>
+</tbody>
+</table>
+<h2 id="zpes-entityserialize">Блок сущности <code>.zpes</code> (из <code>Entity.serialize</code>)</h2>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;7f3a...&quot;,
+  &quot;name&quot;: &quot;Ball&quot;,
+  &quot;active&quot;: true,
+  &quot;tags&quot;: [],
+  &quot;layer&quot;: 0,
+  &quot;parent&quot;: null,
+  &quot;components&quot;: [
+    {&quot;type&quot;: &quot;Rigidbody&quot;, &quot;mass&quot;: 1.0, &quot;use_gravity&quot;: true, &quot;is_kinematic&quot;: false, &quot;_key&quot;: &quot;Rigidbody&quot;},
+    {&quot;type&quot;: &quot;ScriptComponent&quot;, &quot;script_path&quot;: &quot;assets/ball.py&quot;,
+     &quot;script_fields&quot;: {&quot;push&quot;: 8.0, &quot;hits&quot;: 0}, &quot;_key&quot;: &quot;ScriptComponent&quot;}
+  ]
+}
+</code></pre>
+<p>Поля скриптов сериализуются без потерь типов: <code>Vec3</code> как <code>[x, y, z]</code>, <code>Enum</code> как значение, <code>Curve</code> как <code>{"keys": [{"time", "value", "in_tangent", "out_tangent", "tangent_mode"}], "pre_wrap", "post_wrap"}</code>. Ссылки на сущности хранятся UUID-строками и резолвятся в живые объекты перед каждым вызовом скрипта. Полный словарь <code>Rigidbody</code> дополнительно несёт <code>drag</code>, <code>angular_drag</code>, массивы <code>freeze_pos</code> / <code>freeze_rot</code> поверх сокращённых ключей в примере выше.</p>
+<h2 id="assetsmaterialsprobuilderprototypemat">Материал (реальный файл <code>assets/materials/ProBuilderPrototype.mat</code>)</h2>
+<pre><code class="language-json">{&quot;name&quot;: &quot;ProBuilderPrototype&quot;, &quot;properties&quot;: {&quot;_BaseColor&quot;: [1.0, 1.0, 1.0, 1.0], &quot;_EmissionColor&quot;: [0.0, 0.0, 0.0, 0.0], &quot;_EmissionIntensity&quot;: 0.0, &quot;_Metallic&quot;: 0.0, &quot;_Smoothness&quot;: 0.5, &quot;albedo_texture&quot;: &quot;../textures/prototype_texture.png&quot;}, &quot;shader_path&quot;: &quot;default&quot;}
+</code></pre>
+<p><code>Material.save</code> пишет ровно <code>{"name", "shader_path", "properties"}</code> с релятивизованными путями текстур; <code>Material.load</code> одинаково принимает <code>.mat</code> и <code>.zpem</code>, при пустом пути шейдера откатывается на <code>"default"</code>.</p>
+<h2 id="coreshadersinternaldefaultshader">Блок шейдера (реальный файл <code>core/shaders/internal/Default.shader</code>, начало)</h2>
+<pre><code class="language-shader">Shader &quot;Zarin/Default&quot;
+{
+    Properties
+    {
+    }
+
+    SubShader
+    {
+        Tags { &quot;RenderType&quot; = &quot;Opaque&quot; }
+
+        Pass
+        {
+            GLSLPROGRAM
+            #version 430 core
+            layout(location = 0) in vec3 in_position;
+</code></pre>
+<p>Материалы объявляют редактируемые в рантайме свойства (цвета, числа, текстуры, векторы, диапазоны), которые открывает блок <code>Properties { }</code>; мешевые данные уходят на GPU как <code>float32</code>, сконвертированный при загрузке из движковой математики <code>float64</code>.</p>
+<h2 id="assetstexturesprototype_texturepngimport">Настройки импорта (реальный файл <code>assets/textures/prototype_texture.png.import</code>)</h2>
+<pre><code class="language-json">{&quot;anisotropic&quot;: 4, &quot;compression&quot;: &quot;none&quot;, &quot;filter_mode&quot;: &quot;trilinear&quot;, &quot;max_size&quot;: 2048, &quot;srgb&quot;: true, &quot;wrap_mode&quot;: &quot;repeat&quot;}
+</code></pre>
+<p>Мешевые сайдкары <code>.import</code> несут ту же идею для геометрии: масштаб, флаги генерации нормалей/тангентов, угол сглаживания. Импортёр ищет <code>&lt;ассет&gt;.import</code> рядом с ассетом (включая фолбэки относительно корня проекта), затем откатывается на дефолты.</p>
+<p>См. также: Примеры скриптов (хранение полей), ScriptComponent (как персистятся <code>script_fields</code>), Указатель API (точки входа загрузчиков).</p>
               
             </div>
           </div><footer>

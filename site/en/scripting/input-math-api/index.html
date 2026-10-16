@@ -1241,7 +1241,7 @@
 <p>Injected names: <code>Input</code>, <code>KeyCode</code>, <code>Vec2</code>, <code>Vec3</code>, <code>Vec4</code>, <code>Curve</code>, <code>Range</code>, <code>Logger</code>.</p>
 <p>Keyboard and mouse:</p>
 <ul>
-<li><code>Input.GetKey(code)</code> — held this frame; <code>Input.GetKeyDown(code)</code> — pressed this frame; <code>Input.GetKeyUp(code)</code> — released this frame. Codes come from <code>KeyCode</code> (<code>KeyCode.W</code>, <code>KeyCode.Space</code>, <code>KeyCode.Shift</code>, arrows, digits and more).</li>
+<li><code>Input.GetKey(code)</code> — held this frame; <code>Input.GetKeyDown(code)</code> — pressed this frame; <code>Input.GetKeyUp(code)</code> — released this frame. Codes come from <code>KeyCode</code> (<code>KeyCode.W</code>, <code>KeyCode.SPACE</code>, <code>KeyCode.LEFT_SHIFT</code> / <code>KeyCode.RIGHT_SHIFT</code>, arrows, digits and more).</li>
 <li><code>Input.GetMouseButton(i)</code>, <code>GetMouseButtonDown(i)</code>, <code>GetMouseButtonUp(i)</code> — button index state.</li>
 <li><code>Input.GetButton(name)</code>, <code>GetButtonDown(name)</code>, <code>GetButtonUp(name)</code> — named action buttons.</li>
 <li><code>Input.GetAxis(name)</code>, <code>Input.GetAxisRaw(name)</code> — smoothed vs raw axes such as <code>"Horizontal"</code>.</li>
@@ -1266,7 +1266,7 @@
             t.translate(Vec3(0.0, 0.0, step))
         if Input.GetKey(KeyCode.S):
             t.translate(Vec3(0.0, 0.0, -step))
-        if Input.GetKeyDown(KeyCode.Space):
+        if Input.GetKeyDown(KeyCode.SPACE):
             Logger.info(&quot;jump pressed&quot;)
 </code></pre>
 <pre><code class="language-python">class Looker:
@@ -1279,6 +1279,7 @@
             t.rotate(Vec3(0.0, x * self.sensitivity * dt, 0.0))
 </code></pre>
 <p>Cursor pattern for fly cameras: lock on right-mouse hold, release on up — drive <code>Input.cursorLocked</code> from the mouse-button callbacks in <code>on_update</code>.</p>
+<p>Axes such as <code>"Horizontal"</code> exist only after bindings are loaded (<code>Input.LoadProjectBindings</code> at startup) or an explicit <code>Input.DefineAxis("Horizontal", positive=[KeyCode.D], negative=[KeyCode.A])</code>. An undefined axis name makes <code>GetAxis</code> / <code>GetAxisRaw</code> return <code>0.0</code>, so the <code>Looker</code> above stays still until the axis is defined — define it in project setup before relying on it (see Input overview).</p>
               
             </div>
           </div><footer>

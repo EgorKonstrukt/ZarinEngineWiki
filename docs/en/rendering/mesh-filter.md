@@ -1,18 +1,22 @@
-# MeshFilter
-
-Answers *what* to draw: a mesh asset plus the submesh name inside multi-mesh files. No appearance settings — those live on the renderer.
-
-| Field | Meaning |
-|---|---|
-| mesh_path | Model file: `.obj`, `.fbx`, `.stl`, `.gltf`, `.glb`, `.usdz`, `.dae`, `.blend`, `.3ds` and more via the Assimp C-FFI bridge |
-| mesh_name | Submesh selector within the file |
-
-Import pipeline: Assimp reads vertices, normals, UVs, tangents, colors and skin weights into numpy arrays (OBJ parser as fallback for material groups, GIF flipbook importer for animated sprites-as-frames), the result caches in `Library`, and the geometry cache uploads once to the GPU. Per-file `.import` JSON controls scale, normal/tangent generation and smoothing angle.
-
-One mesh asset feeds three consumers at once: MeshRenderer (visuals), MeshCollider (physics) and the model preview thumbnail — a single reimport updates all of them.
-
-Workflow: import the model, check it in the model preview, set `.import` scale so one unit equals one meter, assign into MeshFilter, add materials per submesh on the renderer. Multi-part FBX: one entity per `mesh_name` sharing the same path.
-
-Troubleshooting: missing submesh → `mesh_name` typo or stale import, reimport and re-pick; wrong scale → `.import` scale vs scene units; black normals → enable normal generation in `.import`; pink → renderer material path broken, not the filter.
-
-Related: MeshRenderer, SkinnedMeshRenderer, MeshCollider, Model Import, Material Preview.
+# Mesh Filter
+> Geometry reference: `MeshFilter` (`core/components/rendering/renderers/mesh_filter.py`) holding the model path/name; `MeshRenderer` draws it.
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+Pair with [Mesh Renderer](./mesh-renderer.md) on the same entity: filter selects the mesh, renderer selects materials. Mesh data itself is cached in `self._mesh_data`. Supported picker filter: `Models (*.obj *.fbx)`.
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `mesh_name` | string | `""` | Sub-mesh / asset name (`mesh_filter.py:22,29`). |
+| `mesh_path` | resource path (obj/fbx) | `""` | Source model file (`mesh_filter.py:23,28`). |
+## Usage in Editor
+Add Component → Mesh Filter, set Source to an `.obj`/`.fbx`, then add Mesh Renderer and assign a material per sub-mesh.
+## Usage in Code
+```python
+mf = entity.get_component(MeshFilter)
+mf.mesh_path = "assets/models/crate.obj"
+mf.mesh_name = "Crate"
+```
+## Related pages
+- [Mesh Renderer](./mesh-renderer.md), [Skinned Mesh Renderer](./skinned-mesh-renderer.md), [Materials](./materials.md)
+## Verified against
+- `core/components/rendering/renderers/mesh_filter.py:18-41`

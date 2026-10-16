@@ -814,13 +814,15 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Собель</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#_2">Как работает</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Параметры</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_3">Параметры</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Использование</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_4">Советы</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Шейдер</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_5">Цена</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Связанное</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_6">Проверено по коду</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1248,90 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Собель</h1>
-<p>Часть стека PostFX: выполняется после главной сцены в порядке компонентов. Построен на общей базе GraphicsEffect с тоглом и собственными полями инспектора.</p>
-<h2 id="_2">Как работает</h2>
-<p>Контуры оператором Собеля для технического и чертёжного рендера.</p>
-<h2 id="_3">Параметры</h2>
-<p>Порог, ощущение линий.</p>
-<h2 id="_4">Советы</h2>
-<p>Зрение сканера, схематичные режимы, CAD-превью с сетками.</p>
-<h2 id="_5">Цена</h2>
-<p>Дёшево.</p>
-<p>Связанное: <a href="../">стек PostFX</a>, камеры (render scale), профайлер.</p>
+<blockquote>
+<p>Яркостный Собель с 5 режимами композитинга (int 0–4): 0 сцена→цвет края, 1 белый→цвет края, 2 сцена→чёрный, 3 цвет направления градиента, 4+ аддитивное свечение. Thickness масштабирует оффсеты 3×3; порог — smoothstep(threshold, threshold+0.5). Класс <code>Sobel</code> в <code>core/components/rendering/postfx/sobel.py</code>. Выполняется в стеке PostFX в порядке компонентов; пропускается при <code>enabled == False</code> или неактивной сущности (ранний выход в <code>render()</code>).</p>
+</blockquote>
+<h2 id="_2">Параметры</h2>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mode</td>
+<td><code>_mode</code></td>
+<td>INT</td>
+<td>0 – 4</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td>Threshold</td>
+<td><code>_threshold</code></td>
+<td>FLOAT</td>
+<td>0.0 – 2.0</td>
+<td><code>0.1</code></td>
+</tr>
+<tr>
+<td>Thickness</td>
+<td><code>_thickness</code></td>
+<td>FLOAT</td>
+<td>0.5 – 8.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Intensity</td>
+<td><code>_intensity</code></td>
+<td>FLOAT</td>
+<td>0.0 – 3.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Edge Color</td>
+<td><code>_edge_color</code></td>
+<td>COLOR</td>
+<td>—</td>
+<td><code>(0.0, 0.0, 0.0)</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">Использование</h2>
+<p>Редактор: выбрать PostFX-сущность, Add Component &gt; <code>Sobel</code>, включить <code>enabled</code>, настроить поля выше. Порядок среди PostFX-компонентов задаёт порядок выполнения.</p>
+<p>Код:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.sobel import Sobel
+fx = Sobel()
+entity.add_component(fx)
+fx._mode = 0
+fx._thickness = 1.5
+fx.enabled = True
+</code></pre>
+<h2 id="_4">Шейдер</h2>
+<p>Шейдер: <code>core/components/rendering/postfx/sobel.py (SOBEL_FRAG)</code>.</p>
+<pre><code class="language-glsl">#version 330 core
+uniform sampler2D u_input_tex;
+uniform vec2 u_pixel_size;
+uniform float u_threshold;
+uniform float u_thickness;
+uniform float u_intensity;
+uniform vec3 u_edge_color;
+uniform int u_mode;
+</code></pre>
+<h2 id="_5">Связанное</h2>
+<p>См. <a href="../">Стек PostFX</a>, <a href="../color-grading/">Цветокоррекция</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="_6">Проверено по коду</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/sobel.py</code> — класс <code>Sobel</code>, <code>_inspector_fields</code>, дефолты <code>__init__</code>, <code>render_type = "screen", _intensity_prop = "_intensity"</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/graphics_effect.py</code> — базовый <code>GraphicsEffect</code> (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, сигнатура <code>render()</code>).</p>
+</li>
+</ul>
               
             </div>
           </div><footer>

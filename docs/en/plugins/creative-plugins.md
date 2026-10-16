@@ -1,8 +1,8 @@
 # Music, Plotter and QtQuick
 
-Smaller bundled extensions for sound, data and UI hosting — same base class, same hooks, narrower jobs.
+Smaller bundled extensions for sound, data and UI hosting — same base class, same hooks, narrower jobs. Verified versions: `TrackerMusicPlugin` 1.0.0 `SYSTEM = False`, `PlotterPlugin` 1.2.0 `SYSTEM = False`, `QtQuickWorldPlugin` 1.0.0 `SYSTEM = True`.
 
-Tracker Music (`plugins/tracker_music_plugin/`, `libs/nodmod` engine):
+Tracker Music (`plugins/tracker_music_plugin/`, `rend/` engine: `engine.py`, `engine_seq.py`, `engine_mix.py`, `engine_fx.py`, `defs.py`):
 
 - ProTracker-style module playback (patterns, samples, BPM-relative tempo) for retro scores and demoscene vibes.
 - Drop a module file, drive play/stop from hooks or scripts, mix under positional AudioSources — music bed plus 3D effects is the intended stack.

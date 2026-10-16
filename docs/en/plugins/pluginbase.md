@@ -1,9 +1,9 @@
 # PluginBase Lifecycle
 
-Every plugin subclasses `PluginBase` (`core/foundation/plugin_manager.py`) and is constructed through the module-level `get_plugin()` factory. Metadata first, behavior second.
+Every plugin subclasses `PluginBase` (`core/foundation/plugins/base.py`, re-exported by `core/foundation/plugins/__init__.py`) and is constructed through the module-level `get_plugin()` factory. Metadata first, behavior second.
 
 ```python
-from core.foundation.plugin_manager import PluginBase
+from core.foundation.plugins import PluginBase
 from core.foundation.logger import Logger
 
 

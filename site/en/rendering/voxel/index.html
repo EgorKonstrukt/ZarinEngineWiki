@@ -279,6 +279,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Voxel Rendering</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,13 +1245,143 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="voxel-rendering">Voxel Rendering</h1>
-<p>Blocky reconstruction and volumetric experiments: CPU voxelization plus raymarched object effects and a voxel pass in the renderer.</p>
-<p>Entries: <code>voxelize</code> and <code>voxel_raymarch</code> object effects (dedicated pages under Object Effects) with the CPU-side <code>voxel_cpu</code> helper preparing volumes. The renderer voxel pass composites blocky media consistently with scene depth.</p>
-<p>Workflows: destructionChunks — voxelize effect driven 0→1 by a damage script; retro terrain accents — voxelized rocks alongside smooth meshes for style contrast; volumetric fog blocks — raymarched volumes for stylized smoke.</p>
-<p>Like splats, voxels share scene collection and overlays but bypass parts of PostFX — check the final look in the game view. Voxel density is the cost knob: halve density for 8× fewer cells.</p>
-<p>Troubleshooting: chunky in a bad way → density too low for the object size; seams → volume bounds smaller than the mesh; no effect in game view → PostFX chain ordering, verify pass order.</p>
-<p>Related: Voxelize, Voxel Raymarch, Gaussian Splat Renderer, Object Effects (Overview).</p>
+                <h1 id="voxel">Voxel</h1>
+<blockquote>
+<p>Voxelized look: <code>VoxelizeEffect</code> object effect (<code>core/components/rendering/effects/voxelize_effect.py:17-152</code>) rendered by <code>VoxelPassMixin</code> (<code>core/renderer/voxel_pass.py</code>), compute <code>core/shaders/legacy/voxelize.comp</code>.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>CPU fallback <code>compute_voxel_instances</code> (<code>effects/voxel_cpu.py:50</code>); GPU path via <code>voxelize.comp</code> when available, else per-mesh CPU cells (<code>voxel_pass.py:218-221</code>). Caps: <code>_VOX_MAX_DIM = 128</code>, <code>_VOX_MAX_INSTANCES = 2200000</code> (<code>voxel_pass.py:22-25</code>). <code>amount</code> blends base→voxels; <code>animate</code> (+<code>ping_pong</code>) drives <code>amount</code> as <code>t % 1</code> triangle (<code>voxelize_effect.py:78-86</code>).</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>amount</code></td>
+<td>slider (0–1)</td>
+<td><code>0.5</code></td>
+<td>Voxelization blend (<code>voxelize_effect.py:138,36</code>).</td>
+</tr>
+<tr>
+<td><code>show_base_mesh</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Keep base mesh (<code>voxelize_effect.py:139,37</code>).</td>
+</tr>
+<tr>
+<td><code>world_grid</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Snap cells to world grid (<code>voxelize_effect.py:140,38</code>).</td>
+</tr>
+<tr>
+<td><code>voxel_size</code></td>
+<td>float</td>
+<td><code>0.3</code></td>
+<td>Cell size (<code>voxelize_effect.py:141,39</code>).</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>vec3</td>
+<td><code>[1, 1, 1]</code></td>
+<td>Per-voxel XYZ scale (<code>voxelize_effect.py:142,40</code>).</td>
+</tr>
+<tr>
+<td><code>jitter</code></td>
+<td>float</td>
+<td><code>0.0</code></td>
+<td>Cell jitter (<code>voxelize_effect.py:143,41</code>).</td>
+</tr>
+<tr>
+<td><code>emission</code></td>
+<td>float</td>
+<td><code>2.5</code></td>
+<td>Glow term (<code>voxelize_effect.py:144,42</code>).</td>
+</tr>
+<tr>
+<td><code>color</code></td>
+<td>color3</td>
+<td><code>[0.4, 1.0, 0.6]</code></td>
+<td>Voxel color (<code>voxelize_effect.py:145,43</code>).</td>
+</tr>
+<tr>
+<td><code>rim</code></td>
+<td>float</td>
+<td><code>2.5</code></td>
+<td>Fresnel power (<code>voxelize_effect.py:146,44</code>).</td>
+</tr>
+<tr>
+<td><code>cell</code></td>
+<td>float</td>
+<td><code>0.3</code></td>
+<td>Cell render size (<code>voxelize_effect.py:147,45</code>).</td>
+</tr>
+<tr>
+<td><code>double_sided</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Disable culling (<code>voxelize_effect.py:148,46</code>).</td>
+</tr>
+<tr>
+<td><code>animate</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Animate amount (<code>voxelize_effect.py:149,47</code>).</td>
+</tr>
+<tr>
+<td><code>speed_anim</code></td>
+<td>float</td>
+<td><code>0.5</code></td>
+<td>Anim rate (<code>voxelize_effect.py:150,48</code>).</td>
+</tr>
+<tr>
+<td><code>ping_pong</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Triangle vs saw (<code>voxelize_effect.py:151,49</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Add Voxelize Effect to a mesh entity, raise Voxel Size for chunkier cubes, enable World Grid for Minecraft-style alignment across objects.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">vx.voxel_size = 0.2
+vx.amount = 1.0
+vx.animate = True
+vx.ping_pong = True
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../mesh-renderer/">Mesh Renderer</a>, <a href="../pipeline/">Pipeline</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/effects/voxelize_effect.py:34-152</code></li>
+<li><code>core/renderer/voxel_pass.py:22-63,199-258</code></li>
+<li><code>core/shaders/legacy/voxelize.comp</code></li>
+</ul>
               
             </div>
           </div><footer>

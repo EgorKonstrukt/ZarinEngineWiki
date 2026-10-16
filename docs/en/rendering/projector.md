@@ -1,25 +1,33 @@
 # Projector
-
-Projects a texture from a frustum: slide projector, fake window light, graffiti beam, logo thrower.
-
-| Inspector group / field | Default | Meaning |
-|---|---|---|
-| Texture: texture_path | — | Projected image (png/jpg/jpeg) |
-| Texture: color | white | Tint multiplier |
-| Texture: intensity | 1.0 | Brightness, 0–1000 |
-| Projection: range | 10.0 | Throw distance |
-| Projection: spot_angle | 30° | Frustum angle, 1–179 |
-| Projection: aspect_ratio | 1.0 | Frustum width/height |
-| Projection: near_plane / far_plane | 0.1 / 100 | Depth slice of the throw |
-| Options: flip_x / flip_y | off / on | Image mirroring |
-| Options: cast_shadows | on | Occluders block the projection |
-
-The viewport gizmo draws the projection cone with an aspect-correct base rectangle — frame the target surface visually, then fine-tune angle and range. Aim with the Transform exactly like a Spot Light; the throw slice (near/far) clips the projection so it never leaks through back walls.
-
-Workflows: cinema — projector entity behind the audience aimed at a white VideoRenderer-style screen; fake windows — bright projector with a frame texture plus a soft spot for spill; decals-in-motion — animated texture offset is not built in, swap `texture_path` from a script for slideshow projection.
-
-Cost: one extra frustum sample set per projector; shadowed projectors join the projector shadow pass. Keep counts low (1–3) and ranges tight.
-
-Troubleshooting: mirrored image → toggle flip_x/flip_y; projection through walls → pull far_plane in; washed out → intensity competes with the key light, raise it or dim the scene.
-
-Related: Spot Light, Shadows (projector shadows pass), VideoRenderer (screen surfaces), TextRenderer (static slides alternative).
+> Texture projector: `Projector` component (`core/components/lighting/projector.py`) throwing an image along the entity forward axis like a slide projector.
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+Perspective slide defined by `spot_angle`, `aspect_ratio`, `near_plane`/`far_plane`; `range` caps the throw distance. Gizmo draws the frustum + mid sprite quad (`projector.py:52-106`). Shadow pass hook: `render_projector_shadows` (`core/renderer/shadows/projector.py:28`).
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `texture_path` | resource path (png/jpg/jpeg) | `""` | Projected slide (`projector.py:22,40`). |
+| `color` | color3 | `[1.0, 1.0, 1.0]` | Tint multiplier (`projector.py:23,41`). |
+| `intensity` | float (0–1000) | `1.0` | Brightness (`projector.py:24,42`). |
+| `range` | float (0–10000) | `10.0` | Throw distance (`projector.py:26,43`). |
+| `spot_angle` | float (1–179) | `30.0` | Vertical FOV, deg (`projector.py:27,44`). |
+| `aspect_ratio` | float (0.1–10) | `1.0` | Width/height ratio (`projector.py:28,45`). |
+| `near_plane` | float (0.01–10) | `0.1` | Near clip (`projector.py:29,46`). |
+| `far_plane` | float (1–10000) | `100.0` | Far clip (`projector.py:30,47`). |
+| `flip_y` | bool | `True` | Flip image vertically (`projector.py:32,48`). |
+| `flip_x` | bool | `False` | Flip image horizontally (`projector.py:33,49`). |
+| `cast_shadows` | bool | `True` | Projector shadow cookie (`projector.py:34,50`). |
+## Usage in Editor
+Add Component → Projector, assign Texture, aim with the transform. Keep Aspect matched to the source image; enable Flip Y for camera-style slides.
+## Usage in Code
+```python
+pj.texture_path = "assets/textures/logo.png"
+pj.spot_angle = 40.0
+pj.aspect_ratio = 16.0 / 9.0
+pj.range = 20.0
+```
+## Related pages
+- [Spot Light](./spot-light.md), [Shadows](./shadows.md), [Materials](./materials.md)
+## Verified against
+- `core/components/lighting/projector.py:18-50,108-140`
+- `core/renderer/shadows/projector.py:28`

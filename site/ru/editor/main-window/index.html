@@ -1134,6 +1134,18 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Главное окно</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Скриншоты</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../viewport/">Вьюпорт, камера, гизмо</a>
@@ -1237,15 +1249,207 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Главное окно</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Главное окно в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p><code>EditorMainWindow</code> (<code>editor/main_window/widgetp/frame.py</code>) — оболочка-<code>QMainWindow</code> редактора: доки, тулбар, меню, статус-бар, автосохранение сессии.</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Член</th>
+<th>Сигнатура</th>
+<th>Примечания</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EditorMainWindow</code></td>
+<td><code>(engine: Engine)</code></td>
+<td>Миксины <code>_ToolbarHostMixin</code>, <code>_StatusMixin</code>; реэкспорт в <code>editor/main_window.py</code></td>
+</tr>
+<tr>
+<td><code>_setup_engine_events</code></td>
+<td><code>(self)</code></td>
+<td>Привязка сигналов движка к окну</td>
+</tr>
+<tr>
+<td><code>_schedule_session_autosave</code></td>
+<td><code>(delay_ms: int = 5000)</code></td>
+<td>Отложенное сохранение сессии</td>
+</tr>
+<tr>
+<td><code>_flush_session_autosave</code></td>
+<td><code>(self)</code></td>
+<td>Запись отложенного снапшота сессии</td>
+</tr>
+<tr>
+<td><code>closeEvent</code></td>
+<td><code>(event: QCloseEvent)</code></td>
+<td>Сброс при закрытии окна</td>
+</tr>
+<tr>
+<td><code>toggle_play_stop</code></td>
+<td><code>(mw)</code> в <code>main_window/handlersp/play.py</code></td>
+<td>Кнопка Play/Stop + действие <code>Shift+F10</code></td>
+</tr>
+<tr>
+<td><code>toggle_pause</code></td>
+<td><code>(mw)</code> в <code>main_window/handlersp/play.py</code></td>
+<td>Кнопка паузы</td>
+</tr>
+<tr>
+<td><code>launch_external_player</code></td>
+<td><code>(mw)</code> в <code>main_window/handlersp/play.py</code></td>
+<td>Кнопка « Player» тулбара</td>
+</tr>
+<tr>
+<td><code>on_open_prefab_editor</code></td>
+<td><code>(mw, path: str)</code> в <code>handlersp/prefab.py</code></td>
+<td>Вкладка префаба, запуск автосохранения</td>
+</tr>
+<tr>
+<td><code>on_project_file_double_clicked</code></td>
+<td><code>(mw, path: str)</code> в <code>handlersp/prefab.py</code></td>
+<td>Маршрутизация дабл-клика по файлам проекта</td>
+</tr>
+<tr>
+<td><code>on_entity_dropped</code></td>
+<td><code>(mw, path_or_type: str, world_pos, entity_under_cursor=None)</code> в <code>handlersp/drop_assets.py</code></td>
+<td>Дропы во вьюпорт (материал/картинка/аудио/модель)</td>
+</tr>
+<tr>
+<td><code>_StatusMixin._update_status</code></td>
+<td><code>(self)</code></td>
+<td>Обновление статус-бара, включая монитор железа (<code>_HwMonitorWorker</code>: cpu/ram/gpu/vram)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Горячие клавиши меню, проверенные в <code>main_window/menup/builder.py</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Действие</th>
+<th>Клавиши</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New Scene</td>
+<td><code>Ctrl+N</code></td>
+</tr>
+<tr>
+<td>Open Scene...</td>
+<td><code>Ctrl+O</code></td>
+</tr>
+<tr>
+<td>Save Scene</td>
+<td><code>Ctrl+S</code></td>
+</tr>
+<tr>
+<td>Save Scene As...</td>
+<td><code>Ctrl+Shift+S</code></td>
+</tr>
+<tr>
+<td>Save All Scenes</td>
+<td><code>Ctrl+Alt+S</code></td>
+</tr>
+<tr>
+<td>Create Empty (меню GameObject)</td>
+<td><code>Ctrl+Shift+N</code></td>
+</tr>
+<tr>
+<td>Play/Stop</td>
+<td><code>Shift+F10</code></td>
+</tr>
+<tr>
+<td>Exit</td>
+<td><code>Alt+F4</code></td>
+</tr>
+<tr>
+<td>Search Everywhere (палитра команд)</td>
+<td><code>Ctrl+F</code></td>
+</tr>
+</tbody>
+</table>
+<p>Дополнительные проверенные шорткаты в том же файле (тот же источник, вне краткой таблицы — все из <code>menup/builder.py</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Действие</th>
+<th>Клавиши</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Launch in Player</td>
+<td><code>F10</code></td>
+</tr>
+<tr>
+<td>Go to Tab...</td>
+<td><code>Ctrl+P</code></td>
+</tr>
+<tr>
+<td>Next / Previous Tab</td>
+<td><code>Ctrl+Tab</code> / <code>Ctrl+Shift+Tab</code></td>
+</tr>
+<tr>
+<td>Plugin Manager</td>
+<td><code>Ctrl+Shift+P</code></td>
+</tr>
+<tr>
+<td>Python Packages...</td>
+<td><code>Ctrl+Shift+K</code></td>
+</tr>
+<tr>
+<td>Mesh Editor</td>
+<td><code>Ctrl+Shift+M</code></td>
+</tr>
+<tr>
+<td>Terrain Editor</td>
+<td><code>Ctrl+Shift+T</code></td>
+</tr>
+<tr>
+<td>GUI Editor</td>
+<td><code>Ctrl+Shift+G</code></td>
+</tr>
+<tr>
+<td>Build Settings...</td>
+<td><code>Ctrl+Shift+U</code></td>
+</tr>
+<tr>
+<td>Build Project...</td>
+<td><code>Ctrl+Shift+B</code></td>
+</tr>
+</tbody>
+</table>
+<p>Тулбар: Play/Stop (<code>toggle_play_stop</code>), Pause, кнопка <code>Player</code> (тултип «Launch in standalone Player»), кнопка поиска (тултип «Search Everywhere (Ctrl+F)»), комбо режима навигации (тултип: WASD + осмотр RMB, пан MMB, долли колесом; Shift+RMB ставит курсор, Ctrl+MMB — долли).</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from editor.main_window.handlersp.play import toggle_play_stop, toggle_pause, launch_external_player
+
+toggle_play_stop(mw)      # то же, что кнопка Play / Shift+F10
+toggle_pause(mw)          # то же, что кнопка Pause
+launch_external_player(mw)  # отдельный плеер для текущей сцены
+</code></pre>
+<h2 id="_2">Скриншоты</h2>
+<p><img alt="Главное окно редактора ZarinEngine" src="../../../assets/screenshots/editor-main.png" /></p>
+<blockquote>
+<p><code>EditorMainWindow</code>: доки, тулбар, вьюпорт, статус-бар.
+Файл: <code>assets/screenshots/editor-main.png</code> (проверенная копия
+<code>zarin_screenshot.png</code> из репозитория движка).</p>
+</blockquote>
+<h2 id="related">Related</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Вьюпорт (вид сцены в главном окне), Иерархия, Инспектор, Панель проекта</li>
+<li>Диалог сборки / менеджер проектов / настройки (диалоги из меню)</li>
+<li>Плеер и сборка Nuitka (цель внешнего плеера)</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>editor/main_window.py</code>, <code>editor/main_window/widgetp/frame.py</code>, <code>editor/main_window/widgetp/status.py</code>, <code>editor/main_window/widgetp/toolbar_host.py</code></li>
+<li><code>editor/main_window/toolbar.py</code>, <code>editor/main_window/menup/builder.py</code>, <code>editor/main_window/statusbar.py</code>, <code>editor/main_window/connections.py</code>, <code>editor/main_window/postinit.py</code>, <code>editor/main_window/project.py</code></li>
+<li><code>editor/main_window/handlersp/play.py</code>, <code>editor/main_window/handlersp/prefab.py</code>, <code>editor/main_window/handlersp/drop_assets.py</code></li>
+</ul>
               
             </div>
           </div><footer>

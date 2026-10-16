@@ -53,9 +53,7 @@ class Driver:
             v = v + Vec3(-1.0, 0.0, 0.0)
         if Input.GetKey(KeyCode.D):
             v = v + Vec3(1.0, 0.0, 0.0)
-        rate = self.sprint
-        if not Input.GetKey(KeyCode.Shift):
-            rate = self.speed
+        rate = self.sprint if (Input.GetKey(KeyCode.LEFT_SHIFT) or Input.GetKey(KeyCode.RIGHT_SHIFT)) else self.speed
         t = self._entity.transform
         if t and v.length() > 0.0:
             t.translate(v.normalized() * rate * dt)
@@ -150,7 +148,7 @@ class Kicker:
     impulse: float = 5.0
 
     def on_update(self, dt):
-        if Input.GetKeyDown(KeyCode.Space):
+        if Input.GetKeyDown(KeyCode.SPACE):
             rb = self._entity.get_component_by_name("Rigidbody")
             if rb:
                 rb.add_impulse(Vec3(0.0, self.impulse, 0.0))

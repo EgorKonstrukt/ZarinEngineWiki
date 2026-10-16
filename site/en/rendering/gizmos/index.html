@@ -283,6 +283,14 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Gizmos and Icons</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1236,19 +1244,91 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="gizmos-and-icons">Gizmos and Icons</h1>
-<p>Editor-only overlay passes: gizmo lines/solids, billboard icons, selection outlines and the grid. They render after everything else in editor viewports and never appear in builds — zero runtime cost, full staging value.</p>
-<p>How components plug in:</p>
+                <h1 id="gizmos">Gizmos</h1>
+<blockquote>
+<p>Editor debug draw: <code>GizmoRenderer</code> (<code>core/renderer/gizmor/renderer.py</code>, lines <code>gizmor/lines.py</code>) fed by <code>GizmoPassMixin</code> (<code>core/renderer/gizmo_pass.py</code>) and <code>Gizmo*</code> components (<code>core/components/gizmo/gizmo_comp/</code>).
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Pass API: <code>render_gizmo_lines / render_gizmo_arrays / render_instanced_gizmo / render_gizmo_meshes / render_wireframe_box</code> (<code>gizmo_pass.py:19-68</code>). Line backend: <code>render_lines / render_raw_lines / render_wireframe_box</code> (<code>gizmor/lines.py:83-422</code>); instanced icons/meshes (<code>gizmor/icons.py:129-332</code>). Components: <code>GizmoCube/Sphere/Cylinder/Cone</code> (<code>solids.py</code>), <code>GizmoLine/Ray/Arrow</code> (<code>lines.py</code>), <code>GizmoPlane/Grid/Circle/Disc</code> (<code>planes.py</code>), <code>GizmoCapsule/Pyramid/Frustum/Bounds</code> (<code>bodies.py</code>), <code>GizmoArc/Torus/Cross</code> (<code>curves.py</code>), <code>GizmoPoint/Poly/Bezier</code> (<code>paths.py</code>), <code>GizmoStar/Icon/Label</code> (<code>extra.py</code>). Light/camera/particle icons use <code>_gizmo_pass = "light"/"camera"/"particle"</code> and <code>_gizmo_cache_attrs</code>.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GizmoLine.start</code> / <code>end</code></td>
+<td>vec3</td>
+<td><code>[-1,0,0]</code> / <code>[1,0,0]</code></td>
+<td>Segment endpoints (<code>lines.py:21-30</code>).</td>
+</tr>
+<tr>
+<td><code>GizmoCube.size</code></td>
+<td>vec3</td>
+<td><code>[1,1,1]</code></td>
+<td>Box size (<code>solids.py:21-30</code>).</td>
+</tr>
+<tr>
+<td><code>GizmoSphere.radius</code></td>
+<td>float</td>
+<td><code>0.5</code></td>
+<td>Radius (<code>solids.py:82-90</code>).</td>
+</tr>
+<tr>
+<td><code>GizmoIcon.icon</code></td>
+<td>texture</td>
+<td>engine default</td>
+<td>Billboard icon (<code>extra.py:78-90</code>).</td>
+</tr>
+<tr>
+<td><code>gizmo.line_width</code></td>
+<td>float (global config)</td>
+<td>renderer default</td>
+<td>Fat-line width (<code>rconfig/config_state.py:51-56</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Add Gizmo* components for level markup (triggers, spawn boxes, path points). They render only in the editor viewport, never in builds.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">from core.components.gizmo.gizmo_comp.lines import GizmoLine
+gl = GizmoLine()
+gl.start = [0, 0, 0]
+gl.end = [0, 5, 0]
+entity.add_component(gl)
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Each component declares <code>_gizmo_pass</code> (e.g. <code>"light"</code>, <code>"camera"</code>, <code>"audio"</code>, <code>"script"</code>, physics and navigation passes) routing its drawing into the right batch.</li>
-<li>Optional <code>_icon</code> file, <code>_gizmo_icon_color</code> and <code>_gizmo_icon_label</code> produce the billboarded letter badges (Light <code>L</code>, Audio <code>A</code>, Projector <code>P</code> and friends) through the icon pass.</li>
-<li>Scripts draw custom gizmos by defining <code>gizmo_lines()</code> / <code>gizmo_meshes()</code> — these execute even outside Play, ideal for patrol paths, spawn radii and sensor cones.</li>
-<li>Built-ins draw their domain shapes: lights show frustums/volumes, cameras show frustums, audio sources show zone shapes (sphere/box) with distance rings, colliders show wireframe shapes, joints show anchors and axes, navigation shows agent radii.</li>
+<li><a href="../camera/">Camera</a>, <a href="../light/">Light</a>, <a href="../particle-force-field/">Particle Force Field</a></li>
 </ul>
-<p>Passes behind the scenes: the icon pass batches billboards (one draw for many badges), the outline pass highlights the selection, the grid pass draws the reference grid with overlay controls, and the line width defaults to 0.6667 for crisp debug drawing.</p>
-<p>Workflow: stage with gizmos on (light cones, audio zones, trigger boxes all visible), then toggle overlays off for beauty screenshots. Custom script gizmos should be cheap — they run every editor frame.</p>
-<p>Troubleshooting: gizmo missing → component <code>_show_gizmo_icon</code> disabled or pass filtered in viewport options; script gizmo stale → hot-reload recreated the instance, re-open the method; clutter → hide passes per category in the viewport menu.</p>
-<p>Related: Scripting gizmo callbacks, Light/Projector/AudioSource/Collider pages (their shapes), Viewport (Editor Manual).</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/renderer/gizmo_pass.py:19-68</code></li>
+<li><code>core/renderer/gizmor/lines.py:83-422</code>, <code>core/renderer/gizmor/icons.py</code></li>
+<li><code>core/components/gizmo/gizmo_comp/lines.py</code>, <code>solids.py</code>, <code>planes.py</code>, <code>bodies.py</code>, <code>curves.py</code>, <code>paths.py</code>, <code>extra.py</code></li>
+<li><code>core/gizmo/pipeline.py</code>, <code>core/gizmo/core/</code></li>
+</ul>
               
             </div>
           </div><footer>

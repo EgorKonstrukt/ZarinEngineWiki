@@ -305,6 +305,18 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Terrain Collider</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#fixed-update-notes">Fixed update notes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../gs-volume-collider/">GS Volume Collider</a>
@@ -1238,50 +1250,100 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="terrain-collider">Terrain Collider</h1>
-<p>Heightfield collision following terrain data: the only sane way to collide with landscapes — smooth height sampling instead of millions of triangles.</p>
+<p>Heightfield collision following terrain data — smooth height sampling instead of millions of triangles.</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group / field</th>
-<th>Meaning</th>
+<th>Field</th>
+<th>Default</th>
+<th>Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Collision: Layer / Collision Mask</td>
+<td><code>layer</code> / <code>mask</code></td>
+<td><code>0</code> / <code>0xFFFF</code></td>
 <td>Filtering</td>
 </tr>
 <tr>
-<td>Terrain: World Size</td>
-<td>XZ extent of the heightfield in world units</td>
+<td><code>size</code></td>
+<td><code>(1000.0, 60.0, 1000.0)</code></td>
+<td>World size <code>(x, y, z)</code></td>
 </tr>
 <tr>
-<td>Terrain: Height Scale</td>
-<td>Vertical exaggeration multiplier</td>
+<td><code>height_scale</code></td>
+<td><code>60.0</code></td>
+<td>Vertical scale</td>
 </tr>
 <tr>
-<td>Terrain: Resolution</td>
-<td>Height sample density (fidelity vs memory)</td>
+<td><code>resolution</code></td>
+<td><code>256</code></td>
+<td>Samples per side; <code>set_height_data</code> resets it from array shape</td>
 </tr>
 <tr>
-<td>Terrain: Center</td>
+<td><code>center</code></td>
+<td><code>(0, 0, 0)</code></td>
 <td>Local offset</td>
 </tr>
 <tr>
-<td>Is Trigger</td>
-<td>Overlap events without contact response</td>
+<td><code>is_trigger</code></td>
+<td><code>False</code></td>
+<td>Overlap only</td>
 </tr>
 <tr>
-<td>Material: Physic Material</td>
-<td><code>.zphysmat</code> asset override</td>
+<td><code>physic_material</code></td>
+<td><code>""</code></td>
+<td><code>.zphysmat</code> path</td>
+</tr>
+<tr>
+<td><code>material_friction</code></td>
+<td><code>0.9</code></td>
+<td>Fallback (higher than other colliders)</td>
+</tr>
+<tr>
+<td><code>material_bounciness</code></td>
+<td><code>0.0</code></td>
+<td>Fallback</td>
+</tr>
+<tr>
+<td><code>height_data</code></td>
+<td><code>None</code></td>
+<td><code>np.ndarray</code> 2D heights; set via <code>set_height_data</code> / <code>height_data</code> setter</td>
 </tr>
 </tbody>
 </table>
-<p>The collider must match the visual terrain: same world size, same height scale, same resolution family. Regenerate after every sculpt — the classic invisible-wall / floating-player bug is a stale heightfield disagreeing with the edited mesh.</p>
-<p>Resolution guide: gameplay fidelity needs samples denser than the smallest feature players touch (curbs, ruts); distant mountains can stay coarse. Over-resolution wastes memory and cook time for zero gameplay gain.</p>
-<p>Characters walk heightfields smoothly where mesh colliders would chatter on triangle edges — another reason terrain always pairs with this collider, never a mesh one.</p>
-<p>Troubleshooting: sinking to the knees → height scale mismatch; floating → stale field, regenerate; edge cliffs at borders → world size smaller than the visual, extend; slow load → resolution overshot, halve it.</p>
-<p>Related: Terrain (rendering section), Rigidbody, Mesh Collider, CharacterController (max slope interplay).</p>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Set <code>World Size</code>, <code>Height Scale</code>, <code>Resolution</code>, feed heights from the terrain system (<code>set_height_data</code>), pick layer/mask.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Ground&quot;)
+from core.components.physics.terrain_collider import TerrainCollider
+import numpy as np
+
+tc = TerrainCollider()
+tc.size = Vec3(1000.0, 60.0, 1000.0)
+tc.height_scale = 60.0
+tc.set_height_data(np.zeros((256, 256), dtype=np.float32))
+entity.add_component(tc)  # static: no Rigidbody
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+</code></pre>
+<p><code>cell_size()</code> returns <code>(size.x/(res-1), size.z/(res-1))</code>.</p>
+<h2 id="fixed-update-notes">Fixed update notes</h2>
+<ul>
+<li>Solver call: <code>create_rigid_body(shape_type="heightfield", shape_params={"size", "resolution", "height_scale", "center", "height_data"})</code>; Culverin decimates grids above <code>8000</code> vertices and warns when height data is missing.</li>
+<li>Extra-body rule: <code>heightfield</code> extras are always static bodies.</li>
+<li><code>dt</code> is <code>Engine._fixed_dt</code> (<code>0.02</code> default).</li>
+</ul>
+<h2 id="related">Related</h2>
+<p>Rigidbody, Mesh Collider, Physics Materials, Collision Layers.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/physics/terrain_collider.py</code></li>
+<li><code>core/physics/shapep/shapes.py</code> (heightfield params)</li>
+<li><code>physics_solvers/culverin_solver/solverp/solver.py</code> (<code>_create_heightfield_collider</code>)</li>
+</ul>
               
             </div>
           </div><footer>

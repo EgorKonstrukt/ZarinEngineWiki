@@ -758,6 +758,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Шейдеры (.shader)</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#materialshader-snippet">Material/Shader snippet</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" >PostFX</a>
@@ -1236,55 +1246,85 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="shader">Шейдеры (.shader)</h1>
-<p>Кастомный текстовый формат в стиле Unity ShaderLab: шапка <code>Properties</code>, понятная редактору, плюс сырой GLSL для GPU. Минимальный пример:</p>
-<pre><code class="language-shader">Shader &quot;Zarin/Unlit&quot; {
-  Properties {
-    _BaseColor(&quot;Base Color&quot;, Color) = (1, 1, 1, 1)
-    _BaseMap(&quot;Base Map&quot;, 2D) = &quot;white&quot; {}
-  }
-  SubShader {
-    Tags { &quot;RenderType&quot; = &quot;Opaque&quot; }
-    Pass {
-      GLSLPROGRAM
-      #version 430 core
-      layout(location = 0) in vec3 in_position;
-      layout(location = 1) in vec3 in_normal;
-      layout(location = 2) in vec2 in_uv;
-      uniform mat4 u_model;
-      uniform mat4 u_view;
-      uniform mat4 u_proj;
-      out vec2 v_uv;
-      void main() {
-        v_uv = in_uv;
-        gl_Position = u_proj * u_view * u_model * vec4(in_position, 1.0);
-      }
-      // @FRAGMENT
-      #version 430 core
-      uniform vec4 u_albedo_color;
-      in vec2 v_uv;
-      out vec4 fragColor;
-      void main() {
-        fragColor = u_albedo_color;
-      }
-      ENDGLSL
-    }
-  }
-}
+                <h1 id="_1">Шейдеры</h1>
+<blockquote>
+<p>Ассет шейдера: текст <code>.shader</code> вида <code>Shader "Name" { Properties { ... } SubShader { Pass { GLSLPROGRAM ... } } }</code>, компилирует <code>ShaderManager</code> (<code>core/renderer/shaderp/manager.py</code>) с фолбэком (<code>fallback.py</code>).
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Встроенные в <code>core/shaders/materials/</code>: <code>PBR</code>, <code>Unlit</code>, <code>Sky</code>, <code>Skybox</code>, <code>Clouds</code>, <code>CloudLayer</code>, <code>Water</code>, <code>WaterSim</code>, <code>Tree</code>. Compute — в <code>core/shaders/compute/</code> (рейтрейсинг). Шейдеры, требующие storage-буферов OpenGL 4.3+, варнят и откатываются (<code>shaderp/fallback.py:110</code>). Вершина PBR включает инстансинг (<code>in_model0-3</code>, <code>in_color</code>) + скиннинг (<code>in_bone_indices/weights</code>, SSBO <code>u_bone_matrices</code>).</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Properties</code> блок</td>
+<td>список деклараций</td>
+<td>по шейдеру</td>
+<td>Открытые юниформы для инспектора/материалов.</td>
+</tr>
+<tr>
+<td><code>SubShader.Tags.RenderType</code></td>
+<td>string</td>
+<td><code>"Opaque"</code></td>
+<td>Маршрутизация opaque/transparent (у PBR <code>Tags { "RenderType" = "Opaque" }</code>).</td>
+</tr>
+<tr>
+<td><code>GLSLPROGRAM</code></td>
+<td>GLSL <code>#version 430 core</code></td>
+<td>по шейдеру</td>
+<td>Тела vertex/fragment.</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Ссылка путём в <code>material_path</code> / <code>Material.shader_path</code> / поле <code>shader</code> компонентов. Отсутствующие откатываются с варнингом — смотреть лог.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">prog = shaders.get_or_compile(&quot;core/shaders/materials/Water.shader&quot;)
 </code></pre>
-<p>Правила формата, сверено с загрузчиком:</p>
+<h2 id="materialshader-snippet">Material/Shader snippet</h2>
+<p><code>core/shaders/materials/PBR.shader</code> Properties (дословная шапка):</p>
+<pre><code class="language-c">Properties
+{
+    [MainColor] _BaseColor(&quot;Base Color&quot;, Color) = (1, 1, 1, 1)
+    [MainTexture] _BaseMap(&quot;Base Map&quot;, 2D) = &quot;white&quot; {}
+    _Metallic(&quot;Metallic&quot;, Range(0, 1)) = 0
+    _Smoothness(&quot;Smoothness&quot;, Range(0, 1)) = 0.5
+    _EmissionColor(&quot;Emission Color&quot;, Color) = (0, 0, 0, 0)
+    _EmissionIntensity(&quot;Emission Intensity&quot;, Float) = 0
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Записи <code>Properties</code> как <code>[_Attr] _Name("Display", Type) = default</code>. Типы: <code>Color</code>/<code>Vector</code> как <code>(1,1,1,1)</code>, <code>Float</code>/<code>Range(a,b)</code> как float, <code>Int</code> как int, <code>2D</code>/<code>Cube</code> как <code>"white"</code> / <code>"bump"</code> плюс <code>{}</code>.</li>
-<li>В файле несколько блоков <code>SubShader</code>; загрузчик пробует по порядку, затем опциональный <code>Fallback "Name"</code>, если упали все.</li>
-<li>Каждый блок <code>GLSLPROGRAM … ENDGLSL</code> делится на вершины/фрагменты по маркеру <code>// @FRAGMENT</code>.</li>
-<li>Загрузчик инжектит атрибуты GPU-инстансинга (<code>in_model0-3</code>, SSBO-биндинги 4/5 на 430+), UV-оверрайды (<code>u_uv_scale</code>, <code>u_uv_offset</code>, <code>u_uv_world_scale</code>) и резолвит маркеры инклюдов area-теней и каустики.</li>
-<li>Поиск шейдеров — дерево <code>core/shaders</code> корня движка: <code>materials</code>, <code>internal</code>, <code>compute</code>, <code>include</code>, <code>legacy</code>.</li>
+<li><a href="../materials/">Materials</a>, <a href="../pipeline/">Pipeline</a>, <a href="../mesh-renderer/">Mesh Renderer</a>, <a href="../water/">Water</a></li>
 </ul>
-<p>Процесс: дублируйте <code>Unlit.shader</code>, переименуйте путь <code>Shader "..."</code>, объявите входы в Properties (автопоявятся в каждом материале на нём), пишите проходы, назначьте на материал и итерируйте с горячим превью. Ошибки компиляции печатаются с файлом и строкой — чините сверху вниз, первая обычно каскадит.</p>
-<p>Фолбэк компиляции: сначала пробуется <code>#version 430 core</code>; при провале повтор как <code>#version 330 core</code> с принудительно выкл инстансингом и скиннингом. Эффекты, фундаментально требующие 430 (SSBO-пути), visibly деградируют — смотрите notice в консоли.</p>
-<p>Встроенная библиотека в <code>core/shaders</code>: 9 шейдеров материалов (<code>PBR</code>, <code>Unlit</code>, <code>Sky</code>, <code>Skybox</code>, <code>Water</code>, <code>WaterSim</code>, <code>Tree</code>, <code>Clouds</code>, <code>CloudLayer</code>), 20+ внутренних (<code>Default</code>, <code>Shadow</code>, <code>Particle</code>, <code>ParticleGpu</code>, <code>Sprite</code>, <code>Text</code>, <code>Video</code>, <code>Icon</code>, <code>Gizmo</code>, <code>Grid</code>, <code>Outline</code>, <code>ObjectFx</code>, <code>Projector</code>, <code>GaussianSplat</code>, <code>Caustics</code>, <code>Underwater</code> и другие) и общие сниппеты <code>include/</code> (<code>area_shadows.glsl</code>, <code>caustics.glsl</code>).</p>
-<p>Для нодового авторства — Shader Graph в руководстве по редактору; для значений на материал — материалы.</p>
-<p>Связанное: материалы, MeshRenderer (UV-оверрайд uniforms), свет (uniform света), Shader Graph.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/shaders/materials/PBR.shader:7-45</code></li>
+<li><code>core/renderer/shaderp/manager.py</code>, <code>core/renderer/shaderp/fallback.py:110</code></li>
+<li><code>core/renderer/mats/shader.py</code></li>
+</ul>
               
             </div>
           </div><footer>

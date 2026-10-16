@@ -1046,6 +1046,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Импорт моделей через Assimp</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api">Свойства / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_1">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Связанные</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../textures/">Текстуры и сжатие</a>
@@ -1237,15 +1247,63 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="assimp">Импорт моделей через Assimp</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Импорт моделей через Assimp в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<p>Нативный Assimp (<code>assimp-vc143-mt.dll</code> / <code>libassimp.so.6.0.5</code>) читает ноды, меши, кости и блендшейпы <code>aiAnimMesh</code> в <code>MeshImportData</code>.</p>
+<h2 id="api">Свойства / API</h2>
+<table>
+<thead>
+<tr>
+<th>Элемент</th>
+<th>Источник</th>
+<th>Смысл</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Библиотека</td>
+<td><code>importer/assimp.py</code></td>
+<td>Имя DLL/SO по ОС, <code>_get_dll()</code>, <code>_node_world_zup</code></td>
+</tr>
+<tr>
+<td>Типы</td>
+<td><code>importer/ctypes_types.py</code></td>
+<td><code>aiScene/aiNode/aiMesh/aiBone/aiAnimMesh</code>, <code>MeshImportData</code>: <code>bone_weights</code>, <code>blendshape_*</code></td>
+</tr>
+<tr>
+<td>Скелет</td>
+<td><code>importer/anim.py</code></td>
+<td><code>_collect_meshes</code>, <code>_read_bones</code>, <code>_finalize_blendshapes</code></td>
+</tr>
+<tr>
+<td>OBJ fast/slow</td>
+<td><code>importer/mesh.py</code></td>
+<td><code>_obj_load_fast</code> (чанки, потоки) vs slow; <code>_cy_parse_obj_chunk</code> при Cython</td>
+</tr>
+<tr>
+<td><code>.import</code> ключи</td>
+<td><code>importer/settings.py</code></td>
+<td><code>scale</code>, <code>center_pivot</code>, <code>flip_uvs</code>, <code>smooth_angle</code>, <code>gen_normals</code>, <code>gen_uvs</code>, <code>blendshapes</code>, <code>materials[]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_1">Использование в редакторе</h2>
+<ol>
+<li>Киньте модель в <code>assets/</code>; создайте <code>&lt;model&gt;.import</code> для scale/pivot/UV/нормалей/блендшейпов.</li>
+<li>Реимпорт по изменению; скелет и блендшейпы уходят в скиннед-рендер и кривые клипа.</li>
+</ol>
+<h2 id="_2">Использование в коде</h2>
+<pre><code class="language-python"># assets/models/orc.fbx.import
+{&quot;scale&quot;: 1.0, &quot;center_pivot&quot;: false, &quot;flip_uvs&quot;: true,
+ &quot;smooth_angle&quot;: 30.0, &quot;gen_normals&quot;: true, &quot;gen_uvs&quot;: true,
+ &quot;blendshapes&quot;: true, &quot;materials&quot;: [&quot;body&quot;, &quot;eyes&quot;]}
+</code></pre>
+<h2 id="_3">Связанные</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Обзор ассетов, Текстуры, Клип анимации</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_4">Проверено по</h2>
+<ul>
+<li><code>core/assets/importer/assimp.py</code>, <code>anim.py</code>, <code>mesh.py</code>, <code>settings.py</code>, <code>ctypes_types.py</code></li>
+</ul>
               
             </div>
           </div><footer>

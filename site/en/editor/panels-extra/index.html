@@ -575,6 +575,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Animation, Scripts, Prefab, Mesh, VCS Panels</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../collaboration-mcp/">Collaboration and MCP Docks</a>
@@ -1237,15 +1247,128 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="animation-scripts-prefab-mesh-vcs-panels">Animation, Scripts, Prefab, Mesh, VCS Panels</h1>
-<p>TODO: Content pending. This page will document Animation, Scripts, Prefab, Mesh, VCS Panels in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p>Satellite docks under <code>editor/panels/</code>: play view, animation, script editing, prefab/library, mesh editing, packages, VCS, plus the small dialogs/widgets that support them. All class/method names below are read from the listed files.</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Panel</th>
+<th>Location</th>
+<th>Key API (verified)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Play dock + runtime view</td>
+<td><code>panels/play/dock.py</code>, <code>viewport.py</code>, <code>viewport_base.py</code>, <code>fallback_view.py</code></td>
+<td>In-play render surface used by Play mode</td>
+</tr>
+<tr>
+<td>Animation clip editor</td>
+<td><code>panels/anim/panel.py</code></td>
+<td>Clip key editing surface</td>
+</tr>
+<tr>
+<td>Animator graph editor</td>
+<td><code>panels/animator/panel.py</code>, <code>graph.py</code>, <code>params.py</code></td>
+<td>State-machine canvas + parameter list</td>
+</tr>
+<tr>
+<td>Terrain dock</td>
+<td><code>panels/terrain/panel.py</code>, <code>graph_widget.py</code></td>
+<td>Embeds the terrain node canvas (see Terrain Node Graph)</td>
+</tr>
+<tr>
+<td>Time travel</td>
+<td><code>panels/timetravel/panel.py</code>, <code>recorder.py</code>, <code>playback.py</code></td>
+<td>Record + scrub session history</td>
+</tr>
+<tr>
+<td>VCS</td>
+<td><code>panels/vcsp/panel.py</code>, <code>git.py</code>, <code>commit.py</code>, <code>diff.py</code>, <code>widgets.py</code></td>
+<td>Git status/commit/diff inside the editor</td>
+</tr>
+<tr>
+<td>Mesh editor</td>
+<td><code>panels/meshedit/panel.py</code>, <code>ops.py</code>, <code>widgets.py</code></td>
+<td>Mesh operations (backed by <code>plugins/mesh_editor_plugin.py</code> MeshEditorPlugin)</td>
+</tr>
+<tr>
+<td>Script editor</td>
+<td><code>panels/script_editor_panel/panel.py</code> + <code>edit/</code>, <code>tabsp/</code>, <code>wid/</code></td>
+<td>Multi-tab code editor: <code>highlighter.py</code>, <code>folding.py</code>, <code>gutter.py</code>, <code>diagnostics.py</code>, <code>inspection.py</code>, <code>api_words.py</code>, <code>doc_popup.py</code>/<code>doc_provider.py</code>, <code>blame.py</code>, <code>ot.py</code> (collab OT), <code>stripe.py</code>, <code>theme.py</code>, <code>vision.py</code>, <code>smooth.py</code></td>
+</tr>
+<tr>
+<td>Scripts registry</td>
+<td><code>panels/scripts_panel.py</code>, <code>syntax_config.py</code></td>
+<td>Script list + syntax settings</td>
+</tr>
+<tr>
+<td>Prefab editor</td>
+<td><code>panels/prefab_editor_panel.py</code></td>
+<td>Prefab tab (opened by <code>handlersp/prefab.py</code>)</td>
+</tr>
+<tr>
+<td>Library packs</td>
+<td><code>panels/library_pack_dialog.py</code></td>
+<td>Pack browser dialog</td>
+</tr>
+<tr>
+<td>Package manager</td>
+<td><code>panels/pkgmgr/panel.py</code>, <code>ops.py</code>, <code>bridge.py</code>, <code>dialogs.py</code> (+ <code>pkgcore/</code>)</td>
+<td>Install/remove packages</td>
+</tr>
+<tr>
+<td>Plugin manager</td>
+<td><code>panels/plugin_manager_panel.py</code>: <code>PluginManagerPanel(engine)</code> + <code>_refresh()</code>, <code>_toggle_plugin(row, state)</code>, <code>_load_plugin()</code>, <code>_build_plugin()</code>, <code>_package_zplugin()</code>, <code>_new_library_pack()</code></td>
+<td>Enable/disable, load, build, package</td>
+</tr>
+<tr>
+<td>Plugin packager</td>
+<td><code>panels/plugin_package_panel.py</code></td>
+<td><code>.zplugin</code> packaging UI</td>
+</tr>
+<tr>
+<td>Entity creation</td>
+<td><code>panels/add_entity_menu.py</code>, <code>panels/node_palette.py</code></td>
+<td>"Add Entity..." dialog + node palette</td>
+</tr>
+<tr>
+<td>Scene plumbing</td>
+<td><code>editor/scene_async.py</code>, <code>editor/scene_toolbar.py</code>, <code>editor/ipc_server.py</code></td>
+<td>Async scene load, scene toolbar, external IPC</td>
+</tr>
+<tr>
+<td>App chrome</td>
+<td><code>editor/splash.py</code>, <code>editor/bug_report.py</code>, <code>editor/project_manager.py</code>, <code>editor/file_associations.py</code>, <code>editor/shellmenu/</code></td>
+<td>Splash, bug reporter, file bindings, OS shell entries</td>
+</tr>
+<tr>
+<td>Helpers</td>
+<td><code>editor/cam/</code>, <code>editor/entframe/</code>, <code>editor/hover/</code>, <code>editor/gloff/</code>, <code>editor/gui_editor/</code>, <code>editor/matwiz/</code>, <code>editor/picker/</code>, <code>editor/icons.py</code>, <code>editor/constants.py</code>, <code>editor/keybinding_widget.py</code>, <code>editor/sphere_renderer.py</code></td>
+<td>Camera/entity-frame/hover helpers, GUI editor, pickers, icon + constant registries</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Every dock toggles from the View menu and persists geometry via <code>load_config</code>. Script tabs mirror the main-window script tab bar (remote peer edits arrive through <code>ot.py</code>). The Animator panel edits states/transitions whose fields render in the Inspector animator sub-editors. Time travel records during Play and scrubs afterwards. VCS commit/diff work on the project root. No extra global hotkeys are bound in code for these docks beyond the main-window set.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">panel = PluginManagerPanel(engine, parent=mw)
+panel._refresh()
+panel._toggle_plugin(row, state)
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Main Window, Inspector (animator sub-editors), Project Panel, Collaboration and MCP docks</li>
+<li>Plugins: PluginBase Lifecycle, Plugin Manager, <code>.zplugin</code> Packaging</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>editor/panels/</code> directory listing (all names above), <code>editor/panels/plugin_manager_panel.py</code></li>
+<li><code>editor/scene_async.py</code>, <code>editor/scene_toolbar.py</code>, <code>editor/ipc_server.py</code>, <code>editor/splash.py</code>, <code>editor/bug_report.py</code>, <code>editor/file_associations.py</code></li>
+</ul>
               
             </div>
           </div><footer>

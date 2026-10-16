@@ -1241,7 +1241,7 @@
 <p>Подставляемые имена: <code>Input</code>, <code>KeyCode</code>, <code>Vec2</code>, <code>Vec3</code>, <code>Vec4</code>, <code>Curve</code>, <code>Range</code>, <code>Logger</code>.</p>
 <p>Клавиатура и мышь:</p>
 <ul>
-<li><code>Input.GetKey(code)</code> — зажата в этом кадре; <code>Input.GetKeyDown(code)</code> — нажата в этом кадре; <code>Input.GetKeyUp(code)</code> — отпущена. Коды из <code>KeyCode</code> (<code>KeyCode.W</code>, <code>KeyCode.Space</code>, <code>KeyCode.Shift</code>, стрелки, цифры и другие).</li>
+<li><code>Input.GetKey(code)</code> — зажата в этом кадре; <code>Input.GetKeyDown(code)</code> — нажата в этом кадре; <code>Input.GetKeyUp(code)</code> — отпущена. Коды из <code>KeyCode</code> (<code>KeyCode.W</code>, <code>KeyCode.SPACE</code>, <code>KeyCode.LEFT_SHIFT</code> / <code>KeyCode.RIGHT_SHIFT</code>, стрелки, цифры и другие).</li>
 <li><code>Input.GetMouseButton(i)</code>, <code>GetMouseButtonDown(i)</code>, <code>GetMouseButtonUp(i)</code> — состояние кнопок по индексу.</li>
 <li><code>Input.GetButton(name)</code>, <code>GetButtonDown(name)</code>, <code>GetButtonUp(name)</code> — именованные кнопки действий.</li>
 <li><code>Input.GetAxis(name)</code>, <code>Input.GetAxisRaw(name)</code> — сглаженные против сырых осей вроде <code>"Horizontal"</code>.</li>
@@ -1266,7 +1266,7 @@
             t.translate(Vec3(0.0, 0.0, step))
         if Input.GetKey(KeyCode.S):
             t.translate(Vec3(0.0, 0.0, -step))
-        if Input.GetKeyDown(KeyCode.Space):
+        if Input.GetKeyDown(KeyCode.SPACE):
             Logger.info(&quot;jump pressed&quot;)
 </code></pre>
 <pre><code class="language-python">class Looker:
@@ -1279,6 +1279,7 @@
             t.rotate(Vec3(0.0, x * self.sensitivity * dt, 0.0))
 </code></pre>
 <p>Паттерн курсора для fly-камер: лок при зажатой правой кнопке, релиз по отпусканию — ведите <code>Input.cursorLocked</code> из колбэков кнопок мыши в <code>on_update</code>.</p>
+<p>Оси вроде <code>"Horizontal"</code> существуют только после загрузки биндингов (<code>Input.LoadProjectBindings</code> на старте) или явного <code>Input.DefineAxis("Horizontal", positive=[KeyCode.D], negative=[KeyCode.A])</code>. Для неопределённого имени <code>GetAxis</code> / <code>GetAxisRaw</code> возвращают <code>0.0</code>, так что <code>Looker</code> выше стоит на месте, пока ось не определена, — определите её в настройке проекта до использования (см. обзор Input).</p>
               
             </div>
           </div><footer>

@@ -1,22 +1,50 @@
 # Mesh-коллайдер
 
-Коллизии из геометрии меша там, где примитивы не ложатся: статуи, куски террейна, корпуса техники, вогнутые декорации.
+Коллизии из геометрии меша там, где примитивы не ложатся: статуи, корпуса техники, вогнутые декорации.
 
-| Поле | Default | Смысл |
+## Свойства
+
+| Поле | По умолчанию | Примечания |
 |---|---|---|
-| center | начало | Локальный сдвиг |
-| mesh_path | — | Исходный файл (тот же импорт, что MeshFilter) |
-| collision_mode | AUTO | AUTO / MESH / CONVEX_HULL / BOX / SPHERE-аппроксимации |
-| max_vertices | 2000 | Бюджет упрощения генерируемых оболочек |
+| `mesh_path` | `""` | `*.obj *.stl *.gltf *.glb` |
+| `collision_mode` | `auto` | `auto` / `mesh` / `convex_hull` / `box` / `sphere` |
+| `max_vertices` | `2000` | `0–100000`, бюджет hull |
+| `center` | `(0, 0, 0)` | Смещение |
+| `layer` / `mask` | `0` / `0xFFFF` | Фильтрация |
+| `is_trigger` | `False` | Только пересечение |
+| `physic_material` | `""` | `.zphysmat` |
+| `material_friction` / `material_bounciness` | `0.6` / `0.0` | Запасные |
 
-Логика эффективного режима, сверено: AUTO становится MESH для статики (точные треугольники) и CONVEX_HULL для динамики (стабильная аппроксимация); явный MESH на динамике автоматически понижается до CONVEX_HULL. Тело динамическое при активном Rigidbody положительной массы (кинематика тоже) и не-триггере.
+## Использование в редакторе
 
-Реальность цены: треугольный меш против динамического тела — самая дорогая пара в физике; она для статичной геометрии уровня. Всё движущееся получает примитивы, компаунды или выпуклые оболочки. `max_vertices` капает сложность оболочки; опускайте, пока гизмо ещё обнимает силуэт.
+Назначить `Mesh`, оставить `auto` (статика → точный `mesh`, динамика → `convex_hull`). Hull держать в `max_vertices`.
 
-Режимы BOX/SPHERE — даунгрейд в один клик, когда меш оказался примерно боксом или шаром — дешевле, чем перевыпускать коллайдер.
+## Использование в коде
 
-Процесс: статичная статуя — AUTO (→MESH), без Rigidbody; движущиеся обломки — AUTO (→CONVEX_HULL) с Rigidbody, а лучше компаунд из 3 боксов; террейн — предпочитайте TerrainCollider мешу.
+```python
+entity = scene.create_entity("Statue")
+from core.components.physics.meshcol.collider import MeshCollider
 
-Диагностика: проваливается — динамическое тело с форсированным MESH (проверьте эффективный режим), грубая оболочка или туннелирование; долгая готовка при загрузке — огромен max_vertices, децимируйте исходник; рассинхрон с картинкой — mesh_path отличается от пути MeshFilter.
+mc = MeshCollider()
+mc.mesh_path = "assets/statue.obj"
+mc.max_vertices = 2000
+entity.add_component(mc)  # без Rigidbody = статика
 
-Связанное: MeshFilter, Terrain-коллайдер, Rigidbody, заметки о компаунде в обзоре.
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+```
+
+Правило режимов: `AUTO` → `MESH` для статики, `CONVEX_HULL` для динамики; явный `MESH` на динамике форсируется в `CONVEX_HULL`. Меш на динамическом теле даунгрейдится до бокса (`downgrade_mesh_to_box` с варнингом); остальные непримитивы — отдельные статичные тела.
+
+## Заметки о fixed update
+
+- Вызов: `create_rigid_body(shape_type="mesh", ...)`; `dt` — `Engine._fixed_dt` (`0.02`).
+
+## Связанные
+
+Rigidbody, Box (цель даунгрейда), Terrain, материалы, слои.
+
+## Проверено по
+
+- `core/components/physics/meshcol/collider.py`, `meshcol/mode.py`
+- `core/physics/shapep/shapes.py`

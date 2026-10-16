@@ -261,13 +261,15 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Spike Growth</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    <li class="toctree-l4"><a class="reference internal" href="#shader-snippet">Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1248,140 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="spike-growth">Spike Growth</h1>
-<p>Per-object effect through the ObjectFx pass (unlike PostFX, which processes the whole frame). Built on the shared ObjectEffect base; scripts drive it by animating progress/intensity floats.</p>
-<h2 id="how-it-works">How it works</h2>
-<p>Extrudes procedural spikes from the surface along normals with length control.</p>
+<blockquote>
+<p>Geometry-shader spikes. Each triangle extrudes up to 4× (max 12 verts) along normals; length × amount sets height, radius shrinks the base, noise/cell vary per-spike length, twist rotates, emission/color + rim shade the spikes. Optional animate/ping_pong. Class <code>SpikeGrowthEffect</code> in <code>core/components/rendering/effects/spike_growth_effect.py</code>. ObjectFx geometry-shader extrusion (layout triangles → triangle_strip max_vertices = 12): vertices push along normals by length × amount with cell noise.</p>
+</blockquote>
 <h2 id="parameters">Parameters</h2>
-<p>Progress/length, density, sharpness.</p>
-<h2 id="tips">Tips</h2>
-<p>Corruption spread, armor-up power-ups, sea mines arming.</p>
-<h2 id="cost">Cost</h2>
-<p>Medium by spike density.</p>
-<p>Related: <a href="../">Object Effects</a>, Materials, Script Examples.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Amount</td>
+<td><code>amount</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Spike Length</td>
+<td><code>length</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>1.5</code></td>
+</tr>
+<tr>
+<td>Base Shrink</td>
+<td><code>radius</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>0.35</code></td>
+</tr>
+<tr>
+<td>Length Noise</td>
+<td><code>noise</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>0.6</code></td>
+</tr>
+<tr>
+<td>Twist</td>
+<td><code>twist</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>0.6</code></td>
+</tr>
+<tr>
+<td>Glow</td>
+<td><code>emission</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>3.0</code></td>
+</tr>
+<tr>
+<td>Spike Color</td>
+<td><code>color</code></td>
+<td>COLOR</td>
+<td>—</td>
+<td><code>[0.35, 0.9, 1.0]</code></td>
+</tr>
+<tr>
+<td>Rim Power</td>
+<td><code>rim</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>2.5</code></td>
+</tr>
+<tr>
+<td>Cell Size</td>
+<td><code>cell</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>0.25</code></td>
+</tr>
+<tr>
+<td>Double Sided</td>
+<td><code>double_sided</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>True</code></td>
+</tr>
+<tr>
+<td>Animate</td>
+<td><code>animate</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td>Anim Speed</td>
+<td><code>speed_anim</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Ping Pong</td>
+<td><code>ping_pong</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">Usage</h2>
+<p>Editor: select the mesh entity, Add Component &gt; <code>SpikeGrowthEffect</code>, tick <code>enabled</code>, animate the amount fields from a script.</p>
+<p>Code:</p>
+<pre><code class="language-python">from core.components.rendering.effects.spike_growth_effect import SpikeGrowthEffect
+fx = SpikeGrowthEffect()
+entity.add_component(fx)
+fx.amount = 0.7
+fx.length = 2.0
+fx.enabled = True
+# per-frame: fx.amount = min(1.0, fx.amount + dt * 0.5)
+</code></pre>
+<h2 id="shader-snippet">Shader snippet</h2>
+<p>Shader: <code>core/components/rendering/effects/spike_growth_effect.py (geometry header) + ObjectFx.shader</code>. Bound uniforms: <code>u_spike_amount</code>, <code>u_spike_length</code>, <code>u_spike_radius</code>, <code>u_spike_noise</code>, <code>u_spike_twist</code>, <code>u_spike_emission</code>, <code>u_spike_color</code>, <code>u_spike_rim</code>, <code>u_spike_cell</code>, <code>u_double_sided</code>, <code>u_time</code>.</p>
+<pre><code class="language-glsl">#version 330 core
+layout(triangles) in;
+layout(triangle_strip, max_vertices = 12) out;
+// uniforms: u_spike_amount, u_spike_length, u_spike_radius, u_spike_noise, u_spike_twist, u_spike_cell, u_spike_color, u_spike_emission, u_spike_rim
+</code></pre>
+<h2 id="related">Related</h2>
+<p>Related: <a href="../">Object Effects</a>, ObjectFx pass (<code>core/renderer/object_fx_pass.py</code>), <code>core/shaders/internal/ObjectFx.shader</code>.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/effects/spike_growth_effect.py</code> — class <code>SpikeGrowthEffect</code>, <code>_inspector_fields</code>, <code>__init__</code> defaults, <code>_apply</code> uniforms.</li>
+<li><code>core/components/rendering/effects/object_effect.py</code> — <code>ObjectEffect</code> base (<code>bind</code> sets <code>u_time</code>, <code>_set</code>/<code>_set_vec</code> guards, <code>reset_all_defaults</code>).</li>
+<li><code>core/renderer/object_fx_pass.py</code> — <code>_find_object_effect</code>, <code>_render_object_effects</code>, <code>_get_fx_program</code>.</li>
+</ul>
               
             </div>
           </div><footer>

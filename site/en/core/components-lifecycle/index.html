@@ -73,6 +73,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Components and Lifecycle</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#serialization">Serialization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../registry-serialization/">Registry and Serialization</a>
@@ -1237,15 +1251,163 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="components-and-lifecycle">Components and Lifecycle</h1>
-<p>TODO: Content pending. This page will document Components and Lifecycle in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p>A <code>Component</code> is data plus lifecycle hooks. Subclass it, decorate with <code>@ComponentRegistry.register</code>, implement <code>serialize</code>/<code>deserialize</code>, and the engine calls <code>on_awake → on_start → on_update(dt) / on_fixed_update(dt) → on_destroy</code>.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="overview">Overview</h2>
+<p><code>Component.__init_subclass__</code> auto-detects per-frame participation: <code>_updates</code> is <code>True</code> when the subclass overrides <code>on_update</code>, <code>_fixed_updates</code> when it overrides <code>on_fixed_update</code>. Only active-entity, <code>enabled</code> components sit in the scene's dispatch sets; the <code>enabled</code> setter syncs them immediately. <code>on_awake</code> runs on <code>add_component</code> (even in edit mode); <code>on_start</code> runs once per <code>Scene.start()</code> (i.e. Play start). <code>Scene.update</code> partitions components into constraints → others → IK; <code>Scene.fixed_update</code> iterates the cached fixed set in set order (no guaranteed insertion order). Callback exceptions are caught per component and logged as <code>Update error in &lt;entity&gt;/&lt;component&gt;</code> (same for fixed). <code>ScriptComponent._allow_multiple = True</code>; most built-ins are single-instance.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>enabled</td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Setter adds/removes the component from scene dispatch sets</td>
+</tr>
+<tr>
+<td>entity</td>
+<td>Entity|None</td>
+<td><code>None</code></td>
+<td>Owning entity (set by <code>add_component</code>)</td>
+</tr>
+<tr>
+<td>transform</td>
+<td>Component|None</td>
+<td>cached</td>
+<td>Owning entity's <code>Transform</code>, cached per component</td>
+</tr>
+<tr>
+<td>_allow_multiple</td>
+<td>bool</td>
+<td><code>False</code></td>
+<td><code>True</code> → key <code>Class.&lt;8-hex&gt;</code>; e.g. <code>ScriptComponent</code>, colliders</td>
+</tr>
+<tr>
+<td>_updates</td>
+<td>bool</td>
+<td>auto</td>
+<td><code>True</code> if subclass overrides <code>on_update</code></td>
+</tr>
+<tr>
+<td>_fixed_updates</td>
+<td>bool</td>
+<td>auto</td>
+<td><code>True</code> if subclass overrides <code>on_fixed_update</code></td>
+</tr>
+<tr>
+<td>on_awake</td>
+<td>hook</td>
+<td><code>pass</code></td>
+<td>At <code>add_component</code> time</td>
+</tr>
+<tr>
+<td>on_start</td>
+<td>hook</td>
+<td><code>pass</code></td>
+<td>Once per <code>Scene.start()</code></td>
+</tr>
+<tr>
+<td>on_update(dt)</td>
+<td>hook</td>
+<td><code>pass</code></td>
+<td>Every frame in Play mode</td>
+</tr>
+<tr>
+<td>on_fixed_update(dt)</td>
+<td>hook</td>
+<td><code>pass</code></td>
+<td>Every fixed step in Play mode</td>
+</tr>
+<tr>
+<td>on_enable / on_disable</td>
+<td>hook</td>
+<td><code>pass</code></td>
+<td>On entity activation / deactivation</td>
+</tr>
+<tr>
+<td>on_destroy</td>
+<td>hook</td>
+<td><code>pass</code></td>
+<td>On component/entity/scene removal</td>
+</tr>
+<tr>
+<td>serialize</td>
+<td>method</td>
+<td><code>{"type", "enabled"}</code></td>
+<td>Base dict; subclasses extend</td>
+</tr>
+<tr>
+<td>gizmo hooks</td>
+<td>methods</td>
+<td><code>gizmo_lines</code>, <code>gizmo_primitives</code>, <code>gizmo_instances</code>, …</td>
+<td>Editor visualization; empty by default</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p><code>Add Component</code> menu is built from <code>ComponentRegistry.all()</code> grouped by inferred category. Inspector fields come from <code>_inspector_fields()</code> (<code>InspectorField</code> metadata). Multi-instance components show suffixed keys (<code>ScriptComponent.ab12cd34</code>) and an order control via <code>Entity.move_component(key, direction)</code>.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from core.ecs import Component
+from core.ecs import ComponentRegistry
+from core.maths.math3d import Vec3
+
+@ComponentRegistry.register
+class Mover(Component):
+    def __init__(self):
+        super().__init__()
+        self.speed = 5.0
+
+    def on_update(self, dt: float):
+        t = self.transform
+        if t:
+            t.translate(Vec3(0.0, 0.0, self.speed * dt))
+
+    def serialize(self):
+        d = super().serialize()
+        d[&quot;speed&quot;] = self.speed
+        return d
+
+    @classmethod
+    def deserialize(cls, data):
+        m = cls()
+        m._enabled = bool(data.get(&quot;enabled&quot;, True))
+        m.speed = float(data.get(&quot;speed&quot;, 5.0))
+        return m
+</code></pre>
+<pre><code class="language-python">from core.components.scripting.scriptc.component import ScriptComponent
+
+comp.enabled = False  # leaves the scene dispatch sets until re-enabled
+multi = player.add_component(ScriptComponent())  # key like &quot;ScriptComponent.&lt;8-hex&gt;&quot;
+player.move_component(multi._key, -1)  # reorder multi-instance components
+</code></pre>
+<h2 id="serialization">Serialization</h2>
+<p>Base component dict: <code>{"type": "&lt;ClassName&gt;", "enabled": true, "_key": "&lt;key&gt;"}</code> (<code>_key</code> added by <code>Entity.serialize</code>). Subclasses add their fields; unknown <code>type</code> names are skipped on load (<code>Entity.deserialize</code> checks <code>registry.get(ctype)</code>).</p>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li><a href="../ecs-overview/">ECS Overview</a></li>
+<li><a href="../entity/">Entity</a></li>
+<li><a href="../registry-serialization/">Registry and Serialization</a></li>
+<li><a href="../../scripting/overview/">Scripting</a></li>
+<li><a href="../../scripting/examples/">Script Examples</a></li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/ecs/component.py</code> (<code>__init_subclass__</code>, <code>enabled</code> setter, hooks, <code>serialize</code>/<code>deserialize</code>, <code>transform</code> cache)</li>
+<li><code>core/ecs/entity.py</code> (<code>add_component</code> → <code>on_awake</code>, <code>_make_component_key</code>, <code>move_component</code>)</li>
+<li><code>core/ecs/query.py</code> (<code>run_update</code>, <code>run_fixed</code>, <code>run_start</code>, partitioning)</li>
+<li><code>core/ecs/registry.py</code> (<code>register</code>)</li>
+<li><code>core/components/scripting/scriptc/component.py</code> (<code>_allow_multiple = True</code>)</li>
+</ul>
               
             </div>
           </div><footer>

@@ -559,6 +559,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Project Panel and Assets</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../console-terminal/">Console and Terminal</a>
@@ -1237,15 +1247,99 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="project-panel-and-assets">Project Panel and Assets</h1>
-<p>TODO: Content pending. This page will document Project Panel and Assets in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p><code>ProjectPanel</code> (<code>editor/panels/project/</code>) — the asset browser: folder tree + file list/detail views, drag-and-drop, file ops with undo, asset creation wizards, VCS hooks, thumbnail cache.</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Signature</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Views</td>
+<td><code>FileListWidget</code>, <code>FileDetailWidget</code>, <code>FolderTreeWidget</code> in <code>project/widgets.py</code></td>
+<td>Icon list, detail tree, folder tree; all accept drops</td>
+</tr>
+<tr>
+<td><code>DndMixin._move_or_copy_files</code></td>
+<td><code>(paths, dest_dir=None, force_move=None)</code></td>
+<td>Core drop/move engine</td>
+</tr>
+<tr>
+<td><code>DndMixin</code> file ops</td>
+<td><code>_copy_selected/_cut_selected/_paste_clipboard/_duplicate_selected/_delete_selected/_copy_path</code></td>
+<td>Clipboard + delete</td>
+</tr>
+<tr>
+<td><code>DndMixin._on_entity_drop</code></td>
+<td><code>(event)</code></td>
+<td>Drops onto entities (material assign path)</td>
+</tr>
+<tr>
+<td><code>FsOpsMixin._fs_copy/_fs_move/_fs_remove</code></td>
+<td><code>(src, dst) -&gt; bool</code></td>
+<td>Guarded filesystem primitives</td>
+</tr>
+<tr>
+<td><code>FsOpsMixin</code> file undo</td>
+<td><code>_push_file_undo(op)</code>, <code>_undo_file_op()</code>, <code>_redo_file_op()</code></td>
+<td>Undoable file operations</td>
+</tr>
+<tr>
+<td><code>FsOpsMixin._rename_item</code></td>
+<td><code>(widget, item)</code></td>
+<td>Inline rename</td>
+</tr>
+<tr>
+<td><code>FsOpsMixin</code> dir sizes</td>
+<td><code>_ensure_size_thread/_dir_size_loop/_request_dir_sizes/_on_dir_size_ready/_refresh_status_sizes</code></td>
+<td>Background size computation</td>
+</tr>
+<tr>
+<td><code>CreationMixin</code> creators</td>
+<td><code>_create_new_folder/_create_new_scene/_create_new_material/_create_new_physic_material/_create_new_animclip/_create_new_animcontroller/_create_new_script/_create_new_cython_script</code></td>
+<td>New-asset wizards</td>
+</tr>
+<tr>
+<td><code>CreationMixin.set_project_root</code></td>
+<td><code>(path: str)</code></td>
+<td>Rebinds the browser root</td>
+</tr>
+<tr>
+<td><code>VcsMixin</code></td>
+<td><code>project/vcs.py</code></td>
+<td>Version-control hooks surface</td>
+</tr>
+<tr>
+<td>Thumbnails</td>
+<td><code>editor/thumb_cache.py</code>, <code>editor/thumb_worker.py</code></td>
+<td>Async thumbnail generation</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Three panes: folder tree (navigate + drop target), file list (icons), detail view (columns). Drag files between folders to move/copy; drag assets into the viewport or onto entities to instantiate/assign. Right-click creates Folder, Scene, Material, Physic Material, Animation Clip, Animation Controller, Script, Cython Script. File copy/move/delete go through <code>_push_file_undo</code>, so they participate in undo. The breadcrumb bar (<code>_AddressBreadcrumb</code>) toggles between crumb and edit mode; the search bar filters the current folder. No letter hotkeys are bound in code for these views — operations are menu/drag-driven (views handle their own <code>keyPressEvent</code> for list navigation).</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">panel.set_project_root(project_root)
+panel._create_new_script()
+panel._undo_file_op()   # undo last file operation
+panel._redo_file_op()
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Hierarchy (prefab assets instantiated from here), Inspector (drop targets), Main Window (double-click routing)</li>
+<li>Thumbnail cache/worker, File Associations (<code>editor/file_associations.py</code>), OS shell menu (<code>editor/shellmenu/</code>)</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>editor/panels/project/widgets.py</code>, <code>editor/panels/project/dnd.py</code>, <code>editor/panels/project/fs_ops.py</code>, <code>editor/panels/project/creation.py</code>, <code>editor/panels/project/vcs.py</code></li>
+<li><code>editor/thumb_cache.py</code>, <code>editor/thumb_worker.py</code></li>
+</ul>
               
             </div>
           </div><footer>

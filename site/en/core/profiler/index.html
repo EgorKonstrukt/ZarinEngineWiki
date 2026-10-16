@@ -85,6 +85,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Profiler</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#serialization">Serialization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../foundation/">Foundation: Curve, Commands, Time Travel</a>
@@ -1237,15 +1251,117 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="profiler">Profiler</h1>
-<p>TODO: Content pending. This page will document Profiler in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p><code>Profiler</code> (<code>core/foundation/profiler.py</code>) records nested timing sections into flat per-frame data plus an optional rolling buffer of 300 frames. Disabled by default; toggle <code>profiler.enabled</code> or <code>engine.profiler_enabled</code>.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="overview">Overview</h2>
+<p>All methods are no-ops while <code>enabled</code> is <code>False</code>. <code>start(key)</code> pushes <code>(key, perf_counter)</code>; <code>stop(key)</code> pops the matching entry (nested-safe: searches the stack when the top mismatches) and accumulates milliseconds into <code>_flat_data</code>. <code>scope(key)</code> is the context-manager form. <code>set_value(key, ms)</code> writes an absolute value (used for <code>scene_serialize</code>). <code>capture_frame()</code> seals the current frame (frame time, samples with depth + color from <code>_PROFILER_COLORS</code>) into a <code>deque(maxlen=300)</code>. <code>Engine</code> exposes <code>profiler</code>, <code>profiler_data</code>, <code>get_profiler_data(key, default)</code>, <code>set_profiler_data</code>, <code>capture_profiler_frame()</code>, <code>reset_profiler()</code>, and the <code>profiler_enabled</code> property. Engine-emitted keys include <code>tick</code>, <code>fixed_update</code>, <code>update</code>, <code>scene_update</code>, <code>scene_fixed_update</code>, <code>scene_start</code>, <code>scene_serialize</code>, plus per-plugin <code>NAME</code> sections and subsystem keys (<code>physics_ms</code>, <code>render_scene</code>, <code>audio_ms</code>, <code>ui_ms</code>, <code>particle_ms</code>, <code>animation_ms</code>, <code>gizmo_lines</code>, <code>frame_overhead</code>, …).</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>enabled</td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Master switch; toggling clears stack/frame state</td>
+</tr>
+<tr>
+<td>capture_frames</td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>When <code>True</code>, per-frame samples are retained</td>
+</tr>
+<tr>
+<td>max_frames</td>
+<td>int</td>
+<td><code>300</code></td>
+<td><code>deque(maxlen=...)</code> constructor argument</td>
+</tr>
+<tr>
+<td>start(key) / stop(key)</td>
+<td>methods</td>
+<td>—</td>
+<td><code>stop</code> returns duration ms or <code>None</code></td>
+</tr>
+<tr>
+<td>scope(key)</td>
+<td>context manager</td>
+<td>—</td>
+<td><code>with profiler.scope("my_sys"):</code></td>
+</tr>
+<tr>
+<td>set_value(key, ms)</td>
+<td>method</td>
+<td>—</td>
+<td>Absolute write (not accumulation)</td>
+</tr>
+<tr>
+<td>capture_frame</td>
+<td>method</td>
+<td>—</td>
+<td>Seal frame into rolling buffer</td>
+</tr>
+<tr>
+<td>reset</td>
+<td>method</td>
+<td>—</td>
+<td>Clears frames, stack, flat data, counters</td>
+</tr>
+<tr>
+<td>data</td>
+<td>dict[str, float]</td>
+<td><code>{}</code> copy</td>
+<td>Flat accumulated timings (ms)</td>
+</tr>
+<tr>
+<td>frames</td>
+<td>list[FrameProfile]</td>
+<td>copy</td>
+<td>Sealed frames with <code>samples</code>, <code>frame_time_ms</code>, <code>flat_data</code></td>
+</tr>
+<tr>
+<td>engine surface</td>
+<td>properties</td>
+<td>—</td>
+<td><code>engine.profiler</code>, <code>engine.profiler_data</code>, <code>engine.profiler_enabled</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Profiler panel reads <code>engine.profiler_data</code> at <code>profiler.refresh_interval</code> (500 ms default) and the frame buffer for graphs. Enable via global config <code>profiler.enabled</code> or at runtime.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">engine.profiler_enabled = True
+with engine.profiler.scope(&quot;my_system&quot;):
+    step_simulation(dt)
+engine.set_profiler_data(&quot;my_metric&quot;, 1.25)
+print(engine.get_profiler_data(&quot;tick&quot;, 0.0))
+engine.capture_profiler_frame()
+</code></pre>
+<h2 id="serialization">Serialization</h2>
+<p>Not applicable. Profiler data is runtime-only.</p>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li><a href="../time/">Time and Fixed Update</a></li>
+<li><a href="../logging/">Logging</a></li>
+<li><a href="../config/">Configuration</a></li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/foundation/profiler.py</code> (<code>Profiler</code>, <code>ProfileSample</code>, <code>FrameProfile</code>, <code>_PROFILER_COLORS</code>, <code>max_frames=300</code>)</li>
+<li><code>core/engine/eng/loop.py</code> (<code>tick_begin</code>/<code>tick_fixed_step</code>/<code>tick_update</code> methods emitting <code>tick</code>/<code>fixed_update</code>/<code>update</code> keys, <code>profiler</code> property surface)</li>
+<li><code>core/config/config.py</code> (<code>profiler.enabled</code>, <code>profiler.refresh_interval</code>)</li>
+<li><code>core/ecs/query.py</code> (<code>scene_update</code>, <code>scene_fixed_update</code>, <code>scene_start</code> scopes)</li>
+<li><code>core/ecs/scene_serialize.py</code> (<code>profiler.set_value("scene_serialize", 0)</code>)</li>
+</ul>
               
             </div>
           </div><footer>

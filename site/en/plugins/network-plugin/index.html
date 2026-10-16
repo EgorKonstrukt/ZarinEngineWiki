@@ -1237,7 +1237,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="network-plugin-plugin-page">Network Plugin (Plugin Page)</h1>
-<p>System plugin (<code>network_plugin.py</code>, <code>SYSTEM = True</code>, <code>DESCRIPTION</code> "Multiplayer transport using GameServer/GameClient over TCP") bridging gameplay code and the transport singleton.</p>
+<p>System plugin (<code>network_plugin.py</code>, <code>NAME = "NetworkPlugin"</code>, <code>VERSION = "1.0.0"</code>, <code>SYSTEM = True</code>, <code>DESCRIPTION</code> "Multiplayer transport using GameServer/GameClient over TCP") bridging gameplay code and the transport singleton.</p>
 <p>Plugin-side facts:</p>
 <ul>
 <li>Loads in the system tier during editor/engine startup; <code>initialize</code> logs readiness, <code>shutdown</code> disconnects cleanly so no session survives quit.</li>

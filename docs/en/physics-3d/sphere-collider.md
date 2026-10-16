@@ -2,21 +2,58 @@
 
 Perfect ball: rolling, bouncing, head hitboxes, radial triggers and proximity sensors.
 
-| Inspector group / field | Default | Meaning |
+## Properties
+
+| Field | Default | Notes |
 |---|---|---|
-| Collision: Layer / Collision Mask | 0 / 0xFFFF | Filtering |
-| Shape: Center | origin | Local offset |
-| Shape: Radius | 0.5 | Scaled by the largest Transform axis |
-| Is Trigger | off | Overlap events without contact response |
-| Material: Physic Material | — | `.zphysmat` asset override |
-| Inline friction / bounciness | 0.6 / 0.0 | Used without an asset |
+| `layer` | `0` | `0–15` |
+| `mask` | `0xFFFF` | Collide-with bitmask |
+| `center` | `(0, 0, 0)` | Scaled by Transform scale (`scaled_center`) |
+| `radius` | `0.5` | Inspector `0.001–10000`; world radius = `radius * max(scale)` (`scaled_radius`) |
+| `is_trigger` | `False` | Overlap only |
+| `physic_material` | `""` | `.zphysmat` path, wins when set |
+| `material_friction` | `0.6` | Fallback |
+| `material_bounciness` | `0.0` | Fallback |
 
-Rolling needs friction: a marble with friction 0.05 slides like ice, with 0.6 it grips and rolls. Bounce height comes from bounciness — 0 dead drop, 0.8 lively ball, never exactly 1 (energy gain jitters stacks).
+## Usage in Editor
 
-Recipes: bouncy ball — radius 0.3, bounciness 0.8, friction 0.2, own layer masked to world + player; proximity sensor — large trigger sphere (radius 5–10) with a script counting enters/exits; head hitbox — small sphere on the head bone with a damage-reporting script.
+Set `Radius`/`Center`, layer + mask, `Is Trigger` for pickups/sensors. Multiple allowed per entity.
 
-Non-uniform parent scale picks the largest axis for the radius — a stretched parent makes a bigger ball than the mesh suggests. Keep visual and collision parents uniformly scaled.
+## Usage in Code
 
-Troubleshooting: rolls forever → angular drag 0 and no friction; will not roll → frozen rotation axes on the Rigidbody; trigger double-fires → enter/exit pairs on fast bodies, debounce in script.
+```python
+entity = scene.create_entity("Ball")
+from core.components.physics.rigidbody import Rigidbody
+from core.components.physics.sphere_collider import SphereCollider
+from core.maths.math3d import Vec3
 
-Related: Rigidbody, Capsule Collider, Physics Materials, Circle Collider 2D.
+rb = Rigidbody()
+rb.mass = 2.0
+entity.add_component(rb)
+s = SphereCollider()
+s.radius = 0.5
+entity.add_component(s)
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody)
+    if rb is not None:
+        rb.add_force(Vec3(0.0, 0.0, 10.0))
+        rb.add_torque(Vec3(1.0, 0.0, 0.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+```
+
+## Fixed update notes
+
+- Solver call: `create_rigid_body(shape_type="sphere", shape_params={"radius", "center"})`.
+- Shape re-check every 60 steps; `dt` is `Engine._fixed_dt` (`0.02` default).
+
+## Related
+
+Rigidbody, Box/Capsule colliders, Physics Materials, Collision Layers.
+
+## Verified against
+
+- `core/components/physics/sphere_collider.py`
+- `core/physics/shapep/shapes.py`

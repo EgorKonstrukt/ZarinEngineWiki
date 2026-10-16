@@ -117,6 +117,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Area Light</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../projector/">Projector</a>
@@ -1238,15 +1246,116 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="area-light">Area Light</h1>
-<p>Soft rectangular or disk emitter for studios, windows, softboxes and panels — the closest to real-world fixtures.</p>
+<blockquote>
+<p>Panel light: <code>AreaLight</code> (<code>core/components/lighting/lightp/shadows.py:79-185</code>) with nit brightness, rect/disk shape and multi-sample shadows.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Surface brightness in nits (cd/m²): monitor <code>200</code>, office panel <code>500</code>, overcast sky <code>2000</code>, softbox <code>10000</code>. Same nits on a bigger panel lights more (<code>shadows.py:92</code>). Gizmo draws the rect frame, optional disk ring and double-sided back frame (<code>shadows.py:118-161</code>).</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>color</code></td>
+<td>color3</td>
+<td><code>[1.0, 1.0, 1.0]</code></td>
+<td>Light color (<code>shadows.py:91</code>).</td>
+</tr>
+<tr>
+<td><code>intensity</code></td>
+<td>float nits (0–200000)</td>
+<td><code>100.0</code></td>
+<td>Surface brightness (<code>shadows.py:92,106</code>).</td>
+</tr>
+<tr>
+<td><code>range</code></td>
+<td>float (0–10000)</td>
+<td><code>10.0</code></td>
+<td>Cutoff distance (<code>shadows.py:93,107</code>).</td>
+</tr>
+<tr>
+<td><code>area_type</code></td>
+<td><code>LightAreaType</code></td>
+<td><code>RECT</code></td>
+<td><code>rect</code> / <code>disk</code> (<code>shadows.py:95,108</code>).</td>
+</tr>
+<tr>
+<td><code>area_width</code></td>
+<td>float (0.01–100)</td>
+<td><code>1.0</code></td>
+<td>Panel width, m (<code>shadows.py:96,109</code>).</td>
+</tr>
+<tr>
+<td><code>area_height</code></td>
+<td>float (0.01–100)</td>
+<td><code>1.0</code></td>
+<td>Panel height, m (<code>shadows.py:97,110</code>).</td>
+</tr>
+<tr>
+<td><code>area_double_sided</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Emit from both faces (<code>shadows.py:98,111</code>).</td>
+</tr>
+<tr>
+<td><code>area_samples</code></td>
+<td>int (1–64)</td>
+<td><code>6</code></td>
+<td>Shadow samples (<code>shadows.py:99,112</code>).</td>
+</tr>
+<tr>
+<td><code>area_shadow_bias</code></td>
+<td>float (0–0.1)</td>
+<td><code>0.005</code></td>
+<td>Shadow bias (<code>shadows.py:100,113</code>).</td>
+</tr>
+<tr>
+<td><code>cast_shadows</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Needs active <code>AreaShadow</code> (<code>shadows.py:102,114</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Scale via Area Width/Height, not the transform. Use Disk for round softboxes; enable Double Sided for paper lanterns. Raise Samples to soften, Bias to fix acne.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">al.area_type = LightAreaType.DISK
+al.area_width = 2.0
+al.area_samples = 12
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Intensity in nits, default 100. Reference: SDR monitor 200, office panel 500, overcast sky 2000, clear sky 5000, LED softbox 10000.</li>
-<li><code>area_type</code> RECT or DISK; size from <code>area_width</code> / <code>area_height</code>; <code>area_double_sided</code> emits from both faces (thin panels, windows).</li>
-<li>Softness from <code>area_samples</code> (default 6) — more samples, softer and costlier shadows; <code>area_shadow_bias</code> 0.005 against acne.</li>
+<li><a href="../light/">Light</a>, <a href="../shadows/">Shadows</a></li>
 </ul>
-<p>Area lights are the most expensive light type per unit: use them as hero sources (one soft key through a window, one panel over a desk) and fill the rest with points and spots. Gizmo draws the emitting quad so placement against windows reads directly.</p>
-<p>Workflow for a soft interior: area light outside the window aimed in (double-sided off), cool ambient or sky fill, one warm unshadowed point inside for bounce feel. Tune width/height to the actual window — mismatched sizes break the soft-shadow direction cue.</p>
-<p>Related: Light (Base), Shadows, Skybox (IBL fill alternative), Dynamic Cubemap notes.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/lighting/lightp/shadows.py:79-185</code></li>
+<li><code>core/components/lighting/lightp/light.py:20-22</code> (<code>LightAreaType</code>)</li>
+</ul>
               
             </div>
           </div><footer>

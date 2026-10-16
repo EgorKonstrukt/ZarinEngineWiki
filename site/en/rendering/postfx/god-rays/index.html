@@ -207,13 +207,17 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">God Rays</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    <li class="toctree-l4"><a class="reference internal" href="#shader-snippet">Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#performance-notes">Performance notes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1250,82 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="god-rays">God Rays</h1>
-<p>Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.</p>
-<h2 id="how-it-works">How it works</h2>
-<p>Radial light shafts fanning from bright sources, occluded by depth.</p>
+<blockquote>
+<p>Light-shaft raymarch. Bright pass above threshold is scattered toward the light screen position over N samples, scaled by exposure × intensity. Class <code>GodRays</code> in <code>core/components/rendering/postfx/godrays/component.py</code>. Runs in the PostFX stack in component order; skipped when <code>enabled</code> is False or the entity is inactive (<code>render()</code> early-out).</p>
+</blockquote>
 <h2 id="parameters">Parameters</h2>
-<p>Density, decay, exposure feel, source threshold.</p>
-<h2 id="tips">Tips</h2>
-<p>Forest sun shafts, cathedral windows, dusty halls. Needs a bright source in frame.</p>
-<h2 id="cost">Cost</h2>
-<p>Medium-high: radial samples. Shorten shafts before cutting the effect.</p>
-<p>Related: <a href="../">PostFX Stack</a>, Cameras (render scale), Profiler.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intensity</td>
+<td><code>_intensity</code></td>
+<td>FLOAT</td>
+<td>0.0 – 5.0</td>
+<td><code>0.8</code></td>
+</tr>
+<tr>
+<td>Exposure</td>
+<td><code>_exposure</code></td>
+<td>FLOAT</td>
+<td>0.0 – 0.5</td>
+<td><code>0.01</code></td>
+</tr>
+<tr>
+<td>Threshold</td>
+<td><code>_threshold</code></td>
+<td>SLIDER</td>
+<td>0.05 – 0.5</td>
+<td><code>0.25</code></td>
+</tr>
+<tr>
+<td>Samples</td>
+<td><code>_num_samples</code></td>
+<td>INT</td>
+<td>8 – 256</td>
+<td><code>64</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">Usage</h2>
+<p>Editor: select the PostFX entity, Add Component &gt; <code>GodRays</code>, tick <code>enabled</code>, tune fields above. Order among PostFX components defines execution order.</p>
+<p>Code:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.godrays.component import GodRays
+fx = GodRays()
+entity.add_component(fx)
+fx._intensity = 1.2
+fx._num_samples = 96
+fx.enabled = True
+</code></pre>
+<h2 id="shader-snippet">Shader snippet</h2>
+<p>Shader: <code>core/components/rendering/postfx/godrays/shaders.py</code>.</p>
+<pre><code class="language-glsl">// GOD_RAYS frag uniforms (exact names):
+// uniform sampler2D u_scene_color; uniform sampler2D u_depth_tex;
+// uniform vec2 u_light_uv; uniform vec3 u_light_color; uniform float u_light_intensity;
+// uniform float u_threshold; uniform float u_intensity; uniform float u_exposure; uniform int u_num_samples;
+</code></pre>
+<h2 id="performance-notes">Performance notes</h2>
+<p>Cost scales linearly with Samples (8–256, default 64). Uses scratch color/depth targets (<code>_scratch_color</code>, <code>_scratch_depth</code>).</p>
+<h2 id="related">Related</h2>
+<p>Related: <a href="../">PostFX Stack</a>, <a href="../color-grading/">Color Grading</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/godrays/component.py</code> — class <code>GodRays</code>, <code>_inspector_fields</code>, <code>__init__</code> defaults, <code>Radial raymarch from light UV; occluded by depth (u_depth_tex)</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/godrays/shaders.py</code></p>
+</li>
+<li><code>core/components/rendering/postfx/graphics_effect.py</code> — <code>GraphicsEffect</code> base (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, <code>render()</code> signature).</li>
+</ul>
               
             </div>
           </div><footer>

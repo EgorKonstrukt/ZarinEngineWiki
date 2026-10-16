@@ -155,6 +155,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Particle Force Field</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1238,50 +1246,110 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="particle-force-field">Particle Force Field</h1>
-<p>Bends nearby particle systems without touching their configs: wind zones, gravity wells, vortex funnels, drag volumes, updrafts for leaves and embers.</p>
+<blockquote>
+<p>Particle influencer: <code>ParticleForceField</code> (<code>core/components/rendering/particles/particle_force_field.py</code>); max <code>16</code> fields uploaded as SSBO (<code>MAX_FORCE_FIELDS = 16</code>).
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p><code>ForceFieldShape</code>: <code>sphere / box</code> (<code>particle_force_field.py:29-31</code>). <code>to_gpu_data()</code> packs position+radius, force+intensity, half-extents+shape flag, extras (start_range/drag/gravity/distance flag) (<code>particle_force_field.py:75-103</code>). Gizmo draws sphere rings or box edges + inner start-range cage (<code>particle_force_field.py:105-168</code>).</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group / field</th>
-<th>Meaning</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Shape: Shape</td>
-<td>Field volume type (sphere/box style)</td>
+<td><code>shape</code></td>
+<td><code>ForceFieldShape</code></td>
+<td><code>SPHERE</code></td>
+<td>Influence volume (<code>particle_force_field.py:46,62</code>).</td>
 </tr>
 <tr>
-<td>Shape: Radius / Box Size</td>
-<td>Sphere radius or box extents</td>
+<td><code>radius</code></td>
+<td>float (0.01–500)</td>
+<td><code>5.0</code></td>
+<td>Sphere radius (<code>particle_force_field.py:47,63</code>).</td>
 </tr>
 <tr>
-<td>Shape: Start Range</td>
-<td>Distance where falloff begins</td>
+<td><code>box_size</code></td>
+<td>vec3 (0.01–500)</td>
+<td><code>[5.0, 5.0, 5.0]</code></td>
+<td>Box extents (<code>particle_force_field.py:48,64</code>).</td>
 </tr>
 <tr>
-<td>Force: Force X / Y / Z</td>
-<td>Directional force vector</td>
+<td><code>start_range</code></td>
+<td>float (0–500)</td>
+<td><code>0.0</code></td>
+<td>Inner dead zone (<code>particle_force_field.py:49,65</code>).</td>
 </tr>
 <tr>
-<td>Force: Intensity</td>
-<td>Overall strength multiplier</td>
+<td><code>force_x</code> / <code>force_y</code> / <code>force_z</code></td>
+<td>float (−1000…1000)</td>
+<td><code>0.0</code> / <code>1.0</code> / <code>0.0</code></td>
+<td>Force vector (<code>particle_force_field.py:51-53,66-68</code>).</td>
 </tr>
 <tr>
-<td>Force: Multiply by Distance</td>
-<td>Scale the force with distance from center</td>
+<td><code>intensity</code></td>
+<td>float (0–100)</td>
+<td><code>1.0</code></td>
+<td>Force scale (<code>particle_force_field.py:54,69</code>).</td>
 </tr>
 <tr>
-<td>Drag, Gravity</td>
-<td>Extra damping and gravity inside the volume</td>
+<td><code>multiply_by_distance</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Scale by distance (<code>particle_force_field.py:55,70</code>).</td>
+</tr>
+<tr>
+<td><code>drag</code></td>
+<td>float (0–100)</td>
+<td><code>0.0</code></td>
+<td>Damping (<code>particle_force_field.py:56,71</code>).</td>
+</tr>
+<tr>
+<td><code>gravity</code></td>
+<td>float (−100…100)</td>
+<td><code>0.0</code></td>
+<td>Extra gravity (<code>particle_force_field.py:57,72</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>One per entity (<code>_allow_multiple = False</code>). Sphere for explosions/updrafts, Box for wind tunnels; Start Range hollows the core.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Place the field entity so its volume overlaps the emitter; particles entering the volume pick up the force, leaving ones keep their velocity. Stack several fields for curl-like motion (swirl + lift + drag reads as a tornado).</p>
-<p>Workflows: campfire smoke bend — sideways force with distance falloff so smoke rises then drifts; waterfall mist — downward gravity plus outward push; magic vortex — tangential force around a center with inward pull; leaf updraft — gentle upward force over a courtyard.</p>
-<p>Fields compose with the system's own physics additively — halve both when combining, then tune back up.</p>
-<p>Troubleshooting: no effect → volume misses the emitter, check the gizmo overlap; violence → intensity too high for the particle mass scale, lower and raise drag; one-directional-only motion → force vector single-axis, add components.</p>
-<p>Related: Particle System, Wind Zone (environment vegetation wind), Water (flow feel), Buoyancy (underwater drift twin).</p>
+<pre><code class="language-python">ff.shape = ForceFieldShape.BOX
+ff.box_size = [10.0, 4.0, 10.0]
+ff.force_y = 3.0
+ff.drag = 0.2
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../particle-system/">Particle System</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/particles/particle_force_field.py:17-103,170-202</code></li>
+</ul>
               
             </div>
           </div><footer>

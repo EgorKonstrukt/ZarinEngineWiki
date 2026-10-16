@@ -1,13 +1,52 @@
 # Обзор физики 2D
 
-Отдельный лёгкий 2D-конвейер со своими компонентами, симулируется тем же солвером, но с флагом 2D: внеплоскостные скорости (`vz`, наклоны) обнуляются каждый шаг — тела никогда не дрейфуют из плоскости.
+Отдельный лёгкий 2D-конвейер со своими компонентами (`Rigidbody2D`, `BoxCollider2D`, `CircleCollider2D`), симулируется тем же солвером, но с флагом 2D: внеплоскостные скорости и наклоны обнуляются каждый шаг.
 
-Для скролл-шутеров, top-down игр и 2D-физики UI-плоскости, где полные 3D-тела избыточны и сложнее лочить. 2D-формы маппятся на солвер как плоские примитивы: `Box2D → box` с размером `[sx, sy, 1.0]` и центром `[ox, oy, 0]`, `Circle2D → sphere`.
+## Свойства
 
-Скрипты используют те же колбэки (`on_collision_enter/stay/exit`), тот же шаг (`dt = 0.02`) и ту же фильтрацию layer/mask, что в 3D. Правило сущности: один конвейер на тело — не смешивайте 2D- и 3D-компоненты.
+| Элемент | Значение |
+|---|---|
+| Тела | `Rigidbody2D` + один 2D-коллайдер; не смешивать 2D и 3D на одной сущности |
+| Маппинг форм | `BoxCollider2D → box` размер `[sx, sy, 1.0]` центр `[ox, oy, 0]`; `CircleCollider2D → sphere` |
+| Блокировка плоскости | `z = 0`, поворот `(0, 0, rz)`, скорость `(vx, vy, 0)`, спин `(0, 0, az)` |
+| Колбэки / слои | Те же `on_collision_enter/stay/exit` и фильтрация `layer`/`mask`, что в 3D |
 
-Стартер платформера: статичная земля (BoxCollider2D без Rigidbody2D), игрок (Rigidbody2D + BoxCollider2D, freeze rotation вкл), монеты триггер-кругами с `is_trigger`, сообщающими подборы в скрипты.
+## Использование в редакторе
 
-Страницы: Rigidbody 2D, Box Collider 2D, Circle Collider 2D.
+Статичная земля: только `BoxCollider2D`. Игрок: `Rigidbody2D` + `BoxCollider2D` с `Freeze Rotation`. Монеты: триггер `CircleCollider2D`.
 
-Связанное: обзор физики 3D (общие солвер и потоки), слои коллизий, примеры скриптов (Driver адаптируется в 2D отбрасыванием оси Z).
+## Использование в коде
+
+```python
+entity = scene.create_entity("Player2D")
+from core.components.physics2d.rigidbody2d import Rigidbody2D
+from core.components.physics2d.box_collider2d import BoxCollider2D
+
+rb = Rigidbody2D()
+rb.mass = 1.0
+rb.freeze_rotation = True
+entity.add_component(rb)
+entity.add_component(BoxCollider2D())
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody2D)
+    if rb is not None:
+        rb.add_force(Vec2(10.0, 0.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+```
+
+## Заметки о fixed update
+
+- Тот же `dt = Engine._fixed_dt` (`0.02`) и тот же потоковый путь, что в 3D; `_constrain_2d_bodies` клампит трансформ/скорость после `step_simulation(dt)`; флаг shared-памяти `8` — 2D-тела.
+
+## Связанные
+
+Rigidbody2D, Box/Circle Collider 2D, обзор 3D, слои, солвер и потоки.
+
+## Проверено по
+
+- `core/components/physics2d/`
+- `core/physics/scene/scene.py`
+- `core/physics/shapep/shapes.py`

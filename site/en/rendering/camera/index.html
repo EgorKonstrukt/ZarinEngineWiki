@@ -101,6 +101,14 @@
     <ul class="current">
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Camera</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../editor-camera/">Editor Camera</a>
@@ -1238,56 +1246,125 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="camera">Camera</h1>
-<p>Renders the scene from an entity viewpoint. Add one per view: main gameplay camera, UI-plane camera, cutscene cameras, security-monitor walls.</p>
+<blockquote>
+<p>Scene camera: <code>Camera</code> component (<code>core/components/rendering/cameras/camera.py</code>) with perspective/orthographic projection, depth ordering and native/custom render size.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>View matrix is <code>Mat4.look_at(position, position + forward, up)</code>; projection is <code>Mat4.perspective(fov, aspect, near, far)</code> or orthographic with <code>half_w = ortho_size * aspect</code> (<code>camera.py:56-69</code>). Gizmo draws the frustum from near/far corners (<code>camera.py:100-143</code>). Base clamps and render-size logic live in <code>CameraBase</code> (<code>camera_base.py</code>).</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group / field</th>
-<th>Meaning</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Projection: FOV</td>
-<td>Perspective field of view, 1–179°, default 60</td>
+<td><code>fov</code></td>
+<td>float (1.0–179.0)</td>
+<td><code>60.0</code></td>
+<td>Perspective field of view (<code>camera.py:36</code>, <code>camera_base.py:19</code>).</td>
 </tr>
 <tr>
-<td>Projection: Near / Far</td>
-<td>Clip planes, defaults 0.01 / 1000</td>
+<td><code>near</code></td>
+<td>float (≥0.001)</td>
+<td><code>0.01</code></td>
+<td>Near clip (<code>camera.py:37</code>, <code>camera_base.py:20</code>).</td>
 </tr>
 <tr>
-<td>Projection: Ortho Size</td>
-<td>Orthographic vertical half-extent, default 5</td>
+<td><code>far</code></td>
+<td>float (≥0.1)</td>
+<td><code>1000.0</code></td>
+<td>Far clip (<code>camera.py:38</code>, <code>camera_base.py:21</code>).</td>
 </tr>
 <tr>
-<td>Rendering: Depth</td>
-<td>Draw-order priority, −100…100; higher draws later (on top)</td>
+<td><code>projection</code></td>
+<td><code>CameraProjection</code></td>
+<td><code>PERSPECTIVE</code></td>
+<td><code>perspective</code> / <code>orthographic</code> (<code>camera.py:39,52</code>).</td>
 </tr>
 <tr>
-<td>Render Resolution: Resolution Mode</td>
-<td>Native (follow viewport) or Custom</td>
+<td><code>ortho_size</code></td>
+<td>float (≥0.001)</td>
+<td><code>5.0</code></td>
+<td>Orthographic half-extent (<code>camera.py:40</code>, <code>camera_base.py:23</code>).</td>
 </tr>
 <tr>
-<td>Render Resolution: Viewport Width / Height</td>
-<td>Custom size, e.g. 1920×1080</td>
+<td><code>depth</code></td>
+<td>int (−100…100)</td>
+<td><code>0</code></td>
+<td>Draw-order priority (<code>camera.py:42,54</code>).</td>
 </tr>
 <tr>
-<td>render_scale</td>
-<td>Resolution multiplier 0.1–1.0</td>
+<td><code>render_scale</code></td>
+<td>float (0.1–1.0)</td>
+<td><code>1.0</code></td>
+<td>Resolution multiplier (<code>camera.py:43</code>, <code>camera_base.py:24</code>).</td>
+</tr>
+<tr>
+<td><code>resolution_mode</code></td>
+<td><code>CameraResolutionMode</code></td>
+<td><code>native</code></td>
+<td><code>native</code> follows viewport, <code>custom</code> uses w/h (<code>camera.py:44</code>).</td>
+</tr>
+<tr>
+<td><code>resolution_w</code></td>
+<td>int (1–16384)</td>
+<td><code>1920</code></td>
+<td>Custom width (<code>camera.py:45</code>).</td>
+</tr>
+<tr>
+<td><code>resolution_h</code></td>
+<td>int (1–16384)</td>
+<td><code>1080</code></td>
+<td>Custom height (<code>camera.py:46</code>).</td>
+</tr>
+<tr>
+<td><code>clear_color</code></td>
+<td>color4 (code only)</td>
+<td><code>[0.15, 0.15, 0.15, 1.0]</code></td>
+<td>Clear color, serialized but not in inspector (<code>camera.py:53,74</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Add Component → Camera. Pick Projection; for ortho set Ortho Size. Use Depth to order multiple cameras. Use Resolution Mode <code>custom</code> + Viewport Width/Height for fixed-size captures, otherwise <code>render_scale</code> for cheap previews.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Math: view is <code>look_at(position, position + forward, up)</code>; projection is <code>perspective(fov, aspect, near, far)</code> or <code>orthographic(-half_w, half_w, -ortho_size, ortho_size, near, far)</code> with <code>half_w = ortho_size * aspect</code>. Gizmo draws the frustum in the viewport.</p>
-<p>Workflows:</p>
+<pre><code class="language-python">cam = entity.get_component(Camera)
+cam.fov = 55.0
+cam.projection = CameraProjection.ORTHOGRAPHIC
+cam.ortho_size = 8.0
+view = cam.get_view_matrix()
+proj = cam.get_projection_matrix(aspect=16.0 / 9.0)
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Main camera: perspective, FOV 55–70, near 0.1, far matched to the level (500 for interiors, 2000+ for open fields), depth 0.</li>
-<li>UI-plane camera: orthographic, ortho size matched to design units, depth above the main camera so HUD draws last.</li>
-<li>Cutscenes: several cameras with staggered depth, cross-fade by animating depth or enabling in sequence from a script.</li>
-<li>Pixel look: render_scale 0.25–0.5 with FXAA off and Pixelate post effect.</li>
+<li><a href="../editor-camera/">Editor Camera</a>, <a href="../pipeline/">Pipeline</a>, <a href="../shadows/">Shadows</a></li>
 </ul>
-<p>Depth precision: the near plane dominates. A near of 0.001 with far 10000 guarantees shimmer; keep near as large as the scene allows (0.1 outdoors, 0.01 interiors) and far as small as possible.</p>
-<p>Troubleshooting: nothing renders → camera disabled, depth buried under a clear-everything camera, or culling mask excluding all layers; stretched image → aspect comes from the viewport, check custom resolution; jitter at distance → float64 scene vs too-tight near/far, widen the ratio.</p>
-<p>Related: Editor Camera, Lights and Shadows, Render Resolution modes, PostFX (Pixelate, Panini for wide FOV).</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/cameras/camera.py:32-98</code></li>
+<li><code>core/components/rendering/cameras/camera_base.py:12-111</code></li>
+</ul>
               
             </div>
           </div><footer>

@@ -1,24 +1,53 @@
 # GS Volume Collider
 
-Объёмы коллизий из Gaussian-splat захватов — игроки ходят по сценам в стиле фотограмметрии, где вообще нет меш-геометрии.
+Объёмы коллизий из Gaussian-splat захватов — игроки ходят по фотограмметрическим сценам без меш-геометрии.
 
-| Группа / поле инспектора | Смысл |
-|---|---|
-| Gs Volume Collider: Splat Path | Исходный захват (тот же файл, что у рендерера) |
-| Voxel Size | Шаг дискретизации объёма — ручка точности |
-| Opacity Cutoff | Порог плотности: ниже — воздух |
-| Dilation | Расширение объёма в вокселях (страховочная кожа) |
-| Max Boxes | Бюджет бокс-аппроксимации для солвера |
-| Center | Локальный сдвиг |
-| Layer / Collision Mask / Is Trigger | Стандартная фильтрация |
-| Material: Physic Material | Оверрайд ассетом `.zphysmat` |
+## Свойства
 
-Как работает: захват вокселизуется шагом Voxel Size, ячейки выше Opacity Cutoff выживают, Dilation растит страховочную кожу, твёрдое множество аппроксимируется не более чем Max Boxes шейпами. Мелкие воксели обнимают статуи; грубые быстрее.
+| Поле | По умолчанию | Примечания |
+|---|---|---|
+| `ply_path` | `""` | `*.ply *.sog *.ssog` |
+| `voxel_size` | `0.25` | `0.02–4.0` |
+| `opacity_threshold` | `0.05` | `0–1` |
+| `dilation` | `1` | `0–3` |
+| `max_boxes` | `2048` | `64–16384` |
+| `center` | `(0, 0, 0)` | Добавляется к каждому боксу |
+| `layer` / `mask` | `0` / `0xFFFF` | Фильтрация |
+| `is_trigger` | `False` | Только пересечение |
+| `physic_material` | `""` | `.zphysmat` |
+| `material_friction` / `material_bounciness` | `0.6` / `0.0` | Запасные |
 
-Порядок настройки: voxel size под мельчайшую геймплейную фичу (ступеням нужны мелкие), cutoff пока висящая пыль не перестанет сталкиваться, dilation 1–2 для прощения, max boxes пока гизмо не накроет ходимые зоны.
+## Использование в редакторе
 
-По природе статичен — в пару к визуалу GaussianSplatRenderer, динамический геймплейный реквизит сверху мечами с примитивными коллайдерами.
+`Splat Path`, `Voxel Size` / `Opacity Cutoff` / `Dilation` / `Max Boxes`. Гизмо рисует до 4000 боксов.
 
-Диагностика: проваливается сквозь статуи — грубы воксели или высок cutoff; сталкивается с воздухом — низок cutoff, ловит дымку, поднимите; блочные невидимые стены — перебор dilation, опустите; долгая готовка — крошечный voxel size на огромном захвате, укрупните.
+## Использование в коде
 
-Связанное: Gaussian Splat Renderer, Box-коллайдер, Mesh-коллайдер, воксельный рендеринг.
+```python
+entity = scene.create_entity("SplatGround")
+from core.components.physics.gsvol.collider import GSVolumeCollider
+
+gs = GSVolumeCollider()
+gs.ply_path = "assets/capture.ply"
+gs.voxel_size = 0.25
+gs.max_boxes = 2048
+entity.add_component(gs)  # статика: без Rigidbody
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+```
+
+`collider_shapes(transform)` раскрывает объём в список `box`-форм (размер `≥1e-4`, центр с учётом `center` и скейла); пустой объём даёт ноль форм. Без cython-хелперов occupancy/merge `volume_boxes()` пуст.
+
+## Заметки о fixed update
+
+- Формы входят в солвер как обычные `box` через `find_shapes_info` → compound-путь; `dt` — `Engine._fixed_dt` (`0.02`).
+
+## Связанные
+
+Box, Mesh, слои, материалы.
+
+## Проверено по
+
+- `core/components/physics/gsvol/collider.py`
+- `core/physics/shapep/shapes.py`

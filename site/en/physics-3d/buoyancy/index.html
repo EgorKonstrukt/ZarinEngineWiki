@@ -327,6 +327,18 @@
     <ul class="current">
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Buoyancy</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#fixed-update-notes">Fixed update notes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../soft-body/">Soft Body</a>
@@ -1238,62 +1250,110 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="buoyancy">Buoyancy</h1>
-<p>Floating bodies for ponds, rivers and oceans: hulls displace water, waves rock them, currents push them.</p>
+<p>Floating bodies for ponds, rivers and oceans: hulls displace water, waves rock them, currents push them. CPU sampling in <code>on_fixed_update</code> — not a solver body.</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group / field</th>
-<th>Meaning</th>
+<th>Field</th>
+<th>Default</th>
+<th>Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Buoyancy: Object Density</td>
-<td>Hull density vs water — below water density floats</td>
+<td><code>density</code></td>
+<td><code>500.0</code></td>
+<td>Inspector <code>1–20000</code>; object density</td>
 </tr>
 <tr>
-<td>Override Volume</td>
-<td>Manual displaced volume, skips auto computation</td>
+<td><code>volume</code></td>
+<td><code>0.0</code></td>
+<td>Override; <code>0</code> = auto from collider (box <code>sx*sy*sz</code>, sphere <code>4/3πr³</code>, capsule <code>4/3πr³ + πr²h</code>)</td>
 </tr>
 <tr>
-<td>Water Density</td>
-<td>Liquid density (fresh vs salt vs lava-thick)</td>
+<td><code>water_density</code></td>
+<td><code>1000.0</code></td>
+<td>Inspector <code>1–2000</code></td>
 </tr>
 <tr>
-<td>Hydro Drag / Hydro Angular Drag</td>
-<td>Water damping on motion and spin</td>
+<td><code>linear_drag</code></td>
+<td><code>8.0</code></td>
+<td>Inspector <code>0–50</code> (deserialize fallback <code>1.5</code>)</td>
 </tr>
 <tr>
-<td>Flow Influence</td>
-<td>How much currents push the hull</td>
+<td><code>angular_drag</code></td>
+<td><code>6.0</code></td>
+<td>Inspector <code>0–50</code> (deserialize fallback <code>1.2</code>)</td>
 </tr>
 <tr>
-<td>Options: Use Waves</td>
-<td>Sample the wave surface for rocking</td>
+<td><code>flow_influence</code></td>
+<td><code>1.0</code></td>
+<td>Inspector <code>0–10</code></td>
 </tr>
 <tr>
-<td>Options: Use Flow</td>
-<td>Sample currents for drift</td>
+<td><code>use_waves</code> / <code>use_flow</code></td>
+<td><code>True</code> / <code>True</code></td>
+<td>Sample <code>height_at</code> / <code>flow_at</code> from <code>WaterVolume</code></td>
 </tr>
 <tr>
-<td>Sample Resolution</td>
-<td>Probe density over the hull</td>
+<td><code>sample_resolution</code></td>
+<td><code>8</code></td>
+<td>Inspector <code>2–24</code> grid per axis</td>
 </tr>
 <tr>
-<td>Max Accel (x g)</td>
-<td>Stability clamp on water forces</td>
+<td><code>max_acceleration</code></td>
+<td><code>8.0</code></td>
+<td>× g clamp on net acceleration</td>
 </tr>
 <tr>
-<td>Debug Draw</td>
-<td>Volume and probe visualization</td>
+<td><code>enable_debug</code></td>
+<td><code>False</code></td>
+<td>Fills <code>gizmo_lines</code> with sample points</td>
+</tr>
+<tr>
+<td>Read-only</td>
+<td><code>submerged_fraction</code></td>
+<td><code>0–1</code> displaced/total volume</td>
 </tr>
 </tbody>
 </table>
-<p>Pair with a WaterVolume environment component marking the liquid region and a Water surface for visuals — the component alone floats nothing without a defined liquid.</p>
-<p>Tuning order: density until the waterline sits right (deck awash = too dense), hydro drag until stopping feels weighty, waves on for rocking, flow for rivers. Light fast boats want low drag and high max accel; barges want the opposite.</p>
-<p>Sample resolution trades fidelity for cost: high for long hulls (probes along the length catch pitch), low for barrels. Debug Draw shows probes — if they miss the hull, the forces will too.</p>
-<p>Troubleshooting: sinks → density above water or volume underestimated, check override; vibrates → max accel too high or resolution too low; ignores waves → Use Waves off or outside the WaterVolume; drifts sideways forever → flow influence with an unbalanced current field.</p>
-<p>Related: Water, WaterVolume notes, Soft Body, Rigidbody (mass interplay).</p>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Add <code>Rigidbody</code> (non-kinematic) + <code>Box</code>/<code>Sphere</code>/<code>CapsuleCollider</code> + <code>Buoyancy</code>, place a <code>WaterVolume</code> in the scene. Tune <code>density</code> vs <code>water_density</code>, <code>linear_drag</code> for hull feel.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Boat&quot;)
+from core.components.physics.rigidbody import Rigidbody
+from core.components.physics.box_collider import BoxCollider
+from core.components.physics.buoyancy import Buoyancy
+
+rb = Rigidbody()
+rb.mass = 500.0
+entity.add_component(rb)
+box = BoxCollider()
+entity.add_component(box)
+b = Buoyancy()
+b.density = 500.0
+b.linear_drag = 8.0
+b.sample_resolution = 8
+entity.add_component(b)
+
+def on_fixed_update(self, dt):
+    # Buoyancy.on_fixed_update runs itself: Archimedes + quadratic/viscous
+    # drag + flow-relative velocity, clamped to max_acceleration * 9.81.
+    frac = b.submerged_fraction
+</code></pre>
+<p>Requires a collider shape (build fails without one) and at least one <code>WaterVolume</code> entity, else <code>submerged_fraction</code> stays <code>0</code>.</p>
+<h2 id="fixed-update-notes">Fixed update notes</h2>
+<ul>
+<li>Runs in component <code>on_fixed_update(dt)</code> with <code>dt = Engine._fixed_dt</code> (<code>0.02</code> default); force path is <code>rb.add_force</code> / <code>rb.add_torque</code>, applied on the next physics push. Skipped when kinematic or Transform-less.</li>
+<li>Gravity magnitude used internally: <code>_GRAVITY_MAG = 9.81</code>.</li>
+</ul>
+<h2 id="related">Related</h2>
+<p>Rigidbody, Box/Sphere/Capsule colliders, WaterVolume (environment), Solver &amp; Threading.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/physics/buoyancy.py</code></li>
+</ul>
               
             </div>
           </div><footer>

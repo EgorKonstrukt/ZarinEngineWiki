@@ -1,6 +1,7 @@
 site_name: ZarinEngine Wiki
 docs_dir: docs
 site_dir: site
+exclude_docs: assets/gifs/README.md
 theme:
   name: readthedocs
 nav:

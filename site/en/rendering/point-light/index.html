@@ -113,6 +113,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Point Light</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../spot-light/">Spot Light</a>
@@ -1238,15 +1246,78 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="point-light">Point Light</h1>
-<p>Omnidirectional bulb radiating in all directions. Position comes from the Transform; brightness falls off with <code>range</code> and the distance curve.</p>
+<blockquote>
+<p>Omnidirectional bulb: <code>PointLight</code> (<code>core/components/lighting/lightp/light.py:228-301</code>) with lumen intensity and finite range.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Total flux in lumens: candle <code>12.57</code>, desk lamp <code>300</code>, room ceiling <code>800</code>, 100W bulb <code>1600</code>, street <code>15000</code>, stadium <code>100000</code> (<code>LUMEN_REFERENCE</code>, <code>light.py:49-57,241</code>). Gizmo draws three range circles plus axis ticks (<code>light.py:254-286</code>).</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>color</code></td>
+<td>color3</td>
+<td><code>[1.0, 1.0, 1.0]</code></td>
+<td>Light color (<code>light.py:240</code>).</td>
+</tr>
+<tr>
+<td><code>intensity</code></td>
+<td>float lumens (0–200000)</td>
+<td><code>1000.0</code></td>
+<td>Total flux (<code>light.py:241,248</code>).</td>
+</tr>
+<tr>
+<td><code>range</code></td>
+<td>float (0–10000)</td>
+<td><code>10.0</code></td>
+<td>Cutoff distance (<code>light.py:242,249</code>).</td>
+</tr>
+<tr>
+<td><code>cast_shadows</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Cube-map shadows; needs active <code>PointShadow</code> (<code>light.py:244,250</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Place at bulb height, set Range to the room radius, intensity from the lumen table. Disable shadows for cheap fills.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">pl.intensity = 800.0  # room ceiling
+pl.range = 12.0
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Intensity in lumens, default 1000. Reference: candle ~12.6, decorative LED 100, desk lamp 300, room ceiling 800, 100 W bulb 1600, street light 15000.</li>
-<li>Up to 4 simultaneous point shadow cube maps (512 default) — the priciest shadow type per light because of six faces. Enable <code>cast_shadows</code> only where the shadows read (hero lamps, gameplay-critical lights).</li>
-<li>Gizmo shows the range sphere; tune <code>range</code> until the sphere hugs the area the lamp should affect — oversized ranges waste light budget and wash neighbors.</li>
+<li><a href="../light/">Light</a>, <a href="../spot-light/">Spot Light</a>, <a href="../shadows/">Shadows</a></li>
 </ul>
-<p>Workflows: room lighting — one shadowed point per room at ceiling height plus unshadowed accents; explosions — brief high-intensity point animated down to zero by a script; pickups — small-range pulsing point (animate intensity, not range, for cheap shimmer).</p>
-<p>With physical units, a 1000-lumen point beside a 100000-lux sun behaves: sun dominates outdoors, the bulb owns interiors. Mixing two shadowed points in one small room doubles cube-map cost — prefer one shadowed plus rest plain.</p>
-<p>Related: Light (Base), Shadows, Spot Light, Emissive Pulse (visual twin for the fixture).</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/lighting/lightp/light.py:228-301</code></li>
+</ul>
               
             </div>
           </div><footer>

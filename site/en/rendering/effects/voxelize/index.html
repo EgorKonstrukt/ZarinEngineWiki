@@ -265,13 +265,15 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Voxelize</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    <li class="toctree-l4"><a class="reference internal" href="#shader-snippet">Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1248,146 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="voxelize">Voxelize</h1>
-<p>Per-object effect through the ObjectFx pass (unlike PostFX, which processes the whole frame). Built on the shared ObjectEffect base; scripts drive it by animating progress/intensity floats.</p>
-<h2 id="how-it-works">How it works</h2>
-<p>Rebuilds the object as chunky voxels with CPU-side preparation and a progress control.</p>
+<blockquote>
+<p>Mesh→cubes breakup. CPU voxelizer (voxel_cpu.compute_voxel_instances) bins the mesh into voxel_size grid (world_grid toggles world vs local snap, jitter offsets); cubes shaded with color/emission/rim; amount cross-fades; cell is the shading cell; optional animate/ping_pong. Class <code>VoxelizeEffect</code> in <code>core/components/rendering/effects/voxelize_effect.py</code>. ObjectFx pass + instanced cubes path: _render_voxel_instances() in object_fx_pass.py draws voxel cubes when enabled and amount &gt; 0; show_base_mesh toggles the original mesh draw.</p>
+</blockquote>
 <h2 id="parameters">Parameters</h2>
-<p>Progress, voxel size.</p>
-<h2 id="tips">Tips</h2>
-<p>Retro transforms, build-up effects, destruction previews.</p>
-<h2 id="cost">Cost</h2>
-<p>Medium by voxel count.</p>
-<p>Related: <a href="../">Object Effects</a>, Materials, Script Examples.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Amount</td>
+<td><code>amount</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Show Base Mesh</td>
+<td><code>show_base_mesh</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>True</code></td>
+</tr>
+<tr>
+<td>World Grid</td>
+<td><code>world_grid</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td>Voxel Size</td>
+<td><code>voxel_size</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>0.3</code></td>
+</tr>
+<tr>
+<td>Voxel Scale XYZ</td>
+<td><code>scale</code></td>
+<td>VEC3</td>
+<td>—</td>
+<td><code>(1.0, 1.0, 1.0)</code></td>
+</tr>
+<tr>
+<td>Jitter</td>
+<td><code>jitter</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>0.0</code></td>
+</tr>
+<tr>
+<td>Glow</td>
+<td><code>emission</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>2.5</code></td>
+</tr>
+<tr>
+<td>Voxel Color</td>
+<td><code>color</code></td>
+<td>COLOR</td>
+<td>—</td>
+<td><code>[0.4, 1.0, 0.6]</code></td>
+</tr>
+<tr>
+<td>Rim Power</td>
+<td><code>rim</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>2.5</code></td>
+</tr>
+<tr>
+<td>Cell Size</td>
+<td><code>cell</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>0.3</code></td>
+</tr>
+<tr>
+<td>Double Sided</td>
+<td><code>double_sided</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>True</code></td>
+</tr>
+<tr>
+<td>Animate</td>
+<td><code>animate</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td>Anim Speed</td>
+<td><code>speed_anim</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Ping Pong</td>
+<td><code>ping_pong</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">Usage</h2>
+<p>Editor: select the mesh entity, Add Component &gt; <code>VoxelizeEffect</code>, tick <code>enabled</code>, animate the amount fields from a script.</p>
+<p>Code:</p>
+<pre><code class="language-python">from core.components.rendering.effects.voxelize_effect import VoxelizeEffect
+fx = VoxelizeEffect()
+entity.add_component(fx)
+fx.amount = 0.7
+fx.voxel_size = 0.25
+fx.show_base_mesh = False
+fx.enabled = True
+# per-frame: fx.amount = min(1.0, fx.amount + dt * 0.5)
+</code></pre>
+<h2 id="shader-snippet">Shader snippet</h2>
+<p>Shader: <code>core/components/rendering/effects/voxel_cpu.py + core/shaders/legacy/voxelize.comp + ObjectFx.shader</code>. Bound uniforms: <code>u_vox_amount (+ voxel instance buffers)</code>, <code>u_time</code>.</p>
+<pre><code class="language-glsl">// object_fx_pass.py: show_base = (vox is None) or (not vox.enabled) or vox.show_base_mesh
+// if vox.enabled and vox.amount &gt; 0: _render_voxel_instances(entry, vox, ...)
+</code></pre>
+<h2 id="related">Related</h2>
+<p>Related: <a href="../">Object Effects</a>, ObjectFx pass (<code>core/renderer/object_fx_pass.py</code>), <code>core/shaders/internal/ObjectFx.shader</code>.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/effects/voxelize_effect.py</code> — class <code>VoxelizeEffect</code>, <code>_inspector_fields</code>, <code>__init__</code> defaults, <code>_apply</code> uniforms.</li>
+<li><code>core/components/rendering/effects/object_effect.py</code> — <code>ObjectEffect</code> base (<code>bind</code> sets <code>u_time</code>, <code>_set</code>/<code>_set_vec</code> guards, <code>reset_all_defaults</code>).</li>
+<li><code>core/renderer/object_fx_pass.py</code> — <code>_find_object_effect</code>, <code>_render_object_effects</code>, <code>_get_fx_program</code>.</li>
+</ul>
               
             </div>
           </div><footer>

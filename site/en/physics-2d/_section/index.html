@@ -355,6 +355,8 @@
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">Section Index (physics-2d)</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" >Audio</a>
@@ -1236,8 +1238,19 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="physics-2d">Physics 2D</h1>
-<p>TODO: Section index pending. This page lists all articles in Physics 2D.</p>
-<p>Use the left navigation tree to open placeholder pages.</p>
+<p>Planar simulation: <code>Rigidbody2D</code> bodies + 2D collider shapes stepped by the shared solver with a 2D flag.</p>
+<ul>
+<li><a href="../overview/">Physics 2D Overview</a> — pipeline, plane lock, shape mapping.</li>
+<li><a href="../rigidbody2d/">Rigidbody 2D</a> — mass, gravity scale, planar forces.</li>
+<li><a href="../box-collider2d/">Box Collider 2D</a> — rectangles, platforms, zones.</li>
+<li><a href="../circle-collider2d/">Circle Collider 2D</a> — discs, balls, pickups.</li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/physics2d/</code></li>
+<li><code>core/physics/shapep/shapes.py</code></li>
+<li><code>core/physics/scene/scene.py</code></li>
+</ul>
               
             </div>
           </div><footer>

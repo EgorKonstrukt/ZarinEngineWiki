@@ -858,6 +858,14 @@
     <ul class="current">
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Gaussian Splat Renderer</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../raytracing-renderer/">Raytracing Renderer</a>
@@ -1237,35 +1245,77 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="gaussian-splat-renderer">Gaussian Splat Renderer</h1>
-<p>Рисует Gaussian-splat захваты — сцены в стиле фотограмметрии как сортированные точечные объёмы со сферико-гармоническим цветом.</p>
+                <h1 id="-">Гауссов сплат-рендерер</h1>
+<blockquote>
+<p>Билборды 3DGS: компонент <code>GaussianSplatRenderer</code> (<code>core/components/rendering/renderers/gaussian_splat_renderer.py</code>) + GL-бэкенд (<code>core/renderer/splat/renderer.py</code>, <code>resources.py</code>, <code>sort.py</code>, <code>volume.py</code>).
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Загрузка <code>.ply / .sog / .ssog</code> (фильтр, <code>gaussian_splat_renderer.py:23-24</code>; загрузчики <code>ply_loader.py:225</code>, <code>sog/loader.py:259</code>, <code>sog/async_ops.py</code>). Бэкенду нужен OpenGL 4.3+ (иначе ошибка, <code>splat/resources.py:343</code>). Сортировка CPU/Cython в <code>splat/sort.py</code> (расширение <code>_splat_sort</code>).</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Поле</th>
-<th>Смысл</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Splat Path</td>
-<td>Файл захвата</td>
+<td><code>ply_path</code></td>
+<td>путь (ply/sog/ssog)</td>
+<td><code>""</code></td>
+<td>Файл сплата (<code>gaussian_splat_renderer.py:23,33</code>).</td>
 </tr>
 <tr>
-<td>SH Degree</td>
-<td>Уровень сферических гармоник (выше = богаче view-dependent цвет, больше памяти)</td>
+<td><code>sh_degree</code></td>
+<td>int слайдер (0–3)</td>
+<td><code>3</code></td>
+<td>Степень сферических гармоник (<code>gaussian_splat_renderer.py:25,34</code>).</td>
 </tr>
 <tr>
-<td>Opacity Cutoff</td>
-<td>Порог прозрачности, выкуливающий слабые сплаты</td>
+<td><code>opacity_threshold</code></td>
+<td>float (0–1)</td>
+<td><code>0.005</code></td>
+<td>Отсечение по опасити (<code>gaussian_splat_renderer.py:27,35</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Add Component → Gaussian Splat Renderer, назначить <code>.ply</code>, SH 3 для качества / 0–1 для скорости, cutoff выше — режет шум.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Сплаты сортируются каждый кадр выделенным быстрым путём (ускоренный модуль <code>_splat_sort</code>), разделяют видимость и статистику с мешами, но обходят часть PostFX — проверяйте градуированный вид в игровом окне, а не только в редакторе.</p>
-<p>Коллизии splat-объёмов — через GS Volume Collider (воксельная бокс-аппроксимация из того же захвата).</p>
-<p>Процессы: захваченный двор — splat-сущность для картинки плюс GS Volume Collider для ходьбы; гибридные сцены — сплаты для фоновых деталей, меши для интерактивного переднего плана; производительность — сначала ниже SH Degree, затем cutoff, затем плотность захвата.</p>
-<p>Диагностика: выбеленные цвета — низок SH Degree для вариации света; дыры — агрессивен cutoff; нет коллизий — нет коллайдера или груб voxel size.</p>
-<p>Связанное: GS Volume Collider, воксельный рендеринг, камеры, материалы.</p>
+<pre><code class="language-python">gs = entity.get_component(GaussianSplatRenderer)
+gs.ply_path = &quot;assets/splats/garden.ply&quot;
+gs.sh_degree = 2
+gs.opacity_threshold = 0.01
+</code></pre>
+<p><code>render(path, model, view, proj, cam_pos, w, h, ...)</code> (<code>splat/renderer.py:362</code>).</p>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../mesh-renderer/">Mesh Renderer</a>, <a href="../pipeline/">Pipeline</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/renderers/gaussian_splat_renderer.py:19-53</code></li>
+<li><code>core/renderer/splat/renderer.py:362</code>, <code>resources.py:343</code>, <code>sort.py</code>, <code>volume.py</code></li>
+</ul>
               
             </div>
           </div><footer>

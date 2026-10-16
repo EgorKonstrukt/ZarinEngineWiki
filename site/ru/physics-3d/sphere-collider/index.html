@@ -882,6 +882,18 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Sphere-коллайдер</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#_1">Свойства</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Использование в коде</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#fixed-update">Заметки о fixed update</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Связанные</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../capsule-collider/">Capsule-коллайдер</a>
@@ -1238,53 +1250,93 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="sphere-">Sphere-коллайдер</h1>
-<p>Идеальный шар: катание, прыжки, хитбоксы голов, радиальные триггеры и сенсоры близости.</p>
+<p>Идеальный шар: катание, прыжки, хитбоксы голов, радиальные триггеры.</p>
+<h2 id="_1">Свойства</h2>
 <table>
 <thead>
 <tr>
-<th>Группа / поле инспектора</th>
-<th>Default</th>
-<th>Смысл</th>
+<th>Поле</th>
+<th>По умолчанию</th>
+<th>Примечания</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Collision: Layer / Collision Mask</td>
-<td>0 / 0xFFFF</td>
-<td>Фильтрация</td>
+<td><code>layer</code></td>
+<td><code>0</code></td>
+<td><code>0–15</code></td>
 </tr>
 <tr>
-<td>Shape: Center</td>
-<td>начало</td>
-<td>Локальный сдвиг</td>
+<td><code>mask</code></td>
+<td><code>0xFFFF</code></td>
+<td>Маска столкновений</td>
 </tr>
 <tr>
-<td>Shape: Radius</td>
-<td>0.5</td>
-<td>Масштабируется наибольшей осью трансформа</td>
+<td><code>center</code></td>
+<td><code>(0, 0, 0)</code></td>
+<td><code>scaled_center</code></td>
 </tr>
 <tr>
-<td>Is Trigger</td>
-<td>выкл</td>
-<td>События пересечения без контактного отклика</td>
+<td><code>radius</code></td>
+<td><code>0.5</code></td>
+<td>Инспектор <code>0.001–10000</code>; мир = <code>radius * max(scale)</code></td>
 </tr>
 <tr>
-<td>Material: Physic Material</td>
-<td>—</td>
-<td>Оверрайд ассетом <code>.zphysmat</code></td>
+<td><code>is_trigger</code></td>
+<td><code>False</code></td>
+<td>Только пересечение</td>
 </tr>
 <tr>
-<td>Инлайн трение / упругость</td>
-<td>0.6 / 0.0</td>
-<td>Без ассета</td>
+<td><code>physic_material</code></td>
+<td><code>""</code></td>
+<td><code>.zphysmat</code></td>
+</tr>
+<tr>
+<td><code>material_friction</code></td>
+<td><code>0.6</code></td>
+<td>Запасное</td>
+</tr>
+<tr>
+<td><code>material_bounciness</code></td>
+<td><code>0.0</code></td>
+<td>Запасное</td>
 </tr>
 </tbody>
 </table>
-<p>Катание требует трения: шарик с трением 0.05 скользит как лёд, с 0.6 цепляется и катится. Высота отскока из bounciness — 0 мёртвое падение, 0.8 живой мяч, никогда ровно 1 (прирост энергии дрожит в стопках).</p>
-<p>Рецепты: прыгучий мяч — радиус 0.3, упругость 0.8, трение 0.2, свой слой с маской на мир + игрока; сенсор близости — большая триггер-сфера (радиус 5–10) со скриптом подсчёта входов/выходов; хитбокс головы — малая сфера на кости головы со скриптом урона.</p>
-<p>Неоднородный скейл родителя берёт наибольшую ось под радиус — растянутый родитель даёт шар больше меша. Держите визуальных и коллизионных родителей однородно масштабированными.</p>
-<p>Диагностика: катится вечно — нулевые angular drag и трение; не катится — заморожены оси поворота Rigidbody; триггер двоит — пары enter/exit на быстрых телах, дебаунс в скрипте.</p>
-<p>Связанное: Rigidbody, Capsule-коллайдер, физические материалы, Circle Collider 2D.</p>
+<h2 id="_2">Использование в редакторе</h2>
+<p><code>Radius</code>/<code>Center</code>, слой + маска, <code>Is Trigger</code> для подборов. Несколько на сущность разрешены.</p>
+<h2 id="_3">Использование в коде</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Ball&quot;)
+from core.components.physics.rigidbody import Rigidbody
+from core.components.physics.sphere_collider import SphereCollider
+
+rb = Rigidbody()
+rb.mass = 2.0
+entity.add_component(rb)
+s = SphereCollider()
+s.radius = 0.5
+entity.add_component(s)
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody)
+    if rb is not None:
+        rb.add_force(Vec3(0.0, 0.0, 10.0))
+        rb.add_torque(Vec3(1.0, 0.0, 0.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+</code></pre>
+<h2 id="fixed-update">Заметки о fixed update</h2>
+<ul>
+<li>Вызов: <code>create_rigid_body(shape_type="sphere", ...)</code>. Проверка формы каждые 60 шагов; <code>dt</code> — <code>Engine._fixed_dt</code> (<code>0.02</code>).</li>
+</ul>
+<h2 id="_4">Связанные</h2>
+<p>Rigidbody, Box/Capsule, материалы, слои.</p>
+<h2 id="_5">Проверено по</h2>
+<ul>
+<li><code>core/components/physics/sphere_collider.py</code></li>
+<li><code>core/physics/shapep/shapes.py</code></li>
+</ul>
               
             </div>
           </div><footer>

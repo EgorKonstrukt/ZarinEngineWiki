@@ -1,8 +1,8 @@
 # Музыка, плоттер и QtQuick
 
-Меньшие bundled-расширения для звука, данных и хостинга UI — тот же базовый класс, те же хуки, уже работы.
+Меньшие bundled-расширения для звука, данных и хостинга UI — тот же базовый класс, те же хуки, уже работы. Сверенные версии: `TrackerMusicPlugin` 1.0.0 `SYSTEM = False`, `PlotterPlugin` 1.2.0 `SYSTEM = False`, `QtQuickWorldPlugin` 1.0.0 `SYSTEM = True`.
 
-Трекерная музыка (`plugins/tracker_music_plugin/`, движок `libs/nodmod`):
+Трекерная музыка (`plugins/tracker_music_plugin/`, движок `rend/`: `engine.py`, `engine_seq.py`, `engine_mix.py`, `engine_fx.py`, `defs.py`):
 
 - Проигрывание модулей в стиле ProTracker (паттерны, сэмплы, темп от BPM) для ретро-скоров и демосцен-вайба.
 - Бросьте файл модуля, ведите play/stop из хуков или скриптов, миксуйте под позиционные AudioSources — музbed плюс 3D-эффекты и есть intended стек.

@@ -115,6 +115,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Spot Light</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../area-light/">Area Light</a>
@@ -1238,15 +1246,91 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="spot-light">Spot Light</h1>
-<p>Cone light for flashlights, stage lamps, headlights and window shafts. Direction from the Transform rotation, cone from <code>spot_angle</code> (outer) and <code>spot_inner_angle</code> (full-bright core).</p>
+<blockquote>
+<p>Cone light: <code>SpotLight</code> (<code>core/components/lighting/lightp/light.py:304-381</code>) with lumen intensity, range and outer/inner cone angles.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Same lumens as point, but concentrated inside the cone: narrow cones look brighter than wide ones at equal lumens (inspector description, <code>light.py:317</code>). Gizmo draws the cone base circle + 8 ribs (<code>light.py:335-364</code>).</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>color</code></td>
+<td>color3</td>
+<td><code>[1.0, 1.0, 1.0]</code></td>
+<td>Light color (<code>light.py:316</code>).</td>
+</tr>
+<tr>
+<td><code>intensity</code></td>
+<td>float lumens (0–200000)</td>
+<td><code>1000.0</code></td>
+<td>Flux inside the cone (<code>light.py:317,327</code>).</td>
+</tr>
+<tr>
+<td><code>range</code></td>
+<td>float (0–10000)</td>
+<td><code>10.0</code></td>
+<td>Cone length (<code>light.py:318,328</code>).</td>
+</tr>
+<tr>
+<td><code>spot_angle</code></td>
+<td>float (1–179)</td>
+<td><code>30.0</code></td>
+<td>Outer cone, degrees (<code>light.py:320,329</code>).</td>
+</tr>
+<tr>
+<td><code>spot_inner_angle</code></td>
+<td>float (0–179)</td>
+<td><code>20.0</code></td>
+<td>Inner falloff start, degrees (<code>light.py:321,330</code>).</td>
+</tr>
+<tr>
+<td><code>cast_shadows</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Perspective shadow map; needs <code>SpotShadow</code> (<code>light.py:323,331</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Aim with the transform; keep <code>spot_inner_angle &lt; spot_angle</code> for a soft edge. Flashlight <code>100–1000</code> lm, street <code>1000–40000</code> lm.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">sp.spot_angle = 45.0
+sp.spot_inner_angle = 30.0
+sp.range = 25.0
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Intensity in lumens, default 1000 — same scale as Point Light, so fixtures match when swapping types.</li>
-<li>Up to 4 simultaneous spot shadow maps (1024 default) — one face each, far cheaper than point cubes. Spots are the economical shadowed light: prefer them whenever directionality is acceptable.</li>
-<li>Gizmo shows the cone with the inner-angle ring; aim by rotating the entity, narrow <code>spot_angle</code> for theater beams, widen for flood coverage.</li>
+<li><a href="../light/">Light</a>, <a href="../point-light/">Point Light</a>, <a href="../projector/">Projector</a>, <a href="../shadows/">Shadows</a></li>
 </ul>
-<p>Workflows: flashlight — spot parented to the camera with shadows on and angle ~25°; stage — several narrow spots from a truss with animated colors; car headlights — two spots with range matched to braking distance; window shafts — wide-angle spot angled through a frame plus a Projector for the frame pattern.</p>
-<p>Animate <code>spot_angle</code> for zoom effects and <code>intensity</code> for flicker; both are cheap uniform updates with no re-registration.</p>
-<p>Related: Light (Base), Shadows, Projector (textured cone), Point Light.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/lighting/lightp/light.py:304-381</code></li>
+</ul>
               
             </div>
           </div><footer>

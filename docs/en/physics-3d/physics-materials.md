@@ -1,21 +1,53 @@
 # Physics Materials
 
-Surface response per collider: friction grips, bounciness rebounds. Two ways to set them — asset or inline — with one rule: the asset wins when assigned.
+Surface response per collider: friction grips, bounciness rebounds. Asset or inline — the asset wins when assigned.
 
-- Asset filter `Physics Materials (*.zphysmat)`, referenced through `physic_material` on any collider. Share one ice asset across the whole rink instead of tuning ten colliders.
-- Without an asset, inline `material_friction` (0.6) and `material_bounciness` (0.0) apply.
-- Body creation passes friction and restitution to the solver on spawn; later changes re-register the shape, so mid-game swaps cost a hitch — preassign variants instead.
+## Properties
 
-Preset cookbook:
+| Field | Default | Notes |
+|---|---|---|
+| `dynamic_friction` | `0.6` | `≥0` |
+| `static_friction` | `0.6` | `≥0` |
+| `bounciness` | `0.0` | `≥0` |
+| `friction_combine` | `average` | `average` / `minimum` / `maximum` / `multiply` |
+| `bounce_combine` | `average` | Same set |
+| File | `.zphysmat` (JSON) | `PhysicsMaterial.save/load/load_cached` |
 
-- Ice rink: friction 0.03–0.08, bounce 0 — glide with steering from scripts.
-- Rubber ball court: friction 0.7–0.9, bounce 0.7–0.85 — lively but controllable.
-- Metal hangar: friction 0.25–0.35, bounce 0.05–0.15 — crates slide when pushed, stop on their own.
-- Mud: friction 1.0+, bounce 0 — use high drag on the Rigidbody too.
-- Trampoline: bounce 0.9–0.95 on a trigger-adjacent pad plus an upward impulse script (pure bounce never exceeds incoming energy).
+## Usage in Editor
 
-Combine pairs thoughtfully: the contact solver blends both materials, so an icy ball (0.05) on ice (0.05) glides while the same ball on rubber (0.9) grips.
+Create a `.zphysmat` asset, reference it via `Physic Material` on any collider (`Box`/`Sphere`/`Capsule`/`Mesh`/`Terrain`/`GSVolume`/2D). Share one ice asset across the rink instead of tuning ten colliders.
 
-Troubleshooting: slides everywhere → global friction too low, check the floor material first; dead bounce → restitution lost in the pair, raise both sides; changes ignored at runtime → shape re-registration pending, re-enter Play or reassign.
+## Usage in Code
 
-Related: Collision Layers, Box/Sphere/Capsule/Mesh Collider pages, Rigidbody (drag interplay).
+```python
+entity = scene.create_entity("Ice")
+from core.components.physics.box_collider import BoxCollider
+from core.assets.physics_material import PhysicsMaterial
+
+mat = PhysicsMaterial("Ice")
+mat.dynamic_friction = 0.05
+mat.static_friction = 0.05
+mat.bounciness = 0.0
+mat.save("assets/ice.zphysmat")
+
+box = BoxCollider()
+box.physic_material = "assets/ice.zphysmat"  # asset wins over inline
+box.material_friction = 0.6                  # fallback when asset missing
+box.material_bounciness = 0.0
+entity.add_component(box)
+```
+
+Resolution rule (verified): `resolve_physics_material` loads `physic_material` via `load_cached`; on missing/empty path it falls back to `material_friction`/`material_bounciness` with combine `average`. Combine math: `minimum`/`maximum`/`multiply` as named, default `average = (a+b)/2`.
+
+## Fixed update notes
+
+- Materials resolve at body-creation time (`_shape_info_for`); changing the asset later rebuilds via the 60-step shape check. No per-step cost.
+
+## Related
+
+All collider pages, Collision Layers (response vs. filtering), Solver & Threading.
+
+## Verified against
+
+- `core/assets/physics_material.py`
+- `core/physics/shapep/materials.py` (`resolve_physics_material`, `default_physics_material_dict`)

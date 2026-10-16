@@ -607,6 +607,14 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Physics Scene</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#1-ground-entity">1. Ground entity</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-ball-entity-with-rigidbody">2. Ball entity with Rigidbody</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-scripts-push-in-fixed-step-count-hits">3. Scripts: push in fixed step, count hits</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-play-and-verify">4. Play and verify</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../gui-prefab-audio-build/">GUI Menu, Prefabs, Audio, Build</a>
@@ -1237,15 +1245,52 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="physics-scene">Physics Scene</h1>
-<p>TODO: Content pending. This page will document Physics Scene in ZarinEngine.</p>
-<p>Planned sections:</p>
+<p>A ball drops onto the ground, gets pushed with keys, and counts impacts. Four steps, all Inspector names are the real component/field names.</p>
+<h2 id="1-ground-entity">1. Ground entity</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li><code>Hierarchy</code> add button (<code>Create Entity</code>) → rename to <code>Ground</code>.</li>
+<li><code>Inspector → Add Component</code> → add <code>BoxCollider</code>. In the Inspector set <code>Size</code> to <code>Vec3(10.0, 1.0, 10.0)</code>; leave <code>Center</code> at zero and <code>Is Trigger</code> off — a non-trigger collider blocks and reports contacts.</li>
+<li>No <code>Rigidbody</code> on the ground: without one it acts as a static obstacle.</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="2-ball-entity-with-rigidbody">2. Ball entity with Rigidbody</h2>
+<ul>
+<li>Create entity <code>Ball</code>, add <code>Rigidbody</code> then <code>SphereCollider</code> (<code>Add Component</code> each).</li>
+<li><code>Rigidbody</code> Inspector: <code>Mass = 1.0</code>, <code>Drag = 0.0</code>, <code>Use Gravity</code> on, <code>Is Kinematic</code> off. These are the real field names (<code>mass</code>, <code>drag</code>, <code>angular_drag</code>, <code>use_gravity</code>, <code>is_kinematic</code>); per-axis freeze flags exist for locking movement later.</li>
+<li>Move <code>Ball</code> up (<code>Transform</code> position <code>y = 5.0</code>) so the fall is visible.</li>
+</ul>
+<h2 id="3-scripts-push-in-fixed-step-count-hits">3. Scripts: push in fixed step, count hits</h2>
+<ul>
+<li><code>Project → Create → Python Script</code> → <code>ball.py</code>; attach via <code>Add Component → Scripts</code> on <code>Ball</code>.</li>
+</ul>
+<pre><code class="language-python">class Ball:
+    push: float = 8.0
+    hits: int = 0
+
+    def on_awake(self):
+        self.body = self._entity.get_component_by_name(&quot;Rigidbody&quot;)
+
+    def on_fixed_update(self, dt):
+        if not self.body:
+            return
+        if Input.GetKey(KeyCode.W):
+            self.body.add_force(Vec3(0.0, 0.0, self.push))
+        if Input.GetKey(KeyCode.S):
+            self.body.add_force(Vec3(0.0, 0.0, -self.push))
+        if Input.GetKeyDown(KeyCode.SPACE):
+            self.body.add_impulse(Vec3(0.0, 5.0, 0.0))
+
+    def on_collision_enter(self, other_id, force):
+        self.hits = self.hits + 1
+        Logger.info(f&quot;hit {other_id} force {force} total {self.hits}&quot;)
+</code></pre>
+<p>Rules from the engine: forces and impulses belong in <code>on_fixed_update(dt)</code> (stable <code>0.02</code> default step); <code>add_force</code> accumulates until the solver consumes it, <code>add_impulse</code> applies a mass-scaled instant kick (<code>impulse * (1/mass)</code>); collision arity is measured from the signature — <code>(other_id)</code> alone or <code>(other_id, force)</code> both work. Resolve the other entity from <code>other_id</code> only when needed; counting by id is cheapest.</p>
+<h2 id="4-play-and-verify">4. Play and verify</h2>
+<ul>
+<li>Press <code>Play</code>: the ball falls, lands on the ground collider, WASD pushes it, <code>Space</code> kicks it upward, each new contact logs a <code>hit ... force ...</code> line with the other entity id.</li>
+<li><code>Is Kinematic</code> on the ball freezes solver motion (script motion still applies); <code>Is Trigger</code> on a collider reports contacts without blocking. Both toggles are live Inspector checkboxes.</li>
+<li>Failure modes: ball falls through → the collider is missing or <code>Is Trigger</code> is on with no contact handling; no motion from keys → script attached to the wrong entity or <code>body</code> is <code>None</code> (check the <code>Script</code> field points at <code>ball.py</code>).</li>
+</ul>
+<p>Next: GUI Menu, Prefabs, Audio, Build — widgets, <code>.zpep</code> reuse, positional audio, running and shipping the scene.</p>
               
             </div>
           </div><footer>

@@ -461,6 +461,16 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Assets Overview</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties-api">Properties / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../models-assimp/">Model Import via Assimp</a>
@@ -1237,15 +1247,68 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="assets-overview">Assets Overview</h1>
-<p>TODO: Content pending. This page will document Assets Overview in ZarinEngine.</p>
-<p>Planned sections:</p>
+<p>Everything under the project is an asset file plus an optional sidecar <code>.import</code> JSON. Importers read the sidecar, cache by mtime/hash, and produce runtime buffers.</p>
+<h2 id="properties-api">Properties / API</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Source</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sidecar rule</td>
+<td><code>texture_import_settings.py</code>, <code>importer/settings.py</code>, <code>audio/sys/clip.py</code></td>
+<td><code>&lt;asset&gt;.import</code> JSON next to the file</td>
+</tr>
+<tr>
+<td>Mesh settings</td>
+<td><code>core/assets/importer/settings.py:_read_mesh_import</code></td>
+<td><code>scale</code> 1.0, <code>center_pivot</code> false, <code>flip_uvs</code> true, <code>smooth_angle</code> 30.0, <code>gen_normals</code>/<code>gen_uvs</code>/<code>blendshapes</code> true, <code>materials[]</code></td>
+</tr>
+<tr>
+<td>Texture settings</td>
+<td><code>core/assets/texture_import_settings.py</code></td>
+<td><code>filter_mode</code> trilinear, <code>anisotropic</code> 1, <code>max_size</code> 2048, <code>wrap_mode</code> clamp, <code>compression</code> none, <code>srgb</code> true</td>
+</tr>
+<tr>
+<td>Audio sidecar</td>
+<td><code>core/audio/sys/clip.py:load_from_file</code></td>
+<td><code>quality</code> 0–100 resample percent</td>
+</tr>
+<tr>
+<td>Cache</td>
+<td><code>importer/settings.py</code>, <code>texture_import_settings.py</code></td>
+<td>stat-signature + LRU (<code>_MEM_CACHE_MAX</code> 12, texture mtime TTL 2.0 s)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<ol>
+<li>Place the file in <code>assets/</code>; a <code>.import</code> JSON appears beside it.</li>
+<li>Edit the JSON keys for that type (mesh/texture/audio); reimport happens on mtime change.</li>
+<li>Missing sidecar means defaults above — safe to delete to reset.</li>
+</ol>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python"># mesh .import JSON
+{&quot;scale&quot;: 1.0, &quot;center_pivot&quot;: false, &quot;flip_uvs&quot;: true,
+ &quot;smooth_angle&quot;: 30.0, &quot;gen_normals&quot;: true, &quot;gen_uvs&quot;: true, &quot;blendshapes&quot;: true}
+# texture .import JSON
+{&quot;filter_mode&quot;: &quot;trilinear&quot;, &quot;anisotropic&quot;: 1, &quot;max_size&quot;: 2048,
+ &quot;wrap_mode&quot;: &quot;clamp&quot;, &quot;compression&quot;: &quot;none&quot;, &quot;srgb&quot;: true}
+# audio .import JSON
+{&quot;quality&quot;: 100}
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Model Import, Textures, Import Settings and Cache</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/assets/importer/settings.py</code>, <code>core/assets/texture_import_settings.py</code>, <code>core/audio/sys/clip.py</code></li>
+</ul>
               
             </div>
           </div><footer>

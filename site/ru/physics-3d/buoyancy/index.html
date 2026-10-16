@@ -910,6 +910,18 @@
     <ul class="current">
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Плавучесть Buoyancy</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#_1">Свойства</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Использование в коде</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#fixed-update">Заметки о fixed update</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Связанные</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../soft-body/">Soft Body</a>
@@ -1238,62 +1250,105 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="buoyancy">Плавучесть Buoyancy</h1>
-<p>Плавающие тела для прудов, рек и океанов: корпуса вытесняют воду, волны качают, течения толкают.</p>
+<p>Плавающие тела для прудов, рек и океанов: корпуса вытесняют воду, волны качают, течения толкают. CPU-сэмплинг в <code>on_fixed_update</code>, не тело солвера.</p>
+<h2 id="_1">Свойства</h2>
 <table>
 <thead>
 <tr>
-<th>Группа / поле инспектора</th>
-<th>Смысл</th>
+<th>Поле</th>
+<th>По умолчанию</th>
+<th>Примечания</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Buoyancy: Object Density</td>
-<td>Плотность корпуса против воды — ниже плотности воды плавает</td>
+<td><code>density</code></td>
+<td><code>500.0</code></td>
+<td><code>1–20000</code></td>
 </tr>
 <tr>
-<td>Override Volume</td>
-<td>Ручной объём вытеснения, пропускает автовычисление</td>
+<td><code>volume</code></td>
+<td><code>0.0</code></td>
+<td>Оверрайд; <code>0</code> = авто из коллайдера (box <code>sx*sy*sz</code>, sphere <code>4/3πr³</code>, capsule <code>4/3πr³ + πr²h</code>)</td>
 </tr>
 <tr>
-<td>Water Density</td>
-<td>Плотность жидкости (пресная/солёная/лавовая)</td>
+<td><code>water_density</code></td>
+<td><code>1000.0</code></td>
+<td><code>1–2000</code></td>
 </tr>
 <tr>
-<td>Hydro Drag / Hydro Angular Drag</td>
-<td>Водное демпфирование движения и вращения</td>
+<td><code>linear_drag</code></td>
+<td><code>8.0</code></td>
+<td><code>0–50</code> (фолбэк десериализации <code>1.5</code>)</td>
 </tr>
 <tr>
-<td>Flow Influence</td>
-<td>Насколько течения толкают корпус</td>
+<td><code>angular_drag</code></td>
+<td><code>6.0</code></td>
+<td><code>0–50</code> (фолбэк <code>1.2</code>)</td>
 </tr>
 <tr>
-<td>Options: Use Waves</td>
-<td>Сэмплирование поверхности волн для качки</td>
+<td><code>flow_influence</code></td>
+<td><code>1.0</code></td>
+<td><code>0–10</code></td>
 </tr>
 <tr>
-<td>Options: Use Flow</td>
-<td>Сэмплирование течений для дрейфа</td>
+<td><code>use_waves</code> / <code>use_flow</code></td>
+<td><code>True</code> / <code>True</code></td>
+<td><code>height_at</code> / <code>flow_at</code> из <code>WaterVolume</code></td>
 </tr>
 <tr>
-<td>Sample Resolution</td>
-<td>Плотность проб по корпусу</td>
+<td><code>sample_resolution</code></td>
+<td><code>8</code></td>
+<td>Сетка <code>2–24</code> на ось</td>
 </tr>
 <tr>
-<td>Max Accel (x g)</td>
-<td>Клапм стабильности водных сил</td>
+<td><code>max_acceleration</code></td>
+<td><code>8.0</code></td>
+<td>Клапм × g</td>
 </tr>
 <tr>
-<td>Debug Draw</td>
-<td>Визуализация объёма и проб</td>
+<td><code>enable_debug</code></td>
+<td><code>False</code></td>
+<td>Точки сэмплов в <code>gizmo_lines</code></td>
+</tr>
+<tr>
+<td>Только чтение</td>
+<td><code>submerged_fraction</code></td>
+<td><code>0–1</code></td>
 </tr>
 </tbody>
 </table>
-<p>В пару — компонент окружения WaterVolume, маркирующий область жидкости, и поверхность Water для картинки: один компонент без определённой жидкости ничего не держит.</p>
-<p>Порядок настройки: плотность пока ватерлиния не встанет (палуба в воде = слишком плотно), hydro drag пока остановка не станет весомой, волны для качки, течение для рек. Лёгкие катера хотят низкий drag и высокий max accel; баржи наоборот.</p>
-<p>Sample resolution меняет точность на цену: высоко для длинных корпусов (пробы по длине ловят дифферент), низко для бочек. Debug Draw показывает пробы — мимо корпуса, и силы мимо.</p>
-<p>Диагностика: тонет — плотность выше воды или недооценён объём, проверьте override; вибрирует — высок max accel или низко разрешение; игнорирует волны — выкл Use Waves или вне WaterVolume; вечный боковой дрейф — flow influence при несбалансированном поле течений.</p>
-<p>Связанное: вода, заметки WaterVolume, Soft Body, Rigidbody (перекличка масс).</p>
+<h2 id="_2">Использование в редакторе</h2>
+<p><code>Rigidbody</code> (не кинематика) + <code>Box</code>/<code>Sphere</code>/<code>CapsuleCollider</code> + <code>Buoyancy</code>, в сцене — <code>WaterVolume</code>. <code>density</code> vs <code>water_density</code>, <code>linear_drag</code> — чувство корпуса.</p>
+<h2 id="_3">Использование в коде</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Boat&quot;)
+from core.components.physics.rigidbody import Rigidbody
+from core.components.physics.box_collider import BoxCollider
+from core.components.physics.buoyancy import Buoyancy
+
+rb = Rigidbody()
+rb.mass = 500.0
+entity.add_component(rb)
+entity.add_component(BoxCollider())
+b = Buoyancy()
+b.density = 500.0
+b.linear_drag = 8.0
+b.sample_resolution = 8
+entity.add_component(b)
+# В on_fixed_update компонент сам считает Архимеда + drag + течение,
+# кламп max_acceleration * 9.81, applied через rb.add_force/add_torque.
+</code></pre>
+<p>Без коллайдера-формы построение падает, без <code>WaterVolume</code> — <code>submerged_fraction</code> всегда <code>0</code>.</p>
+<h2 id="fixed-update">Заметки о fixed update</h2>
+<ul>
+<li>Работает в <code>on_fixed_update(dt)</code> при <code>dt = Engine._fixed_dt</code> (<code>0.02</code>); сила уходит через <code>rb.add_force</code>/<code>add_torque</code> на следующий пуш. Пропуск при кинематике. Внутренняя гравитация <code>_GRAVITY_MAG = 9.81</code>.</li>
+</ul>
+<h2 id="_4">Связанные</h2>
+<p>Rigidbody, Box/Sphere/Capsule, WaterVolume, солвер и потоки.</p>
+<h2 id="_5">Проверено по</h2>
+<ul>
+<li><code>core/components/physics/buoyancy.py</code></li>
+</ul>
               
             </div>
           </div><footer>

@@ -1,28 +1,61 @@
 # Soft Body
 
-Симуляция деформируемого меша для ткани, желе, мнущегося реквизита и мягких персонажей — симулируются вершины, меш следует.
+Симуляция деформируемого меша для ткани, желе, мнущегося реквизита — симулируются вершины, меш следует.
 
-| Группа / поле инспектора | Смысл |
-|---|---|
-| Soft Body: Mass / Stiffness | Вес против держания формы |
-| Bend Mode | Селектор модели отклика на изгиб |
-| Pressure | Надувание замкнутых мешей (шары, шины) |
-| Damping / Iterations | Успокоение и качество солвера на шаг |
-| Gravity Scale | Локальный множитель гравитации |
-| Vertex Radius | Толщина коллизий на вершину |
-| Max Velocity | Клапм стабильности |
-| Pin Mode / Pin Fraction | Доля вершин, пришитых к якорю |
-| Max Vertices | Кап бюджета симуляции |
-| Double Sided | Двусторонние коллизии тонкой ткани |
+## Свойства
 
-Вершины, центр масс и скорости обмениваются с солвером через soft-буфер каждый шаг — тяжелее rigid-тел: бюджетируйте вершины (сотни, не тысячи), soft-тела только для hero-реквизита.
+| Поле | По умолчанию | Примечания |
+|---|---|---|
+| `layer` / `mask` | `0` / `0xFFFF` | Фильтрация |
+| `mass` | `1.0` | `0.01–10000` |
+| `stiffness` | `0.85` | `0–1`; `compliance = (1-stiffness) * 0.01` |
+| `bend_mode` | `distance` | `none` / `distance` / `dihedral` |
+| `pressure` | `0.0` | Сохранение объёма |
+| `damping` | `0.1` | `0–10` |
+| `iterations` | `10` | `1–50` |
+| `gravity_scale` | `1.0` | `0–5` |
+| `vertex_radius` | `0.05` | `0.001–1` |
+| `max_velocity` | `500.0` | `1–5000` |
+| `pin_mode` | `none` | `none` / `top` / `bottom`, полоса `pin_fraction` |
+| `pin_fraction` | `0.1` | `0–0.5` |
+| `max_vertices` | `3000` | `0–30000`; воксельная децимация при превышении бюджета (и `max_vertices ≥ 4`) |
+| `double_sided` | `True` | |
+| `update_com` | `True` | Вести трансформ от центра масс |
+| `recompute_normals` | `True` | |
+| `material_friction` / `material_bounciness` | `0.2` / `0.0` | Пути ассета у компонента нет |
+| Капы | `16` тел, `32768` вершин | `SoftSharedBuffer` |
 
-Паттерны пинов: полный ряд для штор и плащей, угловые для скатертей, ноль для свободного желе. Pressure превращает замкнутые меши в прыгучие мячи; с высоким damping — водяные матрасы.
+## Использование в редакторе
 
-Iterations — ручка качества: поднимайте пока восстановление чистое, затем стоп — цена линейна. Низкий damping дребезжит вечно; высокий ощущается мороженым.
+`MeshFilter` (источник меша) + `SoftBody`. `Rigidbody` НЕ добавлять — SoftBody владеет сущностью (варнинг, тело пропускается). `top` — шторы, `bottom` — скатерти.
 
-Процесс: замкнутый низкополигональный меш → SoftBody с pressure для мячей, открытый с пинами для ткани → stiffness/damping → проверка гизмо-объёма → Play и тыкание kinematic-толкателем.
+## Использование в коде
 
-Диагностика: взрывается — мало итераций под жёсткость, растите оба аккуратно; проваливается — крошечный радиус плюс скорость, растите радиус или тормозите; пины рвутся — мала доля под нагрузку, добавьте; тяжело — перебор max vertices, децимируйте исходник.
+```python
+entity = scene.create_entity("Cloth")
+from core.components.physics.soft_body import SoftBody
 
-Связанное: плавучесть (плавающее желе), PhysBone (альтернатива цепочек для ремней), тканевые эффекты объектов, Rigidbody (тела-толкатели).
+sb = SoftBody()
+sb.mass = 1.0
+sb.stiffness = 0.85
+sb.iterations = 10
+entity.add_component(sb)  # на сущности нужен MeshFilter с mesh_path
+```
+
+Вход солвера: `create_soft_body(entity_id, vertices, indices, position, rotation, mass, compliance, bend_mode, pressure, damping, iterations, gravity_factor, friction, restitution, vertex_radius, max_velocity, max_vertices, pin_mode, pin_fraction, double_sided, update_com, layer, mask)`. Телепорты пересоздают тело; COM-синхронизация пропускается при пинах.
+
+## Заметки о fixed update
+
+- Построение — `_create_entity_soft` из `MeshFilter.mesh_path` через `load_collision_geometry`; синхронизация — `_sync_soft_bodies` / `_sync_soft_mesh` после `step_simulation(dt)` при `dt = Engine._fixed_dt` (`0.02`).
+- Пересечения `≥2` soft-тел расталкиваются AABB-импульсом (`_separate_soft_bodies`).
+
+## Связанные
+
+Rigidbody (не комбинировать), Mesh, солвер и потоки (soft-буферы), слои.
+
+## Проверено по
+
+- `core/components/physics/soft_body.py`
+- `core/physics/scene/colliders.py`, `scene/events.py`
+- `physics_solvers/culverin_solver/solverp/integrate.py`
+- `core/physics/soft_shared_buffer.py`

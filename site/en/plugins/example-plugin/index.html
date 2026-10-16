@@ -1238,7 +1238,7 @@
               
                 <h1 id="example-plugin-walkthrough">Example Plugin Walkthrough</h1>
 <p><code>plugins/example_plugin.py</code> (43 lines) is the canonical minimal plugin — every convention in one place. Read it, copy it, rename it.</p>
-<pre><code class="language-python">from core.foundation.plugin_manager import PluginBase
+<pre><code class="language-python">from core.foundation.plugins import PluginBase
 from core.foundation.logger import Logger
 
 class ExamplePlugin(PluginBase):

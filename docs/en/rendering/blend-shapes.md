@@ -1,17 +1,22 @@
 # Blend Shapes
-
-Morph-target deformation for faces and soft props, layered over skeletal animation: smiles, blinks, damage dents, breathing.
-
-| Inspector group | Covers |
-|---|---|
-| Blend Shapes | Per-target weight sliders, 0–100 style range |
-
-Weights arrive with the mesh import and animate from clips or scripts (drive a smile weight from dialogue events). A smoke test covers the blendshape path, so regressions surface in CI before they reach artists.
-
-Use for facial expressions, damage states and breathing loops; heavy full-body morphs belong in the skeleton instead — morphs interpolate vertices linearly and cannot rotate joints.
-
-Workflow: sculpt targets in the DCC with identical vertex order → import → verify sliders move the right regions → wire key expressions to animation curves or script floats.
-
-Troubleshooting: distorted mesh → vertex order mismatch between base and target, re-export cleanly; no motion → weights zero or clip not bound; seams splitting → target missing welded vertices, fix in DCC.
-
-Related: Skinned Mesh Renderer, Animation Clips, Armature.
+> Morph targets: `BlendShapes` (`core/components/rendering/deform/blendshapes.py`) with `shapes[i] = {name, weight}` driving mesh `blendshape_names` order.
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+Weights are clamped (NaN/inf → `0.0`, `_clamp_weight`). `get_weight/set_weight` accept name or index; unknown names are appended (`blendshapes.py:56-87`). `sync_with_mesh(mesh)` rebuilds the list from `mesh.blendshape_names` preserving weights; `weights_vector(mesh)` returns GPU-order floats (`blendshapes.py:99-128`).
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `shapes` | list of `{name: string, weight: float 0–1}` | `[]` | Morph list (`blendshapes.py:34-37,42`). |
+## Usage in Editor
+Add Component → Blend Shapes on a skinned/static mesh entity, Sync with mesh, then paint weights per shape (0–1).
+## Usage in Code
+```python
+bs = entity.get_component(BlendShapes)
+bs.sync_with_mesh(mesh)
+bs.set_weight("Smile", 0.75)
+bs.weights_vector(mesh)
+```
+## Related pages
+- [Skinned Mesh Renderer](./skinned-mesh-renderer.md), [Armature](./armature.md), [Mesh Renderer](./mesh-renderer.md)
+## Verified against
+- `core/components/rendering/deform/blendshapes.py:30-173`

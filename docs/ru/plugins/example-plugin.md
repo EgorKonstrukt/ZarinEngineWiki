@@ -3,7 +3,7 @@
 `plugins/example_plugin.py` (43 строки) — канонический минимальный плагин: все конвенции в одном месте. Прочитайте, скопируйте, переименуйте.
 
 ```python
-from core.foundation.plugin_manager import PluginBase
+from core.foundation.plugins import PluginBase
 from core.foundation.logger import Logger
 
 class ExamplePlugin(PluginBase):

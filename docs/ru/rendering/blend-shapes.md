@@ -1,17 +1,22 @@
-# Блендшейпы Blend Shapes
-
-Морф-деформация для лиц и мягкого реквизита поверх скелетной анимации: улыбки, моргания, вмятины урона, дыхание.
-
-| Группа инспектора | Что покрывает |
-|---|---|
-| Blend Shapes | Слайдеры весов на таргет, диапазон в стиле 0–100 |
-
-Веса приезжают с импортом меша и анимируются клипами или скриптами (вес улыбки от событий диалогов). Путь покрыт smoke-тестом — регрессии ловятся в CI до художников.
-
-Применение: мимика, состояния повреждений, циклы дыхания; тяжёлые полнотелые морфы — в скелет: морфы линейно интерполируют вершины и не умеют вращать суставы.
-
-Процесс: скульпт таргетов в DCC с идентичным порядком вершин → импорт → проверка слайдеров по регионам → привязка ключевых выражений к кривым анимации или float скриптов.
-
-Диагностика: рваный меш — mismatch порядка вершин базы и таргета, чистый реэкспорт; нет движения — нулевые веса или непривязанный клип; разъезжающиеся швы — в таргете не хватает сварных вершин, чинить в DCC.
-
-Связанное: Skinned Mesh Renderer, клипы анимации, арматура.
+# Бленд-шейпы
+> Морф-таргеты: `BlendShapes` (`core/components/rendering/deform/blendshapes.py`), `shapes[i] = {name, weight}` в порядке `blendshape_names` меша.
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+Веса клампятся (NaN/inf → `0.0`, `_clamp_weight`). `get_weight/set_weight` принимают имя или индекс; неизвестные имена добавляются (`blendshapes.py:56-87`). `sync_with_mesh(mesh)` перестраивает список из `mesh.blendshape_names` с сохранением весов; `weights_vector(mesh)` отдаёт float-ы в порядке GPU (`blendshapes.py:99-128`).
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `shapes` | list `{name: string, weight: float 0–1}` | `[]` | Список морфов (`blendshapes.py:34-37,42`). |
+## Usage in Editor
+Add Component → Blend Shapes на сущность меша, Sync with mesh, затем веса 0–1 по шейпам.
+## Usage in Code
+```python
+bs = entity.get_component(BlendShapes)
+bs.sync_with_mesh(mesh)
+bs.set_weight("Smile", 0.75)
+bs.weights_vector(mesh)
+```
+## Related pages
+- [Skinned Mesh Renderer](./skinned-mesh-renderer.md), [Armature](./armature.md), [Mesh Renderer](./mesh-renderer.md)
+## Verified against
+- `core/components/rendering/deform/blendshapes.py:30-173`

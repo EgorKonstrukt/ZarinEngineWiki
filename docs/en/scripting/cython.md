@@ -34,7 +34,7 @@ cpdef double clamp_step(double value, double lo, double hi):
 Rules and mechanics:
 
 - The module name is top-level: `import foo` where `foo.pyx` sits next to the script. Names must be unique within the project. A neighboring `foo.pxd` declaration file is tracked for rebuilds too.
-- Rebuilds are automatic when the `.pyx` (or `.pxd`) is newer than the cached build. Artifacts live in `cache/cython`; the script folder stays clean. Editing `.pyx` during Play triggers a script hot-reload as usual.
+- Rebuilds are automatic when the `.pyx` (or `.pxd`) is newer than the cached build. Artifacts live in `cache/cython` under `build/<dirhash16>/<fingerprint12>` (directory hash + 12-hex source fingerprint over `.pyx`, neighboring `.pxd`, Cython version and toolchain); only the last 3 builds per script folder are kept. The script folder stays clean. Editing `.pyx` during Play triggers a script hot-reload as usual.
 - The `Check` button validates `.pyx` without a C compiler (Cython parsing and typing only). The full native build happens lazily on first import.
 - If no compiler is found, the console shows an actionable error and the script keeps working on the previous working build — iteration never hard-blocks on toolchain setup.
 - Keep the Python/Cython boundary typed (`cpdef`, typed locals) and batch calls: one call processing an array beats per-element calls across the boundary.

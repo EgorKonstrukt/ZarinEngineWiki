@@ -331,6 +331,18 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">PhysBone</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#fixed-update-notes">Fixed update notes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../phys-bone-collider/">PhysBoneCollider</a>
@@ -1238,35 +1250,70 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="physbone">PhysBone</h1>
-<p>Bone-chain dynamics for hair, tails, capes, antennae, dangling jewelry and monster appendages — spring simulation along an existing bone chain.</p>
+<p>Bone-chain dynamics for hair, tails, capes, antennae — spring simulation along an existing bone chain. CPU Verlet, not a solver rigid body.</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group</th>
-<th>Covers</th>
+<th>Group</th>
+<th>Fields (defaults)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Transforms</td>
-<td>Root Transform, Ignore Transforms, Ignore Other Phys Bones, Endpoint Position, Multi Child Type (branching behavior)</td>
+<td><code>root_entity_id</code> <code>""</code>, <code>ignore_entity_ids</code> <code>[]</code>, <code>ignore_other_phys_bones</code> <code>False</code>, <code>endpoint_position</code> <code>(0,0,0)</code>, <code>multi_child_type</code> <code>ignore</code> (<code>ignore</code>/<code>first</code>/<code>average</code>)</td>
 </tr>
 <tr>
 <td>Forces</td>
-<td>Integration Type, Pull (+Curve), Spring (+Curve), Damping (+Curve) and further force tuning</td>
+<td><code>integration_type</code> <code>simplified</code> (<code>simplified</code>/<code>advanced</code>), <code>pull</code> <code>0.2</code>, <code>spring</code> <code>0.2</code>, <code>damping</code> <code>0.1</code>, <code>gravity</code> <code>0.0</code>, <code>gravity_falloff</code> <code>0.0</code>, <code>immobile_type</code> <code>all</code>, <code>immobile</code> <code>0.0</code> (each with <code>*_curve</code> default <code>[[0,1],[1,1]]</code>)</td>
 </tr>
 <tr>
-<td>Limits / Colliders</td>
-<td>Limit Type, Immobile handling, attached PhysBoneCollider set</td>
+<td>Limits</td>
+<td><code>limit_type</code> <code>none</code> (<code>none</code>/<code>angle</code>/<code>hinge</code>), <code>max_angle</code> <code>45.0</code> + curve, <code>hinge_axis</code> <code>(1,0,0)</code></td>
+</tr>
+<tr>
+<td>Collision</td>
+<td><code>radius</code> <code>0.11</code> + curve, <code>allow_collision</code> <code>True</code>, <code>collider_entity_ids</code> <code>[]</code></td>
+</tr>
+<tr>
+<td>Stretch</td>
+<td><code>stretch_motion</code> <code>0.0</code>, <code>max_stretch</code> <code>0.0</code>, <code>max_squish</code> <code>0.0</code> (+ curves)</td>
+</tr>
+<tr>
+<td>Options</td>
+<td><code>parameter</code> <code>""</code>, <code>is_animated</code> <code>False</code>, <code>reset_when_disabled</code> <code>False</code>, <code>allow_grab</code> <code>True</code>, <code>show_gizmo</code> <code>True</code></td>
 </tr>
 </tbody>
 </table>
-<p>Curves over chain length are the secret weapon: stiff roots with floppy tips read natural — flat values read robotic. Pull fights gravity (high pull = floaty), spring restores shape, damping kills oscillation.</p>
-<p>Branching: Multi Child Type controls how forks (fingers, ponytail strands) distribute — test on the actual asset, fork behavior varies by hierarchy.</p>
-<p>Colliders deflect the chain every step; see PhysBoneCollider for sphere/capsule/plane shapes. Chains ignore each other unless configured — sleeves clipping capes need explicit ignore rules or colliders.</p>
-<p>Workflow: rigged chain bones → PhysBone on the root with endpoint set → colliders on head/torso → tune pull/spring/damping with curves → stress-test with fast head turns in Play.</p>
-<p>Troubleshooting: stretches like rubber → pull too low or damping zero; vibrates → spring too high for the mass scale, lower and raise damping; clips through body → missing collider or ignore rule swallowing it; frozen → immobile type misassigned.</p>
-<p>Related: PhysBoneCollider, Armature, Skinned Mesh Renderer, IK notes in Animation, Cloth Object Effects (static alternative).</p>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Add <code>PhysBone</code> (multiple allowed), set <code>Root Transform</code> to the chain root, tune pull/spring/damping, add <code>PhysBoneCollider</code> entities into <code>Colliders</code>.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Hair&quot;)
+from core.components.physics.physbone.component import PhysBone
+
+pb = PhysBone()
+pb.root_entity_id = root_id
+pb.pull = 0.2
+pb.spring = 0.2
+pb.gravity = 0.2
+pb.allow_collision = True
+pb.collider_entity_ids = [collider_entity_id]
+entity.add_component(pb)
+</code></pre>
+<p>Chain rebuilds on <code>on_start</code> / <code>on_enable</code>; <code>on_disable</code>/<code>on_destroy</code> optionally <code>reset_to_rest()</code>.</p>
+<h2 id="fixed-update-notes">Fixed update notes</h2>
+<ul>
+<li>Not stepped by <code>solver.step_simulation</code>; integrates per-frame on the component side (<code>_step_cython</code> pack when available). No <code>dt</code> coupling to <code>Engine._fixed_dt</code> in the verified path — runs in component update, colliders sampled via <code>world_center</code>/<code>world_capsule</code>/<code>world_plane</code>.</li>
+</ul>
+<h2 id="related">Related</h2>
+<p>PhysBoneCollider, Joints (rigid alternative), Solver &amp; Threading.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/physics/physbone/component.py</code></li>
+<li><code>core/components/physics/physbone/params.py</code></li>
+<li><code>core/components/physics/physbone/types.py</code></li>
+</ul>
               
             </div>
           </div><footer>

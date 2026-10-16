@@ -1237,65 +1237,101 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="system-plugins-catalog">System Plugins Catalog</h1>
-<p>Shipped in <code>plugins/</code> with <code>SYSTEM = True</code>: engine-grade extensions that load first and stay on. One page each for the verified two; capsule summaries for the rest (fields verified by filename, details in their panels).</p>
+<p>Shipped in <code>plugins/</code> (verified <code>NAME</code> / <code>VERSION</code> / <code>SYSTEM</code> against each <code>get_plugin()</code> file; note: the shipped folder mixes <code>SYSTEM = True</code> engine tier and <code>SYSTEM = False</code> bundled tools — load tier is per-plugin, not per-folder). One page each for the verified two; capsule summaries for the rest.</p>
 <table>
 <thead>
 <tr>
-<th>Plugin</th>
-<th>File(s)</th>
+<th>Plugin (<code>NAME</code>)</th>
+<th>Version</th>
+<th><code>SYSTEM</code></th>
+<th>File(s) (<code>get_plugin()</code> present)</th>
 <th>Role</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Network Plugin</td>
+<td>NetworkPlugin</td>
+<td>1.0.0</td>
+<td>True</td>
 <td><code>network_plugin.py</code></td>
 <td>Gameplay transport wiring: host/connect, message handlers, per-frame poll. See Network Plugin page.</td>
 </tr>
 <tr>
-<td>Physics Plugin</td>
-<td><code>physics_plugin.py</code></td>
+<td>PhysicsPlugin</td>
+<td>0.4.0</td>
+<td>True</td>
+<td><code>physics_plug/plugin.py</code> (+ <code>physics_plug/__init__.py</code> re-export)</td>
 <td>Solver modes (single/multi/per-layer), background process, scene sync. See Solver and Threading.</td>
 </tr>
 <tr>
-<td>Physics Drag Plugin</td>
-<td><code>physics_drag_plugin.py</code></td>
-<td>Editor mouse-dragging of rigidbodies in the viewport.</td>
-</tr>
-<tr>
-<td>Physics Visualisation Plugin</td>
-<td><code>physics_visualisation_plugin.py</code></td>
+<td>PhysicsVisualisation</td>
+<td>1.1.0</td>
+<td>True</td>
+<td><code>physviz/plugin.py</code></td>
 <td>Collision-shape and layer-color debug drawing.</td>
 </tr>
 <tr>
-<td>Mesh Editor Plugin</td>
+<td>QtQuickWorldPlugin</td>
+<td>1.0.0</td>
+<td>True</td>
+<td><code>qt_quick_plugin/plug/plugin.py</code></td>
+<td>QtQuick surface hosting inside the editor.</td>
+</tr>
+<tr>
+<td>VRPlugin</td>
+<td>1.0.0</td>
+<td>True</td>
+<td><code>vr_plugin/plug/plugin.py</code> + <code>vr_plugin/vr_dock.py</code> + <code>vr_plugin/components/</code></td>
+<td>VR runtime core plus editor dock. See VR Plugin page.</td>
+</tr>
+<tr>
+<td>ZarinMCP</td>
+<td>2.1.0</td>
+<td>False</td>
+<td><code>zarin_mcp/__init__.py</code> (server, dock, registry, handlers)</td>
+<td>Model-Context-Protocol server exposing engine tools to AI agents. See MCP Bridge page.</td>
+</tr>
+<tr>
+<td>PlotterPlugin</td>
+<td>1.2.0</td>
+<td>False</td>
+<td><code>plotter_plugin/__init__.py</code></td>
+<td>Curve/data plotting panels.</td>
+</tr>
+<tr>
+<td>TrackerMusicPlugin</td>
+<td>1.0.0</td>
+<td>False</td>
+<td><code>tracker_music_plugin/__init__.py</code></td>
+<td>Tracker music playback (rend engine) for retro scores.</td>
+</tr>
+<tr>
+<td>ExamplePlugin</td>
+<td>1.0.0</td>
+<td>False</td>
+<td><code>example_plugin.py</code> (43 lines)</td>
+<td>Canonical minimal plugin. See walkthrough.</td>
+</tr>
+<tr>
+<td>MeshEditorPlugin</td>
+<td>1.0.0</td>
+<td>False</td>
 <td><code>mesh_editor_plugin.py</code></td>
 <td>In-editor ProBuilder-style modeling panel and operations.</td>
 </tr>
 <tr>
-<td>VR Plugin</td>
-<td><code>vr_plugin/</code> (<code>vr_core.py</code>, <code>vr_dock.py</code>)</td>
-<td>VR runtime core plus editor dock. See VR Plugin page.</td>
+<td>PhysicsDragPlugin</td>
+<td>0.1.0</td>
+<td>False</td>
+<td><code>physics_drag_plugin.py</code></td>
+<td>Editor mouse-dragging of rigidbodies in the viewport.</td>
 </tr>
 <tr>
-<td>MCP Bridge</td>
-<td><code>zarin_mcp/</code> (server, dock, registry, handlers)</td>
-<td>Model-Context-Protocol server exposing engine tools to AI agents. See MCP Bridge page.</td>
-</tr>
-<tr>
-<td>Tracker Music Plugin</td>
-<td><code>tracker_music_plugin/</code></td>
-<td>Tracker music playback (nodmod engine) for retro scores.</td>
-</tr>
-<tr>
-<td>Plotter Plugin</td>
-<td><code>plotter_plugin/</code></td>
-<td>Curve/data plotting panels.</td>
-</tr>
-<tr>
-<td>QtQuick Plugin</td>
-<td><code>qt_quick_plugin/</code></td>
-<td>QtQuick surface hosting inside the editor.</td>
+<td>BSPImport</td>
+<td>2.0.0</td>
+<td>False</td>
+<td><code>user/bsp_import/plugin.py</code></td>
+<td>User-tier BSP import example.</td>
 </tr>
 </tbody>
 </table>

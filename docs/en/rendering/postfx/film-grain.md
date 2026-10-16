@@ -1,21 +1,50 @@
 # Film Grain
 
-Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.
-
-## How it works
-
-Animated fine noise over the frame, stronger in shadows by default.
+> Animated procedural grain. Hash noise scaled by size, modulated by luminance influence, advanced by frame time. Class `FilmGrain` in `core/components/rendering/postfx/film_grain.py`. Runs in the PostFX stack in component order; skipped when `enabled` is False or the entity is inactive (`render()` early-out).
 
 ## Parameters
 
-Size, amount, shadow bias, animation speed.
+| Inspector | Field | Type | Range | Default |
+|---|---|---|---|---|
+| Intensity | `_intensity` | FLOAT | 0.0 – 1.0 | `0.1` |
+| Size | `_size` | FLOAT | 0.1 – 10.0 | `1.0` |
+| Luminance Influence | `_luminance_influence` | FLOAT | 0.0 – 1.0 | `0.5` |
 
-## Tips
+## Usage
 
-Cinematic finish over Bloom + Color Grading; animate amount up in dark zones.
+Editor: select the PostFX entity, Add Component > `FilmGrain`, tick `enabled`, tune fields above. Order among PostFX components defines execution order.
 
-## Cost
+Code:
 
-Cheap.
+```python
+from core.components.rendering.postfx.film_grain import FilmGrain
+fx = FilmGrain()
+entity.add_component(fx)
+fx._intensity = 0.15
+fx._size = 1.5
+fx.enabled = True
+```
 
-Related: [PostFX Stack](../postfx.md), Cameras (render scale), Profiler.
+## Shader snippet
+
+Shader: `core/components/rendering/postfx/film_grain.py`.
+
+```glsl
+#version 330 core
+uniform sampler2D u_input_tex;
+uniform float u_intensity;
+uniform float u_size;
+uniform float u_luminance_influence;
+uniform float u_time;
+```
+
+
+## Related
+
+Related: [PostFX Stack](../postfx.md), [Color Grading](color-grading.md), [Bloom](bloom.md).
+
+## Verified against
+
+- `core/components/rendering/postfx/film_grain.py` — class `FilmGrain`, `_inspector_fields`, `__init__` defaults, `GraphicsEffect base, time-driven (u_time)`.
+
+- `core/components/rendering/postfx/graphics_effect.py` — `GraphicsEffect` base (`enabled`, `_registry`, `should_skip`, `render()` signature).

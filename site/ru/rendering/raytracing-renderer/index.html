@@ -860,6 +860,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Raytracing Renderer</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../voxel/">Воксельный рендеринг</a>
@@ -1237,50 +1245,111 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="raytracing-renderer">Raytracing Renderer</h1>
-<p>Экспериментальный рейтрейс-компонент для исследований конвейера и референсных рендеров — не продакшн-путь (движок целится в OpenGL 4.6, без Vulkan/DX12).</p>
+                <h1 id="-">Рейтрейсинг-рендерер</h1>
+<blockquote>
+<p>Compute path-tracer оверлей: <code>RaytraceComponent</code> (<code>core/components/rendering/renderers/raytrace/component.py:23-161</code>), шейдер по умолчанию <code>core/shaders/compute/Raytracing.compute</code>.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Лимиты: <code>_MAX_INSTANCES = 256</code>, <code>_MAX_LIGHTS = 8</code>, <code>_MAT_STRIDE = 20</code>, <code>_MAX_ALBEDO_LAYERS = 32</code>, <code>_INST_STRIDE = 46</code> (<code>component.py:13-17</code>). Опциональная Cython-упаковка через <code>core._raytracing_data.prepare_raytrace_data</code>. Буферы (BVH/verts/idx/mats/instances/lights + albedo array) освобождаются при disable/destroy (<code>component.py:123-161</code>).</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Поле</th>
-<th>Смысл</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Enabled</td>
-<td>Мастер-выключатель</td>
+<td><code>enabled</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Мастер-тумблер (<code>component.py:29</code>).</td>
 </tr>
 <tr>
-<td>Compute Shader</td>
-<td>Точка входа ядра рейтрейса</td>
+<td><code>_compute_shader_path</code></td>
+<td>путь (*.compute)</td>
+<td><code>core/shaders/compute/Raytracing.compute</code></td>
+<td>Compute-шейдер (<code>component.py:30,42</code>).</td>
 </tr>
 <tr>
-<td>Resolution Scale</td>
-<td>Множитель разрешения (0.25 черновики, 1.0 финалы)</td>
+<td><code>_resolution_scale</code></td>
+<td>float (0.1–1)</td>
+<td><code>0.5</code></td>
+<td>Разрешение трейса (<code>component.py:31,43</code>).</td>
 </tr>
 <tr>
-<td>Max Bounces</td>
-<td>Глубина пути на луч</td>
+<td><code>_max_bounces</code></td>
+<td>int (1–16)</td>
+<td><code>1</code></td>
+<td>Отскоки (<code>component.py:32,44</code>).</td>
 </tr>
 <tr>
-<td>Samples Per Pixel</td>
-<td>Качество против шума на кадр</td>
+<td><code>_samples_per_pixel</code></td>
+<td>int (1–16)</td>
+<td><code>1</code></td>
+<td>SPP (<code>component.py:33,45</code>).</td>
 </tr>
 <tr>
-<td>Accumulate Frames</td>
-<td>Временная сходимость по кадрам (нужна статичная камера)</td>
+<td><code>_accumulate</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Накопление кадров (<code>component.py:34,46</code>).</td>
 </tr>
 <tr>
-<td>Show Overlay / Heatmap (+ Mode / Scale)</td>
-<td>Визуализация цены для исследований</td>
+<td><code>_show_overlay</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Композит оверлея (<code>component.py:35,47</code>).</td>
+</tr>
+<tr>
+<td><code>_heatmap_mode</code></td>
+<td>int (0–2)</td>
+<td><code>0</code></td>
+<td>Режим хитмапа (<code>component.py:37,48</code>).</td>
+</tr>
+<tr>
+<td><code>_heatmap_scale</code></td>
+<td>float (1–256)</td>
+<td><code>40.0</code></td>
+<td>Масштаб хитмапа (<code>component.py:38,49</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Компонент на превью-сущность, Resolution Scale 0.25–0.5 для интерактива, Accumulate для сошедшихся still-кадров.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Применение: изучение света (сравнение с растровым кадром), валидация материалов, маркетинговые stills. Игры шипайте на стандартном меш-конвейере.</p>
-<p>Аккумуляция сходится только при статичных камере и сцене — любое движение перезапускает сходимость, это поведение, а не баг.</p>
-<p>Диагностика: шум не уходит — движение или выкл аккумуляция; чёрное — упал compute-шейдер, смотрите консоль; тормоза редактора — scale 1.0 с высоким SPP, опустите до черновых.</p>
-<p>Связанное: Gaussian Splat Renderer, камеры, профайлер.</p>
+<pre><code class="language-python">rt._resolution_scale = 0.5
+rt._samples_per_pixel = 2
+rt._accumulate = True
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../pipeline/">Pipeline</a>, <a href="../materials/">Materials</a>, <a href="../shaders/">Shaders</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/renderers/raytrace/component.py:13-50,91-122</code></li>
+<li><code>core/shaders/compute/Raytracing.compute</code></li>
+</ul>
               
             </div>
           </div><footer>

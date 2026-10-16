@@ -95,6 +95,14 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Rendering Overview</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview_1">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../pipeline/">ModernGL Pipeline and Scene Renderer</a>
@@ -1236,22 +1244,83 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="rendering-overview">Rendering Overview</h1>
-<p>ZarinEngine renders with ModernGL on an OpenGL 4.6 core profile context. All engine math runs in <code>numpy.float64</code>; the downgrade to <code>float32</code> happens only when vertex data is uploaded to the GPU, which removes floating-point jitter in large worlds — coordinates stay exact across kilometers of scenery while the rasterizer still gets the floats it wants.</p>
-<p>Building blocks, bottom to top:</p>
+                <h1 id="overview">Overview</h1>
+<blockquote>
+<p>Forward OpenGL renderer: <code>Renderer</code> facade in <code>core/renderer/renderer.py</code> draws the scene into the viewport FBO in opaque then transparent phases.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview_1">Overview</h2>
+<p>ZarinEngine uses a forward renderer built on moderngl. Entry context is created in <code>main.py</code>: <code>QSurfaceFormat</code>, OpenGL 4.6 Core profile, depth buffer 24, swap interval from <code>rendering.vsync</code> (<code>0</code> off / <code>1</code> on). <code>Renderer</code> composes mixins: config, programs, voxel, object-fx, framebuffers, water, uniforms, skinned, collector, geometry cache, outline, gizmo, icon, cubemap, post, scene (<code>core/renderer/renderer.py:56</code>). Render modes are <code>RenderMode.SHADED / SHADED_WIREFRAME / FLAT</code> (<code>core/renderer/types.py</code>). Default caps: <code>_max_lights = 8</code>, ambient <code>[0.26, 0.28, 0.34]</code>, selection outline <code>[0.8, 0.5, 0.1, 1.0]</code> thickness <code>0.03</code> (<code>core/renderer/renderer.py:90-114</code>).</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rendering.vsync</code></td>
+<td>bool (global config)</td>
+<td><code>True</code></td>
+<td>Swap interval 1 on / 0 off (<code>main.py:212</code>).</td>
+</tr>
+<tr>
+<td><code>rendering.max_lights</code></td>
+<td>int (global config)</td>
+<td><code>8</code></td>
+<td>Size of <code>u_lights[]</code> uniform array (<code>core/renderer/rconfig/config_state.py:20</code>).</td>
+</tr>
+<tr>
+<td><code>rendering.ambient</code></td>
+<td>vec3 (global config)</td>
+<td><code>[0.26, 0.28, 0.34]</code></td>
+<td>Fallback ambient (<code>core/renderer/renderer.py:112</code>).</td>
+</tr>
+<tr>
+<td><code>render_mode</code></td>
+<td><code>RenderMode</code></td>
+<td><code>SHADED</code></td>
+<td>Shaded / shaded+wireframe / flat (<code>core/renderer/types.py</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Viewport renders the active scene with the scene camera; grid, gizmos and outline are editor-only passes. See <a href="../pipeline/">Pipeline</a>, <a href="../camera/">Camera</a>, <a href="../gizmos/">Gizmos</a>.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">from core.renderer.renderer import Renderer
+renderer = Renderer(ctx)  # ctx: moderngl.Context
+renderer.render_scene(scene, view_mat, proj_mat, cam_pos, w, h)
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
 <ul>
-<li>Custom <code>.shader</code> files with a <code>Properties { }</code> block (Unity ShaderLab style) plus GLSL vertex/fragment code. The loader compiles, falls back across SubShaders, injects instancing and UV overrides, and retries failed 430 shaders as 330.</li>
-<li>Material assets (<code>.zpem</code> / <code>.mat</code>, JSON) binding a shader with concrete property values, editable live in the Inspector and the material wizard.</li>
-<li><code>MeshFilter</code> (which mesh) + <code>MeshRenderer</code> (how to draw it) on entities; <code>SkinnedMeshRenderer</code> + <code>Armature</code> for animation; <code>MeshCollider</code> reuses the same import for physics.</li>
-<li>Cameras (perspective / orthographic, depth ordering, render scale), lights (directional / point / spot / area, physical units) with cascaded, cube and spot shadow maps.</li>
-<li>Sprite, SVG, text and video renderers for world-space 2D content; the GUI system (<code>GuiCanvas</code> + 30+ widgets) for screen-space UI.</li>
-<li>Particle systems with editor-visible gizmo shapes, force fields, GPU-driven playback for heavy effects.</li>
-<li>Environment set: procedural sky coupled to the sun, HDRI skybox, clouds, water, atmosphere scattering.</li>
-<li>A PostFX stack of 31 effects plus 11 per-object effects, GPU skinning, Gaussian splats, an experimental raytracing view, voxel paths.</li>
-<li>Editor-only gizmo, icon, outline and grid passes that never leak into builds.</li>
+<li><a href="../pipeline/">Pipeline</a>, <a href="../camera/">Camera</a>, <a href="../materials/">Materials</a>, <a href="../shaders/">Shaders</a>, <a href="../gizmos/">Gizmos</a></li>
 </ul>
-<p>Frame budget thinking: draw calls scale with visible submeshes, shadow passes redraw the scene per cascade/face, transparent overdraw and multi-tap post effects dominate fill rate. The built-in profiler breaks every stage down (<code>render_scene</code>, shadow timings, <code>postfx</code>, <code>gizmo_lines</code>) — profile before optimizing blindly.</p>
-<p>Subpages: pipeline and contexts, cameras, lights and shadows, mesh rendering and skinning, sprites and video, particles, environment, materials, shaders, PostFX, object effects, splats and voxel, gizmos.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>main.py:206-213</code> (QSurfaceFormat 4.6 Core, depth 24, vsync)</li>
+<li><code>core/renderer/renderer.py:56-120</code></li>
+<li><code>core/renderer/types.py</code></li>
+<li><code>core/renderer/rconfig/config_state.py:12-50</code></li>
+</ul>
               
             </div>
           </div><footer>

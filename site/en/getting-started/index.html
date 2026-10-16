@@ -49,6 +49,20 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Getting Started</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#serialization">Serialization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="requirements/">Requirements</a>
@@ -1236,8 +1250,90 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="zarinengine-wiki-en">ZarinEngine Wiki (EN)</h1>
-<p>TODO: English home pending. Start with Getting Started, Core, Rendering, Scripting, Editor Manual.</p>
+                <h1 id="getting-started">Getting Started</h1>
+<blockquote>
+<p>Entry point to ZarinEngine: a Python ECS game engine with a visual editor. Install dependencies, open the editor with <code>python main.py</code>, run scenes with <code>python player.py</code>.</p>
+</blockquote>
+<p><a href="../../">Home</a> | <a href="_section/">Section index</a></p>
+<h2 id="overview">Overview</h2>
+<p>ZarinEngine is a 3D game and simulation engine written in Python (ECS architecture, ModernGL rendering, PySide6 editor). The API is Unity-inspired: scene hierarchy, components, inspector, prefabs. License: Mozilla Public License 2.0.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>entry_editor</td>
+<td>command</td>
+<td><code>python main.py</code></td>
+<td>Opens the visual editor (see <code>main.py</code>)</td>
+</tr>
+<tr>
+<td>entry_player</td>
+<td>command</td>
+<td><code>python player.py &lt;scene.zpes&gt;</code></td>
+<td>Runs a built game from a scene file (see <code>player.py</code>)</td>
+</tr>
+<tr>
+<td>entry_build</td>
+<td>command</td>
+<td><code>python build_nuitka.py</code></td>
+<td>Compiles a standalone executable via Nuitka</td>
+</tr>
+<tr>
+<td>scene_extension</td>
+<td>str</td>
+<td><code>.zpes</code></td>
+<td>Scene file (JSON)</td>
+</tr>
+<tr>
+<td>language</td>
+<td>str</td>
+<td>Python 3.13+</td>
+<td>Only language needed; no compilation for iteration</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<ol>
+<li>Install dependencies, run <code>python main.py</code>.</li>
+<li>Read <a href="requirements/">Requirements</a>, then <a href="installation/">Installation</a>.</li>
+<li>Follow <a href="quick-start/">Quick Start</a>, tour the UI in <a href="editor-tour/">Editor Tour</a>.</li>
+<li>Build your <a href="first-scene/">First Scene</a>. Open <a href="faq/">FAQ</a> on failures.</li>
+</ol>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python"># No project setup is required. From the engine root:
+#   pip install -r requirements.txt
+#   python main.py                  # editor
+#   python player.py SampleScene.zpes  # run a scene
+</code></pre>
+<h2 id="serialization">Serialization</h2>
+<p>Not applicable. Scene persistence is covered in <a href="../core/registry-serialization/">Registry and Serialization</a> and <a href="../scenes-prefabs/scenes/">Scenes</a>.</p>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="requirements/">Requirements</a></li>
+<li><a href="installation/">Installation</a></li>
+<li><a href="quick-start/">Quick Start</a></li>
+<li><a href="editor-tour/">Editor Tour</a></li>
+<li><a href="first-scene/">First Scene</a></li>
+<li><a href="faq/">FAQ</a></li>
+<li><a href="../core/ecs-overview/">ECS Overview</a></li>
+<li><a href="../scripting/overview/">Scripting</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>README.md</code> (features, quick start, requirements, license)</li>
+<li><code>main.py</code> (editor entry point)</li>
+<li><code>player.py</code> (player entry point, <code>DEFAULT_SCENE</code>)</li>
+<li><code>build_nuitka.py</code> (build entry point)</li>
+<li><code>LICENSE</code> (MPL-2.0)</li>
+</ul>
               
             </div>
           </div><footer>

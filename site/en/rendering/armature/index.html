@@ -133,6 +133,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Armature</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../blend-shapes/">Blend Shapes</a>
@@ -1238,37 +1246,90 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="armature">Armature</h1>
-<p>Bone hierarchy container driving skinned meshes and PhysBone chains — the skeleton asset in the scene.</p>
+<blockquote>
+<p>Skeleton: <code>_ArmatureBase</code> + <code>Bone</code> (<code>core/components/rendering/skeleton/armp/bone.py</code>); <code>Armature</code> drives <code>SkinnedMeshRenderer</code> bone matrices.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p><code>setup(skeleton)</code> copies <code>bone_names / bone_parents / bone_offset_matrices / bone_bind_local</code> (<code>bone.py:85-96</code>). <code>create_bone_entities(scene, root)</code> spawns one entity per bone with <code>Transform</code> from bind-local decompose + <code>Bone</code> (<code>bone.py:109-138</code>). Inspector shows only <code>bone_count</code> (derived) and <code>root_bone_name</code>; the arrays serialize fully (<code>bone.py:144-154</code>).</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group / field</th>
-<th>Meaning</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Bone: Bone Name</td>
-<td>Human-readable joint name (retargeting matches by name)</td>
+<td><code>Bone.bone_name</code></td>
+<td>string</td>
+<td><code>""</code></td>
+<td>Bone name (<code>bone.py:25,30</code>).</td>
 </tr>
 <tr>
-<td>Bone: Bone Index</td>
-<td>Solver-side index</td>
+<td><code>Bone.bone_index</code></td>
+<td>int</td>
+<td><code>-1</code></td>
+<td>Index into armature arrays (<code>bone.py:26,31</code>).</td>
 </tr>
 <tr>
-<td>Armature: Bone Count</td>
-<td>Total joints</td>
+<td><code>Armature.bone_count</code></td>
+<td>int (read-only)</td>
+<td><code>len(bone_names)</code></td>
+<td><code>bone.py:141-142</code>.</td>
 </tr>
 <tr>
-<td>Armature: Root Bone</td>
-<td>Hierarchy root; the Transform that moves the whole rig</td>
+<td><code>Armature.root_bone_name</code></td>
+<td>string</td>
+<td><code>""</code></td>
+<td>First parent-less bone from <code>setup</code> (<code>bone.py:62,72,100</code>).</td>
+</tr>
+<tr>
+<td><code>Armature.bone_names</code></td>
+<td>list[string] (code)</td>
+<td><code>[]</code></td>
+<td>Serialized skeleton (<code>bone.py:67,147</code>).</td>
+</tr>
+<tr>
+<td><code>Armature.bone_parents</code></td>
+<td>list[int] (code)</td>
+<td><code>[]</code></td>
+<td>Parent indices, <code>-1</code> = root (<code>bone.py:68,148</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Imported automatically with skinned models; Root Bone is informational. Do not hand-edit the arrays — reimport the model instead.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>The Animator writes poses into the armature; SkinnedMeshRenderer and PhysBone read them back. Keep bone names stable across reimports — retargeting, prefab overrides and animation events all key on names.</p>
-<p>Workflow: import rig → verify Bone Count matches the DCC rig → set Root Bone to the hips/pelvis joint → bind SkinnedMeshRenderer → attach PhysBone chains (hair, coat) to the same armature → animate.</p>
-<p>Troubleshooting: partial animation → stray bones outside the count, check DCC export; sliding feet → root motion on the wrong joint, reassign Root Bone; prefab override spam → bone renamed upstream, restore the name.</p>
-<p>Related: Skinned Mesh Renderer, PhysBone, Animation Clips and Animator, Blend Shapes.</p>
+<pre><code class="language-python">arm.setup(skeleton_dict)  # bone_names, bone_parents, bone_offset_matrices, bone_bind_local
+arm.create_bone_entities(scene, root_entity)
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../skinned-mesh-renderer/">Skinned Mesh Renderer</a>, <a href="../blend-shapes/">Blend Shapes</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/skeleton/armp/bone.py:14-168</code></li>
+</ul>
               
             </div>
           </div><footer>

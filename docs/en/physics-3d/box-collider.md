@@ -1,22 +1,64 @@
 # Box Collider
 
-Axis-aligned box shape in local space. The workhorse for crates, walls, floors, triggers and buttons — cheapest shape in any solver, always prefer it when the form fits.
+Axis-aligned box shape in local space. The cheapest shape in any solver — crates, walls, floors, triggers, buttons.
 
-| Inspector group / field | Default | Meaning |
+## Properties
+
+| Field | Default | Notes |
 |---|---|---|
-| Collision: Layer / Collision Mask | 0 / 0xFFFF | Who collides with whom |
-| Shape: Center | origin | Local offset from the entity pivot |
-| Shape: Size | one | Local extents, scaled by the Transform scale |
-| Is Trigger | off | Overlap events without contact response |
-| Material: Physic Material | — | `.zphysmat` asset override |
-| Inline friction / bounciness | 0.6 / 0.0 | Used when no asset is assigned |
+| `layer` | `0` | Collision layer index, `0–15` |
+| `mask` | `0xFFFF` | Collide-with bitmask |
+| `center` | `(0, 0, 0)` | Local offset, scaled by Transform scale (`scaled_center`) |
+| `size` | `(1, 1, 1)` | Full extents, scaled by Transform scale (`scaled_size`) |
+| `is_trigger` | `False` | Reports overlaps, no contact response |
+| `physic_material` | `""` | `.zphysmat` asset path; wins over inline values when set |
+| `material_friction` | `0.6` | Inline fallback |
+| `material_bounciness` | `0.0` | Inline fallback |
 
-Several colliders may share one entity; box/sphere/capsule primitives merge into a single compound rigid body, so a table (top + 4 legs) simulates as one body with five shapes.
+## Usage in Editor
 
-Workflows: floors — large thin box, static (no Rigidbody), friction 0.8+ so characters do not skate; crates — unit box with Rigidbody mass 2–5, freeze nothing; triggers — box with `is_trigger` on, scripted `on_collision_enter` for doors, pickups and checkpoints; buttons — thin trigger plate plus a visual mesh that dips on enter.
+Set `Size`/`Center`, pick `Layer` + `Collision Mask`, tick `Is Trigger` for sensors. Multiple `BoxCollider` components allowed per entity (compound).
 
-Compound trick: L-shaped stairs from 2–3 boxes beat any mesh collider on cost and stability. Keep boxes axis-aligned in local space; rotated owners are fine, skewed (non-uniformly sheared) parents distort the shape — fix the hierarchy instead.
+## Usage in Code
 
-Troubleshooting: falls through at speed → tunneling, cap velocity or lower fixed dt; trigger never fires → mask mismatch or both sides triggers with no listener script; wrong size → Transform scale forgotten, check `scaled_size` thinking (local × scale).
+```python
+entity = scene.create_entity("Crate")
+from core.components.physics.rigidbody import Rigidbody
+from core.components.physics.box_collider import BoxCollider
+from core.maths.math3d import Vec3
 
-Related: Rigidbody, Physics Materials, Collision Layers, Mesh Collider (when boxes cannot fit), Box Collider 2D.
+rb = Rigidbody()
+rb.mass = 1.0
+entity.add_component(rb)
+box = BoxCollider()
+box.size = Vec3(1.0, 1.0, 1.0)
+box.center = Vec3(0.0, 0.5, 0.0)
+box.is_trigger = False
+box.layer = 0
+box.mask = 0xFFFF
+entity.add_component(box)
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody)
+    if rb is not None:
+        rb.add_force(Vec3(5.0, 0.0, 0.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+```
+
+## Fixed update notes
+
+- Shape key (`size`, `center`, friction, restitution, trigger) is re-checked every 60 physics steps (`_shape_check_counter`); changed shapes rebuild the body (`rebuild_entity`).
+- Solver call: `create_rigid_body(shape_type="box", shape_params={"size", "center"})`; bodies with several primitive shapes merge via `create_compound_rigid_body`.
+- `dt` is `Engine._fixed_dt` (`0.02` default).
+
+## Related
+
+Rigidbody, Sphere/Capsule/Mesh colliders, Physics Materials, Collision Layers, Solver & Threading.
+
+## Verified against
+
+- `core/components/physics/box_collider.py`
+- `core/physics/shapep/shapes.py` (`_shape_info_for`, `SHAPE_TYPE_MAP`)
+- `core/physics/scene/bodies.py` (`_check_shape_changes`)

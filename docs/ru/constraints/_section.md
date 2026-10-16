@@ -1,5 +1,11 @@
 # Ограничения
 
-TODO: Указатель раздела в подготовке. Здесь будет список всех статей раздела Ограничения.
+Указатель раздела ограничений.
 
-Используйте дерево навигации слева для открытия страниц-заглушек.
+## Страницы
+
+- Обзор — `Position/Rotation/Scale/Parent/Follow/LookAt/Aim/MoveTowards/RotateTowards/ScaleTo`.
+
+## Проверено по
+
+- `core/components/constraints/__init__.py`

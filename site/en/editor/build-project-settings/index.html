@@ -573,6 +573,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Build Dialog, Project Manager, Settings</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../panels-extra/">Animation, Scripts, Prefab, Mesh, VCS Panels</a>
@@ -1237,15 +1247,84 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="build-dialog-project-manager-settings">Build Dialog, Project Manager, Settings</h1>
-<p>TODO: Content pending. This page will document Build Dialog, Project Manager, Settings in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p>Shipping surface: <code>BuildDialog</code> (one-shot Nuitka build), <code>BuildSettingsDialog</code> (persistent scenes/plugins/strip selection), <code>ProjectManager</code> dialog, Global/Project settings dialogs (<code>editor/settings/</code>).</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Signature</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BuildDialog</code></td>
+<td><code>(parent=None)</code>, title "Build Zarin Engine"</td>
+<td><code>editor/build_dialog.py</code></td>
+</tr>
+<tr>
+<td>Build targets</td>
+<td><code>_target_combo</code> (player/editor), <code>_compiler_combo</code>, <code>_physics_combo</code></td>
+<td>Mirrors <code>tools/nuitka/config.py</code> choices</td>
+</tr>
+<tr>
+<td>Build flags</td>
+<td><code>_onefile_cb</code> ("Single file (--onefile)"), <code>_console_cb</code> ("Show console window"), <code>_strip_cb</code> ("Strip unused assets..."), <code>_winrt_cb</code> ("Include Windows Runtime DLLs...")</td>
+<td>Collected by <code>_collect_args()</code></td>
+</tr>
+<tr>
+<td>Build run</td>
+<td><code>_start_build()</code>, <code>_run_build(args)</code>, <code>_on_build_done(returncode)</code>, <code>_cancel_build()</code>, <code>_browse_output_dir()</code>, <code>_open_output_folder()</code>, <code>_append_log(text)</code></td>
+<td>Async build with log view</td>
+</tr>
+<tr>
+<td><code>BuildSettingsDialog</code></td>
+<td><code>(parent=None)</code>, title "Build Settings"</td>
+<td><code>editor/build_settings_dialog.py</code>; Save/Cancel persist</td>
+</tr>
+<tr>
+<td>Settings groups</td>
+<td>"Scenes In Build" list, "Plugins In Build" checklist, "Build Options" group</td>
+<td>Scenes picked from <code>&lt;project&gt;/scenes</code>, plugins from <code>&lt;project&gt;/plugins</code></td>
+</tr>
+<tr>
+<td><code>_strip_check</code></td>
+<td><code>"Strip unused assets (scan scenes for references)"</code></td>
+<td>Persistent strip toggle</td>
+</tr>
+<tr>
+<td><code>ProjectManager</code></td>
+<td><code>editor/project_manager.py</code></td>
+<td>Project create/open dialog</td>
+</tr>
+<tr>
+<td>Settings</td>
+<td><code>editor/settings/</code></td>
+<td>Global Settings... / Project Settings... dialogs (Edit menu)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>File/Edit menus open Project Manager, Global/Project Settings. Build flow: "Build Settings..." checks the scenes and plugins to ship and the strip toggle (saved per project); "Build..." opens <code>BuildDialog</code>, picks target (player <code>player.py</code> vs editor <code>main.py</code>), compiler (auto/mingw/msvc), physics solver (culverin/pybullet/physx), onefile/console/strip/WinRT flags, output dir — then builds with live log and open-output-folder on success.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">dlg = BuildDialog(parent=mw)
+dlg._start_build()   # collects _collect_args() and spawns the build
+</code></pre>
+<pre><code class="language-python">s = BuildSettingsDialog(project_root, parent=mw)
+# Save persists scenes-in-build, plugins-in-build, strip flag
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Player and Nuitka Build (CLI behind the dialog), Tools and Profiling, Plugin Manager panel (build/package buttons)</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>editor/build_dialog.py</code>, <code>editor/build_settings_dialog.py</code>, <code>editor/project_manager.py</code>, <code>editor/settings/</code></li>
+<li><code>tools/nuitka/config.py</code> (flag parity), <code>_build_BuildSettings.json</code> (repo-root sample settings)</li>
+</ul>
               
             </div>
           </div><footer>

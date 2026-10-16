@@ -1,21 +1,52 @@
 # Circle Collider 2D
 
-Диск в плоскости: мячи, колёса, монеты, радиальные триггеры и сенсоры близости.
+Диск в плоскости: мячи, колёса, монеты, радиальные триггеры.
 
-| Группа / поле инспектора | Смысл |
-|---|---|
-| Collision: Layer / Collision Mask | Фильтрация |
-| Shape: Offset | Сдвиг в плоскости `[ox, oy]` |
-| Shape: Radius | Радиус диска |
-| Is Trigger | События пересечения без контактного отклика |
-| Material: Physic Material | Оверрайд ассетом `.zphysmat` |
+## Свойства
 
-Маппится на солвер как примитив сферы. Стабильно катится по земле Box Collider 2D на умеренном трении; триггер-диски — лучшие подборы (прощающее пересечение против точных прямоугольников).
+| Поле | По умолчанию | Примечания |
+|---|---|---|
+| `layer` / `mask` | `0` / `0xFFFF` | Фильтрация |
+| `offset` | `(0, 0)` | `Vec2`; мировой центр `[ox*sx, oy*sy, 0]` |
+| `radius` | `0.5` | `0.001–10000`; мир = `radius * max(sx, sy)` |
+| `is_trigger` | `False` | Только пересечение |
+| `physic_material` | `""` | `.zphysmat` |
+| `material_friction` / `material_bounciness` | `0.6` / `0.0` | Запасные |
 
-Паттерны: монеты — мелкие триггер-диски с анимацией вращения и скриптом подбора; колёса — динамические диски с Rigidbody2D, ничего не заморожено, умеренный angular drag; бамперы — высокопрыгучие диски плюс скрипт импульса на enter; зрение врагов — большой триггер-диск, ведущий состояние AI.
+## Использование в редакторе
 
-Собирайте диски в стопки для капсулоподобных врагов (два диска + бокс) вместо мечты о 2D-капсуле — компаунд ведёт себя идентично.
+`Radius`/`Offset`, слой + маска, `Is Trigger` для подборов.
 
-Диагностика: катится вечно — нулевые drag/трение; не катится — вкл freeze rotation; подборы мимо на скорости — туннелирование, увеличьте диск или кап скорости бегуна.
+## Использование в коде
 
-Связанное: Rigidbody 2D, Box Collider 2D, Sphere-коллайдер (3D).
+```python
+entity = scene.create_entity("Coin")
+from core.components.physics2d.rigidbody2d import Rigidbody2D
+from core.components.physics2d.circle_collider2d import CircleCollider2D
+
+c = CircleCollider2D()
+c.radius = 0.3
+c.is_trigger = True
+entity.add_component(c)
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody2D)
+    if rb is not None:
+        rb.add_force(Vec2(5.0, 0.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+```
+
+## Заметки о fixed update
+
+- Вызов: `create_rigid_body(shape_type="sphere", shape_params={"radius", "center": [ox, oy, 0.0]})`; `dt = Engine._fixed_dt` (`0.02`).
+
+## Связанные
+
+Rigidbody 2D, Box 2D, Sphere (3D), слои.
+
+## Проверено по
+
+- `core/components/physics2d/circle_collider2d.py`
+- `core/physics/shapep/shapes.py`

@@ -585,6 +585,16 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Player and Nuitka Build</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../tools-profiling/">Tools and Profiling Scripts</a>
@@ -1237,15 +1247,88 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="player-and-nuitka-build">Player and Nuitka Build</h1>
-<p>TODO: Content pending. This page will document Player and Nuitka Build in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p>Ship path: <code>player.py</code> (standalone runtime entry) + <code>build_nuitka.py</code> (thin wrapper over <code>tools/nuitka/</code>, whose <code>config.py</code> owns all CLI flags).</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Signature</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>player.main</code></td>
+<td><code>main()</code> in <code>player.py</code></td>
+<td>Creates <code>QApplication</code>, resolves scene, boots engine headless-of-editor</td>
+</tr>
+<tr>
+<td>Scene resolution</td>
+<td><code>_resolve_startup_scene(project_root: str) -&gt; str</code>, <code>_deduce_project_root(scene_path, fallback)</code></td>
+<td><code>sys.argv[1]</code> scene path or project default</td>
+</tr>
+<tr>
+<td>Plugin staging</td>
+<td><code>_collect_plugin_jobs()</code>, <code>_split_deferred(jobs)</code>, <code>_load_deferred(engine, modules, viewport)</code></td>
+<td>Deferred plugin load into the player</td>
+</tr>
+<tr>
+<td>Physics staging</td>
+<td><code>_start_physics_load(engine)</code></td>
+<td>Background physics-solver warmup thread</td>
+</tr>
+<tr>
+<td>Crash surface</td>
+<td><code>excepthook(...)</code>, <code>_log(msg)</code></td>
+<td>Logs to <code>player_diag.txt</code> / <code>crash_logs/</code> at repo root</td>
+</tr>
+<tr>
+<td>External launch</td>
+<td><code>launch_external_player(mw)</code>, <code>_resolve_player_command(scene_path)</code>, <code>_write_player_preview(mw, project_root)</code> in <code>editor/main_window/handlersp/play.py</code></td>
+<td>Editor " Player" button path</td>
+</tr>
+<tr>
+<td>Build CLI</td>
+<td><code>python build_nuitka.py [--editor] [--output-dir DIR] [--no-console] [--onefile] [--strip-unused \| --no-strip-unused] [--no-winrt] [--compiler auto\|mingw\|msvc] [--physics culverin\|pybullet\|physx]</code></td>
+<td>Flags in <code>tools/nuitka/config.py</code></td>
+</tr>
+<tr>
+<td>Build constants</td>
+<td><code>ENTRY</code> (<code>player.py</code>, or <code>main.py</code> with <code>--editor</code>), <code>OUTPUT_DIR</code> (default <code>build_output/</code>), <code>BUILD_EDITOR</code>, <code>NO_CONSOLE</code>, <code>ONEFILE</code>, <code>COMPILER_CHOICE</code>, <code>PHYSICS_CHOICE</code></td>
+<td><code>tools/nuitka/config.py</code></td>
+</tr>
+<tr>
+<td>Build steps</td>
+<td><code>_resolve_physics_solver()</code>, <code>_setup_compiler()</code>, <code>_load_build_settings()</code>, <code>_get_included_scenes(bs)</code> in <code>config.py</code>; <code>build()</code> in <code>tools/nuitka/build.py</code> (+ <code>_minify_pil</code>/<code>_restore_pil</code> around the run)</td>
+<td>Config → compile</td>
+</tr>
+<tr>
+<td>Asset bundling</td>
+<td><code>_scan_scene_assets(scene)</code>, <code>_resolve_one/_resolve_assets</code>, <code>_collect_asset_dirs</code>, <code>_plugin_include_options(names)</code>, <code>_rmtree_robust(path)</code> in <code>tools/nuitka/assets.py</code></td>
+<td>Only referenced scenes/plugins/assets ship when stripping</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Toolbar <code>Player</code> button (or <code>launch_external_player</code>) writes a preview file next to the project and spawns the player against the current scene. <code>BuildDialog</code> collects the same flags the CLI accepts (target, compiler, physics, onefile, console, strip, WinRT, output dir) and runs the build with a log view.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-bash">python player.py path/to/scene.zpes
+python build_nuitka.py --onefile --no-console --physics physx
+python build_nuitka.py --editor --output-dir build_output
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Build Dialog / Project Manager / Settings, Tools and Profiling, Plugin Manager (plugins-in-build)</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>player.py</code>, <code>build_nuitka.py</code>, <code>tools/nuitka/config.py</code>, <code>tools/nuitka/build.py</code>, <code>tools/nuitka/assets.py</code>, <code>tools/nuitka/__init__.py</code></li>
+<li><code>editor/main_window/handlersp/play.py</code>, <code>_build_BuildSettings.json</code></li>
+<li>Note: no <code>build_profiles.json</code> exists in the repo — build defaults live in <code>tools/nuitka/config.py</code>, persisted per-project settings in Build Settings dialog state.</li>
+</ul>
               
             </div>
           </div><footer>

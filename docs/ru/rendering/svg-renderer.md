@@ -1,20 +1,26 @@
-# SvgRenderer
-
-Чёткая resolution-independent векторная графика в мире: иконки, вывески, оверлеи карт, UI-панели, запечённые в мир.
-
-| Поле | Default | Смысл |
-|---|---|---|
-| svg_path | — | Векторный исходник |
-| color | белый | Множитель оттенка |
-| flip_x / flip_y | выкл / вкл | Зеркаляние (Y по умолчанию компенсирует origin SVG) |
-| pixels_per_unit | 100 | Плотность растеризации: пикселей текстуры на юнит мира |
-
-SVG растеризуется в текстуру при загрузке внутренним путём `svgs` — края резки при любом масштабе импорта, в отличие от растянутых PNG. Поднимайте `pixels_per_unit` для близких вывесок (200–400), опускайте для дальних иконок (25–50) ради памяти.
-
-Процессы: навигационные вывески — один SVG на знак, общие настройки, попутный путь; столы карт — большие SVG-плоскости сверху с фронтальным светом; стены иконок — сетки мелких квадов на нескольких векторных файлах.
-
-Вектор лёгок на диске и бесконечен при авторстве; единственная рантайм-цена — растеризованная текстура размером `pixels_per_unit` на мировой размер. Держите мировые размеры скромными, иначе текстура раздуется.
-
-Диагностика: вверх ногами — flip_y по умолчанию вкл из-за origin SVG, тогглите под экспортёр; мыло вблизи — поднять pixels_per_unit и реимпорт; пропало — бит путь или неподдержанные фичи SVG, упростите градиенты/фильтры.
-
-Связанное: SpriteRenderer, TextRenderer, материалы (маппинг текстур), камеры (кадрирование вывесок).
+# SVG-рендерер
+> Векторный спрайт: `SvgRenderer` (`core/components/rendering/renderers/svg_renderer.py`), тесселяция в `core/renderer/svgr/`.
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+Парсинг `.svg` (`svgr/parse.py`), тесселяция (`svgr/tess.py`), отрисовка `svgr/renderer.py`. Мировой размер = пиксели SVG / `pixels_per_unit`.
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `svg_path` | путь (*.svg) | `""` | Векторный файл (`svg_renderer.py:22,31`). |
+| `color` | color4 | `[1, 1, 1, 1]` | Тинт (`svg_renderer.py:23,32`). |
+| `flip_x` | bool | `False` | Зеркало по горизонтали (`svg_renderer.py:24,33`). |
+| `flip_y` | bool | `True` | Зеркало по вертикали под Y-down SVG (`svg_renderer.py:25,34`). |
+| `pixels_per_unit` | float (0.1–4096) | `100.0` | Пикселей на единицу (`svg_renderer.py:26,35`). |
+## Usage in Editor
+Add Component → SVG Renderer, назначить `.svg`. Pixels/Unit выше — мельче, ниже — крупнее. Flip Y по умолчанию вкл под координаты SVG.
+## Usage in Code
+```python
+sv = entity.get_component(SvgRenderer)
+sv.svg_path = "assets/icons/logo.svg"
+sv.pixels_per_unit = 200.0
+```
+## Related pages
+- [Sprite Renderer](./sprite-renderer.md), [Text Renderer](./text-renderer.md)
+## Verified against
+- `core/components/rendering/renderers/svg_renderer.py:18-72`
+- `core/renderer/svgr/parse.py`, `core/renderer/svgr/tess.py`, `core/renderer/svgr/renderer.py`

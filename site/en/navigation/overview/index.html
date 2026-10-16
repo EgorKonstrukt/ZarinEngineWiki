@@ -425,6 +425,16 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Navigation and NavAgent</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties-api">Properties / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,15 +1247,85 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="navigation-and-navagent">Navigation and NavAgent</h1>
-<p>TODO: Content pending. This page will document Navigation and NavAgent in ZarinEngine.</p>
-<p>Planned sections:</p>
+<p>Grid-based navigation (<code>NavWorld</code>) with a GPU-deferred path request; <code>NavAgent</code> steers the entity toward a target.</p>
+<h2 id="properties-api">Properties / API</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agent_radius / agent_height / agent_padding</code></td>
+<td>0.5 / 2.0 / 0.0</td>
+<td>Agent capsule and wall padding</td>
+</tr>
+<tr>
+<td><code>max_climb / max_slope</code></td>
+<td>0.5 / 45.0</td>
+<td>Walkable step and slope</td>
+</tr>
+<tr>
+<td><code>max_speed / max_angular_speed</code></td>
+<td>5.0 / 360.0</td>
+<td>Steering limits</td>
+</tr>
+<tr>
+<td><code>use_physical_controller / flying / auto_move / show_path_cells</code></td>
+<td>true / false / false / false</td>
+<td>Physics drive, fly mode, auto path, debug draw</td>
+</tr>
+<tr>
+<td><code>target_x / target_y / target_z / target_entity_id</code></td>
+<td>0 / 0 / 0 / ""</td>
+<td>Destination point or followed entity</td>
+</tr>
+<tr>
+<td><code>repath_interval / arrival_distance</code></td>
+<td>1.0 / 0.5</td>
+<td>Replan period and stop radius</td>
+</tr>
+<tr>
+<td><code>nav_resolution / nav_world_size</code></td>
+<td>512 / 500.0</td>
+<td>Grid density and extent</td>
+</tr>
+<tr>
+<td><code>set_target(pos) / set_target_entity(e) / stop() / has_path() / current_path</code></td>
+<td>—</td>
+<td>Runtime API; <code>set_target</code> rebuilds grid and issues <code>find_path_gpu_deferred</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<ol>
+<li>Add <code>NavAgent</code> to a character entity; tune radius/height/speed.</li>
+<li>Set target XYZ or <code>target_entity_id</code>, enable <code>auto_move</code>; or press Inspector <code>Set Target</code> / <code>Stop</code> buttons.</li>
+<li>Enable <code>show_path_cells</code> to debug the grid path in the viewport.</li>
+</ol>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from core.maths.math3d import Vec3
+
+agent = entity.get_component_by_name(&quot;NavAgent&quot;)
+agent.set_target(Vec3(10.0, 0.0, 5.0))
+# or follow another entity:
+agent.set_target_entity(player_entity)
+if not agent.has_path():
+    agent.stop()
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Terrain, Constraints (<code>MoveTowardsConstraint</code>), Physics character controller</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/navigation/navagent/component.py</code></li>
+<li><code>core/components/navigation/navagent/path.py</code>, <code>navagent/steering.py</code></li>
+<li><code>core/navigation/world.py</code>, <code>grid.py</code>, <code>path.py</code></li>
+</ul>
               
             </div>
           </div><footer>

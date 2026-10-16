@@ -1050,6 +1050,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Настройки импорта (.import) и кэш</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api">Свойства / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Связанные</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Проверено по</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1236,16 +1246,57 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="import">Настройки импорта (.import) и кэш</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Настройки импорта (.import) и кэш в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+                <h1 id="_1">Настройки импорта и кэш</h1>
+<p>Сайдкар <code>&lt;file&gt;.import</code> JSON переопределяет импорт; mtime/stat-сигнатуры решают, когда реимпортить.</p>
+<h2 id="api">Свойства / API</h2>
+<table>
+<thead>
+<tr>
+<th>Ассет</th>
+<th>Ключи сайдкара</th>
+<th>Источник</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Меш</td>
+<td><code>scale</code>, <code>center_pivot</code>, <code>flip_uvs</code>, <code>smooth_angle</code>, <code>gen_normals</code>, <code>gen_uvs</code>, <code>blendshapes</code>, <code>materials[]</code></td>
+<td><code>importer/settings.py</code></td>
+</tr>
+<tr>
+<td>Текстура</td>
+<td><code>filter_mode</code>, <code>anisotropic</code>, <code>max_size</code>, <code>wrap_mode</code>, <code>compression</code>, <code>srgb</code></td>
+<td><code>texture_import_settings.py</code></td>
+</tr>
+<tr>
+<td>Аудио</td>
+<td><code>quality</code> (0–100)</td>
+<td><code>audio/sys/clip.py</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">Использование в редакторе</h2>
+<ol>
+<li>Создайте <code>&lt;asset&gt;.import</code> рядом с ассетом только с нужными ключами.</li>
+<li>Троньте файл для реимпорта; удалите для сброса.</li>
+<li>Аудио <code>quality: 100</code> — полный рейт; ниже — линейный ресемпл (мин. 8000 Гц).</li>
+</ol>
+<h2 id="_3">Использование в коде</h2>
+<pre><code class="language-python"># меш
+{&quot;scale&quot;: 0.01, &quot;flip_uvs&quot;: true, &quot;smooth_angle&quot;: 30.0}
+# текстура
+{&quot;filter_mode&quot;: &quot;bilinear&quot;, &quot;wrap_mode&quot;: &quot;clamp&quot;, &quot;max_size&quot;: 1024}
+# аудио
+{&quot;quality&quot;: 80}
+</code></pre>
+<h2 id="_4">Связанные</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Обзор ассетов, Импорт моделей, Текстуры, AudioClip</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_5">Проверено по</h2>
+<ul>
+<li><code>core/assets/importer/settings.py</code>, <code>core/assets/texture_import_settings.py</code>, <code>core/audio/sys/clip.py</code></li>
+</ul>
               
             </div>
           </div><footer>

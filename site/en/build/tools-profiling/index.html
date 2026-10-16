@@ -587,6 +587,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Tools and Profiling Scripts</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,15 +1247,78 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="tools-and-profiling-scripts">Tools and Profiling Scripts</h1>
-<p>TODO: Content pending. This page will document Tools and Profiling Scripts in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p>Repo utilities under <code>tools/</code>: architecture gate, disk-I/O benches, offline profiler launchers, plugin packagers, GPU-journal and compiler helpers. Scripts run from the repo root; nothing here ships in the player.</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Entry</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Architecture gate</td>
+<td><code>tools/arch_gate.py</code>: <code>check_compile(files)</code>, <code>check_comments(files)</code>, <code>check_docstrings(files)</code>, <code>check_size(files)</code>, <code>check_undefined(files)</code> (+ <code>_Loads</code>/<code>_TrySkip</code> AST visitors)</td>
+<td>Static policy checks over changed files</td>
+</tr>
+<tr>
+<td>Disk bench</td>
+<td><code>tools/bench_disk_io.py</code>: <code>make_blob(path, nbytes)</code>, <code>bench_raw_single(path)</code>, <code>bench_raw_parallel(path, nthreads)</code>, <code>make_big_ply(path, nverts=2_000_000)</code>, <code>make_big_obj(path, nverts=2_000_000)</code>, <code>main()</code></td>
+<td>Blob/PLY/OBJ throughput harness</td>
+</tr>
+<tr>
+<td>Raw speed probe</td>
+<td><code>tools/raw_disk_speed.py</code></td>
+<td>Quick sequential-speed probe</td>
+</tr>
+<tr>
+<td>Offline CPU profiles</td>
+<td><code>tools/profile_top.bat</code>, <code>tools/profile_svg.bat</code>, <code>tools/profile_flamegraph.bat</code></td>
+<td>Top/flamegraph/SVG capture launchers</td>
+</tr>
+<tr>
+<td>GPU journal</td>
+<td><code>tools/gpu_journal.py</code></td>
+<td>GPU-side event journal helper</td>
+</tr>
+<tr>
+<td>Plugin builders</td>
+<td><code>tools/build_plugin.py</code>, <code>tools/build_zplugin.py</code>, <code>tools/zplug/</code></td>
+<td>Package/build helpers behind the Plugin Manager panel buttons</td>
+</tr>
+<tr>
+<td>Compiler env</td>
+<td><code>tools/mingwpm/</code>, <code>tools/gpuj/</code></td>
+<td>MinGW and GPU-journal support dirs</td>
+</tr>
+<tr>
+<td>Smoke checks</td>
+<td><code>tools/prop_picker_smoke.py</code>, <code>tools/qt_icons.py</code></td>
+<td>Property-picker smoke test, Qt icon audit</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>The Profiler dock covers live frames; these scripts cover offline work: run the <code>.bat</code> launchers to capture CPU profiles, <code>bench_disk_io.py</code> to compare disk throughput before tuning streaming chunk sizes, <code>arch_gate.py</code> in CI/pre-commit to block policy violations. The Plugin Manager panel's Build/Package buttons shell out through the <code>build_plugin</code>/<code>build_zplugin</code> helpers.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-bash">python tools/arch_gate.py
+python tools/bench_disk_io.py
+tools/profile_top.bat
+python tools/build_zplugin.py --help
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Profiler Panel and Undo History (live profiling), Player and Nuitka Build (packaging), Plugin Manager (build/package buttons)</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>tools/arch_gate.py</code>, <code>tools/bench_disk_io.py</code>, <code>tools/raw_disk_speed.py</code>, <code>tools/gpu_journal.py</code>, <code>tools/build_plugin.py</code>, <code>tools/build_zplugin.py</code>, <code>tools/prop_picker_smoke.py</code>, <code>tools/qt_icons.py</code></li>
+<li><code>tools/profile_top.bat</code>, <code>tools/profile_svg.bat</code>, <code>tools/profile_flamegraph.bat</code>, <code>tools/zplug/</code>, <code>tools/gpuj/</code>, <code>tools/mingwpm/</code>, <code>tools/nuitka/</code></li>
+</ul>
               
             </div>
           </div><footer>

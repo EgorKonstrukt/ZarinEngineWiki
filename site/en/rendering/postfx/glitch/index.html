@@ -205,13 +205,15 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Glitch</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    <li class="toctree-l4"><a class="reference internal" href="#shader-snippet">Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1248,74 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="glitch">Glitch</h1>
-<p>Part of the PostFX stack: runs after the main scene pass in component order. Built on the shared GraphicsEffect base with an enable toggle plus effect-specific Inspector fields.</p>
-<h2 id="how-it-works">How it works</h2>
-<p>Digital corruption bursts: slice offsets, channel swaps, noise hits with timing controls.</p>
+<blockquote>
+<p>Digital glitch: scanline block displacement + channel split, rate set by speed and band frequency, amount by intensity. Class <code>Glitch</code> in <code>core/components/rendering/postfx/glitch.py</code>. Runs in the PostFX stack in component order; skipped when <code>enabled</code> is False or the entity is inactive (<code>render()</code> early-out).</p>
+</blockquote>
 <h2 id="parameters">Parameters</h2>
-<p>Burst amount, slice count, blockiness, timing/trigger.</p>
-<h2 id="tips">Tips</h2>
-<p>Damage feedback, hacking minigames, malfunctioning holograms. Trigger from scripts on hit.</p>
-<h2 id="cost">Cost</h2>
-<p>Cheap at rest, medium during bursts.</p>
-<p>Related: <a href="../">PostFX Stack</a>, Cameras (render scale), Profiler.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intensity</td>
+<td><code>_intensity</code></td>
+<td>FLOAT</td>
+<td>0.0 – 3.0</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Speed</td>
+<td><code>_speed</code></td>
+<td>FLOAT</td>
+<td>0.0 – 20.0</td>
+<td><code>3.0</code></td>
+</tr>
+<tr>
+<td>Frequency</td>
+<td><code>_frequency</code></td>
+<td>FLOAT</td>
+<td>1.0 – 100.0</td>
+<td><code>20.0</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">Usage</h2>
+<p>Editor: select the PostFX entity, Add Component &gt; <code>Glitch</code>, tick <code>enabled</code>, tune fields above. Order among PostFX components defines execution order.</p>
+<p>Code:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.glitch import Glitch
+fx = Glitch()
+entity.add_component(fx)
+fx._intensity = 1.0
+fx._speed = 5.0
+fx.enabled = True
+</code></pre>
+<h2 id="shader-snippet">Shader snippet</h2>
+<p>Shader: <code>core/components/rendering/postfx/glitch.py</code>.</p>
+<pre><code class="language-glsl">#version 330 core
+uniform sampler2D u_input_tex;
+uniform float u_intensity;
+uniform float u_speed;
+uniform float u_frequency;
+uniform float u_time;
+</code></pre>
+<h2 id="related">Related</h2>
+<p>Related: <a href="../">PostFX Stack</a>, <a href="../color-grading/">Color Grading</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/glitch.py</code> — class <code>Glitch</code>, <code>_inspector_fields</code>, <code>__init__</code> defaults, <code>Time-driven fullscreen pass (u_time, u_resolution)</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/graphics_effect.py</code> — <code>GraphicsEffect</code> base (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, <code>render()</code> signature).</p>
+</li>
+</ul>
               
             </div>
           </div><footer>

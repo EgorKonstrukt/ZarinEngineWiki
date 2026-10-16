@@ -1152,6 +1152,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Граф шейдеров</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../terrain-node-graph/">Граф террейна и NodeGraphQt</a>
@@ -1237,15 +1247,74 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Граф шейдеров</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Граф шейдеров в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p>Нодовое авторство шейдеров (<code>editor/shader_graph/</code>): типизированные узлы в <code>nodesp/</code> на канве <code>NodeGraphQt</code>, компиляция в GLSL через <code>code_generator.generate_shader_code</code>.</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Член</th>
+<th>Сигнатура</th>
+<th>Примечания</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>generate_shader_code</code></td>
+<td><code>(graph, shader_name: str = "Custom/GeneratedShader") -&gt; str</code></td>
+<td>Точка входа <code>shader_graph/code_generator.py</code></td>
+</tr>
+<tr>
+<td><code>_generate_vertex_section</code> / <code>_generate_fragment_section</code></td>
+<td><code>(graph, nodes, uid_map, vertex_output/fragment_output) -&gt; str</code></td>
+<td>Эмиттеры стадий</td>
+</tr>
+<tr>
+<td><code>_empty_shader</code></td>
+<td><code>(name) -&gt; str</code></td>
+<td>Заглушка, если в графе нет выходного пути</td>
+</tr>
+<tr>
+<td>База узлов</td>
+<td><code>_ShaderNode(BaseNode)</code>; <code>_InputNode</code>, <code>_OutputNode</code>, <code>_MathNode</code>, <code>_TextureNode</code>, <code>_VectorNode</code> в <code>nodesp/base.py</code></td>
+<td>Каждый узел реализует <code>generate_code(uid_map)</code></td>
+</tr>
+<tr>
+<td>Узлы входов</td>
+<td>VertexPosition, UV, Normal, Time, Color, Float, Texture2D (<code>nodesp/inputs_outputs.py</code>)</td>
+<td>Константы и входы меша/шейдера</td>
+</tr>
+<tr>
+<td>Узлы выходов</td>
+<td>VertexOutput, FragmentOutput (<code>nodesp/inputs_outputs.py</code>)</td>
+<td>Стоки графа по стадиям</td>
+</tr>
+<tr>
+<td>Узлы математики/векторов</td>
+<td>Add, Multiply, Subtract, Lerp, Normalize, DotProduct, Fresnel, Step, Clamp (<code>nodesp/math_vector.py</code>)</td>
+<td>Эмиттеры GLSL-выражений</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Док графа шейдеров показывает палитру узлов (входы, математика, текстуры, выходы); связи соединяют типизированные порты; канва требует ровно один вершинный и один фрагментный путь к выходным узлам; Apply перегенерирует GLSL через <code>generate_shader_code</code> и назначает его правимому ассету шейдера. Пустые/несвязные графы откатываются на <code>_empty_shader</code>, так что материал не ломается.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from editor.shader_graph.code_generator import generate_shader_code
+
+glsl = generate_shader_code(graph, shader_name=&quot;Custom/MyEffect&quot;)
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Граф террейна (родственная нодовая система, домен высот), Мастер материалов и превью</li>
+<li>Рендеринг: Shaders, Materials</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>editor/shader_graph/code_generator.py</code>, <code>editor/shader_graph/__init__.py</code></li>
+<li><code>editor/shader_graph/nodesp/base.py</code>, <code>editor/shader_graph/nodesp/inputs_outputs.py</code>, <code>editor/shader_graph/nodesp/math_vector.py</code></li>
+<li><code>editor/NodeGraphQt/</code></li>
+</ul>
               
             </div>
           </div><footer>

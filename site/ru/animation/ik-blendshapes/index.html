@@ -1000,6 +1000,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">IK и блендшейпы</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api">Свойства / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_1">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Связанные</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Проверено по</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,15 +1247,81 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="ik">IK и блендшейпы</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел IK и блендшейпы в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<p>Два проверенных кодом IK-решала ставят цепочки костей к целям; дельты блендшейпов приезжают из Assimp-импортёра.</p>
+<h2 id="api">Свойства / API</h2>
+<table>
+<thead>
+<tr>
+<th>Элемент</th>
+<th>Источник</th>
+<th>Смысл</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_IKBase.target_entity_id / target_position</code></td>
+<td><code>ikp/ccd.py</code></td>
+<td>Сущность-цель или запасной <code>Vec3</code></td>
+</tr>
+<tr>
+<td><code>_IKBase.pole_entity_id / pole_position</code></td>
+<td><code>ikp/ccd.py</code></td>
+<td>Pole-подсказка</td>
+</tr>
+<tr>
+<td><code>_IKBase.weight</code></td>
+<td><code>ikp/ccd.py</code></td>
+<td>Влияние 0–1</td>
+</tr>
+<tr>
+<td><code>TwoBoneIK</code></td>
+<td><code>ikp/ccd.py</code></td>
+<td>Решала двух костей</td>
+</tr>
+<tr>
+<td><code>FABRIKChain.root_bone / bones / chain_length</code></td>
+<td><code>ikp/fabrik.py</code></td>
+<td>Цепочка; пустые <code>bones</code> идут по детям <code>root_bone</code></td>
+</tr>
+<tr>
+<td><code>FABRIKChain.iterations / tolerance / bone_weights</code></td>
+<td><code>ikp/fabrik.py</code></td>
+<td>По умолч. 8 / 1e-4 / веса</td>
+</tr>
+<tr>
+<td><code>blendshape_*</code></td>
+<td><code>importer/anim.py</code>, <code>mesh.py</code></td>
+<td>Дельты каждого <code>aiAnimMesh</code></td>
+</tr>
+<tr>
+<td><code>.import: blendshapes</code></td>
+<td><code>importer/settings.py</code></td>
+<td>По умолч. <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_1">Использование в редакторе</h2>
+<ol>
+<li><code>TwoBoneIK</code> для конечностей, <code>FABRIKChain</code> для хвостов/позвоночников.</li>
+<li>Задайте <code>root_bone</code> + <code>bones</code> (или <code>chain_length</code>), target/pole, <code>weight</code>, <code>iterations</code>.</li>
+<li>Лица: импорт с <code>.import</code> <code>blendshapes: true</code>; меш несёт <code>blendshape_*</code> массивы.</li>
+</ol>
+<h2 id="_2">Использование в коде</h2>
+<pre><code class="language-python">ik = entity.get_component_by_name(&quot;FABRIKChain&quot;)
+ik.root_bone = &quot;Hips/Spine&quot;
+ik.chain_length = 3
+ik.iterations = 8
+ik.target_entity_id = hand_target.id
+</code></pre>
+<h2 id="_3">Связанные</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Обзор анимации, Клипы и Animator, Импорт моделей</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_4">Проверено по</h2>
+<ul>
+<li><code>core/components/animation/ikp/ccd.py</code>, <code>ikp/fabrik.py</code></li>
+<li><code>core/assets/importer/anim.py</code>, <code>mesh.py</code>, <code>settings.py</code></li>
+</ul>
               
             </div>
           </div><footer>

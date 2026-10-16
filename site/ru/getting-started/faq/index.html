@@ -644,6 +644,20 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Частые вопросы</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Обзор</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_6">Сериализация</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_7">Связанные страницы</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_8">Проверено по</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,15 +1251,67 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Частые вопросы</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Частые вопросы в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p>Короткие ответы на повторяющиеся вопросы установки и рантайма. Каждый ответ ссылается на код, задающий поведение.</p>
+</blockquote>
+<p><a href="../../../">Home</a> | <a href="../_section/">Section index</a></p>
+<h2 id="_2">Обзор</h2>
+<p><strong>В: Как запустить редактор?</strong>
+О: <code>pip install -r requirements.txt</code>, затем <code>python main.py</code> из корня движка (<code>README.md</code>, <code>main.py</code>).</p>
+<p><strong>В: Как запустить сцену без редактора?</strong>
+О: <code>python player.py &lt;scene.zpes&gt;</code>. Порядок выбора: CLI-аргумент → первая запись <code>BuildSettings.json</code> <code>scenes</code> → <code>ProjectSettings.json</code> <code>project.default_scene</code> → <code>scenes/SampleScene.zpes</code> (<code>player.py:_resolve_startup_scene</code>).</p>
+<p><strong>В: Какая версия Python?</strong>
+О: 3.13+ (<code>README.md</code>). Cython-расширения пересобираются автоматически при старте редактора, если устарели.</p>
+<p><strong>В: Мой скрипт ничего не делает. Почему?</strong>
+О: Скрипты работают только в Play-режиме. Движок использует первый класс в файле, у которого есть lifecycle-колбэк (<code>on_update</code>, <code>on_start</code>, …); короткие алиасы (<code>update</code>, <code>start</code>) тоже работают. Исключения в колбэках логируются, игру не роняют (<code>docs/scripting.md</code>, <code>core/ecs/query.py</code>).</p>
+<p><strong>В: Правки скрипта во время Play?</strong>
+О: Hot-reload пересоздаёт инстанс на следующем кадре, сохраняет значения инспектора, заново вызывает <code>on_awake</code>/<code>on_start</code>. Отключается флагом <code>hot_reload = False</code> на <code>ScriptComponent</code> (<code>docs/scripting.md</code>).</p>
+<p><strong>В: Где хранятся настройки?</strong>
+О: Глобальные: <code>~/.zarin/settings.json</code>. Проектные: <code>&lt;project&gt;/ProjectSettings.json</code> (<code>core/config/config.py</code>).</p>
+<p><strong>В: Пустое окно редактора на Wayland?</strong>
+О: <code>main.py</code> форсит <code>QT_QPA_PLATFORM=xcb</code> при детекте Wayland-сессии, ради совместимости OpenGL.</p>
+<p><strong>В: Как собрать игру?</strong>
+О: <code>python build_nuitka.py</code> (конфигурация в <code>BuildSettings.json</code>; <code>README.md</code>, <code>build_nuitka.py</code> → <code>tools.nuitka.build</code>).</p>
+<h2 id="_3">Свойства</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>support_channel</td>
+<td>file</td>
+<td><code>editor/bug_report.py</code></td>
+<td><code>main.py</code>/<code>player.py</code> ставят bug-report хуки при старте</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">Использование в редакторе</h2>
+<p>Неприменимо.</p>
+<h2 id="_5">Использование в коде</h2>
+<p>Неприменимо.</p>
+<h2 id="_6">Сериализация</h2>
+<p>Неприменимо.</p>
+<h2 id="_7">Связанные страницы</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li><a href="../requirements/">Системные требования</a></li>
+<li><a href="../installation/">Установка</a></li>
+<li><a href="../quick-start/">Быстрый старт</a></li>
+<li><a href="../../core/config/">Конфигурация</a></li>
+<li><a href="../../core/logging/">Логирование</a></li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_8">Проверено по</h2>
+<ul>
+<li><code>README.md</code>, <code>main.py</code>, <code>player.py</code>, <code>build_nuitka.py</code></li>
+<li><code>docs/scripting.md</code> (контракт, hot-reload, кнопка <code>Check</code>)</li>
+<li><code>core/config/config.py</code> (пути настроек)</li>
+<li><code>core/ecs/query.py</code> (изоляция ошибок колбэков)</li>
+</ul>
               
             </div>
           </div><footer>

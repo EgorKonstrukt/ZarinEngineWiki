@@ -257,13 +257,15 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Hologram</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#how-it-works">How it works</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#tips">Tips</a>
+    <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#cost">Cost</a>
+    <li class="toctree-l4"><a class="reference internal" href="#shader-snippet">Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1248,88 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="hologram">Hologram</h1>
-<p>Per-object effect through the ObjectFx pass (unlike PostFX, which processes the whole frame). Built on the shared ObjectEffect base; scripts drive it by animating progress/intensity floats.</p>
-<h2 id="how-it-works">How it works</h2>
-<p>Scanline projection look with transparency, flicker and height fade.</p>
+<blockquote>
+<p>Scanline hologram. Base color tinted by color × amount; horizontal scan bands (density/speed) + flicker modulate alpha; rim_power adds fresnel edge. Class <code>HologramEffect</code> in <code>core/components/rendering/effects/hologram_effect.py</code>. ObjectFx pass, additive-ish scanline/fresnel composite.</p>
+</blockquote>
 <h2 id="parameters">Parameters</h2>
-<p>Scan density, flicker, alpha, height fade.</p>
-<h2 id="tips">Tips</h2>
-<p>Briefings, ghosts, minimap tables. Flicker harder when the projector is damaged.</p>
-<h2 id="cost">Cost</h2>
-<p>Cheap, transparent-sorted.</p>
-<p>Related: <a href="../">Object Effects</a>, Materials, Script Examples.</p>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Amount</td>
+<td><code>amount</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Color</td>
+<td><code>color</code></td>
+<td>COLOR</td>
+<td>—</td>
+<td><code>[0.2, 0.9, 1.0]</code></td>
+</tr>
+<tr>
+<td>Scan Density</td>
+<td><code>scan_density</code></td>
+<td>FLOAT</td>
+<td>1.0 – 200.0</td>
+<td><code>40.0</code></td>
+</tr>
+<tr>
+<td>Scan Speed</td>
+<td><code>scan_speed</code></td>
+<td>FLOAT</td>
+<td>0.0 – 20.0</td>
+<td><code>3.0</code></td>
+</tr>
+<tr>
+<td>Flicker</td>
+<td><code>flicker</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>0.15</code></td>
+</tr>
+<tr>
+<td>Rim Power</td>
+<td><code>rim_power</code></td>
+<td>FLOAT</td>
+<td>0.5 – 8.0</td>
+<td><code>2.0</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">Usage</h2>
+<p>Editor: select the mesh entity, Add Component &gt; <code>HologramEffect</code>, tick <code>enabled</code>, animate the amount fields from a script.</p>
+<p>Code:</p>
+<pre><code class="language-python">from core.components.rendering.effects.hologram_effect import HologramEffect
+fx = HologramEffect()
+entity.add_component(fx)
+fx.amount = 1.0
+fx.scan_density = 60.0
+fx.enabled = True
+# per-frame: fx.amount = min(1.0, fx.amount + dt * 0.5)
+</code></pre>
+<h2 id="shader-snippet">Shader snippet</h2>
+<p>Shader: <code>core/shaders/internal/ObjectFx.shader (u_holo_* branch)</code>. Bound uniforms: <code>u_holo_amount</code>, <code>u_holo_scan</code>, <code>u_holo_speed</code>, <code>u_holo_flicker</code>, <code>u_holo_rim</code>, <code>(+ holo color)</code>, <code>u_time</code>.</p>
+<pre><code class="language-glsl">// _apply uniforms (exact): u_holo_amount, u_holo_scan, u_holo_speed, u_holo_flicker, u_holo_rim
+</code></pre>
+<h2 id="related">Related</h2>
+<p>Related: <a href="../">Object Effects</a>, ObjectFx pass (<code>core/renderer/object_fx_pass.py</code>), <code>core/shaders/internal/ObjectFx.shader</code>.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/effects/hologram_effect.py</code> — class <code>HologramEffect</code>, <code>_inspector_fields</code>, <code>__init__</code> defaults, <code>_apply</code> uniforms.</li>
+<li><code>core/components/rendering/effects/object_effect.py</code> — <code>ObjectEffect</code> base (<code>bind</code> sets <code>u_time</code>, <code>_set</code>/<code>_set_vec</code> guards, <code>reset_all_defaults</code>).</li>
+<li><code>core/renderer/object_fx_pass.py</code> — <code>_find_object_effect</code>, <code>_render_object_effects</code>, <code>_get_fx_program</code>.</li>
+</ul>
               
             </div>
           </div><footer>

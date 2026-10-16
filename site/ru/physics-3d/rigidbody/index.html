@@ -876,6 +876,18 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Твёрдое тело Rigidbody</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_1">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#fixed-update">Заметки о fixed update</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Связанные</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" >Коллайдеры</a>
@@ -1237,69 +1249,110 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="rigidbody">Твёрдое тело Rigidbody</h1>
-<p>Делает сущность симулируемой: масса, реакция на гравитацию, накопление сил, читаемые скорости. Без него коллайдер — статичные декорации; с ним сущность вступает в мир динамики.</p>
-<p>Поля инспектора:</p>
+<p>Делает сущность симулируемой: масса, реакция на гравитацию, накопление сил, читаемые скорости. Без него коллайдер — статичные декорации.</p>
+<h2 id="_1">Свойства</h2>
 <table>
 <thead>
 <tr>
 <th>Поле</th>
-<th>Default</th>
-<th>Диапазон</th>
-<th>Смысл</th>
+<th>По умолчанию</th>
+<th>Примечания</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>mass</td>
-<td>1.0</td>
-<td>0.001–100000</td>
-<td>Масса; при kinematic форсируется в 0</td>
+<td><code>mass</code></td>
+<td><code>1.0</code></td>
+<td>Инспектор <code>0.001–100000</code>; при <code>is_kinematic</code> форсируется <code>0.0</code></td>
 </tr>
 <tr>
-<td>drag</td>
-<td>0.0</td>
-<td>0–1000</td>
-<td>Линейное затухание (воздух, вода)</td>
+<td><code>drag</code></td>
+<td><code>0.0</code></td>
+<td><code>0–1000</code></td>
 </tr>
 <tr>
-<td>angular_drag</td>
-<td>0.05</td>
-<td>0–1000</td>
-<td>Затухание вращения</td>
+<td><code>angular_drag</code></td>
+<td><code>0.05</code></td>
+<td><code>0–1000</code></td>
 </tr>
 <tr>
-<td>use_gravity</td>
-<td>вкл</td>
-<td>—</td>
-<td>Гравитация действует</td>
+<td><code>use_gravity</code></td>
+<td><code>True</code></td>
+<td>Гравитация применяется</td>
 </tr>
 <tr>
-<td>is_kinematic</td>
-<td>выкл</td>
-<td>—</td>
-<td>Ведётся трансформом: толкает динамику, не толкается</td>
+<td><code>is_kinematic</code></td>
+<td><code>False</code></td>
+<td>Ведом трансформом: толкает динамику, сам не толкаем</td>
+</tr>
+<tr>
+<td><code>freeze_pos_x/y/z</code></td>
+<td><code>False</code></td>
+<td>Сериализация <code>freeze_pos</code></td>
+</tr>
+<tr>
+<td><code>freeze_rot_x/y/z</code></td>
+<td><code>False</code></td>
+<td>Сериализация <code>freeze_rot</code></td>
+</tr>
+<tr>
+<td><code>velocity</code> / <code>angular_velocity</code></td>
+<td><code>Vec3.zero()</code></td>
+<td>Сеттер помечает тело грязным для следующей синхронизации</td>
 </tr>
 </tbody>
 </table>
-<p>Плюс поосевые тоглы заморозки позиции и поворота, сериализуются тройками <code>freeze_pos</code> / <code>freeze_rot</code> в <code>.zpes</code>.</p>
-<p>API из скриптов, сверено:</p>
-<pre><code class="language-python">rb = self._entity.get_component_by_name(&quot;Rigidbody&quot;)
-if rb:
-    rb.add_force(Vec3(0.0, 10.0, 0.0))
+<h2 id="_2">Использование в редакторе</h2>
+<p><code>Rigidbody</code> + коллайдер. Массы: игрок <code>70–90</code>, ящики <code>1–10</code>; держите контактирующие массы в пределах ~100:1. <code>is_kinematic</code> — движители, заморозка вращений — непадающие ящики.</p>
+<h2 id="_3">Использование в коде</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Ball&quot;)
+from core.components.physics.rigidbody import Rigidbody
+from core.components.physics.sphere_collider import SphereCollider
+
+rb = Rigidbody()
+rb.mass = 2.0
+rb.drag = 0.1
+rb.freeze_rot_x = True
+rb.freeze_rot_z = True
+entity.add_component(rb)
+col = SphereCollider()
+col.radius = 0.5
+entity.add_component(col)
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody)
+    if rb is None or rb.is_kinematic:
+        return
+    rb.add_force(Vec3(0.0, 20.0, 0.0))   # копится, очищается после отправки
     rb.add_torque(Vec3(0.0, 1.0, 0.0))
-    rb.add_impulse(Vec3(0.0, 5.0, 0.0))
-    v = rb.velocity
+    rb.add_impulse(Vec3(0.0, 5.0, 0.0))  # мгновенно: импульс/масса
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+def on_collision_stay(self, other_id, force=0.0):
+    pass
+def on_collision_exit(self, other_id, force=0.0):
+    pass
 </code></pre>
 <ul>
-<li><code>velocity</code> / <code>angular_velocity</code> — читаются каждый кадр, запись помечает тело грязным, и значение уходит в солвер на следующем синке.</li>
-<li><code>add_force(force, world_space=True)</code> / <code>add_torque(torque)</code> — копятся до следующего шага, затем автосбрасываются.</li>
-<li><code>add_impulse(impulse)</code> — мгновенное изменение скорости <code>impulse / mass</code>; игнорируется для кинематики и неположительной массы.</li>
-<li><code>consume_velocity_dirty()</code> / <code>_clear_forces()</code> — внутренний протокол синка; геймплей их почти не дёргает.</li>
+<li><code>add_force(force, world_space=True)</code> / <code>add_torque</code> — вызывать каждый fixed-шаг для постоянной тяги.</li>
+<li><code>add_impulse</code> игнорируется для кинематики и неположительной массы.</li>
+<li>Колбэки коллизий: скриптовые <code>on_collision_enter/stay/exit</code> принимают <code>(other_id)</code> или <code>(other_id, force)</code> (арность определяется автоматически); хендлеры движковых компонентов всегда принимают <code>(other_id, force)</code>.</li>
 </ul>
-<p>Механика: создание тела читает <code>mass</code> и <code>is_kinematic</code> (кинематика форсирует массу 0); скорости и силы синкаются каждый шаг. Флаги заморозки лочат оси на стороне солвера — замороженная Y-позиция плюс гравитация даёт скользящую шайбу; замороженные повороты — неопрокидываемые ящики.</p>
-<p>Гид масс: игрок 70–90, ящики 1–10, мебель 20–50, техника 500–2000. Отношения beyond ~100:1 между контактирующими телами напрягают любой солвер — держите геймплейные контакты в двух порядках.</p>
-<p>Диагностика: проваливается сквозь пол — нет коллайдера, оба триггеры или туннелирование на скорости (уменьшите fixed dt или кап скорости); игнорирует силы — вкл kinematic или масса 0; дрейфует вечно — нулевые drag и трение, поднимите оба; дрожь в стопках — мало итераций солвера или экстремальное отношение масс.</p>
-<p>Связанное: все страницы коллайдеров, CharacterController (kinematic-альтернатива), джойнты, солвер и потоки, примеры скриптов (Kicker).</p>
+<h2 id="fixed-update">Заметки о fixed update</h2>
+<ul>
+<li><code>dt</code> — это <code>Engine._fixed_dt</code> (<code>0.02</code>); лаги рендера на <code>dt</code> не влияют (потолок <code>5 * _fixed_dt</code>, макс. <code>5</code> шагов/тик).</li>
+<li>Силы уходят в <code>_sync_ecs_to_physics</code>, результаты возвращаются в <code>_sync_physics_to_ecs</code>; кинематика и грязные трансформы при чтении пропускаются.</li>
+<li>В <code>multi_threaded</code> обмен идёт через <code>SharedPhysicsBuffer</code> (флаги <code>1</code> active, <code>2</code> dirty, <code>4</code> kinematic/teleport, <code>8</code> 2D).</li>
+</ul>
+<h2 id="_4">Связанные</h2>
+<p>Коллайдеры Box/Sphere/Capsule/Mesh, CharacterController, Joints, солвер и потоки, слои.</p>
+<h2 id="_5">Проверено по</h2>
+<ul>
+<li><code>core/components/physics/rigidbody.py</code></li>
+<li><code>core/physics/scene/bodies.py</code>, <code>core/physics/scene/events.py</code></li>
+<li><code>core/engine/eng/loop.py</code>, <code>core/engine/eng/engine.py</code></li>
+</ul>
               
             </div>
           </div><footer>

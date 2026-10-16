@@ -465,6 +465,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Textures and Compression</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties-api">Properties / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../import-settings/">Import Settings (.import) and Cache</a>
@@ -1236,16 +1246,74 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="textures-and-compression">Textures and Compression</h1>
-<p>TODO: Content pending. This page will document Textures and Compression in ZarinEngine.</p>
-<p>Planned sections:</p>
+                <h1 id="textures">Textures</h1>
+<p><code>TextureImportSettings.for_file(path)</code> reads <code>&lt;texture&gt;.import</code> JSON and applies sampler state to <code>moderngl.Texture</code>.</p>
+<h2 id="properties-api">Properties / API</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>filter_mode</code></td>
+<td>trilinear</td>
+<td><code>point</code> (nearest, still builds mipmaps), <code>bilinear</code> (linear, no mipmaps), <code>trilinear</code> (mipmap linear)</td>
+</tr>
+<tr>
+<td><code>anisotropic</code></td>
+<td>1</td>
+<td><code>&gt;1</code> sets <code>tex.anisotropy</code></td>
+</tr>
+<tr>
+<td><code>max_size</code></td>
+<td>2048</td>
+<td>Max dimension clamp</td>
+</tr>
+<tr>
+<td><code>wrap_mode</code></td>
+<td>clamp</td>
+<td><code>clamp</code> (<code>repeat_x/y</code> false) vs <code>repeat</code> / <code>mirrored_repeat</code> (true)</td>
+</tr>
+<tr>
+<td><code>compression</code></td>
+<td>none</td>
+<td><code>none/low/normal/high</code> (<code>CompressionQuality</code>)</td>
+</tr>
+<tr>
+<td><code>srgb</code></td>
+<td>true</td>
+<td>sRGB upload flag</td>
+</tr>
+</tbody>
+</table>
+<p>Enums in code: <code>FilterMode{point,bilinear,trilinear}</code>, <code>WrapMode{repeat,clamp,mirrored_repeat}</code>, <code>CompressionQuality{none,low,normal,high}</code>.</p>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<ol>
+<li>Select the texture; edit <code>&lt;texture&gt;.import</code> JSON keys above.</li>
+<li><code>point</code> for pixel-art, <code>bilinear</code> for UI without mipmaps, <code>trilinear</code> for 3D (default).</li>
+<li><code>repeat</code> for tiling materials, <code>clamp</code> for sprites/UI.</li>
+</ol>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from core.assets.texture_import_settings import TextureImportSettings
+
+s = TextureImportSettings.for_file(&quot;assets/textures/brick.png&quot;)
+print(s.filter_mode, s.wrap_mode, s.max_size)
+# assets/textures/brick.png.import:
+# {&quot;filter_mode&quot;: &quot;trilinear&quot;, &quot;anisotropic&quot;: 4, &quot;max_size&quot;: 2048,
+#  &quot;wrap_mode&quot;: &quot;repeat&quot;, &quot;compression&quot;: &quot;none&quot;, &quot;srgb&quot;: true}
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Assets Overview, Import Settings and Cache, Materials</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/assets/texture_import_settings.py</code></li>
+</ul>
               
             </div>
           </div><footer>

@@ -347,6 +347,18 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Rigidbody 2D</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#fixed-update-notes">Fixed update notes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../box-collider2d/">Box Collider 2D</a>
@@ -1238,40 +1250,95 @@
               
                 <h1 id="rigidbody-2d">Rigidbody 2D</h1>
 <p>Planar dynamics for side-scrollers and top-down games — same API shape as 3D, constrained to the plane by the solver flag.</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
 <th>Field</th>
-<th>Meaning</th>
+<th>Default</th>
+<th>Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Mass</td>
-<td>Body weight; same mass-ratio guidance as 3D</td>
+<td><code>mass</code></td>
+<td><code>1.0</code></td>
+<td>Inspector <code>0.001–100000</code>; <code>0.0</code> when kinematic at creation</td>
 </tr>
 <tr>
-<td>Drag / Angular Drag</td>
-<td>Planar damping</td>
+<td><code>drag</code></td>
+<td><code>0.0</code></td>
+<td><code>0–1000</code></td>
 </tr>
 <tr>
-<td>Gravity Scale</td>
-<td>Local gravity multiplier (0 for top-down, 1 for platformers)</td>
+<td><code>angular_drag</code></td>
+<td><code>0.05</code></td>
+<td><code>0–1000</code></td>
 </tr>
 <tr>
-<td>Is Kinematic</td>
-<td>Transform-driven: moving platforms, doors</td>
+<td><code>gravity_scale</code></td>
+<td><code>1.0</code></td>
+<td><code>0–100</code> multiplier on gravity</td>
 </tr>
 <tr>
-<td>Freeze Rotation</td>
-<td>Lock in-plane spin — almost always on for characters</td>
+<td><code>is_kinematic</code></td>
+<td><code>False</code></td>
+<td>Transform-driven</td>
+</tr>
+<tr>
+<td><code>freeze_rotation</code></td>
+<td><code>False</code></td>
+<td>Lock spin</td>
+</tr>
+<tr>
+<td><code>velocity</code></td>
+<td><code>Vec2.zero()</code></td>
+<td>Setter marks dirty</td>
+</tr>
+<tr>
+<td><code>angular_velocity</code></td>
+<td><code>0.0</code></td>
+<td>Float; setter marks dirty</td>
 </tr>
 </tbody>
 </table>
-<p>Same script API as 3D (<code>velocity</code>, <code>add_force</code>, <code>add_torque</code>, <code>add_impulse</code>). Every step the solver zeroes the out-of-plane components, so a top-down car never tips into the screen.</p>
-<p>Patterns: player — dynamic with freeze rotation; moving platform — kinematic with scripted Transform motion (bodies riding it follow through contacts); projectile — dynamic, gravity scale 0, killed by lifetime script; top-down car — dynamic with high angular drag for arcade turn feel.</p>
-<p>Troubleshooting: spins uncontrollably → freeze rotation off; floats in platformer → gravity scale 0 by mistake; platform drops riders → platform dynamic instead of kinematic.</p>
-<p>Related: Box Collider 2D, Circle Collider 2D, Rigidbody (3D), Collision Layers.</p>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Add <code>Rigidbody2D</code> + <code>BoxCollider2D</code>/<code>CircleCollider2D</code>. Tick <code>Freeze Rotation</code> for platformer heroes.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Hero2D&quot;)
+from core.components.physics2d.rigidbody2d import Rigidbody2D
+from core.components.physics2d.box_collider2d import BoxCollider2D
+
+rb = Rigidbody2D()
+rb.mass = 1.0
+rb.gravity_scale = 1.0
+rb.freeze_rotation = True
+entity.add_component(rb)
+entity.add_component(BoxCollider2D())
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody2D)
+    if rb is None or rb.is_kinematic:
+        return
+    rb.add_force(Vec2(0.0, 30.0))  # cleared after push; call every step
+    rb.add_torque(1.0)
+    rb.add_impulse(Vec2(0.0, 5.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+</code></pre>
+<h2 id="fixed-update-notes">Fixed update notes</h2>
+<ul>
+<li><code>dt = Engine._fixed_dt</code> (<code>0.02</code> default); worker zeroes <code>vz</code> and <code>tilt</code> rates after <code>step_simulation(dt)</code>; kinematic/dirty bodies skipped on read-back.</li>
+</ul>
+<h2 id="related">Related</h2>
+<p>Box/Circle Collider 2D, Rigidbody (3D), Collision Layers, Solver &amp; Threading.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/physics2d/rigidbody2d.py</code></li>
+<li><code>core/physics/scene/scene.py</code> (<code>_constrain_2d_bodies</code>)</li>
+<li><code>core/physics/physics_worker.py</code> (2D velocity clamp)</li>
+</ul>
               
             </div>
           </div><footer>

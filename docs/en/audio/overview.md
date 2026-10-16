@@ -10,7 +10,7 @@ Signal path per frame:
 4. `AudioSystem` owns resources: clip loading and caching, async loads, listener state, doppler and speed of sound.
 5. `ReverbZone` components feed the OpenAL EFX chain (`audio_efx`, guarded by `EFXError` when the extension is missing).
 
-Supported clip formats: `.wav`, `.mp3`, `.ogg`, `.flac` (also `.aiff` / `.m4a` through the script resource filter). Decoding is handled by the miniaudio backend into `DecodedAudio` buffers.
+Supported clip formats (decoder): `.wav`, `.wave`, `.mp3`, `.ogg`, `.vorbis`, `.flac` (`AUDIO_EXTENSIONS` in `core/audio/miniaudio_decoder.py`). The AudioSource Inspector file filter is narrower — `Audio (*.wav *.mp3 *.ogg *.flac)` (`core/components/audio/source/component.py`). Decoding is handled by the miniaudio backend into `DecodedAudio` buffers (`decode_audio` / `decode_audio_stereo` / `decode_audio_channels`); `.wav`/`.wave` also decode via stdlib `wave` when miniaudio is absent (`core/audio/sys/clip.py`).
 
 Pages: AudioSource, AudioListener, Reverb Zone, Audio System (manager, decoders, analyzer, EFX).
 

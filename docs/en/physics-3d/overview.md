@@ -1,22 +1,69 @@
 # Physics 3D Overview
 
-The built-in 3D solver runs off the main thread: simulation steps in a background worker while the ECS thread renders, runs scripts and syncs transforms each frame. Gameplay code never waits on the solver; it reads last-step results and writes wishes (forces, velocities, teleports) that apply on the next step.
+3D rigid-body simulation in ZarinEngine: entities with a `Rigidbody` plus one or more colliders are stepped by a pluggable solver (`IPhysicsSolver`), everything else is static scenery.
 
-Pipeline per fixed step:
+## Properties
 
-1. Register new entities (create solver bodies for fresh Rigidbody + collider pairs) and re-check shapes periodically for changed meshes and scales.
-2. Sync ECS → physics: teleport dirty transforms straight into bodies, otherwise push accumulated forces/torques and dirty velocities.
-3. Step the solver with `dt` (default `0.02` from `Engine._fixed_dt`).
-4. Constrain 2D-flagged bodies (zero out-of-plane velocity so planar games never drift off-plane).
-5. Sync physics → ECS: positions, rotations, velocities back onto Transforms and Rigidbody state; kinematic and dirty bodies are skipped (they are Transform-driven).
-6. Dispatch collision events into `on_collision_enter/stay/exit` script callbacks with entity ids and impact forces.
+| Setting | Default | Where |
+|---|---|---|
+| Solver | `culverin` (Jolt via `culverin` package) | `physics_solvers/registry.py` `DEFAULT_SOLVER`, `ProjectSettings.json` `physics.solver` |
+| Gravity | `(0.0, -9.81, 0.0)` | `physics.gravity_x/y/z`, `CulverinSolver._gravity` |
+| Fixed step | `0.02` s | `engine.fixed_update_dt`, `physics.fixed_time_step`, `Engine._fixed_dt` |
+| Sub-steps | `2` | `physics.num_sub_steps` |
+| Solver iterations | `10` | `physics.solver_iterations` |
+| Simulation mode | `multi_threaded` | `physics.simulation_mode` (`single` / `multi_threaded` / `per_layer_process`) |
 
-Solvers plug through `IPhysicsSolver`: `culverin` (Jolt-based) by default, `pybullet` and `physx` as alternatives registered in `physics_solvers/registry.py`. Execution modes: `single` (in-process, lowest latency, required by CharacterController), `multi_threaded` (default, daemon solver process with command/result queues and shared buffers), `per_layer_process` (solver processes spawned on demand per collision layer).
+## Usage in Editor
 
-Fixed-step plumbing: `Engine.tick_fixed_step` accumulates real time against `_fixed_dt`, runs plugin `pre_step`, `scene.fixed_update`, then the physics step — scripts always see a stable `dt` in `on_fixed_update` regardless of render framerate.
+1. Static floor: add `BoxCollider` only (no `Rigidbody`).
+2. Dynamic crate: add `Rigidbody` (mass `1.0`) + `BoxCollider` (size `1,1,1`).
+3. Press Play. Kinematic movers: tick `is_kinematic` and move the Transform; triggers: tick `is_trigger` and read overlap callbacks.
 
-Body taxonomy: dynamic (positive-mass non-kinematic Rigidbody + collider — fully simulated), kinematic (driven by Transform, pushes dynamics, never pushed), static (collider alone — immovable scenery), trigger (reports overlaps, no contact response), character (solver move function), soft (deforming mesh), compound (merged primitives).
+## Usage in Code
 
-Subpages: Rigidbody, all six colliders, CharacterController, Joints, materials and layers, solver and threading internals, advanced bodies (buoyancy, soft body, PhysBone, motor).
+```python
+entity = scene.create_entity("Crate")
+from core.components.physics.rigidbody import Rigidbody
+from core.components.physics.box_collider import BoxCollider
+from core.maths.math3d import Vec3
 
-First-room recipe: static floor (box collider, no Rigidbody), a few dynamic crates (Rigidbody mass 1–5 + box colliders), one directional light — press Play and the crates settle. Then add a CharacterController player and collision layers before content grows.
+rb = Rigidbody()
+rb.mass = 1.0
+entity.add_component(rb)
+box = BoxCollider()
+box.size = Vec3(1.0, 1.0, 1.0)
+entity.add_component(box)
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody)
+    if rb is not None:
+        rb.add_force(Vec3(0.0, 10.0, 0.0))
+        rb.add_torque(Vec3(0.0, 1.0, 0.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass  # (other_entity_id, impact_force), also on_collision_stay/exit
+```
+
+Freeze axes: `rb.freeze_pos_x/y/z`, `rb.freeze_rot_x/y/z` (serialized as `freeze_pos` / `freeze_rot` triples).
+
+## Fixed update notes
+
+- `Engine.tick_fixed_step` (`core/engine/eng/loop.py`) accumulates real time against `_fixed_dt` (`0.02`), caps the backlog at `5 * _fixed_dt`, runs at most `5` steps per tick (`MAX_FIXED_STEPS`), then runs `scene.fixed_update(fd)` (component `on_fixed_update`: `Buoyancy`/`Motor`/`CharacterController` forces and drives) and finally system-plugin `step(fd)`.
+- `PhysicsScene.step` order: register new entities → shape-change check (every 60 steps) → ECS→physics sync → soft-body AABB separation (only when `≥2` soft bodies) → `solver.step_simulation(dt)` → 2D constrain → physics→ECS sync → soft sync → collision events.
+- Solver-param scoping: `num_sub_steps` (`2`), `solver_iterations` (`10`), `erp` (`0.2`) are project-config defaults consumed by the PyBullet solver (whose standalone defaults are `1` / `50` / `0.4`); the default Culverin/Jolt solver ignores them and uses the `culverin_*` world caps instead.
+- Collision callbacks: script methods accept `(other_id)` or `(other_id, force)` — arity auto-detected via `inspect.signature` (`ScriptComponent._py_collision_arity`); engine-component handlers always receive `(other_id, force)`.
+- Threading: `multi_threaded` runs the solver in a daemon `multiprocessing.Process` (`PhysicsProcess`) over `SharedPhysicsBuffer` / `SoftSharedBuffer`; `single` runs `PhysicsScene` in-process (required by `CharacterController` / `Motor`); `per_layer_process` spawns processes on demand per layer.
+
+## Related
+
+Rigidbody, Box/Sphere/Capsule/Mesh/Terrain/GSVolume colliders, CharacterController, Joints, Motor, Physics Materials, Collision Layers, Solver & Threading, Buoyancy, Soft Body, PhysBone, Constraints (Transform followers — a separate system, not solver joints).
+
+## Verified against
+
+- `core/physics/scene/scene.py` (`step`, `_register_new_entities`, `_constrain_2d_bodies`)
+- `core/physics/scene/events.py` (`_process_collision_events`)
+- `core/engine/eng/loop.py` (`tick_fixed_step`, `MAX_FIXED_STEPS = 5`)
+- `core/engine/eng/engine.py` (`_fixed_dt = 0.02`)
+- `core/config/config.py` (`physics.*` defaults)
+- `physics_solvers/registry.py` (`DEFAULT_SOLVER = "culverin"`)
+- `plugins/physics_plug/plugin.py` (simulation modes)

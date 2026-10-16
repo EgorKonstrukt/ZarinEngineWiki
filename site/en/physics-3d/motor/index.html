@@ -335,6 +335,18 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Motor</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#fixed-update-notes">Fixed update notes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1239,53 +1251,99 @@
               
                 <h1 id="motor">Motor</h1>
 <p>Constant drive for conveyors, wheels, fans, spinning traps, elevators and servo doors — steady motion without scripting velocity every frame.</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group / field</th>
-<th>Meaning</th>
+<th>Field</th>
+<th>Default</th>
+<th>Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Connected Entity</td>
-<td>Driven body reference</td>
+<td><code>connected_entity_id</code></td>
+<td><code>""</code></td>
+<td>Other entity by <strong>id</strong> (unlike <code>Joint</code>, which uses name)</td>
 </tr>
 <tr>
-<td>Motor Type</td>
-<td>Rotation or translation drive</td>
+<td><code>motor_type</code></td>
+<td><code>hinge</code></td>
+<td><code>hinge</code> / <code>slider</code></td>
 </tr>
 <tr>
-<td>Mode</td>
-<td>Velocity cruise or position servo</td>
+<td><code>mode</code></td>
+<td><code>position</code></td>
+<td><code>position</code> (servo to <code>target</code>) / <code>velocity</code> (integrate <code>target_velocity</code>)</td>
 </tr>
 <tr>
-<td>Axis / Anchor</td>
-<td>Drive direction and pivot</td>
+<td><code>axis</code></td>
+<td><code>(0, 0, 1)</code></td>
+<td>Drive axis</td>
 </tr>
 <tr>
-<td>Drive: Target Velocity</td>
-<td>Cruise speed</td>
+<td><code>anchor</code></td>
+<td><code>(0, 0, 0)</code></td>
+<td>Constraint anchor</td>
 </tr>
 <tr>
-<td>Drive: Motor Force / Motor Torque</td>
-<td>Strength caps (stall behavior)</td>
+<td><code>target</code></td>
+<td><code>0.0</code></td>
+<td>Position target (or initial running velocity seed)</td>
 </tr>
 <tr>
-<td>Limits: Limit Low / Limit High</td>
-<td>Travel bounds for servo mode</td>
+<td><code>target_velocity</code></td>
+<td><code>0.0</code></td>
+<td>Added as <code>running += target_velocity * dt</code> in velocity mode</td>
 </tr>
 <tr>
-<td>Free Spin</td>
-<td>Ignore limits entirely</td>
+<td><code>motor_force</code> / <code>motor_torque</code></td>
+<td><code>500.0</code> / <code>500.0</code></td>
+<td>Passed as <code>max_force</code>/<code>max_torque</code></td>
+</tr>
+<tr>
+<td><code>limit_low</code> / <code>limit_high</code></td>
+<td><code>-100000.0</code> / <code>100000.0</code></td>
+<td>Wide-open by default</td>
+</tr>
+<tr>
+<td><code>free_spin</code></td>
+<td><code>False</code></td>
+<td>Stored flag (constraint creation does not read it; <code>stiffness</code>/<code>damping</code> are passed as <code>0.0</code>)</td>
 </tr>
 </tbody>
 </table>
-<p>Mode guide: velocity mode with high force reads as a conveyor or fan (never stalls); position mode with limits reads as a servo door or elevator (drives to the bound and holds); free spin wheels ignore limits and run on target velocity.</p>
-<p>Force caps define stall: a cap below the load stalls under weight — correct for garage doors blocked by crates; an infinite-feeling cap plows through everything — correct for crushers.</p>
-<p>Patterns: conveyor — velocity motor along the belt axis on a kinematic body; drawbridge — position servo with limits 0…π/2; windmill — free-spin rotation with modest torque; crusher — translation servo with high force and slow velocity.</p>
-<p>Troubleshooting: never moves → connected entity missing or kinematic chain broken; overshoots bounds → force too high for the servo, lower cap or raise damping via joint; vibrates at bound → limit fight, widen the dead zone between limits.</p>
-<p>Related: Joint (passive links), Rigidbody (driven bodies), CharacterController (riding platforms).</p>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Add <code>Rigidbody</code> + collider to both bodies, add <code>Motor</code>, link <code>Connected Entity</code> (id), pick <code>hinge</code>/<code>slider</code> and <code>position</code>/<code>velocity</code>, set force/torque and limits.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Wheel&quot;)
+from core.components.physics.motor import Motor, MotorType, MotorMode
+from core.maths.math3d import Vec3
+
+m = Motor()
+m.connected_entity_id = chassis_id
+m.motor_type = MotorType.HINGE
+m.mode = MotorMode.VELOCITY
+m.axis = Vec3(0.0, 0.0, 1.0)
+m.target_velocity = 5.0
+m.motor_force = 500.0
+entity.add_component(m)
+m.set_target(1.57)          # position mode servo
+m.set_mode(MotorMode.POSITION)
+</code></pre>
+<p>Constraint created in <code>on_start</code>/<code>on_enable</code> via <code>solver.create_joint</code> + <code>enable_constraint</code>; removed in <code>on_disable</code>.</p>
+<h2 id="fixed-update-notes">Fixed update notes</h2>
+<ul>
+<li><code>on_fixed_update(dt)</code> with <code>dt = Engine._fixed_dt</code> (<code>0.02</code> default): velocity mode pushes <code>set_motor_target(running)</code> every step; position mode re-pushes <code>target</code>.</li>
+<li>Requires <code>single</code> mode (<code>_resolve_solver</code> → <code>plugin.ensure_single_mode()</code>), same as <code>CharacterController</code>.</li>
+</ul>
+<h2 id="related">Related</h2>
+<p>Joints, Rigidbody, Solver &amp; Threading (mode requirement), Constraints (Transform followers — a separate system, not solver joints).</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/physics/motor.py</code></li>
+<li><code>core/physics/physics_solver.py</code> (<code>set_motor_target</code>, <code>enable_constraint</code>)</li>
+</ul>
               
             </div>
           </div><footer>

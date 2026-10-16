@@ -1,24 +1,26 @@
-# Конвейер ModernGL и Scene Renderer
-
-Контексты:
-
-- Игровые и редакторные вьюпорты создают контекст через `moderngl.create_context(standalone=False)` — общий контекст 4.6 core внутри Qt-поверхности, редактор и игра делят текстуры и программы.
-- Офскрин-задачи (превью материалов/моделей, воркеры террейна, compute) используют `moderngl.create_standalone_context(require=430)` без видимой поверхности.
-- Шейдеры пишутся как `#version 430 core`. При ошибке компиляции загрузчик повторяет как `#version 330 core`, вырезая `layout(std430)`-буферы и отключая инстансинг/скиннинг — фолбэк совместимости, а не второй путь поддержки.
-
-Класс `Renderer` собран из миксинов по ответственности: программы, uniform, фреймбуферы, сбор сцены, кэш геометрии, главный проход, тени, кубмапы, скиннинг, вода/воксели/эффекты объектов, пост-проход, гизмо/иконки/контуры, куллинг и статистика. Стадия читается по своему миксину в `core/renderer` (`shadows.py`, `scene_renderer.py`, `materials.py`, `framebuffers.py` и соседи).
-
-Кадр идёт по стадиям:
-
-1. Сбор видимых элементов: фрустум-куллинг по плоскостям камеры, фильтрация масок слоёв, сортировка в бакеты opaque / transparent / overlay.
-2. Рендер карт теней (каскадные направленные, точечные кубы, спотовые перспективы) в глубинные цели; сюда же тени проекторов.
-3. Рендер главной сцены с забинденными материалами, до 8 светов по умолчанию плюс ambient, с обработкой прозрачности на материал.
-4. Проходы воды, вокселей и эффектов объектов в свои цели.
-5. Цепочка PostFX в порядке компонентов.
-6. Редакторные оверлеи (сетка, гизмо, иконки, контуры, выделение) — только вьюпорты редактора.
-
-Ключевые дефолты: `_max_lights = 8` с uniform типа/позиции/направления/цвета/интенсивности/range/спота/area на свет; `_ambient = [0.26, 0.28, 0.34]`; тени 2048, дистанция 50, 4 каскада; очистка тёмно-серым `[0.18, 0.18, 0.18]`; ширина линий отладки 0.6667. Режимы: `SHADED`, `SHADED_WIREFRAME`, `FLAT`.
-
-Диагностика: чёрный вьюпорт — не создался контекст (проверьте OpenGL 4.6) или выкулены все света; розовые/пустые материалы — упала компиляция шейдера и промахнулся fallback (смотрите консоль и страницу шейдеров); z-fighting — отодвиньте `near` или подтяните `far` камеры; нет теней — выкл `cast_shadows` или вне дистанции теней.
-
-Связанное: камеры, свет и тени, материалы, шейдеры, профайлер (тайминги стадий), гизмо и иконки.
+# Конвейер
+> Прямой конвейер в `SceneRendererMixin.render_scene`: сбор снапшота → карты теней → фаза opaque → фаза transparent → окружение (небо/вода/облака) → редакторные оверлеи.
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+`render_scene(scene, view_mat, proj_mat, cam_pos, viewport_w, viewport_h, ...)` (`core/renderer/scenev/mixin.py:24`) применяет `_render_scale`, собирает `_RenderSnapshot` (свет, `dir_light`, компоненты неба/облаков/воды, рисуемые записи), рисует тени через `ShadowRenderer`, затем вызывает `_scenev_render_forward_phases(opaque, transparent, ...)` (`core/renderer/scenev/forward.py:19`). Transparent-фаза включает блендинг `SRC_ALPHA, ONE_MINUS_SRC_ALPHA` с `depth_mask = False`. Отдельные проходы: `WaterPassMixin`, `VoxelPassMixin`, `SkinnedPassMixin`, cubemap для динамических отражений, `GizmoPassMixin`/`IconPassMixin`/`OutlinePassMixin` для редактора.
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `_render_scale` | float | `1.0` | Глобальный множитель размера (`core/renderer/scenev/mixin.py:27`). |
+| `_shadow_resolution` | int | по типу света | Размер карты теней; см. [Shadows](./shadows.md). |
+| `_scene_fbo` | moderngl.Framebuffer | `None` до init | Цель color+depth (`core/renderer/renderer.py:83-86`). |
+## Usage in Editor
+Размер вьюпорта приходит из Qt-вьюпорта; `render_scale` / custom resolution камеры дополнительно масштабируют (см. [Camera](./camera.md)). Оверлей статистики читает `_draw_calls`, `_opaque_draws`, `_trans_draws`, `_triangles_drawn`.
+## Usage in Code
+```python
+renderer.render_scene(scene, cam.get_view_matrix(),
+                      cam.get_projection_matrix(aspect),
+                      cam_pos, 1280, 720)
+```
+## Related pages
+- [Overview](./overview.md), [Camera](./camera.md), [Shadows](./shadows.md), [Water](./water.md), [Gizmos](./gizmos.md)
+## Verified against
+- `core/renderer/scenev/mixin.py:24-80`
+- `core/renderer/scenev/forward.py:19-57`
+- `core/renderer/renderer.py:56-120`
+- `core/renderer/framebuffers.py`, `core/renderer/shadows/passes.py:183`

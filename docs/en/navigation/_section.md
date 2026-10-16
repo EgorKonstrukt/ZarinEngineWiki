@@ -1,5 +1,11 @@
 # Navigation
 
-TODO: Section index pending. This page lists all articles in Navigation.
+Section index for navigation.
 
-Use the left navigation tree to open placeholder pages.
+## Pages
+
+- Overview — `NavAgent` fields, `set_target`, GPU-deferred grid path.
+
+## Verified against
+
+- `core/components/navigation/navagent/component.py`, `core/navigation/world.py`

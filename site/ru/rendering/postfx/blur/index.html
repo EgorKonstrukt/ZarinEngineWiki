@@ -766,13 +766,17 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Blur</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#_1">Как работает</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_1">Параметры</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_2">Параметры</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Использование</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_3">Советы</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Шейдер</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_4">Цена</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Производительность</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Связанное</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_6">Проверено по коду</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1250,68 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="blur">Blur</h1>
-<p>Часть стека PostFX: выполняется после главной сцены в порядке компонентов. Построен на общей базе GraphicsEffect с тоглом и собственными полями инспектора.</p>
-<h2 id="_1">Как работает</h2>
-<p>Сепарабельное гауссово смягчение всего кадра с управляемым радиусом.</p>
-<h2 id="_2">Параметры</h2>
-<p>Радиус, проходы.</p>
-<h2 id="_3">Советы</h2>
-<p>Фоны за модальными диалогами, блюр-переходы, смягчение жёстких процедурных деталей.</p>
-<h2 id="_4">Цена</h2>
-<p>Средне-высоко по радиусу. Для статичной мягкости лучше туманные материалы, чем блюр на весь экран.</p>
-<p>Связанное: <a href="../">стек PostFX</a>, камеры (render scale), профайлер.</p>
+<blockquote>
+<p>Сепарабельное полноэкранное гауссово смягчение. Два прохода на итерацию (горизонталь, затем вертикаль) с гауссовыми весами от радиуса. Класс <code>Blur</code> в <code>core/components/rendering/postfx/blur.py</code>. Выполняется в стеке PostFX в порядке компонентов; пропускается при <code>enabled == False</code> или неактивной сущности (ранний выход в <code>render()</code>).</p>
+</blockquote>
+<h2 id="_1">Параметры</h2>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Radius</td>
+<td><code>_radius</code></td>
+<td>FLOAT</td>
+<td>0.0 – 32.0</td>
+<td><code>2.0</code></td>
+</tr>
+<tr>
+<td>Iterations</td>
+<td><code>_iterations</code></td>
+<td>INT</td>
+<td>1 – 8</td>
+<td><code>1</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">Использование</h2>
+<p>Редактор: выбрать PostFX-сущность, Add Component &gt; <code>Blur</code>, включить <code>enabled</code>, настроить поля выше. Порядок среди PostFX-компонентов задаёт порядок выполнения.</p>
+<p>Код:</p>
+<pre><code class="language-python">from core.components.rendering.postfx.blur import Blur
+fx = Blur()
+entity.add_component(fx)
+fx._radius = 4.0
+fx._iterations = 2
+fx.enabled = True
+</code></pre>
+<h2 id="_3">Шейдер</h2>
+<p>Шейдер: <code>core/components/rendering/postfx/blur.py (BLUR_FRAG)</code>.</p>
+<pre><code class="language-glsl">#version 330 core
+uniform sampler2D u_input_tex;
+uniform float u_radius;
+uniform vec2 u_pixel_size;
+// int r = int(min(u_radius, 64.0)); sigma = max(u_radius * 0.5, 0.5);
+</code></pre>
+<h2 id="_4">Производительность</h2>
+<p>Cost scales with Radius (clamped to 64 in shader) × Iterations (1–8). Each iteration does a horizontal + vertical fullscreen pass via a temp FBO.</p>
+<h2 id="_5">Связанное</h2>
+<p>См. <a href="../">Стек PostFX</a>, <a href="../color-grading/">Цветокоррекция</a>, <a href="../bloom/">Bloom</a>.</p>
+<h2 id="_6">Проверено по коду</h2>
+<ul>
+<li>
+<p><code>core/components/rendering/postfx/blur.py</code> — класс <code>Blur</code>, <code>_inspector_fields</code>, дефолты <code>__init__</code>, <code>render_type = "screen"</code>.</p>
+</li>
+<li>
+<p><code>core/components/rendering/postfx/graphics_effect.py</code> — базовый <code>GraphicsEffect</code> (<code>enabled</code>, <code>_registry</code>, <code>should_skip</code>, сигнатура <code>render()</code>).</p>
+</li>
+</ul>
               
             </div>
           </div><footer>

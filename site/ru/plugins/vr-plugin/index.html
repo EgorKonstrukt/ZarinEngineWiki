@@ -1237,9 +1237,9 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="vr-">VR-плагин</h1>
-<p>Поддержка виртуальной реальности редактора и рантайма в <code>plugins/vr_plugin/</code>: рантайм-ядро плюс док редактора.</p>
+<p>Поддержка виртуальной реальности редактора и рантайма в <code>plugins/vr_plugin/</code> (<code>NAME = "VRPlugin"</code>, <code>VERSION = "1.0.0"</code>, <code>SYSTEM = True</code> в <code>vr_plugin/plug/plugin.py</code>, <code>get_plugin()</code> в <code>vr_plugin/plug/__init__.py</code>): рантайм-ядро плюс док редактора.</p>
 <ul>
-<li><code>vr_core.py</code> — управление сессией и девайсами: позы шлема кормят камеры сцены, контроллеры появляются как трекаемый ввод рядом со стандартным Input API для скриптов.</li>
+<li><code>plug/plugin.py</code> (<code>VRPluginBase</code>) + <code>components/</code> (<code>xr_rig.py</code>, <code>xr_locomotion.py</code>, <code>xr_haptics.py</code>, <code>xr_ar.py</code>, <code>xrinter/</code>) — управление сессией и девайсами: позы шлема кормят камеры сцены, контроллеры появляются как трекаемый ввод рядом со стандартным Input API для скриптов.</li>
 <li><code>vr_dock.py</code> — панель редактора: старт/стоп VR-сессий, зеркало вида шлема во вьюпорт, статус девайсов и настройки на глаз.</li>
 </ul>
 <p>Процесс: откройте VR-док, подключите шлем, стартуйте сессию — игровое окно рисует стереопару, а десктопный вьюпорт держит камеру редактора для постановки. Скрипты читают позы контроллеров через те же конвенции Transform/Input, что десктоп (девайсные биндинги всплывают кнопками и осями).</p>

@@ -621,6 +621,14 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Roadmap, Changelog, License</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#license">License</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#requirements-from-readmemd">Requirements (from README.md)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#entry-points-and-tests">Entry points and tests</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#changelog-and-roadmap">Changelog and roadmap</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,15 +1245,27 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="roadmap-changelog-license">Roadmap, Changelog, License</h1>
-<p>TODO: Content pending. This page will document Roadmap, Changelog, License in ZarinEngine.</p>
-<p>Planned sections:</p>
+<p>Facts only — everything below is read straight from the repository.</p>
+<h2 id="license">License</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Mozilla Public License 2.0. Copyright (c) 2026 Zarrakun. Full text in <code>LICENSE</code> at the repository root.</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="requirements-from-readmemd">Requirements (from <code>README.md</code>)</h2>
+<ul>
+<li>Python 3.13+, PySide6 ≥ 6.6.0, ModernGL ≥ 5.10.0, NumPy ≥ 1.26.0, system OpenAL for audio, bundled Assimp DLL/SO for mesh import. Full list in <code>requirements.txt</code>.</li>
+<li>OpenGL 4.6 Core Profile. All engine math is <code>numpy.float64</code>; <code>float32</code> conversion happens only at GPU upload.</li>
+</ul>
+<h2 id="entry-points-and-tests">Entry points and tests</h2>
+<ul>
+<li><code>python main.py</code> — editor. <code>python player.py Scene.zpes</code> — run a scene (default <code>"SampleScene.zpes"</code>). <code>python build_nuitka.py</code> — Nuitka standalone build (settings in <code>BuildSettings.json</code>).</li>
+<li><code>python setup.py</code> — compiles the 34 engine Cython extensions from <code>core/pyx/*.pyx</code>: <code>_convex_hull</code>, <code>_bvh_build</code>, <code>_raytracing_data</code>, <code>math_helpers</code>, <code>_math_vec</code>, <code>_culling</code>, <code>_transform_batch</code>, <code>_render_utils</code>, <code>_physics_utils</code>, <code>_core_batch</code>, <code>_types</code>, <code>_ecs_batch</code>, <code>_render_batch</code>, <code>_octree_batch</code>, <code>_constraint_batch</code>, <code>_curve_batch</code>, <code>_constraint_update</code>, <code>_physics_sync</code>, <code>_mesh_import</code>, <code>_skinning</code>, <code>_ik</code>, <code>_physbone</code>, <code>_audio_dsp</code>, <code>_raycast</code>, <code>_shadow_batch</code>, <code>_scene_query</code>, <code>_render_collect</code>, <code>_math_mat4</code>, <code>_vr_batch</code>, <code>_nav_batch</code>, <code>_splat_sort</code>, <code>_gs_volume</code>, <code>_sky_astro</code> (plus <code>_shader_parse</code> sources). Windows default toolchain is the auto-downloaded compact MinGW-w64.</li>
+<li>Smoke tests in <code>tests/smoke/</code>: <code>test_scripting</code>, <code>test_script_inspector</code>, <code>test_script_cython</code>, <code>test_engine_embed</code>, <code>test_relpaths</code>, <code>test_import_materials</code>, <code>test_mesh_import_persist</code>, <code>test_ik_numeric</code>, <code>test_blendshapes</code>, <code>test_compression_async</code>, <code>test_digest_dedup</code>, <code>test_duplicate_skinned</code>, <code>test_embed2</code>, <code>test_embed_outside</code>, <code>test_prop_picker</code>, <code>test_soft_remote</code>, plus <code>tests/libs/test_library_packs.py</code>.</li>
+</ul>
+<h2 id="changelog-and-roadmap">Changelog and roadmap</h2>
+<ul>
+<li>No <code>CHANGELOG.md</code> ships with the repository: the git history is the change record. The scripting contract source of truth is <code>docs/scripting.md</code> in the engine repo.</li>
+<li>Verifiable direction from the code (not promises): gameplay-side networking is stubs (<code>host</code>/<code>connect</code>/<code>send</code>/<code>broadcast</code>/<code>poll</code> awaiting a transport; <code>NetworkIdentity</code> is a stub component), while ECS, editor, rendering, physics, audio, GUI, prefabs, scripting hot-reload and user Cython companions are implemented and covered by the smoke tests above.</li>
+</ul>
               
             </div>
           </div><footer>

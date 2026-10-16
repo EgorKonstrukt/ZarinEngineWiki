@@ -561,6 +561,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Console and Terminal</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../profiler-undo/">Profiler Panel and Undo History</a>
@@ -1237,15 +1247,87 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="console-and-terminal">Console and Terminal</h1>
-<p>TODO: Content pending. This page will document Console and Terminal in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p>Two log surfaces: <code>ConsolePanel</code> (<code>editor/panels/console/</code>) — the structured engine-log view with level filters; <code>TerminalPanel</code> (<code>editor/panels/terminal/</code>) — tabbed Python REPL + PowerShell consoles.</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Signature</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ConsolePanel</code></td>
+<td><code>(parent=None)</code> + <code>load_config(config)</code></td>
+<td><code>console/panel.py</code> dock</td>
+</tr>
+<tr>
+<td><code>ConsolePanel</code> pipeline</td>
+<td><code>_on_log_entry/_flush_pending/_add_entry/_should_show/_update_list</code></td>
+<td>Grouped, filtered list</td>
+</tr>
+<tr>
+<td><code>ConsolePanel</code> actions</td>
+<td><code>_clear/_collapse_all/_on_filter_changed/_rebuild/_update_counts/_render_detail/_deselect</code></td>
+<td>Toolbar + detail pane</td>
+</tr>
+<tr>
+<td><code>ConsoleGroup</code></td>
+<td><code>(entry: LogEntry)</code> + <code>matches(entry)</code>, <code>display_text()</code></td>
+<td><code>console/model.py</code> dedup group</td>
+</tr>
+<tr>
+<td><code>TerminalPanel</code></td>
+<td><code>(parent=None)</code> + <code>load_config/save_config</code></td>
+<td><code>terminal/panel.py</code> dock</td>
+</tr>
+<tr>
+<td><code>TerminalPanel._add_tab</code> / <code>_open_powershell</code> / <code>_close_tab</code></td>
+<td><code>()</code> / <code>(index: int)</code></td>
+<td>Tab management</td>
+</tr>
+<tr>
+<td><code>TerminalPanel.execute_python</code></td>
+<td><code>(code: str)</code></td>
+<td>Runs code in the active REPL namespace</td>
+</tr>
+<tr>
+<td><code>TerminalPanel._init_namespace</code> / <code>_reset_namespace</code></td>
+<td><code>()</code></td>
+<td>REPL namespace lifecycle; <code>_on_scene_loaded</code> rebinds scene</td>
+</tr>
+<tr>
+<td><code>TerminalTab</code></td>
+<td><code>(namespace: dict, font_family="", font_size=0, ...)</code> + <code>set_namespace(ns)</code>, <code>_execute(code)</code></td>
+<td><code>terminal/repl.py</code> Python tab with history (<code>_history_up/_history_down</code>)</td>
+</tr>
+<tr>
+<td><code>PowershellTab</code></td>
+<td><code>(assets_path: str, ...)</code> + <code>_send_command(cmd)</code>, <code>terminate()</code></td>
+<td><code>terminal/powershell.py</code>; <code>PsReader</code> thread pumps stdout</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Console: level filter + text filter narrow the list; entries collapse into <code>ConsoleGroup</code> rows; selecting a row renders the full detail (stack trace when present); Clear and Collapse-all reset the view. Terminal: <code>+</code> opens a Python REPL tab bound to a namespace containing engine/scene handles; the PowerShell button opens a shell rooted at the assets path. REPL <code>Up</code>/<code>Down</code> walks command history; output is color-split (stdout vs traceback).</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">terminal.execute_python(&quot;print([e.name for e in scene.get_all_entities()])&quot;)
+terminal._reset_namespace()
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Core Logging (LogEntry/LogLevel producers), Profiler (frame data), Status bar</li>
+<li><code>editor/console_terminal.py</code> (legacy wiring shim — panels above are canonical)</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>editor/panels/console/panel.py</code>, <code>editor/panels/console/model.py</code></li>
+<li><code>editor/panels/terminal/panel.py</code>, <code>editor/panels/terminal/repl.py</code>, <code>editor/panels/terminal/powershell.py</code></li>
+</ul>
               
             </div>
           </div><footer>

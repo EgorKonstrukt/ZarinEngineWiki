@@ -6,7 +6,7 @@
 
 Клавиатура и мышь:
 
-- `Input.GetKey(code)` — зажата в этом кадре; `Input.GetKeyDown(code)` — нажата в этом кадре; `Input.GetKeyUp(code)` — отпущена. Коды из `KeyCode` (`KeyCode.W`, `KeyCode.Space`, `KeyCode.Shift`, стрелки, цифры и другие).
+- `Input.GetKey(code)` — зажата в этом кадре; `Input.GetKeyDown(code)` — нажата в этом кадре; `Input.GetKeyUp(code)` — отпущена. Коды из `KeyCode` (`KeyCode.W`, `KeyCode.SPACE`, `KeyCode.LEFT_SHIFT` / `KeyCode.RIGHT_SHIFT`, стрелки, цифры и другие).
 - `Input.GetMouseButton(i)`, `GetMouseButtonDown(i)`, `GetMouseButtonUp(i)` — состояние кнопок по индексу.
 - `Input.GetButton(name)`, `GetButtonDown(name)`, `GetButtonUp(name)` — именованные кнопки действий.
 - `Input.GetAxis(name)`, `Input.GetAxisRaw(name)` — сглаженные против сырых осей вроде `"Horizontal"`.
@@ -33,7 +33,7 @@ class Player:
             t.translate(Vec3(0.0, 0.0, step))
         if Input.GetKey(KeyCode.S):
             t.translate(Vec3(0.0, 0.0, -step))
-        if Input.GetKeyDown(KeyCode.Space):
+        if Input.GetKeyDown(KeyCode.SPACE):
             Logger.info("jump pressed")
 ```
 
@@ -49,3 +49,5 @@ class Looker:
 ```
 
 Паттерн курсора для fly-камер: лок при зажатой правой кнопке, релиз по отпусканию — ведите `Input.cursorLocked` из колбэков кнопок мыши в `on_update`.
+
+Оси вроде `"Horizontal"` существуют только после загрузки биндингов (`Input.LoadProjectBindings` на старте) или явного `Input.DefineAxis("Horizontal", positive=[KeyCode.D], negative=[KeyCode.A])`. Для неопределённого имени `GetAxis` / `GetAxisRaw` возвращают `0.0`, так что `Looker` выше стоит на месте, пока ось не определена, — определите её в настройке проекта до использования (см. обзор Input).

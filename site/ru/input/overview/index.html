@@ -1058,6 +1058,16 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Система ввода</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api">Свойства / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Связанные</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Проверено по</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1237,15 +1247,80 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Система ввода</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Система ввода в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<p>Два слоя: низкий <code>InputManager</code> (pynput + Qt feed, pressed/released за кадр) и игровой фасад <code>Input</code>.</p>
+<h2 id="api">Свойства / API</h2>
+<table>
+<thead>
+<tr>
+<th>Элемент</th>
+<th>Источник</th>
+<th>Смысл</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>InputManager.start/stop/new_frame</code></td>
+<td><code>core/input/input_manager.py</code></td>
+<td>Жизнь слушателей, очистка за кадр</td>
+</tr>
+<tr>
+<td><code>feed_key / feed_mouse_button / feed_scroll</code></td>
+<td><code>input_manager.py</code></td>
+<td>Инжекция из Qt/событий</td>
+</tr>
+<tr>
+<td><code>is_key_pressed / key_just_pressed / key_just_released</code></td>
+<td><code>input_manager.py</code></td>
+<td>Опрос по <code>vk</code></td>
+</tr>
+<tr>
+<td><code>KeyCode</code></td>
+<td><code>inpsys/keys.py</code></td>
+<td>Коды в стиле GLFW: <code>W</code> 87, <code>SPACE</code> 32, <code>ESCAPE</code> 256, <code>F1</code>–<code>F12</code> 290–301, <code>MOUSE_LEFT</code> 1000 …; <code>from_name</code></td>
+</tr>
+<tr>
+<td><code>Input.GetKey/GetKeyDown/GetKeyUp</code></td>
+<td><code>inpsys/gamepad.py</code></td>
+<td>Состояние клавиш</td>
+</tr>
+<tr>
+<td><code>Input.DefineAxis/DefineButton</code>, <code>GetAxis/GetButton</code></td>
+<td><code>gamepad.py</code></td>
+<td>Именованные маппинги (<code>gravity</code> 3.0, <code>dead</code> 0.001)</td>
+</tr>
+<tr>
+<td><code>Input.OnEvent/OffEvent</code>, курсор</td>
+<td><code>gamepad.py</code></td>
+<td>Хуки, <code>cursorLocked/cursorVisible</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">Использование в редакторе</h2>
+<ol>
+<li>Забиндите оси/кнопки (<code>DefineAxis("Horizontal", …)</code>) на старте или через <code>LoadProjectBindings</code>.</li>
+<li>Читайте каждый кадр; <code>begin_frame</code>/<code>end_frame</code> крутит плеер.</li>
+<li>Для FPS лочите/прячьте курсор.</li>
+</ol>
+<h2 id="_3">Использование в коде</h2>
+<pre><code class="language-python">from core.input.inpsys.gamepad import Input
+from core.input.inpsys.keys import KeyCode
+
+Input.DefineAxis(&quot;Horizontal&quot;, positive=[KeyCode.D], negative=[KeyCode.A])
+Input.DefineButton(&quot;Jump&quot;, keys=[KeyCode.SPACE])
+
+def on_update(self, dt):
+    x = Input.GetAxis(&quot;Horizontal&quot;)
+    if Input.GetButtonDown(&quot;Jump&quot;):
+        self.jump()
+</code></pre>
+<h2 id="_4">Связанные</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>GUI events, цикл плеера</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_5">Проверено по</h2>
+<ul>
+<li><code>core/input/input_manager.py</code>, <code>core/input/inpsys/gamepad.py</code>, <code>keys.py</code></li>
+</ul>
               
             </div>
           </div><footer>

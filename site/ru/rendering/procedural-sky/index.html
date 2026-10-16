@@ -746,6 +746,14 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Процедурное небо</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../clouds/">Облака</a>
@@ -1238,34 +1246,413 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Процедурное небо</h1>
-<p>Динамическое небо суток, считаемое покадрово: диск солнца, ночные звёзды, сумеречные градиенты — без текстур для авторства и стриминга.</p>
+<blockquote>
+<p>Аналитическое небо день/ночь: <code>ProceduralSky</code> (<code>core/components/rendering/environment/skyp/component.py:18-303</code>), шейдер <code>core/shaders/materials/Sky.shader</code>.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Миксины: часы astro (<code>skyp/astro.py</code>), градация атмосферы (<code>skyp/atmosphere.py</code>), солнце (<code>skyp/sun.py</code>), облака (<code>skyp/clouds.py</code>). <code>on_update</code> крутит <code>time_speed</code> игровых-сек/сек и синкает связанный свет солнца (<code>component.py:164-228</code>). Дефолты луны: текстура <code>core/textures/moon.tga</code>, радиус <code>0.27</code> град.</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Группа инспектора</th>
-<th>Что покрывает</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Procedural Night Sky</td>
-<td>Тогл Night Sky, Night Exposure</td>
+<td><code>material_path</code></td>
+<td>путь шейдера</td>
+<td><code>core/shaders/materials/Sky.shader</code></td>
+<td>Шейдер неба (<code>component.py:114</code>).</td>
 </tr>
 <tr>
-<td>Stars</td>
-<td>Density, Intensity, Scale, Twinkle, Twinkle Speed, Seed, Tint</td>
+<td><code>night_sky_enabled</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Ночной слой (<code>component.py:43,116</code>).</td>
 </tr>
 <tr>
-<td>Milky Way</td>
-<td>Контролы плотности и оттенка полосы</td>
+<td><code>night_exposure</code></td>
+<td>слайдер (0–3)</td>
+<td><code>1.0</code></td>
+<td>Усиление ночи (<code>component.py:44,117</code>).</td>
+</tr>
+<tr>
+<td><code>star_enabled</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Звёзды (<code>component.py:46,118</code>).</td>
+</tr>
+<tr>
+<td><code>star_density</code></td>
+<td>слайдер (0–1)</td>
+<td><code>0.45</code></td>
+<td>Покрытие (<code>component.py:47,119</code>).</td>
+</tr>
+<tr>
+<td><code>star_intensity</code></td>
+<td>слайдер (0–5)</td>
+<td><code>1.0</code></td>
+<td>Яркость (<code>component.py:48,120</code>).</td>
+</tr>
+<tr>
+<td><code>star_scale</code></td>
+<td>слайдер (20–200)</td>
+<td><code>80.0</code></td>
+<td>Размер (<code>component.py:49,121</code>).</td>
+</tr>
+<tr>
+<td><code>star_twinkle</code></td>
+<td>слайдер (0–1)</td>
+<td><code>0.5</code></td>
+<td>Мерцание (<code>component.py:50,122</code>).</td>
+</tr>
+<tr>
+<td><code>star_twinkle_speed</code></td>
+<td>слайдер (0–10)</td>
+<td><code>1.0</code></td>
+<td>Темп мерцания (<code>component.py:51,123</code>).</td>
+</tr>
+<tr>
+<td><code>star_seed</code></td>
+<td>слайдер (0–100)</td>
+<td><code>1.0</code></td>
+<td>Сид узора (<code>component.py:52,124</code>).</td>
+</tr>
+<tr>
+<td><code>star_color</code></td>
+<td>color3</td>
+<td><code>[0.9, 0.93, 1.0]</code></td>
+<td>Тинт (<code>component.py:53,125</code>).</td>
+</tr>
+<tr>
+<td><code>milky_way_enabled</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Млечный путь (<code>component.py:55,126</code>).</td>
+</tr>
+<tr>
+<td><code>milky_way_intensity</code></td>
+<td>слайдер (0–3)</td>
+<td><code>0.6</code></td>
+<td>Усиление рукава (<code>component.py:56,127</code>).</td>
+</tr>
+<tr>
+<td><code>milky_way_pole</code></td>
+<td>vec3</td>
+<td><code>[0.4, 0.3, 0.85]</code></td>
+<td>Ориентация рукава (<code>component.py:57,128</code>).</td>
+</tr>
+<tr>
+<td><code>year</code></td>
+<td>int (1–9999)</td>
+<td><code>2024</code></td>
+<td>Год календаря (<code>component.py:59,129</code>, <code>astro.py:11</code>).</td>
+</tr>
+<tr>
+<td><code>month</code></td>
+<td>int (1–12)</td>
+<td><code>6</code></td>
+<td>Месяц (<code>component.py:60,130</code>, <code>astro.py:12</code>).</td>
+</tr>
+<tr>
+<td><code>day</code></td>
+<td>int (1–31)</td>
+<td><code>21</code></td>
+<td>День (<code>component.py:61,131</code>, <code>astro.py:13</code>).</td>
+</tr>
+<tr>
+<td><code>hour</code></td>
+<td>int (0–23)</td>
+<td><code>12</code></td>
+<td>Час (<code>component.py:62,132</code>, <code>astro.py:14</code>).</td>
+</tr>
+<tr>
+<td><code>minute</code></td>
+<td>int (0–59)</td>
+<td><code>0</code></td>
+<td>Минута (<code>component.py:63,133</code>, <code>astro.py:15</code>).</td>
+</tr>
+<tr>
+<td><code>second</code></td>
+<td>int (0–59)</td>
+<td><code>0</code></td>
+<td>Секунда (<code>component.py:64,134</code>, <code>astro.py:16</code>).</td>
+</tr>
+<tr>
+<td><code>time_speed</code></td>
+<td>float</td>
+<td><code>0.0</code></td>
+<td>Игровых-сек на реал. сек (<code>component.py:65,138</code>).</td>
+</tr>
+<tr>
+<td><code>latitude</code></td>
+<td>слайдер град (−90…90)</td>
+<td><code>55.75</code></td>
+<td>Широта наблюдателя (<code>component.py:67</code>, <code>astro.py:17</code>).</td>
+</tr>
+<tr>
+<td><code>longitude</code></td>
+<td>слайдер град (−180…180)</td>
+<td><code>37.62</code></td>
+<td>Долгота наблюдателя (<code>component.py:68</code>, <code>astro.py:18</code>).</td>
+</tr>
+<tr>
+<td><code>utc_offset</code></td>
+<td>слайдер ч (−12…14)</td>
+<td><code>3.0</code></td>
+<td>Смещение UTC (<code>component.py:69</code>, <code>astro.py:19</code>).</td>
+</tr>
+<tr>
+<td><code>sun_light_entity_id</code></td>
+<td>gameobject</td>
+<td><code>""</code></td>
+<td>Связанный <a href="../directional-light/">Directional Light</a> (<code>component.py:71,141</code>).</td>
+</tr>
+<tr>
+<td><code>moon_enabled</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Луна (<code>component.py:73,142</code>).</td>
+</tr>
+<tr>
+<td><code>moon_size</code></td>
+<td>слайдер град (0.05–1.5)</td>
+<td><code>0.27</code></td>
+<td>Угловой радиус (<code>component.py:74,143</code>).</td>
+</tr>
+<tr>
+<td><code>moon_intensity</code></td>
+<td>слайдер (0–5)</td>
+<td><code>1.0</code></td>
+<td>Яркость (<code>component.py:75,144</code>).</td>
+</tr>
+<tr>
+<td><code>moon_texture_path</code></td>
+<td>путь картинки</td>
+<td><code>core/textures/moon.tga</code></td>
+<td>Альбедо луны (<code>component.py:76,145</code>).</td>
+</tr>
+<tr>
+<td><code>environment_path</code></td>
+<td>путь</td>
+<td><code>""</code></td>
+<td>Доп. слот окружения (<code>component.py:115</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_obliquity_deg</code></td>
+<td>слайдер град (0–90)</td>
+<td><code>23.439</code></td>
+<td>Наклон оси (<code>component.py:78</code>, <code>astro.py:32</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_obliquity_drift</code></td>
+<td>слайдер (0–0.001)</td>
+<td><code>0.0000004</code></td>
+<td>Дрейф наклона град/сут (<code>component.py:79</code>, <code>astro.py:33</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_sun_ml_epoch</code></td>
+<td>слайдер град (0–360)</td>
+<td><code>280.459</code></td>
+<td>Средняя долгота Солнца (<code>component.py:81</code>, <code>astro.py:34</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_sun_ml_rate</code></td>
+<td>слайдер (0–2)</td>
+<td><code>0.98564736</code></td>
+<td>Темп долготы Солнца град/сут (<code>component.py:82</code>, <code>astro.py:35</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_sun_ma_epoch</code></td>
+<td>слайдер град (0–360)</td>
+<td><code>357.5291</code></td>
+<td>Средняя аномалия Солнца (<code>component.py:83</code>, <code>astro.py:36</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_sun_ma_rate</code></td>
+<td>слайдер (0–2)</td>
+<td><code>0.98560028</code></td>
+<td>Темп аномалии Солнца (<code>component.py:84</code>, <code>astro.py:37</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_sun_ecc</code></td>
+<td>слайдер (0–3)</td>
+<td><code>1.915</code></td>
+<td>Уравнение центра Солнца (<code>component.py:85</code>, <code>astro.py:38</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_sun_ecc2</code></td>
+<td>слайдер (0–1)</td>
+<td><code>0.020</code></td>
+<td>Гармоника эксцентриситета (<code>component.py:86</code>, <code>astro.py:39</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_moon_ml_epoch</code></td>
+<td>слайдер град (0–360)</td>
+<td><code>218.316</code></td>
+<td>Средняя долгота Луны (<code>component.py:88</code>, <code>astro.py:40</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_moon_ml_rate</code></td>
+<td>слайдер (0–15)</td>
+<td><code>13.176396</code></td>
+<td>Темп долготы Луны (<code>component.py:89</code>, <code>astro.py:41</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_moon_ma_epoch</code></td>
+<td>слайдер град (0–360)</td>
+<td><code>134.963</code></td>
+<td>Средняя аномалия Луны (<code>component.py:90</code>, <code>astro.py:42</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_moon_ma_rate</code></td>
+<td>слайдер (0–15)</td>
+<td><code>13.064993</code></td>
+<td>Темп аномалии Луны (<code>component.py:91</code>, <code>astro.py:43</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_moon_el_epoch</code></td>
+<td>слайдер град (0–360)</td>
+<td><code>297.850</code></td>
+<td>Элонгация Луны (<code>component.py:92</code>, <code>astro.py:44</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_moon_el_rate</code></td>
+<td>слайдер (0–15)</td>
+<td><code>12.190749</code></td>
+<td>Темп элонгации (<code>component.py:93</code>, <code>astro.py:45</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_moon_af_epoch</code></td>
+<td>слайдер град (0–360)</td>
+<td><code>93.272</code></td>
+<td>Аргумент широты Луны (<code>component.py:94</code>, <code>astro.py:46</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_moon_af_rate</code></td>
+<td>слайдер (0–15)</td>
+<td><code>13.229350</code></td>
+<td>Темп аргумента (<code>component.py:95</code>, <code>astro.py:47</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_moon_lat1</code></td>
+<td>слайдер (0–15)</td>
+<td><code>5.128</code></td>
+<td>Наклонение орбиты Луны (<code>component.py:96</code>, <code>astro.py:53</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_moon_lon1</code></td>
+<td>слайдер (−10…10)</td>
+<td><code>6.289</code></td>
+<td>Ампл. долготы sin(M) (<code>component.py:97</code>, <code>astro.py:48</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_moon_lon2</code></td>
+<td>слайдер (−5…5)</td>
+<td><code>-1.274</code></td>
+<td>Ампл. sin(2D−M) (<code>component.py:98</code>, <code>astro.py:49</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_moon_lon3</code></td>
+<td>слайдер (−5…5)</td>
+<td><code>0.658</code></td>
+<td>Ампл. sin(2D) (<code>component.py:99</code>, <code>astro.py:50</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_moon_lon4</code></td>
+<td>слайдер (−5…5)</td>
+<td><code>-0.186</code></td>
+<td>Ампл. sin(Ms) (<code>component.py:100</code>, <code>astro.py:51</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_moon_lon5</code></td>
+<td>слайдер (−5…5)</td>
+<td><code>-0.060</code></td>
+<td>Ампл. sin(2M−2D) (<code>component.py:101</code>, <code>astro.py:52</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_moon_lat2</code></td>
+<td>слайдер (−5…5)</td>
+<td><code>0.280</code></td>
+<td>Ампл. широты sin(M+F) (<code>component.py:102</code>, <code>astro.py:54</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_moon_lat3</code></td>
+<td>слайдер (−5…5)</td>
+<td><code>0.277</code></td>
+<td>Ампл. sin(M−F) (<code>component.py:103</code>, <code>astro.py:55</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_moon_lat4</code></td>
+<td>слайдер (−5…5)</td>
+<td><code>-0.017</code></td>
+<td>Ампл. sin(2D−F) (<code>component.py:104</code>, <code>astro.py:56</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_synodic_month</code></td>
+<td>слайдер сут (20–40)</td>
+<td><code>29.530588853</code></td>
+<td>Синодический месяц (<code>component.py:106</code>, <code>astro.py:57</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_new_moon_jd</code></td>
+<td>float (0–3000000)</td>
+<td><code>2451550.258</code></td>
+<td>Эпоха новолуния JD (<code>component.py:107</code>, <code>astro.py:58</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_gmst_epoch</code></td>
+<td>слайдер ч (0–24)</td>
+<td><code>18.697374558</code></td>
+<td>Эпоха GMST (<code>component.py:108</code>, <code>astro.py:59</code>).</td>
+</tr>
+<tr>
+<td><code>_astro_gmst_rate</code></td>
+<td>слайдер ч/сут (23–25)</td>
+<td><code>24.06570982441908</code></td>
+<td>Темп GMST (<code>component.py:109</code>, <code>astro.py:60</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Дата/время + точка, связь Sun Light, Time Speed <code>60</code> для суточного пролёта. Stars/Milky Way — для ночных кадров.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Направленный свет с <code>procedural_sky_lighting</code> ведёт солнце: поворот двигает диск и автоматически перебалансирует ambient — полные сутки это одна анимация поворота плюс кейфреймы exposure.</p>
-<p>Процессы: сутки открытого мира — поворот солнца 360° за длину дня, низкая ночная exposure, звёзды по высоте солнца (density из скрипта); стилизованный закат-лок — заморозить солнце низко, tint в оранж, звёзды чуть вкл; космос — ночное небо вкл, солнце тускло, сильный Млечный Путь.</p>
-<p>Seed даёт разные созвездия на уровень; скорость мерцания масштабируется с exposure для стабильных ночных рендеров.</p>
-<p>Диагностика: солнце и диск спорят — выкл связка на направленном; звёзды в полдень — высока night exposure; плоские сумерки — не тронут tint, давите оранжево-синий сплит.</p>
-<p>Связанное: скайбокс, атмосфера, облака, направленный свет.</p>
+<pre><code class="language-python">from core.components.rendering.environment.skyp.component import ProceduralSky
+psky = ProceduralSky()
+entity.add_component(psky)
+psky.hour = 18
+psky.time_speed = 60.0
+psky.sun_light_entity_id = sun_entity.id
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../skybox/">Skybox</a>, <a href="../directional-light/">Directional Light</a>, <a href="../atmosphere/">Atmosphere</a>, <a href="../clouds/">Clouds</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/environment/skyp/component.py:40-160,164-228</code></li>
+<li><code>core/components/rendering/environment/skyp/astro.py:11-19</code> (дефолты времени/точки), <code>:31-61</code> (<code>_ASTRO_DEFAULTS</code>)</li>
+</ul>
               
             </div>
           </div><footer>

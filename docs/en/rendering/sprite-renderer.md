@@ -1,21 +1,26 @@
-# SpriteRenderer
-
-World-space textured quad: billboards, pickups, decals, 2D characters inside 3D scenes, sprite-based VFX sheets.
-
-| Field | Default | Meaning |
-|---|---|---|
-| texture_path | — | Sprite image |
-| color | white `[1,1,1,1]` | Tint multiplier — white keeps source colors |
-| flip_x / flip_y | off / off | Horizontal / vertical mirroring |
-
-Drawn through a dedicated sprite path with instancing support, so hundreds of pickups batch cheaply. Follows the entity Transform for position, rotation and scale; billboard-facing behavior comes from the internal `Sprite` shader path.
-
-Workflows: pickups — quad with texture, small emissive-leaning material, slow `Rotator` script for attention; foliage cards — crossed quads with alpha-tested materials and `_double_sided`; flip-book animation — swap `texture_path` on a timer from a script (or use the GIF flipbook importer upstream); decals — quads floated 1 cm off surfaces with transparent materials.
-
-Tint tricks: white keeps art intact; red tint for damage flash (animate back over 0.2 s); per-instance color variation across a crowd from spawner scripts.
-
-For full screen-space UI layouts use the GUI system (Image widget on GuiCanvas); SpriteRenderer is for diegetic content inside the world.
-
-Troubleshooting: pink quad → texture path broken, re-pick; mirrored art → flip flags; sorting artifacts between sprites → transparent bucket sorts by depth, separate layers in Z; blurry pixels → texture filter import setting, use nearest for pixel art.
-
-Related: SvgRenderer, TextRenderer, VideoRenderer, GUI Overview, Textures and Compression.
+# Sprite Renderer
+> Camera-facing quad: `SpriteRenderer` (`core/components/rendering/renderers/sprite_renderer.py`), drawn by `core/renderer/spr/`.
+[Home](../../index.md) · [Section index](./_section.md)
+## Overview
+Single texture + RGBA tint; 3-element colors auto-gain alpha `1.0` (`sprite_renderer.py:38-47`). No lighting, no shadows.
+## Properties
+| name | type | default | description |
+|---|---|---|---|
+| `texture_path` | resource path (png/jpg/jpeg) | `""` | Sprite image (`sprite_renderer.py:21,29`). |
+| `color` | color4 | `[1, 1, 1, 1]` | Tint × texture (`sprite_renderer.py:22,30`). |
+| `flip_x` | bool | `False` | Mirror horizontally (`sprite_renderer.py:23,31`). |
+| `flip_y` | bool | `False` | Mirror vertically (`sprite_renderer.py:24,32`). |
+## Usage in Editor
+Add Component → Sprite Renderer, assign Texture, tint via Color. Use Flip for mirroring without duplicating assets.
+## Usage in Code
+```python
+sp = entity.get_component(SpriteRenderer)
+sp.texture_path = "assets/textures/coin.png"
+sp.color = [1.0, 0.9, 0.5, 1.0]
+sp.flip_x = True
+```
+## Related pages
+- [SVG Renderer](./svg-renderer.md), [Text Renderer](./text-renderer.md), [Video Renderer](./video-renderer.md), [Materials](./materials.md)
+## Verified against
+- `core/components/rendering/renderers/sprite_renderer.py:17-67`
+- `core/renderer/spr/sprites.py`, `core/renderer/spr/batch.py`

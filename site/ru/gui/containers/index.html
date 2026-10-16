@@ -986,6 +986,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Контейнеры: панели, вкладки, списки, таблицы, деревья</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api">Свойства / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Связанные</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../layout-events/">Раскладка, якоря, стили, события</a>
@@ -1236,16 +1246,78 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="_1">Контейнеры: панели, вкладки, списки, таблицы, деревья</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Контейнеры: панели, вкладки, списки, таблицы, деревья в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+                <h1 id="_1">Контейнеры</h1>
+<p>Только контейнеры из <code>core/gui/wid/containers.py</code>. Каждая позиция — одна строка.</p>
+<h2 id="api">Свойства / API</h2>
+<table>
+<thead>
+<tr>
+<th>Виджет</th>
+<th>База</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Panel</code> — простая рамка-контейнер.</td>
+<td><code>QFrame</code></td>
+</tr>
+<tr>
+<td><code>GroupBox</code> — рамка с заголовком <code>title</code>.</td>
+<td><code>QGroupBox</code></td>
+</tr>
+<tr>
+<td><code>TabWidget</code> — вкладки, <code>tab_count</code>.</td>
+<td><code>QTabWidget</code></td>
+</tr>
+<tr>
+<td><code>StackedWidget</code> — стек страниц по индексу.</td>
+<td><code>QStackedWidget</code></td>
+</tr>
+<tr>
+<td><code>Splitter</code> — раздвижные панели.</td>
+<td><code>QSplitter</code></td>
+</tr>
+<tr>
+<td><code>ScrollPanel</code> — скролл с <code>scroll_content</code>.</td>
+<td><code>QScrollArea</code></td>
+</tr>
+<tr>
+<td><code>MdiSubWindow</code> — дочернее MDI-окно с <code>title</code>.</td>
+<td><code>QMdiSubWindow</code></td>
+</tr>
+<tr>
+<td><code>MdiArea</code> — MDI-хост: <code>add_sub_window</code>, <code>tile_windows</code>, <code>cascade_windows</code>, <code>close_all</code>.</td>
+<td><code>QMdiArea</code></td>
+</tr>
+<tr>
+<td><code>ToolBox</code> — стек инструментальных страниц.</td>
+<td><code>QToolBox</code></td>
+</tr>
+</tbody>
+</table>
+<p>Общие поля: <code>x</code>, <code>y</code>, <code>w</code>, <code>h</code>, <code>anchor</code>, <code>z_index</code>, <code>tag</code>, <code>serialize()</code> / <code>deserialize()</code>.</p>
+<h2 id="_2">Использование в редакторе</h2>
+<ol>
+<li>Добавьте парный компонент (<code>PanelComponent</code>, <code>TabWidgetComponent</code>, <code>MdiAreaComponent</code>, …).</li>
+<li>Дочерние сущности вкладывайте под контейнер; <code>GuiCanvasSystem</code> перепарентит Qt-виджеты.</li>
+<li>Для скролла кладите контент в <code>ScrollPanel.scroll_content</code>.</li>
+</ol>
+<h2 id="_3">Использование в коде</h2>
+<pre><code class="language-python">from core.gui.api import GuiApi
+
+gui = GuiApi(name=&quot;default&quot;)
+panel = gui.panel(x=0, y=0, w=300, h=200)
+gui.button(x=10, y=10, w=120, h=40, text=&quot;Внутри&quot;, parent=panel)
+area = gui.mdi_area(x=0, y=220, w=400, h=300)
+</code></pre>
+<h2 id="_4">Связанные</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Обзор GUI, Канвас, Контролы, Раскладка и события</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_5">Проверено по</h2>
+<ul>
+<li><code>core/gui/wid/containers.py</code>, <code>core/gui/api.py</code>, <code>core/gui/system.py</code></li>
+</ul>
               
             </div>
           </div><footer>

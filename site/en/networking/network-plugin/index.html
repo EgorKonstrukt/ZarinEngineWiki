@@ -1237,7 +1237,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="network-plugin">Network Plugin</h1>
-<p>System plugin (<code>SYSTEM = True</code>) wiring gameplay code to the transport: host, connect, message handlers and per-frame polling.</p>
+<p>System plugin (<code>SYSTEM = True</code>) wiring gameplay code to the real transport: host, connect, message handlers and per-frame polling over <code>core.network.transp</code> <code>get_transport()</code> (<code>GameServer</code> / <code>GameClient</code> over TCP, msgpack <code>MessageType</code> framing).</p>
 <pre><code class="language-python">plug = engine.plugins.get(&quot;NetworkPlugin&quot;)
 plug.host(port=7777, max_players=16)
 plug.connect(&quot;192.168.1.10&quot;, 7777)
@@ -1246,17 +1246,49 @@ plug.broadcast(&quot;chat&quot;, {&quot;text&quot;: &quot;hello&quot;})
 plug.poll()
 </code></pre>
 <p>API, verified:</p>
-<ul>
-<li><code>host(port=7777, max_players=16)</code> — start a server on all interfaces; logs the result, returns bool.</li>
-<li><code>connect(host, port=7777)</code> — join as <code>"Player"</code>; returns bool.</li>
-<li><code>disconnect()</code> — leave; also runs on plugin shutdown.</li>
-<li><code>send(msg_type, payload, target_id=-1)</code> — server-side targeted <code>send_to</code> when id ≥ 0, otherwise broadcast; everything travels as <code>NET_RPC</code>.</li>
-<li><code>broadcast(msg_type, payload)</code> — to all peers.</li>
-<li><code>on_message(msg_type, handler)</code> — subscribe; handler receives <code>NetworkMessage(msg_type, payload, sender_id)</code>. The <code>"*"</code> wildcard receives everything unhandled.</li>
-<li><code>poll()</code> — drain transport, dispatch <code>NET_RPC</code> frames to handlers (handler exceptions logged, never raised), requeue the rest.</li>
-<li>State: <code>is_connected</code>, <code>is_server</code>, <code>local_id</code>, <code>peer_count</code>.</li>
-</ul>
-<p>Handler pattern: one handler per message name, payload validated before use, wildcard handler as the unknown-message logger. Call <code>poll()</code> once per frame from game code or a manager component — undrained queues read as dead peers.</p>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Signature / meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>host</code></td>
+<td><code>host(port=7777, max_players=16) -&gt; bool</code> — <code>get_transport().host("0.0.0.0", port, max_players)</code>, logs the result</td>
+</tr>
+<tr>
+<td><code>connect</code></td>
+<td><code>connect(host, port=7777) -&gt; bool</code> — <code>get_transport().connect(host, port, "Player")</code>, logs the result</td>
+</tr>
+<tr>
+<td><code>disconnect</code></td>
+<td><code>disconnect()</code> — <code>get_transport().disconnect()</code>; also runs on plugin shutdown</td>
+</tr>
+<tr>
+<td><code>send</code></td>
+<td><code>send(msg_type, payload, target_id=-1)</code> — <code>send_to(target_id, NET_RPC, ...)</code> when <code>target_id &gt;= 0</code> and server, else <code>broadcast</code>; payload wrapped as <code>{"rpc": name, "payload": dict}</code></td>
+</tr>
+<tr>
+<td><code>broadcast</code></td>
+<td><code>broadcast(msg_type, payload)</code> — <code>broadcast(NET_RPC, {"rpc": name, "payload": dict})</code> to all peers</td>
+</tr>
+<tr>
+<td><code>on_message</code></td>
+<td><code>on_message(msg_type, handler)</code> — subscribe; handler receives <code>NetworkMessage(msg_type, payload, sender_id)</code>; <code>"*"</code> gets everything unhandled</td>
+</tr>
+<tr>
+<td><code>poll</code></td>
+<td><code>poll()</code> — <code>get_transport().poll()</code>, dispatch <code>NET_RPC {"rpc": ...}</code> frames to handlers (handler exceptions logged, never raised), requeue the rest to the front</td>
+</tr>
+<tr>
+<td>State</td>
+<td><code>is_connected</code>, <code>is_server</code>, <code>local_id</code>, <code>peer_count</code> — direct reads of <code>get_transport()</code></td>
+</tr>
+</tbody>
+</table>
+<p>Usage: one handler per message name, validate payload before use, <code>"*"</code> handler as the unknown-message logger. Call <code>poll()</code> once per frame from game code or a manager component — undrained queues read as dead peers. <code>NetworkManager.on_update()</code> already polls the same <code>Transport</code> deque and forwards <code>NET_RPC {"rpc": ...}</code> frames to this plugin, so do not run both pumps blindly.</p>
 <pre><code class="language-python">def handle_chat(msg):
     line = str(msg.payload.get(&quot;text&quot;, &quot;&quot;))
     Logger.info(&quot;chat from &quot; + str(msg.sender_id) + &quot;: &quot; + line)
@@ -1264,7 +1296,9 @@ plug.poll()
 plug.on_message(&quot;chat&quot;, handle_chat)
 plug.on_message(&quot;*&quot;, log_unknown)
 </code></pre>
+<p>Limits: TCP-only transport (no UDP/WebRTC/ENet); client <code>send</code> always goes to the server, targeted delivery is server-side <code>send_to</code>; no gameplay password/room/auth; 4 MiB per-frame cap (<code>MAX_MESSAGE_SIZE</code>).</p>
 <p>Related: Transport and Protocol, NetworkManager (component-level sessions), NetworkVariables (state sync twin of RPC events).</p>
+<p>Verified against: <code>plugins/network_plugin.py:13-17,33-62,64-84,94-116,118-180,182-188</code>; <code>core/network/transp/transport.py:82-144</code>; <code>core/network/protocol.py:80-91,97-110</code>.</p>
               
             </div>
           </div><footer>

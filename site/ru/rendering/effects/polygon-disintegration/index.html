@@ -842,13 +842,15 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Распад на полигоны</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#_2">Как работает</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Параметры</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_3">Параметры</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Использование</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_4">Советы</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Шейдер</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_5">Цена</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Связанное</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_6">Проверено по коду</a>
     </li>
     </ul>
                 </li>
@@ -1245,17 +1247,209 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="_1">Распад на полигоны</h1>
-<p>Эффект объекта через проход ObjectFx (в отличие от PostFX на весь кадр). Построен на общей базе ObjectEffect; скрипты ведут его, анимируя float прогресса/интенсивности.</p>
-<h2 id="_2">Как работает</h2>
-<p>Разбивает меш на летящие полигоны с попиксельной скоростью и затуханием.</p>
-<h2 id="_3">Параметры</h2>
-<p>Прогресс, скорость разлёта, затухание кусков.</p>
-<h2 id="_4">Советы</h2>
-<p>Эффектные разрушения, дезинтегрирующиеся враги, варп-уходы.</p>
-<h2 id="_5">Цена</h2>
-<p>Средне по числу кусков.</p>
-<p>Связанное: <a href="../">эффекты объектов</a>, материалы, примеры скриптов.</p>
+                <h1 id="_1">Полигональный распад</h1>
+<blockquote>
+<p>Разлёт треугольников. Поячеечный хэш (cell_size/noise_scale/stagger/thr_scale) гейтит выброс по amount; вылетевшие треугольники летят вдоль direction + внешняя нормаль со speed±variance, scatter/jitter, drag, gravity, spin/twist; fade гасит альфу; уцелевшая кайма светится edge_width/color/emission. Опционально animate/ping_pong ведёт amount. Класс <code>PolygonDisintegrationEffect</code> в <code>core/components/rendering/effects/polygon_disintegration_effect.py</code>. ObjectFx pass with GEOMETRY-shader path: fx_geometry_shader path ejects whole triangles (see spike_growth u_spike_* geometry precedent); double_sided controls culling in _render_object_effects.</p>
+</blockquote>
+<h2 id="_2">Параметры</h2>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Amount</td>
+<td><code>amount</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>0.0</code></td>
+</tr>
+<tr>
+<td>Double Sided</td>
+<td><code>double_sided</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>True</code></td>
+</tr>
+<tr>
+<td>Eject Direction</td>
+<td><code>direction</code></td>
+<td>VEC3</td>
+<td>—</td>
+<td><code>(0.0, 0.2, 0.0)</code></td>
+</tr>
+<tr>
+<td>Eject Speed</td>
+<td><code>speed</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>10.0</code></td>
+</tr>
+<tr>
+<td>Speed Variance</td>
+<td><code>sp_variance</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>4.0</code></td>
+</tr>
+<tr>
+<td>Outward Force</td>
+<td><code>outward</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>5.0</code></td>
+</tr>
+<tr>
+<td>Scatter</td>
+<td><code>scatter</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>3.0</code></td>
+</tr>
+<tr>
+<td>Jitter</td>
+<td><code>jitter</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>3.0</code></td>
+</tr>
+<tr>
+<td>Drag</td>
+<td><code>drag</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>12.0</code></td>
+</tr>
+<tr>
+<td>Gravity</td>
+<td><code>gravity</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>0.0</code></td>
+</tr>
+<tr>
+<td>Spin</td>
+<td><code>rotation</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>1.6</code></td>
+</tr>
+<tr>
+<td>Twist</td>
+<td><code>twist</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>1.4</code></td>
+</tr>
+<tr>
+<td>Fade Out</td>
+<td><code>fade</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Cell Size</td>
+<td><code>cell_size</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>0.08</code></td>
+</tr>
+<tr>
+<td>Shatter Noise</td>
+<td><code>noise_scale</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>4.6</code></td>
+</tr>
+<tr>
+<td>Cell Stagger</td>
+<td><code>stagger</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>0.595</code></td>
+</tr>
+<tr>
+<td>Threshold Scale</td>
+<td><code>thr_scale</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>1.45</code></td>
+</tr>
+<tr>
+<td>Dissolve Edge</td>
+<td><code>edge_width</code></td>
+<td>SLIDER</td>
+<td>0.0 – 0.5</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Edge Color</td>
+<td><code>edge_color</code></td>
+<td>COLOR</td>
+<td>—</td>
+<td><code>[1.0, 0.55, 0.10]</code></td>
+</tr>
+<tr>
+<td>Edge Emission</td>
+<td><code>edge_emission</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>5.0</code></td>
+</tr>
+<tr>
+<td>Animate</td>
+<td><code>animate</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td>Anim Speed</td>
+<td><code>speed_anim</code></td>
+<td>FLOAT</td>
+<td>—</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td>Ping Pong</td>
+<td><code>ping_pong</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">Использование</h2>
+<p>Редактор: выбрать меш-сущность, Add Component &gt; <code>PolygonDisintegrationEffect</code>, включить <code>enabled</code>, анимировать amount-поля из скрипта.</p>
+<p>Код:</p>
+<pre><code class="language-python">from core.components.rendering.effects.polygon_disintegration_effect import PolygonDisintegrationEffect
+fx = PolygonDisintegrationEffect()
+entity.add_component(fx)
+fx.amount = 0.4
+fx.speed = 8.0
+fx.animate = True
+fx.enabled = True
+# каждый кадр: fx.amount = min(1.0, fx.amount + dt * 0.5)
+</code></pre>
+<h2 id="_4">Шейдер</h2>
+<p>Шейдер: <code>core/shaders/internal/ObjectFx.shader (u_disint_* geometry + fragment branches)</code>. Привязанные uniform-ы: <code>u_disint_amount</code>, <code>u_disint_cell</code>, <code>u_disint_drag</code>, <code>u_disint_edge</code>, <code>u_disint_edge_emission</code>, <code>u_disint_fade</code>, <code>u_disint_gravity</code>, <code>u_disint_jitter</code>, <code>u_disint_noise_scale</code>, <code>u_disint_outward</code>, <code>u_disint_rot</code>, <code>u_disint_scatter</code>, <code>u_disint_sp_variance</code>, <code>u_disint_speed</code>, <code>u_disint_stagger</code>, <code>u_disint_thr_scale</code>, <code>u_disint_twist</code>, <code>u_double_sided</code>, <code>u_time</code>.</p>
+<pre><code class="language-glsl">// _apply uniforms (exact, 18): u_disint_amount, u_disint_cell, u_disint_speed, u_disint_sp_variance, u_disint_outward, u_disint_scatter, u_disint_jitter, u_disint_drag, u_disint_gravity, u_disint_rot, u_disint_twist, u_disint_fade, u_disint_noise_scale, u_disint_stagger, u_disint_thr_scale, u_disint_edge, u_disint_edge_emission (+ u_double_sided)
+</code></pre>
+<h2 id="_5">Связанное</h2>
+<p>См. <a href="../">Эффекты объектов</a>, проход ObjectFx (<code>core/renderer/object_fx_pass.py</code>), <code>core/shaders/internal/ObjectFx.shader</code>.</p>
+<h2 id="_6">Проверено по коду</h2>
+<ul>
+<li><code>core/components/rendering/effects/polygon_disintegration_effect.py</code> — класс <code>PolygonDisintegrationEffect</code>, <code>_inspector_fields</code>, дефолты <code>__init__</code>, uniform-ы <code>_apply</code>.</li>
+<li><code>core/components/rendering/effects/object_effect.py</code> — базовый <code>ObjectEffect</code> (<code>bind</code> ставит <code>u_time</code>, гварды <code>_set</code>/<code>_set_vec</code>, <code>reset_all_defaults</code>).</li>
+<li><code>core/renderer/object_fx_pass.py</code> — <code>_find_object_effect</code>, <code>_render_object_effects</code>, <code>_get_fx_program</code>.</li>
+</ul>
               
             </div>
           </div><footer>

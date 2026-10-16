@@ -836,13 +836,15 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Иней</a>
     <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#_2">Как работает</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_2">Параметры</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_3">Параметры</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">Использование</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_4">Советы</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">Шейдер</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#_5">Цена</a>
+    <li class="toctree-l4"><a class="reference internal" href="#_5">Связанное</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_6">Проверено по коду</a>
     </li>
     </ul>
                 </li>
@@ -1246,16 +1248,102 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Иней</h1>
-<p>Эффект объекта через проход ObjectFx (в отличие от PostFX на весь кадр). Построен на общей базе ObjectEffect; скрипты ведут его, анимируя float прогресса/интенсивности.</p>
-<h2 id="_2">Как работает</h2>
-<p>Ледяная кромка и рост кристаллов от краёв с контролем прогресса.</p>
-<h2 id="_3">Параметры</h2>
-<p>Прогресс, плотность кристаллов, оттенок.</p>
-<h2 id="_4">Советы</h2>
-<p>Заморозки, криокамеры, расползающееся зимнее проклятие. Чисто реверсится 1→0.</p>
-<h2 id="_5">Цена</h2>
-<p>Дёшево.</p>
-<p>Связанное: <a href="../">эффекты объектов</a>, материалы, примеры скриптов.</p>
+<blockquote>
+<p>Направленное обледенение. Градиент замерзания вдоль direction смешивает цвет льда по coverage × amount; crack scale задаёт частоту трещин; sparkle добавляет блики; rim_power формирует френелевскую кромку. Опциональный флаг animate. Класс <code>FrostEffect</code> в <code>core/components/rendering/effects/frost_effect.py</code>. ObjectFx pass, same collection/bind path as Dissolve.</p>
+</blockquote>
+<h2 id="_2">Параметры</h2>
+<table>
+<thead>
+<tr>
+<th>Inspector</th>
+<th>Field</th>
+<th>Type</th>
+<th>Range</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Amount</td>
+<td><code>amount</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>1.0</code></td>
+</tr>
+<tr>
+<td>Ice Color</td>
+<td><code>color</code></td>
+<td>COLOR</td>
+<td>—</td>
+<td><code>[0.8, 0.92, 1.0]</code></td>
+</tr>
+<tr>
+<td>Coverage</td>
+<td><code>coverage</code></td>
+<td>SLIDER</td>
+<td>0.0 – 1.0</td>
+<td><code>0.7</code></td>
+</tr>
+<tr>
+<td>Crack Scale</td>
+<td><code>crack_scale</code></td>
+<td>FLOAT</td>
+<td>0.1 – 20.0</td>
+<td><code>3.0</code></td>
+</tr>
+<tr>
+<td>Sparkle</td>
+<td><code>sparkle</code></td>
+<td>SLIDER</td>
+<td>0.0 – 2.0</td>
+<td><code>0.6</code></td>
+</tr>
+<tr>
+<td>Rim Power</td>
+<td><code>rim_power</code></td>
+<td>FLOAT</td>
+<td>0.5 – 8.0</td>
+<td><code>3.0</code></td>
+</tr>
+<tr>
+<td>Freeze Direction</td>
+<td><code>direction</code></td>
+<td>VEC3</td>
+<td>-1.0 – 1.0</td>
+<td><code>(0.0, 1.0, 0.0)</code></td>
+</tr>
+<tr>
+<td>Animate</td>
+<td><code>animate</code></td>
+<td>BOOL</td>
+<td>—</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">Использование</h2>
+<p>Редактор: выбрать меш-сущность, Add Component &gt; <code>FrostEffect</code>, включить <code>enabled</code>, анимировать amount-поля из скрипта.</p>
+<p>Код:</p>
+<pre><code class="language-python">from core.components.rendering.effects.frost_effect import FrostEffect
+fx = FrostEffect()
+entity.add_component(fx)
+fx.amount = 0.8
+fx.coverage = 0.9
+fx.enabled = True
+# каждый кадр: fx.amount = min(1.0, fx.amount + dt * 0.5)
+</code></pre>
+<h2 id="_4">Шейдер</h2>
+<p>Шейдер: <code>core/shaders/internal/ObjectFx.shader (u_frost_* branch)</code>. Привязанные uniform-ы: <code>u_frost_amount</code>, <code>u_frost_coverage</code>, <code>u_frost_crack</code>, <code>u_frost_sparkle</code>, <code>u_frost_rim</code>, <code>u_frost_animate</code>, <code>u_time</code>.</p>
+<pre><code class="language-glsl">// _apply uniforms (exact): u_frost_amount, u_frost_coverage, u_frost_crack, u_frost_sparkle, u_frost_rim, u_frost_animate
+</code></pre>
+<h2 id="_5">Связанное</h2>
+<p>См. <a href="../">Эффекты объектов</a>, проход ObjectFx (<code>core/renderer/object_fx_pass.py</code>), <code>core/shaders/internal/ObjectFx.shader</code>.</p>
+<h2 id="_6">Проверено по коду</h2>
+<ul>
+<li><code>core/components/rendering/effects/frost_effect.py</code> — класс <code>FrostEffect</code>, <code>_inspector_fields</code>, дефолты <code>__init__</code>, uniform-ы <code>_apply</code>.</li>
+<li><code>core/components/rendering/effects/object_effect.py</code> — базовый <code>ObjectEffect</code> (<code>bind</code> ставит <code>u_time</code>, гварды <code>_set</code>/<code>_set_vec</code>, <code>reset_all_defaults</code>).</li>
+<li><code>core/renderer/object_fx_pass.py</code> — <code>_find_object_effect</code>, <code>_render_object_effects</code>, <code>_get_fx_program</code>.</li>
+</ul>
               
             </div>
           </div><footer>

@@ -553,6 +553,18 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Viewport, Camera, Gizmos</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#screenshots">Screenshots</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../hierarchy/">Hierarchy</a>
@@ -1237,15 +1249,133 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="viewport-camera-gizmos">Viewport, Camera, Gizmos</h1>
-<p>TODO: Content pending. This page will document Viewport, Camera, Gizmos in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p><code>SceneViewport</code> (<code>editor/viewport/viewport.py</code>) — the <code>QOpenGLWidget</code> scene view: camera control, picking/selection, transform gizmo, render and input mixins.</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Signature</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SceneViewport</code></td>
+<td><code>(engine, parent=None)</code></td>
+<td>Mixes <code>ViewportCameraMixin</code>, <code>ViewportOverlayMixin</code>, <code>ViewportSelectionMixin</code>, <code>ViewportRenderMixin</code>, <code>ViewportInputMixin</code></td>
+</tr>
+<tr>
+<td><code>camera</code> / <code>gizmo</code> / <code>renderer</code></td>
+<td>properties</td>
+<td>Sub-object accessors</td>
+</tr>
+<tr>
+<td><code>selected_entities</code></td>
+<td><code>() -&gt; list</code></td>
+<td>Current selection</td>
+</tr>
+<tr>
+<td><code>initializeGL</code> / <code>resizeGL</code> / <code>paintGL</code></td>
+<td><code>(w, h)</code> / <code>()</code></td>
+<td>GL lifecycle</td>
+</tr>
+<tr>
+<td><code>load_config</code></td>
+<td><code>(config) -&gt; None</code></td>
+<td>Restores persisted viewport settings</td>
+</tr>
+<tr>
+<td><code>showEvent</code> / <code>hideEvent</code></td>
+<td><code>(event)</code></td>
+<td>Start/stop of paint updates</td>
+</tr>
+<tr>
+<td><code>on_dock_top_level_changed</code></td>
+<td><code>(floating: bool)</code></td>
+<td>Re-parent handling when undocked</td>
+</tr>
+<tr>
+<td>Camera: <code>_on_fov_changed</code> / <code>_on_near_changed</code> / <code>_on_far_changed</code></td>
+<td><code>(value: float)</code></td>
+<td>In <code>viewport/viewport_camera.py</code></td>
+</tr>
+<tr>
+<td>Camera: <code>_on_move_speed_changed</code> / <code>_on_rotate_speed_changed</code></td>
+<td><code>(value: float)</code></td>
+<td>Fly/orbit speeds</td>
+</tr>
+<tr>
+<td>Camera: <code>_on_render_scale_changed</code></td>
+<td><code>(value: int)</code></td>
+<td>Render resolution scale</td>
+</tr>
+<tr>
+<td>Camera: <code>set_grid_step</code> / <code>snap_to_grid</code> / <code>snap_vec3_to_grid</code></td>
+<td><code>(step: float)</code> / <code>(value: float)</code> / <code>(v: Vec3)</code></td>
+<td>Grid snapping</td>
+</tr>
+<tr>
+<td>Selection: <code>set_selected_entity</code> / <code>set_selected_entities</code></td>
+<td><code>(entity)</code> / <code>(entities: list)</code></td>
+<td>In <code>viewport/viewport_selection.py</code></td>
+</tr>
+<tr>
+<td>Selection: <code>_delete_selected</code> / <code>_copy_selected_entities</code> / <code>_paste_entities</code> / <code>_frame_selected</code></td>
+<td><code>()</code></td>
+<td>Edit ops on selection</td>
+</tr>
+<tr>
+<td>Selection: <code>_emit_create_request</code></td>
+<td><code>(obj_type="empty", subtype=None)</code></td>
+<td>Viewport create-menu entry point</td>
+</tr>
+<tr>
+<td>Input keys</td>
+<td><code>KEY_W/A/S/D/Q/E/R/F</code>, <code>KEY_SHIFT/CTRL/ALT/SPACE/DELETE</code>, <code>MOUSE_L/R/M</code> from <code>core/input/constants.py</code></td>
+<td>In <code>viewport/viewport_input.py</code>; C/V/D handled for copy/paste/duplicate</td>
+</tr>
+<tr>
+<td><code>OverlayWidget</code></td>
+<td><code>(viewport, parent=None)</code> + <code>set_visible(bool)</code></td>
+<td><code>viewport/overlay_widget.py</code></td>
+</tr>
+<tr>
+<td><code>ProgressToast</code></td>
+<td><code>(parent=None)</code> + <code>reposition()</code></td>
+<td><code>viewport/progress_toast.py</code> task toasts</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Fly mode: <code>WASD</code> + right-mouse look, middle-mouse pan, wheel dolly. Orbit mode: right-mouse orbits around the 3D cursor, <code>Shift+RMB</code> click places the cursor, <code>Ctrl+MMB</code>/wheel dollies (toolbar nav-mode tooltip text). <code>C</code>/<code>V</code>/<code>D</code> operate on the selection (copy/paste/duplicate paths in the key handler). Gizmo follows <code>_update_gizmo_pivot</code>; multi-drag commits via <code>_commit_multi_transform</code>. FOV/near/far/move/rotate/render-scale/depth are edited through the camera controls wired to the <code>_on_*_changed</code> handlers.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">vp.set_selected_entity(ent)
+vp.set_selected_entities([a, b])
+vp.snap_vec3_to_grid(pos)   # snap a Vec3 to the viewport grid step
+vp.set_grid_step(0.5)
+</code></pre>
+<h2 id="screenshots">Screenshots</h2>
+<p><img alt="ZarinEngine editor viewport (center) inside the main window" src="../../../assets/screenshots/editor-main.png" /></p>
+<blockquote>
+<p>Scene view with camera gizmo, grid, and dragon test model; right side is
+the Game view. File: <code>assets/screenshots/editor-main.png</code> (verified copy
+of engine <code>zarin_screenshot.png</code>).</p>
+</blockquote>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Main Window (toolbar hosts Play + nav mode), Hierarchy (selection mirror), Inspector (edits selection)</li>
+<li>Gizmos: <code>editor/gizmo/pb_scale_gizmo.py</code>, <code>editor/gizmo/phys_bone_grab.py</code></li>
+<li>Play dock viewport: <code>editor/panels/play/viewport.py</code></li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>editor/viewport/viewport.py</code>, <code>editor/viewport/viewport_camera.py</code>, <code>editor/viewport/viewport_selection.py</code>, <code>editor/viewport/viewport_input.py</code></li>
+<li><code>editor/viewport/overlay_widget.py</code>, <code>editor/viewport/progress_toast.py</code>, <code>editor/viewport/perf.py</code>, <code>editor/viewport/projection.py</code>, <code>editor/viewport/undo_filter.py</code></li>
+<li><code>editor/main_window/toolbar.py</code> (nav tooltip), <code>editor/scene_viewport.py</code>, <code>editor/scene_toolbar.py</code></li>
+</ul>
               
             </div>
           </div><footer>

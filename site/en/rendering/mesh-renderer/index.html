@@ -129,6 +129,16 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">MeshRenderer</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#materialshader-snippet">Material/Shader snippet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../skinned-mesh-renderer/">Skinned Mesh Renderer</a>
@@ -1237,59 +1247,109 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="meshrenderer">MeshRenderer</h1>
-<p>Answers <em>how</em> to draw the <code>MeshFilter</code> mesh: material slots, shadow participation, UV transforms.</p>
+                <h1 id="mesh-renderer">Mesh Renderer</h1>
+<blockquote>
+<p>Material + flags for a <code>MeshFilter</code> mesh: <code>MeshRenderer</code> (<code>core/components/rendering/renderers/mesh_renderer.py</code>).
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p><code>materials[i].path</code> maps to sub-mesh <code>i</code>; <code>get_material_path(i)</code> falls back to the last entry (<code>mesh_renderer.py:47-52</code>). UV transform (<code>uv_scale/uv_offset</code>, optional <code>uv_scale_by_transform</code>) is pushed to <code>u_uv_scale/u_uv_offset</code> uniforms. <code>dynamic_reflections</code> opts into the cubemap pass.</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Field</th>
-<th>Default</th>
-<th>Meaning</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>materials</td>
-<td>—</td>
-<td>Material slots (<code>{path}</code> each, e.g. <code>.zpem</code>), one per submesh in order</td>
+<td><code>materials</code></td>
+<td>list of <code>{path: *.mat}</code></td>
+<td><code>[{"path": "assets/materials/ProBuilderPrototype.mat"}]</code></td>
+<td>Per-submesh materials (<code>mesh_renderer.py:22-24,38</code>).</td>
 </tr>
 <tr>
-<td>cast_shadows</td>
-<td>on</td>
-<td>Write into shadow maps</td>
+<td><code>sprite_texture</code></td>
+<td>resource path (png/jpg/jpeg/bmp/tga)</td>
+<td><code>""</code></td>
+<td>Extra sprite texture slot (<code>mesh_renderer.py:25,39</code>).</td>
 </tr>
 <tr>
-<td>receive_shadows</td>
-<td>on</td>
-<td>Sample shadow maps in the main pass</td>
+<td><code>uv_scale</code></td>
+<td>vec2</td>
+<td><code>[1, 1]</code></td>
+<td>UV tiling (<code>mesh_renderer.py:27,40</code>).</td>
 </tr>
 <tr>
-<td>uv_scale / uv_offset</td>
-<td>(1,1) / (0,0)</td>
-<td>Tiling and offset applied by the shader UV override</td>
+<td><code>uv_offset</code></td>
+<td>vec2</td>
+<td><code>[0, 0]</code></td>
+<td>UV offset (<code>mesh_renderer.py:28,41</code>).</td>
 </tr>
 <tr>
-<td>uv_scale_by_transform</td>
-<td>off</td>
-<td>Derive tiling from the Transform scale (floors, walls)</td>
+<td><code>uv_scale_by_transform</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Derive UV scale from transform (<code>mesh_renderer.py:29,42</code>).</td>
 </tr>
 <tr>
-<td>sprite_texture</td>
-<td>—</td>
-<td>Optional billboard texture override</td>
+<td><code>cast_shadows</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Write to shadow maps (<code>mesh_renderer.py:31,43</code>).</td>
 </tr>
 <tr>
-<td>dynamic_reflections</td>
-<td>off</td>
-<td>Refresh environment reflections per frame instead of on demand</td>
+<td><code>receive_shadows</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Sample shadow maps (<code>mesh_renderer.py:32,44</code>).</td>
+</tr>
+<tr>
+<td><code>dynamic_reflections</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Cubemap reflection capture (<code>mesh_renderer.py:33,45</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Material list length should match sub-mesh count. Uncheck Cast Shadows for glass/decal helpers; uncheck Receive for emissive props.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Draw order and cost: one draw call per visible submesh after frustum culling; transparent materials sort into the transparent bucket by depth. Casters render into every covering shadow map, so a high-poly hero with cast_shadows on multiplies shadow cost — disable casting for small props that never readably shadow.</p>
-<p>UV workflow: tiling brick/concrete via uv_scale (4,4) instead of duplicating geometry; scrolling effects by animating uv_offset from a script (conveyors, water slides); world-aligned trim via uv_scale_by_transform on architecture.</p>
-<p>For animated meshes use SkinnedMeshRenderer; for in-editor blockout use the ProBuilder-style <code>probuilder_mesh</code> component; for collision use MeshCollider on the same filter path.</p>
-<p>Troubleshooting: invisible mesh → filter path broken or all materials missing; wrong submesh material → slot order mismatch, reorder the list; shadows absent → cast on but light beyond distance, or receive off on the ground; shimmering UVs → non-uniform negative scale, fix the Transform.</p>
-<p>Related: MeshFilter, Materials, Shaders (UV override uniforms), Shadows, SkinnedMeshRenderer.</p>
+<pre><code class="language-python">mr = entity.get_component(MeshRenderer)
+mr.materials = [{&quot;path&quot;: &quot;assets/materials/Brick.mat&quot;}]
+mr.uv_scale = Vec2(2.0, 2.0)
+mr.cast_shadows = True
+</code></pre>
+<h2 id="materialshader-snippet">Material/Shader snippet</h2>
+<p><code>.mat</code> (see <a href="../materials/">Materials</a>):</p>
+<pre><code class="language-json">{&quot;name&quot;: &quot;Brick&quot;, &quot;shader_path&quot;: &quot;default&quot;, &quot;properties&quot;: {&quot;_BaseColor&quot;: [1, 1, 1, 1]}}
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../mesh-filter/">Mesh Filter</a>, <a href="../materials/">Materials</a>, <a href="../shaders/">Shaders</a>, <a href="../shadows/">Shadows</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/renderers/mesh_renderer.py:18-83</code></li>
+</ul>
               
             </div>
           </div><footer>

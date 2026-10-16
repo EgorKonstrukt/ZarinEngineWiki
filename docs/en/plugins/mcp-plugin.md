@@ -1,6 +1,6 @@
 # MCP Bridge
 
-Model-Context-Protocol server exposing engine operations to AI agents: scene queries, object creation, property edits, screenshots, code execution — the same surface this documentation workflow drives.
+Model-Context-Protocol server (`NAME = "ZarinMCP"`, `VERSION = "2.1.0"`, `SYSTEM = False` in `plugins/zarin_mcp/__init__.py`) exposing engine operations to AI agents: scene queries, object creation, property edits, screenshots, code execution — the same surface this documentation workflow drives.
 
 Layout in `plugins/zarin_mcp/`:
 

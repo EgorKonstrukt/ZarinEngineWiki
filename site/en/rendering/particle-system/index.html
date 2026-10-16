@@ -153,6 +153,14 @@
     <ul class="current">
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Particle System</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../particle-force-field/">Particle Force Field</a>
@@ -1238,39 +1246,237 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="particle-system">Particle System</h1>
-<p>CPU-simulated, GPU-drawn particles for sparks, smoke, magic, debris, weather and ambient dust. A GPU-driven playback path (<code>ParticleGpu</code> shader) exists for heavy systems that would swamp the CPU.</p>
+<blockquote>
+<p>GPU particle emitter: <code>ParticleSystem</code> (<code>core/components/rendering/particles/partic/__init__.py</code>, fields in <code>partic/component.py:56-101</code>), simulated/rendered by <code>core/renderer/particles.py</code>.
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Enums: <code>ShapeType cone/sphere/hemisphere/box/circle</code>, <code>ParticleRenderMode billboard/stretched_billboard</code>, <code>SimulationSpace local/world</code>, <code>ParticleSortMode none/by_distance/by_age</code> (<code>component.py:16-34</code>). Storage dtype <code>PARTICLE_DTYPE</code> (position/velocity/color/meta/lifetime/start_color/start_meta). Rate/dist-based emission + bursts, size/color/rotation/velocity-over-lifetime curves.</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group</th>
-<th>Covers</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Emission</td>
-<td>Duration, Looping, Prewarm, Start Delay — when and how long the emitter runs</td>
+<td><code>duration</code></td>
+<td>float (0.01–300)</td>
+<td><code>5.0</code></td>
+<td>Emission duration (<code>component.py:60,105</code>).</td>
 </tr>
 <tr>
-<td>Start</td>
-<td>Start Lifetime (Min/Max), Start Speed (Min/Max), Start Size (Min/Max) and further initial state per particle</td>
+<td><code>looping</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Loop (<code>component.py:61,106</code>).</td>
 </tr>
 <tr>
-<td>Appearance</td>
-<td>Size and color over life, texture</td>
+<td><code>prewarm</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Simulate before first frame (<code>component.py:62,107</code>).</td>
 </tr>
 <tr>
-<td>Physics</td>
-<td>Gravity factor, drag, collision response</td>
+<td><code>start_delay</code></td>
+<td>float (0–60)</td>
+<td><code>0.0</code></td>
+<td>Delay, s (<code>component.py:63,108</code>).</td>
+</tr>
+<tr>
+<td><code>start_lifetime</code></td>
+<td>float (0.01–300)</td>
+<td><code>5.0</code></td>
+<td>Base lifetime (<code>component.py:65,109</code>).</td>
+</tr>
+<tr>
+<td><code>start_lifetime_min</code> / <code>start_lifetime_max</code></td>
+<td>float</td>
+<td><code>0.0</code> / <code>0.0</code></td>
+<td>Random range (<code>component.py:66-67</code>).</td>
+</tr>
+<tr>
+<td><code>start_speed</code></td>
+<td>float (0–1000)</td>
+<td><code>5.0</code></td>
+<td>Base speed (<code>component.py:68,112</code>).</td>
+</tr>
+<tr>
+<td><code>start_speed_min</code> / <code>start_speed_max</code></td>
+<td>float</td>
+<td><code>0.0</code> / <code>0.0</code></td>
+<td>Random range (<code>component.py:69-70</code>).</td>
+</tr>
+<tr>
+<td><code>start_size</code></td>
+<td>float (0–100)</td>
+<td><code>1.0</code></td>
+<td>Base size (<code>component.py:71,115</code>).</td>
+</tr>
+<tr>
+<td><code>start_size_min</code> / <code>start_size_max</code></td>
+<td>float</td>
+<td><code>0.0</code> / <code>0.0</code></td>
+<td>Random range (<code>component.py:72-73</code>).</td>
+</tr>
+<tr>
+<td><code>start_rotation</code></td>
+<td>float (0–360)</td>
+<td><code>0.0</code></td>
+<td>Initial rotation (<code>component.py:74,119</code>).</td>
+</tr>
+<tr>
+<td><code>flip_rotation</code></td>
+<td>float (0–360)</td>
+<td><code>0.0</code></td>
+<td>Mirrored rotation (<code>component.py:75,120</code>).</td>
+</tr>
+<tr>
+<td><code>inherit_velocity</code></td>
+<td>float (0–1)</td>
+<td><code>0.0</code></td>
+<td>Emitter velocity share (<code>component.py:76,121</code>).</td>
+</tr>
+<tr>
+<td><code>gravity_modifier</code></td>
+<td>float (0–10)</td>
+<td><code>0.0</code></td>
+<td>Gravity scale (<code>component.py:77,122</code>).</td>
+</tr>
+<tr>
+<td><code>simulation_space</code></td>
+<td><code>SimulationSpace</code></td>
+<td><code>LOCAL</code></td>
+<td>Local/world (<code>component.py:79,123</code>).</td>
+</tr>
+<tr>
+<td><code>max_particles</code></td>
+<td>int (1–10000000)</td>
+<td><code>1000</code></td>
+<td>Pool cap (<code>component.py:80,124</code>).</td>
+</tr>
+<tr>
+<td><code>rate_over_time</code></td>
+<td>float (0–100000)</td>
+<td><code>10.0</code></td>
+<td>Particles/s (<code>component.py:81,125</code>).</td>
+</tr>
+<tr>
+<td><code>shape_type</code></td>
+<td><code>ShapeType</code></td>
+<td><code>CONE</code></td>
+<td>Emitter shape (<code>component.py:82,128</code>).</td>
+</tr>
+<tr>
+<td><code>shape_angle</code></td>
+<td>float (0–360)</td>
+<td><code>25.0</code></td>
+<td>Cone angle (<code>component.py:83,129</code>).</td>
+</tr>
+<tr>
+<td><code>shape_radius</code></td>
+<td>float (0–100)</td>
+<td><code>1.0</code></td>
+<td>Radius (<code>component.py:84,130</code>).</td>
+</tr>
+<tr>
+<td><code>render_mode</code></td>
+<td><code>ParticleRenderMode</code></td>
+<td><code>BILLBOARD</code></td>
+<td>Billboard mode (<code>component.py:86,134</code>).</td>
+</tr>
+<tr>
+<td><code>material_path</code></td>
+<td>resource path (*.mat)</td>
+<td><code>""</code></td>
+<td>Particle material (<code>component.py:87,135</code>).</td>
+</tr>
+<tr>
+<td><code>sort_mode</code></td>
+<td><code>ParticleSortMode</code></td>
+<td><code>NONE</code></td>
+<td>Sort (<code>component.py:88,137</code>).</td>
+</tr>
+<tr>
+<td><code>sorting_fudge</code></td>
+<td>float (−100…100)</td>
+<td><code>0.0</code></td>
+<td>Sort bias (<code>component.py:89,138</code>).</td>
+</tr>
+<tr>
+<td><code>flipbook_columns</code> / <code>flipbook_rows</code></td>
+<td>int (1–100)</td>
+<td><code>1</code> / <code>1</code></td>
+<td>Sprite-sheet grid (<code>component.py:91-92</code>).</td>
+</tr>
+<tr>
+<td><code>flipbook_fps</code></td>
+<td>float (0–120)</td>
+<td><code>0.0</code></td>
+<td>Sheet FPS (<code>component.py:93,141</code>).</td>
+</tr>
+<tr>
+<td><code>size_over_lifetime_enabled</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Size curve toggle (<code>component.py:95,142</code>).</td>
+</tr>
+<tr>
+<td><code>color_over_lifetime_enabled</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Color gradient toggle (<code>component.py:97,146</code>).</td>
+</tr>
+<tr>
+<td><code>rotation_over_lifetime_enabled</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Spin toggle (<code>component.py:99,148</code>).</td>
+</tr>
+<tr>
+<td><code>velocity_over_lifetime_enabled</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Force toggle (<code>component.py:100,150</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Set Max Particles + Rate, pick Shape, assign Material. Enable Size/Color over Lifetime for fades; Flipbook for animated sprites. Combine with <a href="../particle-force-field/">Particle Force Field</a>.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>The system renders its gizmo representation directly in the viewport — emitter shape, direction cone and range read without pressing Play. Scrub emission rate and watch the gizmo density change.</p>
-<p>Workflows: campfire — short lifetime, upward speed, orange-to-transparent color ramp, looping with prewarm so it starts full; explosion — one-shot burst (looping off) with high speed spread plus a Point Light flash; rain — huge count, thin stretched texture, GPU path, no collision; magic trail — emitter parented to the projectile, small count, additive-style material.</p>
-<p>Trigger bursts or loops from scripts at runtime through the component API; drive intensity from gameplay (engine RPM → exhaust rate).</p>
-<p>Performance rules: prefer a few large GPU-driven systems over many small CPU ones; share one texture across systems; watch overdraw — big soft transparent quads are the usual fill-rate killer; kill emitters offscreen via distance culling or manual enable.</p>
-<p>Troubleshooting: invisible → texture missing, size zero, or lifetime zero; clumping at origin → speed zero or direction unset; runs once then stops → looping off on an ambient effect; editor shows but game hides → layer mask excludes the game camera.</p>
-<p>Related: Particle Force Field, Object Effects (spawn bursts), Materials (particle textures), Point Light (explosion flash).</p>
+<pre><code class="language-python">ps.rate_over_time = 60.0
+ps.shape_type = ShapeType.SPHERE
+ps.shape_radius = 2.0
+ps.color_over_lifetime_enabled = True
+</code></pre>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../particle-force-field/">Particle Force Field</a>, <a href="../materials/">Materials</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/particles/partic/component.py:16-141</code></li>
+<li><code>core/renderer/particles.py:312</code></li>
+</ul>
               
             </div>
           </div><footer>

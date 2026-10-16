@@ -930,6 +930,18 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Rigidbody 2D</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_1">Свойства</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#fixed-update">Заметки о fixed update</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Связанные</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../box-collider2d/">Box Collider 2D</a>
@@ -1238,40 +1250,95 @@
               
                 <h1 id="rigidbody-2d">Rigidbody 2D</h1>
 <p>Плоская динамика для скролл-шутеров и top-down — та же форма API, что в 3D, в плоскости держит флаг солвера.</p>
+<h2 id="_1">Свойства</h2>
 <table>
 <thead>
 <tr>
 <th>Поле</th>
-<th>Смысл</th>
+<th>По умолчанию</th>
+<th>Примечания</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Mass</td>
-<td>Вес; те же рекомендации отношений масс, что в 3D</td>
+<td><code>mass</code></td>
+<td><code>1.0</code></td>
+<td><code>0.001–100000</code>; при кинематике <code>0.0</code></td>
 </tr>
 <tr>
-<td>Drag / Angular Drag</td>
-<td>Плоское демпфирование</td>
+<td><code>drag</code></td>
+<td><code>0.0</code></td>
+<td><code>0–1000</code></td>
 </tr>
 <tr>
-<td>Gravity Scale</td>
-<td>Локальный множитель гравитации (0 для top-down, 1 для платформеров)</td>
+<td><code>angular_drag</code></td>
+<td><code>0.05</code></td>
+<td><code>0–1000</code></td>
 </tr>
 <tr>
-<td>Is Kinematic</td>
-<td>Ведётся трансформом: движущиеся платформы, двери</td>
+<td><code>gravity_scale</code></td>
+<td><code>1.0</code></td>
+<td><code>0–100</code> множитель гравитации</td>
 </tr>
 <tr>
-<td>Freeze Rotation</td>
-<td>Лочит плоское вращение — персонажам почти всегда вкл</td>
+<td><code>is_kinematic</code></td>
+<td><code>False</code></td>
+<td>Ведом трансформом</td>
+</tr>
+<tr>
+<td><code>freeze_rotation</code></td>
+<td><code>False</code></td>
+<td>Блокировка спина</td>
+</tr>
+<tr>
+<td><code>velocity</code></td>
+<td><code>Vec2.zero()</code></td>
+<td>Сеттер помечает грязным</td>
+</tr>
+<tr>
+<td><code>angular_velocity</code></td>
+<td><code>0.0</code></td>
+<td>Float; сеттер помечает грязным</td>
 </tr>
 </tbody>
 </table>
-<p>Тот же API, что в 3D (<code>velocity</code>, <code>add_force</code>, <code>add_torque</code>, <code>add_impulse</code>). Каждый шаг солвер обнуляет внеплоскостные компоненты — top-down машинка никогда не клюёт в экран.</p>
-<p>Паттерны: игрок — динамический с freeze rotation; движущаяся платформа — kinematic со скриптованным движением (едущие тела следуют через контакты); снаряд — динамический, gravity scale 0, убивается скриптом времени жизни; top-down машинка — динамическая с высоким angular drag для аркадных поворотов.</p>
-<p>Диагностика: неконтролируемо вертится — выкл freeze rotation; парит в платформе — gravity scale 0 по ошибке; платформа роняет ездоков — платформа динамическая вместо kinematic.</p>
-<p>Связанное: Box Collider 2D, Circle Collider 2D, Rigidbody (3D), слои коллизий.</p>
+<h2 id="_2">Использование в редакторе</h2>
+<p><code>Rigidbody2D</code> + <code>BoxCollider2D</code>/<code>CircleCollider2D</code>. Героям платформеров — <code>Freeze Rotation</code>.</p>
+<h2 id="_3">Использование в коде</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Hero2D&quot;)
+from core.components.physics2d.rigidbody2d import Rigidbody2D
+from core.components.physics2d.box_collider2d import BoxCollider2D
+
+rb = Rigidbody2D()
+rb.mass = 1.0
+rb.gravity_scale = 1.0
+rb.freeze_rotation = True
+entity.add_component(rb)
+entity.add_component(BoxCollider2D())
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody2D)
+    if rb is None or rb.is_kinematic:
+        return
+    rb.add_force(Vec2(0.0, 30.0))  # очищается после пуша; каждый шаг
+    rb.add_torque(1.0)
+    rb.add_impulse(Vec2(0.0, 5.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+</code></pre>
+<h2 id="fixed-update">Заметки о fixed update</h2>
+<ul>
+<li><code>dt = Engine._fixed_dt</code> (<code>0.02</code>); воркер обнуляет <code>vz</code> и наклоны после <code>step_simulation(dt)</code>; кинематика/грязные при чтении пропускаются.</li>
+</ul>
+<h2 id="_4">Связанные</h2>
+<p>Box/Circle Collider 2D, Rigidbody (3D), слои, солвер и потоки.</p>
+<h2 id="_5">Проверено по</h2>
+<ul>
+<li><code>core/components/physics2d/rigidbody2d.py</code></li>
+<li><code>core/physics/scene/scene.py</code></li>
+<li><code>core/physics/physics_worker.py</code></li>
+</ul>
               
             </div>
           </div><footer>

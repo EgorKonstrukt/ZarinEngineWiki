@@ -1,29 +1,58 @@
-# Solver and Threading
+# Solver & Threading
 
 Where simulation actually runs, and how data crosses the thread/process boundary without gameplay code ever blocking.
 
-Execution modes:
+## Properties
 
-- `single` — `PhysicsScene` + solver in the game process. Lowest latency, simplest debugging, required by `CharacterController` (it reads solver world state directly).
-- `multi_threaded` (default) — a daemon `multiprocessing.Process` owns the solver; command and result queues plus `SharedPhysicsBuffer` / `SoftSharedBuffer` carry transforms, velocities, forces and collision events.
-- `per_layer_process` — solver processes spawned on demand per collision layer for isolated sub-simulations.
+| Setting | Default | Where |
+|---|---|---|
+| `simulation_mode` | `multi_threaded` | `single` / `multi_threaded` / `per_layer_process` |
+| `solver` | `culverin` | `culverin` (Jolt) / `pybullet` (Bullet) / `physx` (NVIDIA) |
+| `fixed_time_step` | `0.02` | Step `dt` |
+| `num_sub_steps` | `2` | Project config (PyBullet standalone default `1`; Culverin/Jolt ignores it) |
+| `solver_iterations` | `10` | Project config (PyBullet standalone default `50`; Culverin/Jolt ignores it) |
+| `erp` / `contact_erp` / `friction_erp` | `0.2` / `0.2` / `0.0` | Project config (PyBullet standalone `erp`/`contact_erp` default `0.4`; Culverin/Jolt ignores them) |
+| `culverin_max_bodies` / `max_pairs` / `max_contact_constraints` | `65536` each | Jolt world caps |
+| `culverin_temp_allocator_size` | `16777216` | 16 MB |
+| `culverin_num_threads` / `max_jobs` / `max_barriers` | `0` / `0` / `0` | `0` = Jolt single-threaded |
+| `culverin_penetration_slop` | `0.02` | |
+| `culverin_enable_ccd` / `enable_sleeping` | `False` / `True` | |
+| Shared flags | `1` active, `2` dirty, `4` kinematic/teleport, `8` 2D | `SharedPhysicsBuffer` |
+| Limits | `65536` entities, `16` soft bodies × `32768` verts | `shared_buffer.py`, `soft_shared_buffer.py` |
 
-Background step, in order:
+## Usage in Editor
 
-1. Pending `step` commands coalesce into one `dt` — hitches never spiral into catch-up death.
-2. The worker applies teleports (`set_body_transform`) or velocities/forces/torques from shared memory into bodies.
-3. `solver.step_simulation(dt)` integrates; 2D-flagged bodies get out-of-plane velocity zeroed right after.
-4. Positions, rotations and velocities write back with a version bump; soft-body vertices, centers of mass and velocities go to the soft buffer.
-5. Collision events map solver body ids to entity ids and land in the result queue for script dispatch with impact forces.
+Prototype in default `multi_threaded`. Switch `simulation_mode` to `single` when using `CharacterController`/`Motor` or debugging solver behavior; `per_layer_process` for arenas that must never interact.
 
-Per-body shared flags: 1 = active, 2 = velocity dirty, 4 = teleport, 8 = 2D body. The in-process path mirrors the same order without serialization: register → ECS-to-physics → step → constrain 2D → physics-to-ECS → soft sync → events.
+## Usage in Code
 
-Sync details that matter: ECS→physics pushes only when the Transform is dirty or forces accumulated — untouched sleeping bodies cost nothing; physics→ECS skips kinematic and dirty bodies (Transform-driven, never overwritten); force accumulators clear after every push, so `add_force` must be called each fixed step for continuous thrust.
+```python
+# Gravity at runtime (IPhysicsSolver API):
+solver.set_gravity((0.0, -9.81, 0.0))
+solver.step_simulation(0.02)
+solver.apply_force(body_id, (0.0, 10.0, 0.0))
+solver.apply_torque(body_id, (0.0, 1.0, 0.0))
+solver.apply_impulse(body_id, (0.0, 5.0, 0.0))
+hit = solver.ray_cast((0.0, 5.0, 0.0), (0.0, -1.0, 0.0), 100.0)
+```
 
-Fixed-step plumbing: `Engine.tick_fixed_step` accumulates real time against `_fixed_dt = 0.02`, runs plugin `pre_step`, `scene.fixed_update`, then the physics step. Render hitches do not change physics `dt` — determinism holds.
+Background step order (verified): coalesce pending `step` commands into one `dt` → apply teleports/forces from shared memory → `step_simulation(dt)` → zero 2D out-of-plane velocity → write back with version bump (+ soft buffers) → map body ids to entity ids for collision events. In-process path mirrors it without serialization: register → shape-check (every 60 steps) → ECS→physics → soft separation (only when `≥2` soft bodies) → step → constrain 2D → physics→ECS → soft sync → events.
 
-Choosing a mode: prototype in default multi-threaded; switch to single when using CharacterController or debugging solver behavior; per-layer for minigame arenas that must never interact.
+## Fixed update notes
 
-Troubleshooting: laggy response → background process starved, check CPU or switch single; teleport ignored → body asleep or flag race, wake via velocity write; stale reads in scripts → you are reading between steps, which is by design — act in `on_fixed_update`.
+- `Engine.tick_fixed_step`: accumulate against `_fixed_dt` (`0.02`), cap backlog `5 * _fixed_dt`, max `5` steps/tick, then `scene.fixed_update(fd)` (component `on_fixed_update`) and finally system-plugin `step(fd)`.
+- `PhysicsWorker` (threaded fallback): daemon `threading.Thread`, command poll timeout `0.004` s. `SceneThreadPool`: `max_workers = 2`, `ThreadPoolExecutor` named `phys-scene`.
+- ECS→physics pushes only on dirty Transform or accumulated force; physics→ECS skips kinematic/dirty bodies; force accumulators clear after every push — call `add_force` each fixed step.
 
-Related: Physics Overview, Rigidbody, Collision Layers, CharacterController, Profiler (physics_ms).
+## Related
+
+Physics Overview, Rigidbody, Collision Layers, CharacterController, Motor.
+
+## Verified against
+
+- `core/physics/proc/process.py` + `proc/sync.py` (`_process_step_shared`)
+- `core/physics/physics_worker.py`
+- `core/physics/scene/scene.py` + `scene/threadpool.py`
+- `core/physics/shared_buffer.py`, `soft_shared_buffer.py`
+- `core/config/config.py`, `core/engine/eng/loop.py`, `plugins/physics_plug/plugin.py`
+- `physics_solvers/registry.py`, `culverin_solver/solverp/solver.py`, `pybullet_solver/solverp/solver.py`

@@ -275,6 +275,14 @@
     <ul class="current">
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Gaussian Splat Renderer</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related-pages">Related pages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../raytracing-renderer/">Raytracing Renderer</a>
@@ -1238,34 +1246,76 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="gaussian-splat-renderer">Gaussian Splat Renderer</h1>
-<p>Renders Gaussian splat captures — photogrammetry-style scenes as sorted point volumes with spherical-harmonics color.</p>
+<blockquote>
+<p>3DGS billboards: <code>GaussianSplatRenderer</code> component (<code>core/components/rendering/renderers/gaussian_splat_renderer.py</code>) + GL backend (<code>core/renderer/splat/renderer.py</code>, <code>resources.py</code>, <code>sort.py</code>, <code>volume.py</code>).
+<a href="../../../">Home</a> · <a href="../_section/">Section index</a></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>Loads <code>.ply / .sog / .ssog</code> (<code>file_filter</code>, <code>gaussian_splat_renderer.py:23-24</code>; loaders <code>ply_loader.py:225</code>, <code>sog/loader.py:259</code>, <code>sog/async_ops.py</code>). Backend needs OpenGL 4.3+ (error otherwise, <code>splat/resources.py:343</code>). CPU/Cython sort in <code>splat/sort.py</code> (<code>_splat_sort</code> extension).</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Field</th>
-<th>Meaning</th>
+<th>name</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Splat Path</td>
-<td>Capture file</td>
+<td><code>ply_path</code></td>
+<td>resource path (ply/sog/ssog)</td>
+<td><code>""</code></td>
+<td>Splat file (<code>gaussian_splat_renderer.py:23,33</code>).</td>
 </tr>
 <tr>
-<td>SH Degree</td>
-<td>Spherical-harmonics quality level (higher = richer view-dependent color, more memory)</td>
+<td><code>sh_degree</code></td>
+<td>int slider (0–3)</td>
+<td><code>3</code></td>
+<td>Spherical-harmonics degree (<code>gaussian_splat_renderer.py:25,34</code>).</td>
 </tr>
 <tr>
-<td>Opacity Cutoff</td>
-<td>Transparency threshold culling faint splats</td>
+<td><code>opacity_threshold</code></td>
+<td>float (0–1)</td>
+<td><code>0.005</code></td>
+<td>Opacity cutoff (<code>gaussian_splat_renderer.py:27,35</code>).</td>
+</tr>
+<tr>
+<td>## Usage in Editor</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Add Component → Gaussian Splat Renderer, assign a <code>.ply</code>, keep SH degree 3 for quality / 0–1 for perf, raise cutoff to cull noise.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## Usage in Code</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Splats sort every frame through a dedicated fast path (<code>_splat_sort</code> accelerated module) and share scene visibility and stats with meshes, but bypass parts of the PostFX chain — verify the graded look in the game view, not just the editor.</p>
-<p>Collision for splat volumes uses the GS Volume Collider (voxelized box approximation from the same capture).</p>
-<p>Workflows: captured courtyard — splat entity for visuals plus GS Volume Collider for walking; hybrid scenes — splats for background detail, meshes for interactive foreground; performance — lower SH Degree first, then opacity cutoff, then capture density.</p>
-<p>Troubleshooting: washed colors → SH Degree too low for the lighting variance; holes → opacity cutoff too aggressive; no collision → collider missing or voxel size too coarse.</p>
-<p>Related: GS Volume Collider, Voxel Rendering, Cameras, Materials.</p>
+<pre><code class="language-python">gs = entity.get_component(GaussianSplatRenderer)
+gs.ply_path = &quot;assets/splats/garden.ply&quot;
+gs.sh_degree = 2
+gs.opacity_threshold = 0.01
+</code></pre>
+<p><code>render(path, model, view, proj, cam_pos, w, h, ...)</code> (<code>splat/renderer.py:362</code>).</p>
+<h2 id="related-pages">Related pages</h2>
+<ul>
+<li><a href="../mesh-renderer/">Mesh Renderer</a>, <a href="../pipeline/">Pipeline</a></li>
+</ul>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/rendering/renderers/gaussian_splat_renderer.py:19-53</code></li>
+<li><code>core/renderer/splat/renderer.py:362</code>, <code>resources.py:343</code>, <code>sort.py</code>, <code>volume.py</code></li>
+</ul>
               
             </div>
           </div><footer>

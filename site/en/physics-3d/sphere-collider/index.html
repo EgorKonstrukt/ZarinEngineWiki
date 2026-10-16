@@ -299,6 +299,18 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" href="#">Sphere Collider</a>
     <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#fixed-update-notes">Fixed update notes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../capsule-collider/">Capsule Collider</a>
@@ -1239,52 +1251,94 @@
               
                 <h1 id="sphere-collider">Sphere Collider</h1>
 <p>Perfect ball: rolling, bouncing, head hitboxes, radial triggers and proximity sensors.</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group / field</th>
+<th>Field</th>
 <th>Default</th>
-<th>Meaning</th>
+<th>Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Collision: Layer / Collision Mask</td>
-<td>0 / 0xFFFF</td>
-<td>Filtering</td>
+<td><code>layer</code></td>
+<td><code>0</code></td>
+<td><code>0–15</code></td>
 </tr>
 <tr>
-<td>Shape: Center</td>
-<td>origin</td>
-<td>Local offset</td>
+<td><code>mask</code></td>
+<td><code>0xFFFF</code></td>
+<td>Collide-with bitmask</td>
 </tr>
 <tr>
-<td>Shape: Radius</td>
-<td>0.5</td>
-<td>Scaled by the largest Transform axis</td>
+<td><code>center</code></td>
+<td><code>(0, 0, 0)</code></td>
+<td>Scaled by Transform scale (<code>scaled_center</code>)</td>
 </tr>
 <tr>
-<td>Is Trigger</td>
-<td>off</td>
-<td>Overlap events without contact response</td>
+<td><code>radius</code></td>
+<td><code>0.5</code></td>
+<td>Inspector <code>0.001–10000</code>; world radius = <code>radius * max(scale)</code> (<code>scaled_radius</code>)</td>
 </tr>
 <tr>
-<td>Material: Physic Material</td>
-<td>—</td>
-<td><code>.zphysmat</code> asset override</td>
+<td><code>is_trigger</code></td>
+<td><code>False</code></td>
+<td>Overlap only</td>
 </tr>
 <tr>
-<td>Inline friction / bounciness</td>
-<td>0.6 / 0.0</td>
-<td>Used without an asset</td>
+<td><code>physic_material</code></td>
+<td><code>""</code></td>
+<td><code>.zphysmat</code> path, wins when set</td>
+</tr>
+<tr>
+<td><code>material_friction</code></td>
+<td><code>0.6</code></td>
+<td>Fallback</td>
+</tr>
+<tr>
+<td><code>material_bounciness</code></td>
+<td><code>0.0</code></td>
+<td>Fallback</td>
 </tr>
 </tbody>
 </table>
-<p>Rolling needs friction: a marble with friction 0.05 slides like ice, with 0.6 it grips and rolls. Bounce height comes from bounciness — 0 dead drop, 0.8 lively ball, never exactly 1 (energy gain jitters stacks).</p>
-<p>Recipes: bouncy ball — radius 0.3, bounciness 0.8, friction 0.2, own layer masked to world + player; proximity sensor — large trigger sphere (radius 5–10) with a script counting enters/exits; head hitbox — small sphere on the head bone with a damage-reporting script.</p>
-<p>Non-uniform parent scale picks the largest axis for the radius — a stretched parent makes a bigger ball than the mesh suggests. Keep visual and collision parents uniformly scaled.</p>
-<p>Troubleshooting: rolls forever → angular drag 0 and no friction; will not roll → frozen rotation axes on the Rigidbody; trigger double-fires → enter/exit pairs on fast bodies, debounce in script.</p>
-<p>Related: Rigidbody, Capsule Collider, Physics Materials, Circle Collider 2D.</p>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Set <code>Radius</code>/<code>Center</code>, layer + mask, <code>Is Trigger</code> for pickups/sensors. Multiple allowed per entity.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Ball&quot;)
+from core.components.physics.rigidbody import Rigidbody
+from core.components.physics.sphere_collider import SphereCollider
+from core.maths.math3d import Vec3
+
+rb = Rigidbody()
+rb.mass = 2.0
+entity.add_component(rb)
+s = SphereCollider()
+s.radius = 0.5
+entity.add_component(s)
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody)
+    if rb is not None:
+        rb.add_force(Vec3(0.0, 0.0, 10.0))
+        rb.add_torque(Vec3(1.0, 0.0, 0.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+</code></pre>
+<h2 id="fixed-update-notes">Fixed update notes</h2>
+<ul>
+<li>Solver call: <code>create_rigid_body(shape_type="sphere", shape_params={"radius", "center"})</code>.</li>
+<li>Shape re-check every 60 steps; <code>dt</code> is <code>Engine._fixed_dt</code> (<code>0.02</code> default).</li>
+</ul>
+<h2 id="related">Related</h2>
+<p>Rigidbody, Box/Capsule colliders, Physics Materials, Collision Layers.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/physics/sphere_collider.py</code></li>
+<li><code>core/physics/shapep/shapes.py</code></li>
+</ul>
               
             </div>
           </div><footer>

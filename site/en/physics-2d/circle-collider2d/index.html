@@ -351,6 +351,18 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Circle Collider 2D</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#fixed-update-notes">Fixed update notes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
     </ul>
@@ -1238,41 +1250,79 @@
               
                 <h1 id="circle-collider-2d">Circle Collider 2D</h1>
 <p>Disc shape in plane: balls, wheels, coins, radial triggers and proximity sensors.</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
-<th>Inspector group / field</th>
-<th>Meaning</th>
+<th>Field</th>
+<th>Default</th>
+<th>Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Collision: Layer / Collision Mask</td>
+<td><code>layer</code> / <code>mask</code></td>
+<td><code>0</code> / <code>0xFFFF</code></td>
 <td>Filtering</td>
 </tr>
 <tr>
-<td>Shape: Offset</td>
-<td>In-plane offset <code>[ox, oy]</code></td>
+<td><code>offset</code></td>
+<td><code>(0, 0)</code></td>
+<td><code>Vec2</code>; world center <code>[ox*sx, oy*sy, 0]</code></td>
 </tr>
 <tr>
-<td>Shape: Radius</td>
-<td>Disc radius</td>
+<td><code>radius</code></td>
+<td><code>0.5</code></td>
+<td>Inspector <code>0.001–10000</code>; world = <code>radius * max(sx, sy)</code></td>
 </tr>
 <tr>
-<td>Is Trigger</td>
-<td>Overlap events without contact response</td>
+<td><code>is_trigger</code></td>
+<td><code>False</code></td>
+<td>Overlap only</td>
 </tr>
 <tr>
-<td>Material: Physic Material</td>
-<td><code>.zphysmat</code> asset override</td>
+<td><code>physic_material</code></td>
+<td><code>""</code></td>
+<td><code>.zphysmat</code> path</td>
+</tr>
+<tr>
+<td><code>material_friction</code> / <code>material_bounciness</code></td>
+<td><code>0.6</code> / <code>0.0</code></td>
+<td>Fallbacks</td>
 </tr>
 </tbody>
 </table>
-<p>Maps onto the solver as a sphere primitive. Rolls stably on Box Collider 2D ground with moderate friction; trigger discs make the best pickups (forgiving overlap vs exact rectangles).</p>
-<p>Patterns: coins — small trigger discs with a spin animation and a pickup script; wheels — dynamic discs with Rigidbody2D, freeze nothing, moderate angular drag; bumpers — high-bounciness discs plus an impulse script on enter; enemy sight — large trigger disc driving AI state.</p>
-<p>Stack discs for capsule-like enemies (two discs + a box) instead of wishing for a 2D capsule — the compound behaves identically.</p>
-<p>Troubleshooting: rolls forever → zero drag/friction; will not roll → freeze rotation on; pickups missed at speed → tunneling, enlarge the disc or cap runner speed.</p>
-<p>Related: Rigidbody 2D, Box Collider 2D, Sphere Collider (3D).</p>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Set <code>Radius</code>/<code>Offset</code>, layer + mask, <code>Is Trigger</code> for pickups.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Coin&quot;)
+from core.components.physics2d.rigidbody2d import Rigidbody2D
+from core.components.physics2d.circle_collider2d import CircleCollider2D
+
+c = CircleCollider2D()
+c.radius = 0.3
+c.is_trigger = True
+entity.add_component(c)
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody2D)
+    if rb is not None:
+        rb.add_force(Vec2(5.0, 0.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+</code></pre>
+<h2 id="fixed-update-notes">Fixed update notes</h2>
+<ul>
+<li>Solver call: <code>create_rigid_body(shape_type="sphere", shape_params={"radius", "center": [ox, oy, 0.0]})</code>; <code>dt = Engine._fixed_dt</code> (<code>0.02</code> default).</li>
+</ul>
+<h2 id="related">Related</h2>
+<p>Rigidbody 2D, Box Collider 2D, Sphere Collider (3D), Collision Layers.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/physics2d/circle_collider2d.py</code></li>
+<li><code>core/physics/shapep/shapes.py</code></li>
+</ul>
               
             </div>
           </div><footer>

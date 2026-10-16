@@ -565,6 +565,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Curve, Gradient, Color Editors</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../material-model-preview/">Material Wizard and Previews</a>
@@ -1237,15 +1247,107 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="curve-gradient-color-editors">Curve, Gradient, Color Editors</h1>
-<p>TODO: Content pending. This page will document Curve, Gradient, Color Editors in ZarinEngine.</p>
-<p>Planned sections:</p>
+<blockquote>
+<p>Inline property editors: <code>CurveWidget</code>/<code>CurveEditorDialog</code> (<code>editor/curve/</code>), <code>GradientEditorDialog</code>/<code>GradientLineEdit</code> (<code>editor/gradient/</code>), color widgets (<code>editor/color/</code>), plus the split/cascade gradient hosts.</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Signature</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CurveWidget</code></td>
+<td><code>(parent=None)</code> + <code>set_curve(curve: Curve)</code>, <code>get_curve() -&gt; Curve</code>, <code>fit_view()</code></td>
+<td><code>curve/editor.py</code>; mixes <code>CurveViewMixin</code> + <code>CurveKeysMixin</code></td>
+</tr>
+<tr>
+<td><code>CurveEditorDialog</code></td>
+<td><code>(curve: Curve, title="Curve Editor", parent=None)</code> + <code>get_curve() -&gt; Curve</code></td>
+<td>Full dialog: canvas, presets, spinners</td>
+</tr>
+<tr>
+<td><code>CurveEditorDialog</code> editing</td>
+<td><code>_add_key_at(t, v)</code>, <code>_apply_preset(name)</code>, <code>_sync_spins()</code>, <code>_on_spin_changed()</code>, <code>_on_tangent_mode_changed(idx)</code></td>
+<td>Key add, preset apply, tangent modes (<code>TangentMode</code>)</td>
+</tr>
+<tr>
+<td><code>CurvePreview</code></td>
+<td><code>(parent=None)</code> + <code>set_curve(curve)</code></td>
+<td><code>curve/view.py</code> read-only thumbnail</td>
+</tr>
+<tr>
+<td>Curve presets</td>
+<td><code>editor/curve_presets.py</code> registry via <code>@_reg(name)</code></td>
+<td>Verified names: <code>Linear</code>, <code>Smoothstep</code>, <code>Smootherstep</code>; builders also cover flat holds, steps, ease-in/out/in-out (sine, quad, cubic, quart, quint, expo, circ)</td>
+</tr>
+<tr>
+<td><code>GradientEditorDialog</code></td>
+<td><code>(stops=None, title="Gradient Editor", parent=None)</code> + <code>get_stops()</code></td>
+<td><code>gradient/dialogs.py</code>; add/remove/reorder stops</td>
+</tr>
+<tr>
+<td><code>GradientLineEdit</code></td>
+<td><code>(stops=None, parent=None)</code> + <code>set_stops/get_stops</code>, <code>_open_editor()</code></td>
+<td>Inline field that opens the dialog</td>
+</tr>
+<tr>
+<td><code>_GradientBar</code></td>
+<td><code>set_stops(stops)</code>, <code>selected_index()</code></td>
+<td>Draggable stop bar</td>
+</tr>
+<tr>
+<td>Gradient sampling</td>
+<td><code>_sample_gradient(stops, t)</code>, <code>_default_gradient()</code> in <code>gradient/sampling.py</code></td>
+<td>Runtime evaluation used by previews</td>
+</tr>
+<tr>
+<td><code>GradientPreview</code></td>
+<td><code>(parent=None)</code> + <code>set_stops(stops)</code></td>
+<td><code>gradient/widgets.py</code> thumbnail</td>
+</tr>
+<tr>
+<td>Color</td>
+<td><code>color/wheel.py</code>, <code>color/palette.py</code>, <code>color/eyedropper.py</code></td>
+<td>Wheel, swatch palette, screen picker</td>
+</tr>
+<tr>
+<td>Hosts</td>
+<td><code>editor/split_gradient_widget.py</code>, <code>editor/cascade_split_widget.py</code></td>
+<td>Split/cascade layouts embedding the gradient bar</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Curve fields open <code>CurveEditorDialog</code>: left-drag moves keys, double-click adds a key, wheel zooms, right-click menu sets the tangent mode, preset strip applies <code>Linear</code>/<code>Smoothstep</code>/<code>Smootherstep</code>/eases. Gradient fields open <code>GradientEditorDialog</code>: click the bar to add a stop, double-click edits its color, rows edit position + RGBA. Color fields offer wheel + palette + eyedropper. All edits apply live to the preview widgets.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from editor.curve.editor import CurveEditorDialog
+from editor.gradient.dialogs import GradientEditorDialog
+
+dlg = CurveEditorDialog(curve, title=&quot;Falloff&quot;, parent=mw)
+if dlg.exec():
+    curve = dlg.get_curve()
+
+g = GradientEditorDialog(stops=[(0.0, (1, 1, 1, 1)), (1.0, (0, 0, 0, 1))], parent=mw)
+if g.exec():
+    stops = g.get_stops()
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Inspector (curve/gradient/color field types), Shader Graph (gradient/color nodes), Terrain Graph (height bias/remap curves)</li>
+<li>Particle System force fields, Animation blending (curve-driven weights)</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>editor/curve/editor.py</code>, <code>editor/curve/view.py</code>, <code>editor/curve/keys.py</code>, <code>editor/curve_presets.py</code></li>
+<li><code>editor/gradient/dialogs.py</code>, <code>editor/gradient/widgets.py</code>, <code>editor/gradient/sampling.py</code></li>
+<li><code>editor/color/wheel.py</code>, <code>editor/color/palette.py</code>, <code>editor/color/eyedropper.py</code></li>
+<li><code>editor/split_gradient_widget.py</code>, <code>editor/cascade_split_widget.py</code></li>
+</ul>
               
             </div>
           </div><footer>

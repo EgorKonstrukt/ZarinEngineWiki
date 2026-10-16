@@ -4,14 +4,17 @@ Spatial reverberation over OpenAL EFX: rooms, halls, caves and tunnels that colo
 
 | Inspector group | Covers |
 |---|---|
-| Zone | Min Distance, Max Distance — full-effect and falloff radii |
-| Reverb Preset | Named starting points for common spaces |
-| Room | Room level, Room HF, Room LF — low/mid/high decay balance |
-| Decay | Decay Time, Decay HFRatio — length and brightness of the tail |
-| Reflections | Reflections level, Reflections Delay — early echoes |
-| Reverb | Reverb level, Reverb Delay — late diffuse field |
-| Reference | HFReference, LFReference — crossover frequencies |
-| Rolloff | Room Rolloff Factor — distance response of the effect |
+| Zone | Min Distance (default 10.0), Max Distance (default 15.0) — full-effect and falloff radii |
+| Reverb Preset | Named starting points for common spaces (default `Generic`; `Off` bypasses, `User` marks hand-tuned params) |
+| Room | Room level (default −1000), Room HF (default −100), Room LF (default 0) — low/mid/high decay balance |
+| Decay | Decay Time (default 1.49), Decay HFRatio (default 0.83) — length and brightness of the tail |
+| Reflections | Reflections level (default −2602), Reflections Delay (default 0.007) — early echoes |
+| Reverb | Reverb level (default 200), Reverb Delay (default 0.011) — late diffuse field |
+| Reference | HFReference (default 5000), LFReference (default 250) — crossover frequencies |
+| Rolloff | Room Rolloff Factor (default 0.0) — distance response of the effect |
+| Mix | Diffusion (default 100.0), Density (default 100.0) — echo density / modal richness |
+
+Source: `core/components/audio/reverb/component.py` (`_inspector_fields`, `__init__` defaults, `serialize`/`deserialize` with legacy linear→mB migration).
 
 Workflow:
 
@@ -22,4 +25,4 @@ Workflow:
 
 The EFX path is guarded: without the extension the engine raises `EFXError` internally and continues dry — check the console if a zone sounds flat on some machines.
 
-Related: AudioSource (spatial blend feeds the send), Audio System (EFX module), Fog (visual twin for caves).
+Related: AudioSource (spatial blend feeds the send), AudioListener (listener position drives zone routing), Audio System (EFX module), Fog (visual twin for caves).

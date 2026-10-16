@@ -1156,6 +1156,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Диалог сборки, менеджер проектов, настройки</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api-properties">API / Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../panels-extra/">Панели анимации, скриптов, префабов, меша, VCS</a>
@@ -1237,15 +1247,84 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Диалог сборки, менеджер проектов, настройки</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Диалог сборки, менеджер проектов, настройки в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<blockquote>
+<p>Поверхность поставки: <code>BuildDialog</code> (разовая сборка Nuitka), <code>BuildSettingsDialog</code> (постоянный выбор сцен/плагинов/strip), диалог <code>ProjectManager</code>, диалоги Global/Project settings (<code>editor/settings/</code>).</p>
+</blockquote>
+<h2 id="api-properties">API / Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Член</th>
+<th>Сигнатура</th>
+<th>Примечания</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BuildDialog</code></td>
+<td><code>(parent=None)</code>, заголовок «Build Zarin Engine»</td>
+<td><code>editor/build_dialog.py</code></td>
+</tr>
+<tr>
+<td>Цели сборки</td>
+<td><code>_target_combo</code> (player/editor), <code>_compiler_combo</code>, <code>_physics_combo</code></td>
+<td>Зеркалит выборы <code>tools/nuitka/config.py</code></td>
+</tr>
+<tr>
+<td>Флаги</td>
+<td><code>_onefile_cb</code> («Single file (--onefile)»), <code>_console_cb</code> («Show console window»), <code>_strip_cb</code> («Strip unused assets...»), <code>_winrt_cb</code> («Include Windows Runtime DLLs...»)</td>
+<td>Собираются в <code>_collect_args()</code></td>
+</tr>
+<tr>
+<td>Прогон</td>
+<td><code>_start_build()</code>, <code>_run_build(args)</code>, <code>_on_build_done(returncode)</code>, <code>_cancel_build()</code>, <code>_browse_output_dir()</code>, <code>_open_output_folder()</code>, <code>_append_log(text)</code></td>
+<td>Асинхронная сборка с логом</td>
+</tr>
+<tr>
+<td><code>BuildSettingsDialog</code></td>
+<td><code>(parent=None)</code>, заголовок «Build Settings»</td>
+<td><code>editor/build_settings_dialog.py</code>; Save/Cancel сохраняют</td>
+</tr>
+<tr>
+<td>Группы настроек</td>
+<td>Список «Scenes In Build», чеклист «Plugins In Build», группа «Build Options»</td>
+<td>Сцены берутся из <code>&lt;project&gt;/scenes</code>, плагины — из <code>&lt;project&gt;/plugins</code></td>
+</tr>
+<tr>
+<td><code>_strip_check</code></td>
+<td>«Strip unused assets (scan scenes for references)»</td>
+<td>Постоянный тоггл strip</td>
+</tr>
+<tr>
+<td><code>ProjectManager</code></td>
+<td><code>editor/project_manager.py</code></td>
+<td>Диалог создания/открытия проекта</td>
+</tr>
+<tr>
+<td>Настройки</td>
+<td><code>editor/settings/</code></td>
+<td>Диалоги Global Settings... / Project Settings... (меню Edit)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Меню File/Edit открывают Project Manager, Global/Project Settings. Флоу сборки: «Build Settings...» отмечает сцены и плагины в поставку и тоггл strip (хранится на проект); «Build...» открывает <code>BuildDialog</code> — цель (player <code>player.py</code> vs редактор <code>main.py</code>), компилятор (auto/mingw/msvc), физсолвер (culverin/pybullet/physx), флаги onefile/console/strip/WinRT, выходной каталог — затем сборка с живым логом и открытием папки результата при успехе.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">dlg = BuildDialog(parent=mw)
+dlg._start_build()   # собирает _collect_args() и запускает сборку
+</code></pre>
+<pre><code class="language-python">s = BuildSettingsDialog(project_root, parent=mw)
+# Save сохраняет scenes-in-build, plugins-in-build, флаг strip
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Плеер и сборка Nuitka (CLI за диалогом), Инструменты и профилирование, Панель менеджера плагинов (кнопки build/package)</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>editor/build_dialog.py</code>, <code>editor/build_settings_dialog.py</code>, <code>editor/project_manager.py</code>, <code>editor/settings/</code></li>
+<li><code>tools/nuitka/config.py</code> (паритет флагов), <code>_build_BuildSettings.json</code> (образец настроек в корне репо)</li>
+</ul>
               
             </div>
           </div><footer>

@@ -293,6 +293,18 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Rigidbody</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#fixed-update-notes">Fixed update notes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" >Colliders</a>
@@ -1238,68 +1250,111 @@
               
                 <h1 id="rigidbody">Rigidbody</h1>
 <p>Makes an entity simulated: mass, gravity response, accumulated forces, readable velocities. Without it a collider is static scenery; with it the entity joins the dynamics world.</p>
-<p>Inspector fields:</p>
+<h2 id="properties">Properties</h2>
 <table>
 <thead>
 <tr>
 <th>Field</th>
 <th>Default</th>
-<th>Inspector range</th>
-<th>Meaning</th>
+<th>Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>mass</td>
-<td>1.0</td>
-<td>0.001–100000</td>
-<td>Body mass; forced to 0 when kinematic</td>
+<td><code>mass</code></td>
+<td><code>1.0</code></td>
+<td>Inspector <code>0.001–100000</code>; forced to <code>0.0</code> at body creation when <code>is_kinematic</code></td>
 </tr>
 <tr>
-<td>drag</td>
-<td>0.0</td>
-<td>0–1000</td>
-<td>Linear damping (air, water feel)</td>
+<td><code>drag</code></td>
+<td><code>0.0</code></td>
+<td>Inspector <code>0–1000</code></td>
 </tr>
 <tr>
-<td>angular_drag</td>
-<td>0.05</td>
-<td>0–1000</td>
-<td>Spin damping</td>
+<td><code>angular_drag</code></td>
+<td><code>0.05</code></td>
+<td>Inspector <code>0–1000</code></td>
 </tr>
 <tr>
-<td>use_gravity</td>
-<td>on</td>
-<td>—</td>
+<td><code>use_gravity</code></td>
+<td><code>True</code></td>
 <td>Gravity applies</td>
 </tr>
 <tr>
-<td>is_kinematic</td>
-<td>off</td>
-<td>—</td>
+<td><code>is_kinematic</code></td>
+<td><code>False</code></td>
 <td>Transform-driven: pushes dynamics, never pushed</td>
+</tr>
+<tr>
+<td><code>freeze_pos_x/y/z</code></td>
+<td><code>False</code></td>
+<td>Serialized as <code>freeze_pos</code> triple</td>
+</tr>
+<tr>
+<td><code>freeze_rot_x/y/z</code></td>
+<td><code>False</code></td>
+<td>Serialized as <code>freeze_rot</code> triple</td>
+</tr>
+<tr>
+<td><code>velocity</code> / <code>angular_velocity</code></td>
+<td><code>Vec3.zero()</code></td>
+<td>Readable every frame; setter marks body dirty for next sync</td>
 </tr>
 </tbody>
 </table>
-<p>Plus per-axis freeze toggles for position and rotation, serialized as <code>freeze_pos</code> / <code>freeze_rot</code> triples in <code>.zpes</code>.</p>
-<p>Script API, verified:</p>
-<pre><code class="language-python">rb = self._entity.get_component_by_name(&quot;Rigidbody&quot;)
-if rb:
-    rb.add_force(Vec3(0.0, 10.0, 0.0))
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<p>Add <code>Rigidbody</code> + one collider (<code>Box</code>/<code>Sphere</code>/<code>Capsule</code>/<code>Mesh</code>). Mass <code>70–90</code> player-scale, <code>1–10</code> crates; keep interacting mass ratios within ~100:1. Tick <code>is_kinematic</code> for movers, freeze rotation axes for non-tipping crates.</p>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">entity = scene.create_entity(&quot;Ball&quot;)
+from core.components.physics.rigidbody import Rigidbody
+from core.components.physics.sphere_collider import SphereCollider
+
+rb = Rigidbody()
+rb.mass = 2.0
+rb.drag = 0.1
+rb.freeze_rot_x = True
+rb.freeze_rot_z = True
+entity.add_component(rb)
+col = SphereCollider()
+col.radius = 0.5
+entity.add_component(col)
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody)
+    if rb is None or rb.is_kinematic:
+        return
+    rb.add_force(Vec3(0.0, 20.0, 0.0))   # accumulated, cleared after push
     rb.add_torque(Vec3(0.0, 1.0, 0.0))
-    rb.add_impulse(Vec3(0.0, 5.0, 0.0))
-    v = rb.velocity
+    rb.add_impulse(Vec3(0.0, 5.0, 0.0))  # instant velocity change impulse/mass
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass
+def on_collision_stay(self, other_id, force=0.0):
+    pass
+def on_collision_exit(self, other_id, force=0.0):
+    pass
 </code></pre>
 <ul>
-<li><code>velocity</code> / <code>angular_velocity</code> — readable every frame, writable (marks the body dirty so the value pushes into the solver on the next sync).</li>
-<li><code>add_force(force, world_space=True)</code> / <code>add_torque(torque)</code> — accumulate until the next step, then cleared automatically.</li>
-<li><code>add_impulse(impulse)</code> — instant velocity change <code>impulse / mass</code>; ignored for kinematic bodies and non-positive mass.</li>
-<li><code>consume_velocity_dirty()</code> / <code>_clear_forces()</code> — internal sync protocol; gameplay code rarely calls these directly.</li>
+<li><code>add_force(force, world_space=True)</code> / <code>add_torque(torque)</code> accumulate until the next ECS→physics push, then auto-clear — call every fixed step for continuous thrust.</li>
+<li><code>add_impulse</code> is ignored for kinematic bodies and non-positive mass.</li>
+<li><code>velocity</code> setter flips <code>_velocity_dirty</code> so the value pushes into the solver on the next sync.</li>
+<li>Collision callbacks: script <code>on_collision_enter/stay/exit</code> accept <code>(other_id)</code> or <code>(other_id, force)</code> (arity auto-detected via <code>inspect.signature</code>); engine-component handlers always take <code>(other_id, force)</code>.</li>
 </ul>
-<p>Mechanics: body creation reads <code>mass</code> and <code>is_kinematic</code> (kinematic forces mass 0); velocities and forces sync every step. Freeze flags constrain axes solver-side — frozen Y position plus gravity gives a sliding puck; frozen rotations give non-tipping crates.</p>
-<p>Mass guide: player 70–90, crates 1–10, furniture 20–50, vehicles 500–2000. Ratios beyond ~100:1 between interacting bodies strain any solver — keep gameplay contacts within two orders of magnitude.</p>
-<p>Troubleshooting: falls through floor → missing collider, both triggers, or tunneling at high speed (lower fixed dt or cap velocity); ignores forces → kinematic on or mass 0; drifts forever → drag 0 plus no friction, raise both; jitters on stacks → solver iterations low or mass ratio extreme.</p>
-<p>Related: all Collider pages, CharacterController (kinematic alternative), Joints, Solver and Threading, Script Examples (Kicker).</p>
+<h2 id="fixed-update-notes">Fixed update notes</h2>
+<ul>
+<li><code>dt</code> is <code>Engine._fixed_dt</code> (<code>0.02</code> default); render hitches never change physics <code>dt</code> (backlog capped at <code>5 * _fixed_dt</code>, max <code>5</code> steps/tick).</li>
+<li>Forces apply in <code>_sync_ecs_to_physics</code>, results (<code>pos</code>/<code>rot</code>/<code>vel</code>/<code>ang_vel</code>) come back in <code>_sync_physics_to_ecs</code>; kinematic and Transform-dirty bodies are skipped on read-back (Transform-driven, never overwritten).</li>
+<li>In <code>multi_threaded</code> mode this crosses the <code>SharedPhysicsBuffer</code> (flags <code>1</code> active, <code>2</code> dirty, <code>4</code> kinematic/teleport, <code>8</code> 2D).</li>
+</ul>
+<h2 id="related">Related</h2>
+<p>Box/Sphere/Capsule/Mesh colliders, CharacterController, Joints, Solver &amp; Threading, Collision Layers.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/physics/rigidbody.py</code></li>
+<li><code>core/physics/scene/bodies.py</code> (<code>_create_entity_bodies</code>, <code>_sync_ecs_to_physics</code>, <code>_sync_physics_to_ecs</code>)</li>
+<li><code>core/physics/scene/events.py</code> (collision callback arity)</li>
+<li><code>core/engine/eng/loop.py</code>, <code>core/engine/eng/engine.py</code></li>
+</ul>
               
             </div>
           </div><footer>

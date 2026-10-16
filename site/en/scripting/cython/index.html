@@ -1266,7 +1266,7 @@ class Mover:
 <p>Rules and mechanics:</p>
 <ul>
 <li>The module name is top-level: <code>import foo</code> where <code>foo.pyx</code> sits next to the script. Names must be unique within the project. A neighboring <code>foo.pxd</code> declaration file is tracked for rebuilds too.</li>
-<li>Rebuilds are automatic when the <code>.pyx</code> (or <code>.pxd</code>) is newer than the cached build. Artifacts live in <code>cache/cython</code>; the script folder stays clean. Editing <code>.pyx</code> during Play triggers a script hot-reload as usual.</li>
+<li>Rebuilds are automatic when the <code>.pyx</code> (or <code>.pxd</code>) is newer than the cached build. Artifacts live in <code>cache/cython</code> under <code>build/&lt;dirhash16&gt;/&lt;fingerprint12&gt;</code> (directory hash + 12-hex source fingerprint over <code>.pyx</code>, neighboring <code>.pxd</code>, Cython version and toolchain); only the last 3 builds per script folder are kept. The script folder stays clean. Editing <code>.pyx</code> during Play triggers a script hot-reload as usual.</li>
 <li>The <code>Check</code> button validates <code>.pyx</code> without a C compiler (Cython parsing and typing only). The full native build happens lazily on first import.</li>
 <li>If no compiler is found, the console shows an actionable error and the script keeps working on the previous working build — iteration never hard-blocks on toolchain setup.</li>
 <li>Keep the Python/Cython boundary typed (<code>cpdef</code>, typed locals) and batch calls: one call processing an array beats per-element calls across the boundary.</li>

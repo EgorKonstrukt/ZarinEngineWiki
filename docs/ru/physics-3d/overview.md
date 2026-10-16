@@ -1,22 +1,65 @@
 # Обзор физики 3D
 
-Встроенный 3D-солвер работает вне главного потока: симуляция шагает в фоновом воркере, пока поток ECS рисует, выполняет скрипты и синхронизирует трансформы каждый кадр. Геймплейный код никогда не ждёт солвер; он читает результаты прошлого шага и пишет пожелания (силы, скорости, телепорты), применяющиеся на следующем.
+3D-симуляция твёрдых тел ZarinEngine: сущности с `Rigidbody` и коллайдерами шагаются подключаемым солвером (`IPhysicsSolver`), всё остальное — статичные декорации.
 
-Конвейер фиксированного шага:
+## Свойства
 
-1. Регистрация новых сущностей (создание тел солвера свежим парам Rigidbody + коллайдер) и периодическая перепроверка шейпов изменившихся мешей и скейлов.
-2. Синхронизация ECS → физика: грязные трансформы телепортируются прямо в тела, иначе пушатся накопленные силы/моменты и грязные скорости.
-3. Шаг солвера с `dt` (по умолчанию `0.02` из `Engine._fixed_dt`).
-4. Ограничение 2D-тел (обнуление внеплоскостных скоростей — плоские игры никогда не дрейфуют из плоскости).
-5. Синхронизация физика → ECS: позиции, повороты, скорости назад в трансформы и состояние Rigidbody; кинематика и грязные тела пропускаются (они ведомы трансформом).
-6. Рассылка событий столкновений в колбэки скриптов `on_collision_enter/stay/exit` с id сущностей и силами удара.
+| Настройка | По умолчанию | Где |
+|---|---|---|
+| Солвер | `culverin` (Jolt через пакет `culverin`) | `physics_solvers/registry.py` `DEFAULT_SOLVER`, `physics.solver` |
+| Гравитация | `(0.0, -9.81, 0.0)` | `physics.gravity_x/y/z`, `CulverinSolver._gravity` |
+| Фиксированный шаг | `0.02` с | `engine.fixed_update_dt`, `physics.fixed_time_step`, `Engine._fixed_dt` |
+| Подшаги | `2` | `physics.num_sub_steps` |
+| Итерации солвера | `10` | `physics.solver_iterations` |
+| Режим симуляции | `multi_threaded` | `single` / `multi_threaded` / `per_layer_process` |
 
-Солверы втыкаются через `IPhysicsSolver`: `culverin` (на базе Jolt) по умолчанию, альтернативы `pybullet` и `physx` в `physics_solvers/registry.py`. Режимы: `single` (в процессе, минимальная задержка, требуется CharacterController), `multi_threaded` (по умолчанию, демон-процесс с очередями и общими буферами), `per_layer_process` (процессы по требованию на слой).
+## Использование в редакторе
 
-Обвязка фиксированного шага: `Engine.tick_fixed_step` копит реальное время относительно `_fixed_dt`, выполняет `pre_step` плагинов, `scene.fixed_update`, затем шаг физики — скрипты всегда видят стабильный `dt` в `on_fixed_update` независимо от FPS рендера.
+1. Статичный пол: только `BoxCollider` (без `Rigidbody`).
+2. Динамический ящик: `Rigidbody` (масса `1.0`) + `BoxCollider` (`1,1,1`).
+3. Нажать Play. Кинематические движители: `is_kinematic` + движение трансформом; триггеры: `is_trigger` + колбэки пересечений.
 
-Таксономия тел: динамическое (Rigidbody положительной массы не-kinematic + коллайдер — полная симуляция), kinematic (ведётся трансформом, толкает динамику, не толкается), статичное (один коллайдер — неподвижные декорации), триггер (сообщает пересечения без отклика), персонаж (move-функция солвера), soft (деформируемый меш), составное (слитые примитивы).
+## Использование в коде
 
-Подстраницы: Rigidbody, все шесть коллайдеров, CharacterController, джойнты, материалы и слои, внутренности солвера и потоков, продвинутые тела (плавучесть, soft body, PhysBone, мотор).
+```python
+entity = scene.create_entity("Crate")
+from core.components.physics.rigidbody import Rigidbody
+from core.components.physics.box_collider import BoxCollider
+from core.maths.math3d import Vec3
 
-Рецепт первой комнаты: статичный пол (box-коллайдер без Rigidbody), несколько динамических ящиков (Rigidbody масса 1–5 + box), один направленный свет — Play, и ящики оседают. Затем игрок на CharacterController и слои коллизий до роста контента.
+rb = Rigidbody()
+rb.mass = 1.0
+entity.add_component(rb)
+box = BoxCollider()
+box.size = Vec3(1.0, 1.0, 1.0)
+entity.add_component(box)
+
+def on_fixed_update(self, dt):
+    rb = self._entity.get_component(Rigidbody)
+    if rb is not None:
+        rb.add_force(Vec3(0.0, 10.0, 0.0))
+        rb.add_torque(Vec3(0.0, 1.0, 0.0))
+
+def on_collision_enter(self, other_id, force=0.0):
+    pass  # (id_сущности, сила_удара), также on_collision_stay/exit
+```
+
+Заморозка осей: `rb.freeze_pos_x/y/z`, `rb.freeze_rot_x/y/z` (сериализация `freeze_pos` / `freeze_rot`).
+
+## Заметки о fixed update
+
+- `Engine.tick_fixed_step` (`core/engine/eng/loop.py`): накопление реального времени по `_fixed_dt` (`0.02`), потолок backlog `5 * _fixed_dt`, максимум `5` шагов за тик (`MAX_FIXED_STEPS`), затем `scene.fixed_update(fd)` (компонентный `on_fixed_update`: силы/приводы `Buoyancy`/`Motor`/`CharacterController`) и наконец системный `step(fd)` плагинов.
+- Порядок `PhysicsScene.step`: регистрация новых сущностей → проверка форм (каждые 60 шагов) → синхронизация ECS→физика → AABB-разделение soft-тел (только при `≥2` soft-телах) → `solver.step_simulation(dt)` → 2D-ограничение → физика→ECS → soft-синхронизация → события коллизий.
+- Область параметров: `num_sub_steps` (`2`), `solver_iterations` (`10`), `erp` (`0.2`) — дефолты конфига проекта, потребляемые PyBullet-солвером (его собственные дефолты `1` / `50` / `0.4`); дефолтный Culverin/Jolt их игнорирует и использует капы мира `culverin_*`.
+- Колбэки коллизий: скриптовые методы принимают `(other_id)` или `(other_id, force)` — арность определяется по `inspect.signature` (`ScriptComponent._py_collision_arity`); хендлеры движковых компонентов всегда получают `(other_id, force)`.
+- Потоки: `multi_threaded` — солвер в демоне `multiprocessing.Process` (`PhysicsProcess`) через `SharedPhysicsBuffer` / `SoftSharedBuffer`; `single` — в процессе (требуется для `CharacterController` / `Motor`); `per_layer_process` — процессы по слоям.
+
+## Связанные
+
+Rigidbody, коллайдеры Box/Sphere/Capsule/Mesh/Terrain/GSVolume, CharacterController, Joints, Motor, материалы, слои, солвер и потоки, Buoyancy, Soft Body, PhysBone, Constraints (Transform-последователи — отдельная система, не солверные джойнты).
+
+## Проверено по
+
+- `core/physics/scene/scene.py`, `core/physics/scene/events.py`
+- `core/engine/eng/loop.py`, `core/engine/eng/engine.py`
+- `core/config/config.py`, `physics_solvers/registry.py`, `plugins/physics_plug/plugin.py`

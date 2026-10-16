@@ -1044,6 +1044,16 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Обзор ассетов</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#api">Свойства / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">Использование в редакторе</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Использование в коде</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Связанные</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Проверено по</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../models-assimp/">Импорт моделей через Assimp</a>
@@ -1237,15 +1247,68 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="_1">Обзор ассетов</h1>
-<p>TODO: Материал в подготовке. Страница будет описывать раздел Обзор ассетов в ZarinEngine.</p>
-<p>Планируемые разделы:</p>
+<p>Всё в проекте — файл ассета + опциональный сайдкар <code>.import</code> JSON. Импортёры читают сайдкар, кэшируют по mtime/hash и отдают рантайм-буферы.</p>
+<h2 id="api">Свойства / API</h2>
+<table>
+<thead>
+<tr>
+<th>Элемент</th>
+<th>Источник</th>
+<th>Смысл</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Правило сайдкара</td>
+<td><code>texture_import_settings.py</code>, <code>importer/settings.py</code>, <code>audio/sys/clip.py</code></td>
+<td><code>&lt;asset&gt;.import</code> JSON рядом с файлом</td>
+</tr>
+<tr>
+<td>Меш</td>
+<td><code>importer/settings.py</code></td>
+<td><code>scale</code> 1.0, <code>center_pivot</code> false, <code>flip_uvs</code> true, <code>smooth_angle</code> 30.0, <code>gen_normals/gen_uvs/blendshapes</code> true, <code>materials[]</code></td>
+</tr>
+<tr>
+<td>Текстура</td>
+<td><code>texture_import_settings.py</code></td>
+<td><code>filter_mode</code> trilinear, <code>anisotropic</code> 1, <code>max_size</code> 2048, <code>wrap_mode</code> clamp, <code>compression</code> none, <code>srgb</code> true</td>
+</tr>
+<tr>
+<td>Аудио</td>
+<td><code>audio/sys/clip.py</code></td>
+<td><code>quality</code> 0–100</td>
+</tr>
+<tr>
+<td>Кэш</td>
+<td><code>importer/settings.py</code></td>
+<td>stat-сигнатура + LRU 12 / TTL 2.0 с</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">Использование в редакторе</h2>
+<ol>
+<li>Положите файл в <code>assets/</code>; рядом появится <code>.import</code> JSON.</li>
+<li>Правьте ключи под тип (меш/текстура/аудио); реимпорт по смене mtime.</li>
+<li>Нет сайдкара — дефолты выше; удаление сбрасывает.</li>
+</ol>
+<h2 id="_3">Использование в коде</h2>
+<pre><code class="language-python"># меш .import
+{&quot;scale&quot;: 1.0, &quot;center_pivot&quot;: false, &quot;flip_uvs&quot;: true,
+ &quot;smooth_angle&quot;: 30.0, &quot;gen_normals&quot;: true, &quot;gen_uvs&quot;: true, &quot;blendshapes&quot;: true}
+# текстура .import
+{&quot;filter_mode&quot;: &quot;trilinear&quot;, &quot;anisotropic&quot;: 1, &quot;max_size&quot;: 2048,
+ &quot;wrap_mode&quot;: &quot;clamp&quot;, &quot;compression&quot;: &quot;none&quot;, &quot;srgb&quot;: true}
+# аудио .import
+{&quot;quality&quot;: 100}
+</code></pre>
+<h2 id="_4">Связанные</h2>
 <ul>
-<li>Обзор</li>
-<li>Использование в редакторе</li>
-<li>Использование в коде</li>
-<li>Связанные компоненты и инструменты</li>
+<li>Импорт моделей, Текстуры, Настройки импорта</li>
 </ul>
-<p>Связанные страницы: см. указатель русского раздела и главную страницу.</p>
+<h2 id="_5">Проверено по</h2>
+<ul>
+<li><code>core/assets/importer/settings.py</code>, <code>core/assets/texture_import_settings.py</code>, <code>core/audio/sys/clip.py</code></li>
+</ul>
               
             </div>
           </div><footer>

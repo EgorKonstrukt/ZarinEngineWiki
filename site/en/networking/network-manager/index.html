@@ -1280,11 +1280,12 @@
 </tr>
 </tbody>
 </table>
-<p>Lifecycle API: <code>host()</code>, <code>connect()</code>, <code>disconnect()</code> (mirror the plugin, scoped to this scene); <code>on_awake</code> prepares, <code>on_update</code> pumps, <code>on_destroy</code> disconnects cleanly.</p>
-<p>Gameplay API:</p>
+<p>Lifecycle API: <code>host()</code>, <code>connect()</code>, <code>disconnect()</code> (mirror the plugin, scoped to this scene via <code>NetworkManagerTransportMixin</code>); <code>on_awake</code> registers the instance and existing identities, <code>on_update</code> polls the shared <code>Transport</code> deque and dispatches by <code>MessageType</code>, <code>on_destroy</code> clears the singleton instance (does not disconnect — call <code>disconnect()</code> explicitly).</p>
+<p>Gameplay API (verified in <code>netmgr/transport.py</code> + <code>netmgr/sync.py</code>):</p>
 <ul>
-<li><code>spawn_prefab(path_or_id)</code> / <code>despawn(entity)</code> / <code>despawn_entity(id)</code> — authoritative spawn control; spawned entities carry NetworkIdentity with prefab ids so remotes instantiate the same prefab.</li>
-<li><code>send_rpc(name, payload)</code> — component-level remote call reaching all peers' handlers.</li>
+<li><code>spawn_prefab(prefab_path, pos=None, rot=None, owner_id=None)</code> / <code>spawn_entity(entity, owner_id=None)</code> — authoritative spawn control; spawned entities carry NetworkIdentity with prefab ids so remotes instantiate the same prefab.</li>
+<li><code>despawn(net_id: int)</code> / <code>despawn_entity(entity: Entity)</code> — authoritative despawn by net id (server broadcasts <code>NET_DESPAWN</code>; client request goes to server).</li>
+<li><code>send_rpc(net_id: int, method: str, args: dict | None = None, target: int | None = None)</code> — component-level remote call (<code>NET_RPC {"net_id", "method", "args", "target?"}</code>); server may <code>send_to(target)</code> unicast, otherwise broadcast.</li>
 </ul>
 <p>Setup: exactly one active manager per scene (two managers fight over the transport). Tick rate trades bandwidth for freshness — 10–20 Hz for lobbies and strategy, 30–60 for shooters; thresholds on sync components matter more than raw ticks.</p>
 <p>Troubleshooting: double spawns → two managers or auto-spawn plus manual spawn; despawn mismatch → despawn by id, never by local reference; RPC silent → handler registered after <code>poll</code> started, or name typo.</p>

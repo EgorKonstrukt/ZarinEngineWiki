@@ -415,6 +415,16 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Clips, Animator, Controllers</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties-api">Properties / API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-editor">Usage in Editor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-in-code">Usage in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related">Related</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verified-against">Verified against</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../ik-blendshapes/">IK and Blendshapes</a>
@@ -1236,16 +1246,102 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="clips-animator-controllers">Clips, Animator, Controllers</h1>
-<p>TODO: Content pending. This page will document Clips, Animator, Controllers in ZarinEngine.</p>
-<p>Planned sections:</p>
+                <h1 id="clip-and-animator">Clip and Animator</h1>
+<p><code>AnimationClip</code> stores curves and events; <code>Animation</code> plays one clip; <code>Animator</code> + <code>AnimatorController</code> blend states by parameters.</p>
+<h2 id="properties-api">Properties / API</h2>
+<table>
+<thead>
+<tr>
+<th>Field / Method</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AnimationClip.name / length / loop / sample_rate</code></td>
+<td>New Clip / 1.0 / true / 60</td>
+<td>Identity and timing</td>
+</tr>
+<tr>
+<td><code>add_curve(property_path, bone_path)</code></td>
+<td>—</td>
+<td><code>Curve</code> for float props, also indexed by <code>(bone, prop)</code></td>
+</tr>
+<tr>
+<td><code>add_rotation_curve(property_path, bone_path)</code></td>
+<td>—</td>
+<td><code>QuaternionCurve</code> for rotations</td>
+</tr>
+<tr>
+<td><code>add_event(AnimationEvent)</code></td>
+<td>—</td>
+<td><code>time</code>, <code>function_name</code>, <code>string/float/int_parameter</code>, sorted by time</td>
+</tr>
+<tr>
+<td><code>evaluate(time)</code> / <code>evaluate_rotation</code> / <code>evaluate_all</code></td>
+<td>—</td>
+<td>Sample props / quats / all bone curves</td>
+</tr>
+<tr>
+<td><code>Animation.clip / play_on_start / speed</code></td>
+<td>"" / true / 1.0</td>
+<td>Single-clip player; <code>play</code>/<code>stop</code>/<code>pause</code>, <code>on_start</code> auto-plays</td>
+</tr>
+<tr>
+<td><code>Animator.controller / avatar / apply_root_motion / update_mode</code></td>
+<td>"" / "" / false / normal</td>
+<td>State-machine player</td>
+</tr>
+<tr>
+<td><code>set_float/int/bool/trigger</code>, <code>reset_trigger</code></td>
+<td>—</td>
+<td>Drive transitions; trigger consumed on <code>IF</code> condition</td>
+</tr>
+<tr>
+<td><code>AnimatorState: name, clip_path, speed, transitions</code></td>
+<td>—</td>
+<td><code>transition_duration</code> 0.25, <code>has_exit_time</code>, <code>exit_time</code>, <code>mute/solo</code></td>
+</tr>
+<tr>
+<td><code>AnimatorCondition: parameter, mode, threshold</code></td>
+<td>—</td>
+<td>Modes <code>if/if_not/greater/less/equals/not_equal</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage-in-editor">Usage in Editor</h2>
+<ol>
+<li>Create a clip asset (JSON <code>to_dict</code>/<code>from_dict</code>, Unity YAML via <code>save_unity</code>), set <code>length</code>, <code>loop</code>, keys.</li>
+<li>Add <code>Animation</code>, point <code>clip</code> at the asset, enable <code>play_on_start</code>.</li>
+<li>Or add <code>Animator</code>, point <code>controller</code> at <code>.animcontroller</code> JSON, set default state; parameters initialize from controller defs.</li>
+</ol>
+<h2 id="usage-in-code">Usage in Code</h2>
+<pre><code class="language-python">from core.components.animation.animation_clip import AnimationClip, AnimationEvent
+
+clip = AnimationClip(name=&quot;Bob&quot;, length=2.0)
+c = clip.add_curve(&quot;position.y&quot;, bone_path=&quot;Hips&quot;)
+c.add_key(0.0, 0.0)
+c.add_key(1.0, 0.5)
+clip.add_event(AnimationEvent(time=1.0, function_name=&quot;on_land&quot;))
+clip.save(&quot;assets/anim/bob.anim&quot;)
+
+anim = entity.get_component_by_name(&quot;Animation&quot;)
+anim.clip = &quot;assets/anim/bob.anim&quot;
+anim.play()
+boss = entity.get_component_by_name(&quot;Animator&quot;)
+boss.set_float(&quot;Speed&quot;, 2.5)
+boss.set_trigger(&quot;Attack&quot;)
+</code></pre>
+<h2 id="related">Related</h2>
 <ul>
-<li>Overview</li>
-<li>Usage in editor</li>
-<li>Usage in code</li>
-<li>Related components and tools</li>
+<li>Animation Overview, IK and Blendshapes, Curve</li>
 </ul>
-<p>Related pages: see English section index and home page.</p>
+<h2 id="verified-against">Verified against</h2>
+<ul>
+<li><code>core/components/animation/animation_clip.py</code>, <code>animation_component.py</code></li>
+<li><code>core/components/animation/animator_component.py</code>, <code>animator_controller.py</code></li>
+</ul>
               
             </div>
           </div><footer>
