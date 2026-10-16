@@ -27,6 +27,18 @@ nav:
     - Logging: en/core/logging.md
     - Profiler: en/core/profiler.md
     - 'Foundation: Curve, Commands, Time Travel': en/core/foundation.md
+    - Advanced:
+      - Component Authoring: en/core/advanced/component-authoring.md
+      - Inspector Fields Catalog: en/core/advanced/inspector-fields-catalog.md
+      - Commands and Undo: en/core/advanced/commands-undo.md
+      - Time Travel: en/core/advanced/time-travel.md
+      - Curve API: en/core/advanced/curve-api.md
+      - Math Helpers: en/core/advanced/math-helpers.md
+      - Threading: en/core/advanced/threading.md
+      - Precision and 64-bit: en/core/advanced/precision-64bit.md
+      - Engine Events: en/core/advanced/engine-events.md
+      - Spatial: en/core/advanced/spatial.md
+      - Section Index (advanced): en/core/advanced/_section.md
   - Section Index (core): en/core/_section.md
   - Rendering:
     - Rendering Overview: en/rendering/overview.md
@@ -115,6 +127,17 @@ nav:
       - Raytracing Renderer: en/rendering/raytracing-renderer.md
       - Voxel Rendering: en/rendering/voxel.md
     - Gizmos and Icons: en/rendering/gizmos.md
+    - Library:
+      - Shader Catalog: en/rendering/library/shader-catalog.md
+      - Material Library: en/rendering/library/material-library.md
+      - PostFX Stack Order: en/rendering/library/postfx-stack-order.md
+      - Light Units: en/rendering/library/light-units.md
+      - Shadows Tuning: en/rendering/library/shadows-tuning.md
+      - Splat Pipeline: en/rendering/library/splat-pipeline.md
+      - Voxel Pipeline: en/rendering/library/voxel-pipeline.md
+      - Raytracing Setup: en/rendering/library/raytracing-setup.md
+      - Gizmo Catalog: en/rendering/library/gizmo-catalog.md
+      - Video, Text and SVG: en/rendering/library/video-text-svg.md
   - Section Index (rendering): en/rendering/_section.md
   - Physics 3D:
     - Physics 3D Overview: en/physics-3d/overview.md
@@ -132,6 +155,11 @@ nav:
       - Physics Materials: en/physics-3d/physics-materials.md
       - Collision Layers: en/physics-3d/collision-layers.md
     - Solver and Threading: en/physics-3d/solver-threading.md
+    - Solvers:
+      - Culverin: en/physics-3d/solvers/culverin.md
+      - PyBullet: en/physics-3d/solvers/pybullet.md
+      - PhysX: en/physics-3d/solvers/physx.md
+    - Collision Callbacks: en/physics-3d/collision-callbacks.md
     - Advanced Bodies:
       - Buoyancy: en/physics-3d/buoyancy.md
       - Soft Body: en/physics-3d/soft-body.md
@@ -144,6 +172,7 @@ nav:
     - Rigidbody 2D: en/physics-2d/rigidbody2d.md
     - Box Collider 2D: en/physics-2d/box-collider2d.md
     - Circle Collider 2D: en/physics-2d/circle-collider2d.md
+    - 2D Guide: en/physics-2d/guide-2d.md
   - Section Index (physics-2d): en/physics-2d/_section.md
   - Audio:
     - Audio Overview: en/audio/overview.md
@@ -161,6 +190,9 @@ nav:
     - Cython in Scripts: en/scripting/cython.md
     - ScriptComponent: en/scripting/script-component.md
     - Script Examples: en/scripting/examples.md
+    - Cookbook:
+      - Patterns: en/scripting/cookbook/patterns.md
+      - Limitations: en/scripting/cookbook/limitations.md
   - Section Index (scripting): en/scripting/_section.md
   - GUI:
     - GUI Overview: en/gui/overview.md
@@ -173,9 +205,13 @@ nav:
     - Animation Overview: en/animation/overview.md
     - Clips, Animator, Controllers: en/animation/clip-animator.md
     - IK and Blendshapes: en/animation/ik-blendshapes.md
+    - Animator Controller Guide: en/animation/controller-guide.md
+    - IK Guide: en/animation/ik-guide.md
+    - Blendshapes Guide: en/animation/blendshapes-guide.md
   - Section Index (animation): en/animation/_section.md
   - Navigation:
     - Navigation and NavAgent: en/navigation/overview.md
+    - Navmesh Baking Guide: en/navigation/baking-guide.md
   - Section Index (navigation): en/navigation/_section.md
   - Terrain and Environment:
     - Terrain: en/terrain-environment/terrain.md
@@ -183,6 +219,7 @@ nav:
   - Section Index (terrain-environment): en/terrain-environment/_section.md
   - Constraints:
     - Constraints: en/constraints/overview.md
+    - Constraints Catalog: en/constraints/catalog.md
   - Section Index (constraints): en/constraints/_section.md
   - Scenes and Prefabs:
     - Scenes (.zpes): en/scenes-prefabs/scenes.md
@@ -214,6 +251,13 @@ nav:
     - NetworkPlayer: en/networking/network-player.md
     - Collaboration: en/networking/collaboration.md
     - RemoteCollaborator: en/networking/remote-collaborator.md
+    - Protocol:
+      - Message Types (NET_*): en/networking/protocol/message-types.md
+      - RPC Reference: en/networking/protocol/rpc-reference.md
+      - Transport Internals: en/networking/protocol/transport-internals.md
+      - Relay and UPnP: en/networking/protocol/relay-upnp.md
+      - Collaboration Protocol: en/networking/protocol/collab-protocol.md
+      - Snapshots and Interpolation: en/networking/protocol/snapshots-interp.md
   - Section Index (networking): en/networking/_section.md
   - Plugins:
     - Plugins Overview: en/plugins/overview.md
@@ -227,6 +271,13 @@ nav:
     - VR Plugin: en/plugins/vr-plugin.md
     - MCP Bridge: en/plugins/mcp-plugin.md
     - Music, Plotter and QtQuick: en/plugins/creative-plugins.md
+    - Catalog:
+      - VR Session Setup: en/plugins/catalog/vr-setup.md
+      - MCP Tools Bridge: en/plugins/catalog/mcp-tools.md
+      - Tracker Music: en/plugins/catalog/music-tracker.md
+      - Plotter and QtQuick: en/plugins/catalog/plotter-qtquick.md
+      - Physics Tooling: en/plugins/catalog/physics-tools.md
+      - BSP Import: en/plugins/catalog/bsp-import.md
   - Section Index (plugins): en/plugins/_section.md
   - Editor Manual:
     - Main Window: en/editor/main-window.md
@@ -256,12 +307,29 @@ nav:
     - Rotator and Mover Scripts: en/tutorials/rotator-mover.md
     - Physics Scene: en/tutorials/physics-scene.md
     - GUI Menu, Prefabs, Audio, Build: en/tutorials/gui-prefab-audio-build.md
+    - FPS Controller: en/tutorials/fps-controller.md
+    - Network Session: en/tutorials/network-session.md
+    - First Plugin: en/tutorials/first-plugin.md
+    - First Shader: en/tutorials/first-shader.md
   - Section Index (tutorials): en/tutorials/_section.md
   - Reference:
     - API Index: en/reference/api-index.md
     - Glossary: en/reference/glossary-faq.md
     - Roadmap, Changelog, License: en/reference/roadmap-changelog-license.md
   - Section Index (reference): en/reference/_section.md
+  - Appendix:
+    - Config Reference: en/appendix/config-reference.md
+    - CLI Reference: en/appendix/cli-reference.md
+    - Troubleshooting: en/appendix/troubleshooting.md
+    - Performance Guide: en/appendix/performance-guide.md
+    - Style Guide: en/appendix/style-guide.md
+    - Tests Catalog: en/appendix/tests-catalog.md
+    - Tools Catalog: en/appendix/tools-catalog.md
+    - Cython Extensions: en/appendix/cython-extensions.md
+    - Keyboard Shortcuts: en/appendix/keyboard-shortcuts.md
+    - Scene Schema: en/appendix/scene-schema.md
+    - Project Files: en/appendix/project-files.md
+    - GUI Widgets: en/appendix/gui-widgets.md
 - Русский:
   - Начало работы:
     - Начало работы: ru/getting-started/index.md
@@ -283,6 +351,18 @@ nav:
     - Логирование: ru/core/logging.md
     - Профайлер: ru/core/profiler.md
     - 'Foundation: Curve, команды, Time Travel': ru/core/foundation.md
+    - Продвинутое:
+      - Создание компонентов: ru/core/advanced/component-authoring.md
+      - Каталог полей инспектора: ru/core/advanced/inspector-fields-catalog.md
+      - Команды и Undo: ru/core/advanced/commands-undo.md
+      - Time Travel: ru/core/advanced/time-travel.md
+      - Curve API: ru/core/advanced/curve-api.md
+      - Math-хелперы: ru/core/advanced/math-helpers.md
+      - Многопоточность: ru/core/advanced/threading.md
+      - Точность и 64 бита: ru/core/advanced/precision-64bit.md
+      - События движка: ru/core/advanced/engine-events.md
+      - Пространственные структуры: ru/core/advanced/spatial.md
+      - Указатель (advanced): ru/core/advanced/_section.md
   - Указатель (core): ru/core/_section.md
   - Рендеринг:
     - Обзор рендеринга: ru/rendering/overview.md
@@ -371,6 +451,17 @@ nav:
       - Raytracing Renderer: ru/rendering/raytracing-renderer.md
       - Воксельный рендеринг: ru/rendering/voxel.md
     - Гизмо и иконки: ru/rendering/gizmos.md
+    - Библиотека:
+      - Каталог шейдеров: ru/rendering/library/shader-catalog.md
+      - Библиотека материалов: ru/rendering/library/material-library.md
+      - Порядок стека PostFX: ru/rendering/library/postfx-stack-order.md
+      - Единицы света: ru/rendering/library/light-units.md
+      - Настройка теней: ru/rendering/library/shadows-tuning.md
+      - Пайплайн сплатов: ru/rendering/library/splat-pipeline.md
+      - Воксельный пайплайн: ru/rendering/library/voxel-pipeline.md
+      - Настройка рейтрейсинга: ru/rendering/library/raytracing-setup.md
+      - Каталог гизмо: ru/rendering/library/gizmo-catalog.md
+      - Видео, текст и SVG: ru/rendering/library/video-text-svg.md
   - Указатель (rendering): ru/rendering/_section.md
   - Физика 3D:
     - Обзор физики 3D: ru/physics-3d/overview.md
@@ -388,6 +479,11 @@ nav:
       - Физические материалы: ru/physics-3d/physics-materials.md
       - Слои коллизий: ru/physics-3d/collision-layers.md
     - Солвер и многопоточность: ru/physics-3d/solver-threading.md
+    - Солверы:
+      - Culverin: ru/physics-3d/solvers/culverin.md
+      - PyBullet: ru/physics-3d/solvers/pybullet.md
+      - PhysX: ru/physics-3d/solvers/physx.md
+    - Колбэки коллизий: ru/physics-3d/collision-callbacks.md
     - Продвинутые тела:
       - Плавучесть Buoyancy: ru/physics-3d/buoyancy.md
       - Soft Body: ru/physics-3d/soft-body.md
@@ -400,6 +496,7 @@ nav:
     - Rigidbody 2D: ru/physics-2d/rigidbody2d.md
     - Box Collider 2D: ru/physics-2d/box-collider2d.md
     - Circle Collider 2D: ru/physics-2d/circle-collider2d.md
+    - Гид по 2D: ru/physics-2d/guide-2d.md
   - Указатель (physics-2d): ru/physics-2d/_section.md
   - Аудио:
     - Обзор аудио: ru/audio/overview.md
@@ -417,6 +514,9 @@ nav:
     - Cython в скриптах: ru/scripting/cython.md
     - Компонент ScriptComponent: ru/scripting/script-component.md
     - Примеры скриптов: ru/scripting/examples.md
+    - Кулинария:
+      - Паттерны: ru/scripting/cookbook/patterns.md
+      - Ограничения: ru/scripting/cookbook/limitations.md
   - Указатель (scripting): ru/scripting/_section.md
   - Интерфейс GUI:
     - Обзор GUI: ru/gui/overview.md
@@ -429,9 +529,13 @@ nav:
     - Обзор анимации: ru/animation/overview.md
     - Клипы, Animator, контроллеры: ru/animation/clip-animator.md
     - IK и блендшейпы: ru/animation/ik-blendshapes.md
+    - Гид по Animator-контроллеру: ru/animation/controller-guide.md
+    - Гид по IK: ru/animation/ik-guide.md
+    - Гид по блендшейпам: ru/animation/blendshapes-guide.md
   - Указатель (animation): ru/animation/_section.md
   - Навигация:
     - Навигация и NavAgent: ru/navigation/overview.md
+    - Гид по запеканию навмеша: ru/navigation/baking-guide.md
   - Указатель (navigation): ru/navigation/_section.md
   - Террейн и окружение:
     - Террейн: ru/terrain-environment/terrain.md
@@ -439,6 +543,7 @@ nav:
   - Указатель (terrain-environment): ru/terrain-environment/_section.md
   - Ограничения:
     - Ограничения Constraints: ru/constraints/overview.md
+    - Каталог ограничений: ru/constraints/catalog.md
   - Указатель (constraints): ru/constraints/_section.md
   - Сцены и префабы:
     - Сцены (.zpes): ru/scenes-prefabs/scenes.md
@@ -470,6 +575,13 @@ nav:
     - NetworkPlayer: ru/networking/network-player.md
     - Коллаборация: ru/networking/collaboration.md
     - RemoteCollaborator: ru/networking/remote-collaborator.md
+    - Протокол:
+      - Типы сообщений (NET_*): ru/networking/protocol/message-types.md
+      - RPC-справочник: ru/networking/protocol/rpc-reference.md
+      - Внутреннее устройство транспорта: ru/networking/protocol/transport-internals.md
+      - Релей и UPnP: ru/networking/protocol/relay-upnp.md
+      - Протокол коллаборации: ru/networking/protocol/collab-protocol.md
+      - Снапшоты и интерполяция: ru/networking/protocol/snapshots-interp.md
   - Указатель (networking): ru/networking/_section.md
   - Плагины:
     - Обзор плагинов: ru/plugins/overview.md
@@ -483,6 +595,13 @@ nav:
     - VR-плагин: ru/plugins/vr-plugin.md
     - MCP-мост: ru/plugins/mcp-plugin.md
     - Музыка, плоттер и QtQuick: ru/plugins/creative-plugins.md
+    - Каталог:
+      - Настройка VR-сессии: ru/plugins/catalog/vr-setup.md
+      - Мост MCP-инструментов: ru/plugins/catalog/mcp-tools.md
+      - Трекерная музыка: ru/plugins/catalog/music-tracker.md
+      - Плоттер и QtQuick: ru/plugins/catalog/plotter-qtquick.md
+      - Инструменты физики: ru/plugins/catalog/physics-tools.md
+      - Импорт BSP: ru/plugins/catalog/bsp-import.md
   - Указатель (plugins): ru/plugins/_section.md
   - Руководство по редактору:
     - Главное окно: ru/editor/main-window.md
@@ -512,9 +631,26 @@ nav:
     - Скрипты Rotator и Mover: ru/tutorials/rotator-mover.md
     - Физическая сцена: ru/tutorials/physics-scene.md
     - GUI-меню, префабы, аудио, сборка: ru/tutorials/gui-prefab-audio-build.md
+    - FPS-контроллер: ru/tutorials/fps-controller.md
+    - Сетевая сессия: ru/tutorials/network-session.md
+    - Первый плагин: ru/tutorials/first-plugin.md
+    - Первый шейдер: ru/tutorials/first-shader.md
   - Указатель (tutorials): ru/tutorials/_section.md
   - Справочник:
     - Указатель API: ru/reference/api-index.md
     - Глоссарий: ru/reference/glossary-faq.md
     - Планы, журнал изменений, лицензия: ru/reference/roadmap-changelog-license.md
   - Указатель (reference): ru/reference/_section.md
+  - Приложение:
+    - Справочник конфига: ru/appendix/config-reference.md
+    - Справочник CLI: ru/appendix/cli-reference.md
+    - Решение проблем: ru/appendix/troubleshooting.md
+    - Гид по производительности: ru/appendix/performance-guide.md
+    - Стайлгайд: ru/appendix/style-guide.md
+    - Каталог тестов: ru/appendix/tests-catalog.md
+    - Каталог инструментов: ru/appendix/tools-catalog.md
+    - Cython-расширения: ru/appendix/cython-extensions.md
+    - Горячие клавиши: ru/appendix/keyboard-shortcuts.md
+    - Схема сцены: ru/appendix/scene-schema.md
+    - Файлы проекта: ru/appendix/project-files.md
+    - Каталог GUI-виджетов: ru/appendix/gui-widgets.md

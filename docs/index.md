@@ -57,7 +57,15 @@ RU: `main.py` открывает редактор; `player.py <scene.zpes>` за
 | Build (player, Nuitka) / Сборка | [en/build/](en/build/player-nuitka.md) | [ru/build/](ru/build/player-nuitka.md) |
 | File formats / Форматы файлов | [en/formats/](en/formats/overview.md) | [ru/formats/](ru/formats/overview.md) |
 | Tutorials / Уроки | [en/tutorials/](en/tutorials/index.md) | [ru/tutorials/](ru/tutorials/index.md) |
+| Tutorials: FPS, Network, Plugin, Shader / Уроки: FPS, сеть, плагин, шейдер | [en/tutorials/fps-controller.md](en/tutorials/fps-controller.md) | [ru/tutorials/fps-controller.md](ru/tutorials/fps-controller.md) |
+| Scripting cookbook / Кулинария скриптинга | [en/scripting/cookbook/patterns.md](en/scripting/cookbook/patterns.md) | [ru/scripting/cookbook/patterns.md](ru/scripting/cookbook/patterns.md) |
+| Core advanced (authoring, undo, events, threading) / Продвинутое ядро | [en/core/advanced/component-authoring.md](en/core/advanced/component-authoring.md) | [ru/core/advanced/component-authoring.md](ru/core/advanced/component-authoring.md) |
+| Rendering library (shaders, units, pipelines) / Библиотека рендеринга | [en/rendering/library/shader-catalog.md](en/rendering/library/shader-catalog.md) | [ru/rendering/library/shader-catalog.md](ru/rendering/library/shader-catalog.md) |
+| Physics solvers / Солверы физики | [en/physics-3d/solvers/culverin.md](en/physics-3d/solvers/culverin.md) | [ru/physics-3d/solvers/culverin.md](ru/physics-3d/solvers/culverin.md) |
+| Network protocol (NET_*, RPC) / Сетевой протокол | [en/networking/protocol/message-types.md](en/networking/protocol/message-types.md) | [ru/networking/protocol/message-types.md](ru/networking/protocol/message-types.md) |
+| Plugin catalog (VR, MCP, music) / Каталог плагинов | [en/plugins/catalog/vr-setup.md](en/plugins/catalog/vr-setup.md) | [ru/plugins/catalog/vr-setup.md](ru/plugins/catalog/vr-setup.md) |
 | Reference (API index, glossary, roadmap, license) / Справочник | [en/reference/](en/reference/api-index.md) | [ru/reference/](ru/reference/api-index.md) |
+| Appendix (config, CLI, troubleshooting, perf, tests, tools) / Приложение | [en/appendix/config-reference.md](en/appendix/config-reference.md) | [ru/appendix/config-reference.md](ru/appendix/config-reference.md) |
 
 ## Requirements / Требования
 
