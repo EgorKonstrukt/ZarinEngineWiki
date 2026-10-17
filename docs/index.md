@@ -51,6 +51,9 @@ RU: `main.py` открывает редактор; `player.py <scene.zpes>` за
 | Assets & import (Assimp, textures, .import) / Ассеты и импорт | [en/assets/](en/assets/overview.md) | [ru/assets/](ru/assets/overview.md) |
 | Input / Ввод | [en/input/](en/input/overview.md) | [ru/input/](ru/input/overview.md) |
 | Math (Vec, Quat, Mat4, Curve) / Математика | [en/math/](en/math/overview.md) | [ru/math/](ru/math/overview.md) |
+| Math: vectors, matrices, quaternions, raycast / Математика: векторы, матрицы, кватернионы, рейкаст | [en/math/vectors.md](en/math/vectors.md) | [ru/math/vectors.md](ru/math/vectors.md) |
+| Scripting API (entity, scene, input, physics) / Скриптинг API | [en/scripting/entity-api.md](en/scripting/entity-api.md) | [ru/scripting/entity-api.md](ru/scripting/entity-api.md) |
+| Script templates and pitfalls / Шаблоны и грабли | [en/scripting/templates.md](en/scripting/templates.md) | [ru/scripting/templates.md](ru/scripting/templates.md) |
 | Networking (gameplay + collaboration) / Сеть | [en/networking/](en/networking/overview.md) | [ru/networking/](ru/networking/overview.md) |
 | Plugins (PluginBase, system, user, .zplugin) / Плагины | [en/plugins/](en/plugins/overview.md) | [ru/plugins/](ru/plugins/overview.md) |
 | Editor manual / Руководство по редактору | [en/editor/](en/editor/main-window.md) | [ru/editor/](ru/editor/main-window.md) |

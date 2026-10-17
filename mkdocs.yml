@@ -193,6 +193,19 @@ nav:
     - Cookbook:
       - Patterns: en/scripting/cookbook/patterns.md
       - Limitations: en/scripting/cookbook/limitations.md
+    - Entity API: en/scripting/entity-api.md
+    - Scene API: en/scripting/scene-api.md
+    - Transform Scripting: en/scripting/transform-scripting.md
+    - Prefab Scripting: en/scripting/prefab-scripting.md
+    - Audio Scripting: en/scripting/audio-scripting.md
+    - GUI Scripting: en/scripting/gui-scripting.md
+    - Physics Scripting: en/scripting/physics-scripting.md
+    - Network Scripting: en/scripting/network-scripting.md
+    - Input Reference: en/scripting/input-reference.md
+    - Timers (No Coroutines): en/scripting/timers-coroutines.md
+    - Debugging Scripts: en/scripting/debugging.md
+    - Script Templates: en/scripting/templates.md
+    - Scripting Pitfalls: en/scripting/pitfalls.md
   - Section Index (scripting): en/scripting/_section.md
   - GUI:
     - GUI Overview: en/gui/overview.md
@@ -236,6 +249,15 @@ nav:
   - Section Index (input): en/input/_section.md
   - Math:
     - 'Math: Vec, Quat, Mat4, Curve': en/math/overview.md
+    - Vectors: en/math/vectors.md
+    - Matrices: en/math/matrices.md
+    - Quaternions: en/math/quaternions.md
+    - Transforms: en/math/transforms.md
+    - Curves Cookbook: en/math/curves-cookbook.md
+    - Interpolation: en/math/interpolation.md
+    - Raycast: en/math/raycast.md
+    - Coordinates: en/math/coordinates.md
+    - Reference: en/math/reference.md
   - Section Index (math): en/math/_section.md
   - Networking:
     - Networking Overview: en/networking/overview.md
@@ -517,6 +539,19 @@ nav:
     - Кулинария:
       - Паттерны: ru/scripting/cookbook/patterns.md
       - Ограничения: ru/scripting/cookbook/limitations.md
+    - Entity API: ru/scripting/entity-api.md
+    - Scene API: ru/scripting/scene-api.md
+    - Трансформ из скрипта: ru/scripting/transform-scripting.md
+    - Префабы из кода: ru/scripting/prefab-scripting.md
+    - Аудио из кода: ru/scripting/audio-scripting.md
+    - GUI из кода: ru/scripting/gui-scripting.md
+    - Физика из кода: ru/scripting/physics-scripting.md
+    - Сеть из кода: ru/scripting/network-scripting.md
+    - Справочник ввода: ru/scripting/input-reference.md
+    - Таймеры (без корутин): ru/scripting/timers-coroutines.md
+    - Отладка скриптов: ru/scripting/debugging.md
+    - Стартовые шаблоны: ru/scripting/templates.md
+    - Грабли скриптинга: ru/scripting/pitfalls.md
   - Указатель (scripting): ru/scripting/_section.md
   - Интерфейс GUI:
     - Обзор GUI: ru/gui/overview.md
@@ -560,6 +595,15 @@ nav:
   - Указатель (input): ru/input/_section.md
   - Математика:
     - 'Математика: Vec, Quat, Mat4, Curve': ru/math/overview.md
+    - Векторы: ru/math/vectors.md
+    - Матрицы: ru/math/matrices.md
+    - Кватернионы: ru/math/quaternions.md
+    - Трансформы: ru/math/transforms.md
+    - 'Кривые: рецепты': ru/math/curves-cookbook.md
+    - Интерполяция: ru/math/interpolation.md
+    - Рейкастинг: ru/math/raycast.md
+    - Координаты: ru/math/coordinates.md
+    - Справочник: ru/math/reference.md
   - Указатель (math): ru/math/_section.md
   - Сеть:
     - Обзор сетевой части: ru/networking/overview.md

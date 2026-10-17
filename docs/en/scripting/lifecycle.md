@@ -27,7 +27,7 @@ Enable/disable: toggling `entity.active` fires `on_disable`/`on_enable` on all c
 
 Destroy cases: removing the ScriptComponent in the editor, deleting the entity, unloading the scene, or stopping Play. Hot-reload recreates the instance but preserves Inspector field values and re-runs `on_awake`/`on_start`.
 
-Exceptions: any error in any callback is caught and logged as `Script ... error ...` with a traceback naming the script and method. The frame, the physics step and the remaining components continue.
+Exceptions: any error in any callback is caught and logged as `Script ... error ...` with only `str(e)` (no traceback — use the Check button for static diagnostics), naming the script and method. The frame, the physics step and the remaining components continue.
 
 ```python
 class Fighter:
